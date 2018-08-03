@@ -75,7 +75,7 @@ PixelGetColor2(x, y, color, area=0, hwnd) {
 	SetFormat, Integer, Hex
 	;GetPixel returns ARGB, this removes the alpha
 	RGB := ARGB & 0x00FFFFFF
-
+	SetFormat, Integer, D
 	GDIP_DisposeImage(pBitMap)
 	GDIP_Shutdown(pToken)
 
