@@ -1,15 +1,6 @@
 /*
   ControlClick2 - made to work with NGU Idle by Satyric
 
-  Requirements: Opera browser
-
-  Why Opera?
-
-  I actually don't know, using this function with chrome/FF will bring the window to
-  the foreground, essentially making it worthless as you can't really use your computer
-  for anything else as the window focus will keep going back to chrome. Feel free to test
-  other browsers, it works with Opera 54.0.
-
   Why would I use this? 
 
   If you want to automate NGU Idle of course! Without having to install a VM in
@@ -78,21 +69,5 @@ ControlClick2(X, Y, Button) {
     PostMessage, 0x204, 0, X&0xFFFF | Y<<16,, ahk_id %WindowId% ; WM_RBUTTONDOWN 
     Sleep, 100
     PostMessage, 0x205, 0, X&0xFFFF | Y<<16,, ahk_id %WindowId% ; WM_RBUTTONUP  
-  }
-  else if (Button = "a") {
-    PostMessage, 0x201, 0, X&0xFFFF | Y<<16,, ahk_id %WindowId% ; WM_LBUTTONDOWN 
-    Sleep, 100
-    PostMessage, 0x202, 0, X&0xFFFF | Y<<16,, ahk_id %WindowId% ; WM_LBUTTONUP      
-    PostMessage, 0x100, 0x41,,, ahk_id %WindowId%
-    Sleep, 100
-    PostMessage, 0x101, 0x41,,, ahk_id %WindowId%
-  }
-  else if (Button = "d") {
-    PostMessage, 0x201, 0, X&0xFFFF | Y<<16,, ahk_id %WindowId% ; WM_LBUTTONDOWN 
-    Sleep, 100
-    PostMessage, 0x202, 0, X&0xFFFF | Y<<16,, ahk_id %WindowId% ; WM_LBUTTONUP      
-    PostMessage, 0x100, 0x44,,, ahk_id %WindowId%
-    Sleep, 100
-    PostMessage, 0x101, 0x44,,, ahk_id %WindowId%
   }
 }
