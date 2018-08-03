@@ -57,7 +57,7 @@
 	Contact: Satyric#9107 on Discord
 */
 
-PixelGetColor2(x, y, color, area=0, hwnd) {
+PixelGetColor2(x, y, hwnd) {
 	If !pToken := Gdip_Startup()
 		{
 		    MsgBox, 48, gdiplus error!, Gdiplus failed to start. Please ensure you have gdiplus on your system
