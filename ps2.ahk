@@ -33,8 +33,8 @@
 	
 	PixelGetColor2 - Returns RGB color of coords in hex.
 
-	PixelGetcolor2(x-coord, y-coord, RGB color in hex, window id)
-	color := PixelGetColor2(500, 600, 0x313131, WindowId)
+	PixelGetcolor2(x-coord, y-coord, window id)
+	color := PixelGetColor2(500, 600, WindowId)
 
 	PixelSearch2
 
