@@ -4,30 +4,8 @@ NGU Idle Multi script
 
 Version 0.1
 
-I created this for myself but figured it might be of some use to someone else.
-As this is made for my own personal use, it's missing a lot of features that I have
-yet to unlock myself in the game, which is why you might think this script is very
-limited.
+Just a random collection of functions I created, don't run this without looking at the code.
 
-Another neat feature is that I've avoided using the normal click/keysend features which
-practically "steals" your mouse and makes your computer unusable while running, this
-means that this script can be run in the background.
-
-Features execute in the following order
-
-Merge gear -> boost gear -> merge inventory -> boost inventory (boost inventory requires merge to be active as well because reasons) -> boost cube
-
-
-TODO:
-
-Delete mode, delete all items in slots not being automerged. (poor mans improved lootfilter)
-Rebirth mode, current plan is to add 1 hour first because it's what's most useful to me.
-Better NGU support
-
-NOTES:
-
-Make sure you're in idle mode in adventure.
-No Ygg seed planting is supported nor planned, use the EXP shop for autoplanting.
 CTRL + E - Show GUI
 CTRL - ESC - Exit
 
