@@ -35,13 +35,22 @@ def window_enumeration_handler(hwnd, top_windows):
 
 def send_string(str):
   for c in str:
+    while (win32api.GetKeyState(VK_CONTROL) < 0 or win32api.GetKeyState(VK_SHIFT) < 0):
+      time.sleep(0.005)
+    if c.isdigit():
+      win32gui.PostMessage(hwnd, WM_KEYUP, ord(c.upper()), 0)
+      time.sleep(0.030)
+      continue
     win32gui.PostMessage(hwnd, WM_KEYDOWN, ord(c.upper()), 0)
+    time.sleep(0.30)
     win32gui.PostMessage(hwnd, WM_KEYUP, ord(c.upper()), 0)
 
-def click(x, y, button="left"):
-  x += ngu_offset_x
-  y += ngu_offset_y
+  time.sleep(0.30)
 
+def click(x, y, button="left"):
+  x += NGU_OFFSET_X
+  y += NGU_OFFSET_Y
+  print(x,y)
   lParam = win32api.MAKELONG(x, y)
   win32gui.PostMessage(hwnd, WM_MOUSEMOVE, 0, lParam)
   if (button == "left"):
@@ -50,7 +59,7 @@ def click(x, y, button="left"):
   else:
     win32gui.PostMessage(hwnd, WM_RBUTTONDOWN, MK_RBUTTON, lParam)
     win32gui.PostMessage(hwnd, WM_RBUTTONUP, MK_RBUTTON, lParam)
-  time.sleep(0.015)
+  time.sleep(0.50)
 
 def get_bitmap():
   left, top, right, bot = win32gui.GetWindowRect(hwnd)
@@ -87,11 +96,11 @@ def rgb_to_hex(tup):
 
 def pixel_search(color, x_start, y_start, x_end, y_end):
   bmp = get_bitmap()
-  for y in range(y_start + 8, y_end):
-    for x in range(x_start + 8, x_end):
+  for y in range(y_start, y_end):
+    for x in range(x_start, x_end):
       t = bmp.getpixel((x, y))
       if (rgb_to_hex(t) == color):
-        return x + 8, y + 8
+        return x - 8, y - 8
   return None
 """
 def pixel_search2(color, x_start, y_start, x_end, y_end):
@@ -108,16 +117,16 @@ def pixel_search2(color, x_start, y_start, x_end, y_end):
       #print(rgb_to_hex((pixel[0], pixel[1], pixel[2])))
 """
 def pixel_get_color(x, y):
-  return rgb_to_hex(get_bitmap().getpixel((x + 8 + ngu_offset_x, y + 8 + ngu_offset_y)))
+  return rgb_to_hex(get_bitmap().getpixel((x + 8 + NGU_OFFSET_X, y + 8 + NGU_OFFSET_Y)))
 
 def ocr(x_start, y_start, x_end, y_end, debug=False):
-  x_start += ngu_offset_x
-  x_end   += ngu_offset_x
-  y_start += ngu_offset_y
-  y_end   += ngu_offset_y
+  x_start += NGU_OFFSET_X
+  x_end   += NGU_OFFSET_X
+  y_start += NGU_OFFSET_Y
+  y_end   += NGU_OFFSET_Y
 
   bmp = get_bitmap()
-  bmp = bmp.crop((x_start + 8, y_start + 8, x_end, y_end))
+  bmp = bmp.crop((x_start + 8, y_start + 8, x_end + 8, y_end + 8))
   *_, right, lower = bmp.getbbox()
   bmp = bmp.resize((right*3, lower*3), image.BICUBIC)
   #bmp = ImageEnhance.Contrast(bmp).enhance(0.5)
@@ -130,7 +139,7 @@ def ocr(x_start, y_start, x_end, y_end, debug=False):
 
 def image_search(x_start, y_start, x_end, y_end, image):
   bmp = get_bitmap()
-  search_area = bmp.crop((x_start + 8, y_start + 8, x_end, y_end))
+  search_area = bmp.crop((x_start + 8, y_start + 8, x_end + 8, y_end + 8))
   search_area = numpy.asarray(search_area)
   search_area = cv2.cvtColor(search_area, cv2.COLOR_BGR2GRAY)
   template = cv2.imread(image, 0)
@@ -139,56 +148,211 @@ def image_search(x_start, y_start, x_end, y_end, image):
   return t
 
 def navigate(target):
-  y = NguResolutionY
-  x = NguResolutionX
+  y = 0
+  x = MENUOFFSETX
   if (target == "inventory"):
-    y += InventoryMenuOffsetY
+    y += INVENTORYMENUOFFSETY
   elif (target == "timemachine"):
-    y += TimeMachineMenuOffsetY
+    y += TIMEMACHINEMENUOFFSETY
   elif (target == "ngu"):
-    y += NguMenuOffsetY
+    y += NGUMENUOFFSETY
   elif (target == "augmentations"):
-    y += AugmentationMenuOffsetY
+    y += AUGMENTATIONMENUOFFSETY
   elif (target == "bloodmagic"):
-    y += BloodMagicMenuOffsetY
+    y += BLOODMAGICMENUOFFSETY
   elif (target == "advtraining"):
-    y += AdvTrainingMenuOffsetY
+    y += ADVTRAININGMENUOFFSETY
   elif (target == "adventure"):
-    y += AdventureMenuOffsetY
+    y += ADVENTUREMENUOFFSETY
   elif (target == "yggdrasil"):
-    y += YggdrasilMenuOffsetY
+    y += YGGDRASILMENUOFFSETY
   elif (target == "rebirth"):
-    x += RebirthX
-    y += RebirthY
+    x = REBIRTHX
+    y += REBIRTHY
   elif (target == "pit"):
-    y += PitMenuOffsetY
-  click(x,y)
+    y += PITMENUOFFSETY
+  elif (target == "fight"):
+    y += FIGHTBOSSMENUOFFSETY
+  click(x,y, button="left")
+  time.sleep(0.050)
+
+def do_inventory():
+  navigate("inventory")
+  t_end = time.time() + 10
+  while time.time() < t_end:
+    if (AUTOMERGEEQUIPMENT):
+      click(ACCESSORY1OFFSETX, ACCESSORY1OFFSETY, button="right")
+      send_string("d")
+      click(ACCESSORY2OFFSETX, ACCESSORY2OFFSETY, button="right")
+      send_string("d")
+      click(HEADOFFSETX, HEADOFFSETY, button="right")
+      send_string("d")
+      click(CHESTOFFSETX, CHESTOFFSETY, button="right")
+      send_string("d")
+      click(LEGSOFFSETX, LEGSOFFSETY, button="right")
+      send_string("d")
+      click(BOOTSOFFSETX, BOOTSOFFSETY, button="right")
+      send_string("d")
+      click(WEAPONOFFSETX, WEAPONOFFSETY, button="right")
+    if (AUTOBOOSTEQUIPMENT):
+      click(ACCESSORY1OFFSETX, ACCESSORY1OFFSETY, button="right")
+      send_string("a")
+      click(ACCESSORY2OFFSETX, ACCESSORY2OFFSETY, button="right")
+      send_string("a")
+      click(HEADOFFSETX, HEADOFFSETY, button="right")
+      send_string("a")
+      click(CHESTOFFSETX, CHESTOFFSETY, button="right")
+      send_string("a")
+      click(LEGSOFFSETX, LEGSOFFSETY, button="right")
+      send_string("a")
+      click(BOOTSOFFSETX, BOOTSOFFSETY, button="right")
+      send_string("a")
+      click(WEAPONOFFSETX, WEAPONOFFSETY, button="right")
+    if (CUBE):
+      click(CUBE, CUBE, button="right")
+
+def do_fight():
+  navigate("fight")
+  click(NUKEX, NUKEY, button="left")
+  time.sleep(2)
+  click(FIGHTX, FIGHTY, button="left")
+
+def do_adventure(zone=0, highest=True, itopod=None, itopodauto=None):
+  navigate("adventure")
+
+  if itopod:
+    click(ITOPODX, ITOPODY, button="left")
+    if itopodauto:
+      click(ITOPODENDX, ITOPODENDY, button="left")
+      send_string("0") # set end to 0 in case it's higher than start
+      click(ITOPODAUTOX, ITOPODAUTOY, button="left")
+      click(ITOPODENTERX, ITOPODENTERY, button="left")
+      return
+    
+    click(ITOPODSTARTX, ITOPODSTARTY, button="left")
+    send_string(itopod)
+    click(ITOPODENDX, ITOPODENDY, button="left")
+    send_string(itopod)
+    click(ITOPODENTERX, ITOPODENTERY, button="left")
+    return
+  if highest:
+    click(RIGHTARROWX, RIGHTARROWY, button="right")
+    return
+  else:
+    click(LEFTARROWX, LEFTARROWY, button="right")
+    for i in range(zone):
+      click(RIGHTARROWX, RIGHTARROWY, button="left")
+    return
+
+def do_snipe(zone, duration, once=False):
+  navigate("adventure")
+  click(LEFTARROWX, LEFTARROWY, button="right")
+
+  for i in range(zone):
+    click(RIGHTARROWX, RIGHTARROWY, button="left")
+
+  idle = pixel_get_color(IDLEX, IDLEY)
+
+  if (idle == IDLECOLOR):
+    send_string("q")
+
+  t_end = time.time() + (duration * 60)
+  while time.time() < t_end:
+    health = pixel_get_color(HEALTHX, HEALTHY)
+    if (health == NOTDEAD):
+      crown = pixel_get_color(CROWNX, CROWNY)
+      if (crown == ISBOSS):
+        while (health != DEAD):
+          health = pixel_get_color(HEALTHX, HEALTHY)
+          send_string("ytew")
+          time.sleep(0.15)
+
+        if once:
+          break
+
+      else:
+        win32gui.PostMessage(hwnd, WM_KEYDOWN, VK_LEFT, 0)
+        time.sleep(0.03)
+        win32gui.PostMessage(hwnd, WM_KEYUP, VK_LEFT, 0)
+        win32gui.PostMessage(hwnd, WM_KEYDOWN, VK_RIGHT, 0)  
+        time.sleep(0.03)
+        win32gui.PostMessage(hwnd, WM_KEYUP, VK_RIGHT, 0)
+    time.sleep(0.1)
+    send_string("q")
+        
+def do_pit():
+  color = pixel_get_color(PITCOLORX, PITCOLORY)
+  if (color == PITREADY): 
+    navigate("pit")
+    click(PITX, PITY)
+    click(PITCONFIRMX, PITCONFIRMY, button="left")
+
+def do_rebirth(challenge=None):
+  navigate("yggdrasil")
+  for i in range(1, 10):
+    click(FRUITSX[i], FRUITSY[i], button="left")
+
+  navigate("rebirth")
+  if challenge:
+    print("chall")
+    time.sleep(1)
+    click(CHALLENGEBUTTONX, CHALLENGEBUTTONY, button="left")
+    color = pixel_get_color(CHALLENGEACTIVEX, CHALLENGEACTIVEY)
+    if (color == CHALLENGEACTIVECOLOR):
+      do_rebirth()
+      return
+    click(CHALLENGEX, CHALLENGEY + (CHALLENGEOFFSET * challenge), button="left")
+    click(REBIRTHCONFIRMX, REBIRTHCONFIRMY, button="left")
+    return
+  else:
+    click(REBIRTHX, REBIRTHY, button="left")
+    click(REBIRTHBUTTONX, REBIRTHBUTTONY, button="left")
+    #click(REBIRTHCONFIRMX, REBIRTHCONFIRMY, button="left")
+  return
+
+def do_advanced_training():
+  navigate("advtraining")
+  click(NUMBERINPUTBOXX, NUMBERINPUTBOXY, button="left")
+  send_string(1337)
+  click(NUMBERINPUTBOXX, NUMBERINPUTBOXY, button="left")
+  send_string(1447)
+  click(ADVTRAININGX, ADVTRAINING1Y, button="left")
+  click(ADVTRAININGX, ADVTRAINING2Y, button="left")
 
 
-#time.sleep(1)
+AUTOMERGEEQUIPMENT = True
+AUTOBOOSTEQUIPMENT = True
+CUBE = True
+time.sleep(1)
 top_windows = []
 hwnd = get_hwnd()
+NGU_OFFSET_X, NGU_OFFSET_Y = pixel_search("212429", 0, 0, 500, 1070)
 
-print("window id: " + str(hwnd))
-ngu_offset_x, ngu_offset_y = pixel_search("212429", 0, 0, 500, 1070)
-print("top left corner at: " + str(ngu_offset_x) + ", " + str(ngu_offset_y))
-print("reclaiming energy and magic")
+#print("window id: " + str(hwnd))
+
+#print("top left corner at: " + str(NGU_OFFSET_X) + ", " + str(NGU_OFFSET_Y))
+#print("reclaiming energy and magic")
 #send_string("tr")
-print("clicking fight boss")
-click(230,75)
-time.sleep(0.2)
-s = ocr(760, 112, 875, 132)
-print("current boss: " + s)
-pix = pixel_get_color(512, 440)
-print("money pit menu color: " + pix)
-i1 = image_search(0,0,1920,1080, 'img.png')
-i2 = image_search(0,0,1920,1080, 'fight.png')
-i3 = image_search(0,0,1920,1080, 'stats.png')
-print("found bossfight image at: " + str(i1))
-print("found fight button image at: " + str(i2))
-print("found stats text image at: " + str(i3))
-
+#print("clicking fight boss")
+navigate("fight")
+#time.sleep(0.4)
+#s = ocr(765, 125, 890, 140, True)
+#print("current boss: " + s)
+#pix = pixel_get_color(512, 440)
+#print("money pit menu color: " + pix)
+#i1 = image_search(0,0,1920,1080, 'img.png')
+#i2 = image_search(0,0,1920,1080, 'fight.png')
+#i3 = image_search(0,0,1920,1080, 'stats.png')
+#print("found bossfight image at: " + str(i1))
+#print("found fight button image at: " + str(i2))
+#print("found stats text image at: " + str(i3))
+#do_fight()
+#do_inventory()
+#do_adventure(0, 0, 1, 1)
 #pixel_search2(212429, 0,0,500,1000)
+#do_snipe(5, 1, once=True)
+#do_pit()
+#do_rebirth(2)
 """
 Output
 ------------------------------
