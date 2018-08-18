@@ -45,12 +45,11 @@ def send_string(str):
     time.sleep(0.30)
     win32gui.PostMessage(hwnd, WM_KEYUP, ord(c.upper()), 0)
 
-  time.sleep(0.30)
+  time.sleep(0.1)
 
 def click(x, y, button="left"):
   x += NGU_OFFSET_X
   y += NGU_OFFSET_Y
-  print(x,y)
   lParam = win32api.MAKELONG(x, y)
   win32gui.PostMessage(hwnd, WM_MOUSEMOVE, 0, lParam)
   if (button == "left"):
@@ -59,7 +58,7 @@ def click(x, y, button="left"):
   else:
     win32gui.PostMessage(hwnd, WM_RBUTTONDOWN, MK_RBUTTON, lParam)
     win32gui.PostMessage(hwnd, WM_RBUTTONUP, MK_RBUTTON, lParam)
-  time.sleep(0.50)
+  time.sleep(0.1)
 
 def get_bitmap():
   left, top, right, bot = win32gui.GetWindowRect(hwnd)
@@ -173,6 +172,9 @@ def navigate(target):
     y += PITMENUOFFSETY
   elif (target == "fight"):
     y += FIGHTBOSSMENUOFFSETY
+  elif (target == "exp"):
+    x = EXPX
+    y += EXPY
   click(x,y, button="left")
   time.sleep(0.050)
 
@@ -208,8 +210,9 @@ def do_inventory():
       click(BOOTSOFFSETX, BOOTSOFFSETY, button="right")
       send_string("a")
       click(WEAPONOFFSETX, WEAPONOFFSETY, button="right")
+      send_string("a")
     if (CUBE):
-      click(CUBE, CUBE, button="right")
+      click(CUBEOFFSETX, CUBEOFFSETY, button="right")
 
 def do_fight():
   navigate("fight")
@@ -244,17 +247,20 @@ def do_adventure(zone=0, highest=True, itopod=None, itopodauto=None):
       click(RIGHTARROWX, RIGHTARROWY, button="left")
     return
 
-def do_snipe(zone, duration, once=False):
+def do_snipe(zone, duration, once=False, highest=False):
   navigate("adventure")
-  click(LEFTARROWX, LEFTARROWY, button="right")
+  if highest:
+    click(RIGHTARROWX, RIGHTARROWY, button="right")
+  else:
+    click(LEFTARROWX, LEFTARROWY, button="right")
 
-  for i in range(zone):
-    click(RIGHTARROWX, RIGHTARROWY, button="left")
+    for i in range(zone):
+      click(RIGHTARROWX, RIGHTARROWY, button="left")
 
   idle = pixel_get_color(IDLEX, IDLEY)
 
-  if (idle == IDLECOLOR):
-    send_string("q")
+  #if (idle != IDLECOLOR):
+  #  send_string("q")
 
   t_end = time.time() + (duration * 60)
   while time.time() < t_end:
@@ -278,7 +284,7 @@ def do_snipe(zone, duration, once=False):
         time.sleep(0.03)
         win32gui.PostMessage(hwnd, WM_KEYUP, VK_RIGHT, 0)
     time.sleep(0.1)
-    send_string("q")
+  #send_string("q")
         
 def do_pit():
   color = pixel_get_color(PITCOLORX, PITCOLORY)
@@ -307,18 +313,62 @@ def do_rebirth(challenge=None):
   else:
     click(REBIRTHX, REBIRTHY, button="left")
     click(REBIRTHBUTTONX, REBIRTHBUTTONY, button="left")
-    #click(REBIRTHCONFIRMX, REBIRTHCONFIRMY, button="left")
+    click(REBIRTHCONFIRMX, REBIRTHCONFIRMY, button="left")
   return
 
 def do_advanced_training():
   navigate("advtraining")
   click(NUMBERINPUTBOXX, NUMBERINPUTBOXY, button="left")
-  send_string(1337)
-  click(NUMBERINPUTBOXX, NUMBERINPUTBOXY, button="left")
-  send_string(1447)
+  send_string("1337")
   click(ADVTRAININGX, ADVTRAINING1Y, button="left")
+  click(NUMBERINPUTBOXX, NUMBERINPUTBOXY, button="left")
+  send_string("1447")
+  
   click(ADVTRAININGX, ADVTRAINING2Y, button="left")
 
+def do_time_machine(mult=False):
+  navigate("timemachine")
+  click(NUMBERINPUTBOXX, NUMBERINPUTBOXY, button="left")
+  send_string("5000000")
+  click(TMSPEEDX, TMSPEEDY, button="left")
+  if mult:
+    click(TMMULTX, TMMULTY, button="left")
+  return
+
+def do_blood_magic():
+  navigate("bloodmagic")
+  send_string("t")
+  click(NUMBERINPUTBOXX, NUMBERINPUTBOXY, button="left")
+  send_string("10000000")
+  click(BMX, BM3, button="left")
+def get_values():
+  navigate("exp")
+  values = {}
+
+def challenge2():
+  t_end = time.time() + (30 * 60)
+  magic_assigned = False
+  do_rebirth(challenge=2)
+  do_fight()
+  do_snipe(0, 2, once=True, highest=True)
+  time.sleep(1)
+  do_adventure(zone=0, highest=False, itopod=True, itopodauto=True)
+  while time.time() < t_end:
+    if not magic_assigned:
+      print("doing tm with mult")
+      do_time_machine(True)
+    else:
+      print("doing tm without mult")
+      do_time_machine()
+    color = pixel_get_color(BMLOCKEDX, BMLOCKEDY)
+    if (color != BMLOCKEDCOLOR and not magic_assigned):
+      print("assigning magic")
+      do_blood_magic()
+      magic_assigned = True
+    do_inventory()
+  do_fight()
+  time.sleep(15)
+  return
 
 AUTOMERGEEQUIPMENT = True
 AUTOBOOSTEQUIPMENT = True
@@ -328,13 +378,17 @@ top_windows = []
 hwnd = get_hwnd()
 NGU_OFFSET_X, NGU_OFFSET_Y = pixel_search("212429", 0, 0, 500, 1070)
 
+
+while True:
+  challenge2()
+
 #print("window id: " + str(hwnd))
 
 #print("top left corner at: " + str(NGU_OFFSET_X) + ", " + str(NGU_OFFSET_Y))
 #print("reclaiming energy and magic")
 #send_string("tr")
 #print("clicking fight boss")
-navigate("fight")
+#navigate("fight")
 #time.sleep(0.4)
 #s = ocr(765, 125, 890, 140, True)
 #print("current boss: " + s)
@@ -352,7 +406,7 @@ navigate("fight")
 #pixel_search2(212429, 0,0,500,1000)
 #do_snipe(5, 1, once=True)
 #do_pit()
-#do_rebirth(2)
+#do_advanced_training()
 """
 Output
 ------------------------------
