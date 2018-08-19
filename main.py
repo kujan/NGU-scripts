@@ -35,7 +35,7 @@ def window_enumeration_handler(hwnd, top_windows):
 
 def send_string(str):
   for c in str:
-    while (win32api.GetKeyState(VK_CONTROL) < 0 or win32api.GetKeyState(VK_SHIFT) < 0):
+    while (win32api.GetKeyState(VK_CONTROL) < 0 or win32api.GetKeyState(VK_SHIFT) < 0 or win32api.GetKeyState(VK_MENU) < 0):
       time.sleep(0.005)
     if c.isdigit():
       win32gui.PostMessage(hwnd, WM_KEYUP, ord(c.upper()), 0)
@@ -52,6 +52,8 @@ def click(x, y, button="left"):
   y += NGU_OFFSET_Y
   lParam = win32api.MAKELONG(x, y)
   win32gui.PostMessage(hwnd, WM_MOUSEMOVE, 0, lParam)
+  while (win32api.GetKeyState(VK_CONTROL) < 0 or win32api.GetKeyState(VK_SHIFT) < 0 or win32api.GetKeyState(VK_MENU) < 0):
+    time.sleep(0.005)
   if (button == "left"):
     win32gui.PostMessage(hwnd, WM_LBUTTONDOWN, MK_LBUTTON, lParam)
     win32gui.PostMessage(hwnd, WM_LBUTTONUP, MK_LBUTTON, lParam)
@@ -134,7 +136,7 @@ def ocr(x_start, y_start, x_end, y_end, debug=False):
   if debug: 
     bmp.save("debug.png")
   s = pytesseract.image_to_string(bmp)
-  return re.sub('[^0-9]','', s)
+  return s
 
 def image_search(x_start, y_start, x_end, y_end, image):
   bmp = get_bitmap()
@@ -149,6 +151,7 @@ def image_search(x_start, y_start, x_end, y_end, image):
 def navigate(target):
   y = 0
   x = MENUOFFSETX
+  time.sleep(0.050)
   if (target == "inventory"):
     y += INVENTORYMENUOFFSETY
   elif (target == "timemachine"):
@@ -218,9 +221,12 @@ def do_inventory():
 
 def do_fight():
   navigate("fight")
+  time.sleep(0.5)
   click(NUKEX, NUKEY, button="left")
   time.sleep(2)
-  click(FIGHTX, FIGHTY, button="left")
+  while(int(get_current_boss()) < 6): #make sure we unlock adventure before continuing
+    click(FIGHTX, FIGHTY, button="left")
+    time.sleep(3)
 
 def do_adventure(zone=0, highest=True, itopod=None, itopodauto=None):
   navigate("adventure")
@@ -398,6 +404,14 @@ def challenge2():
   time.sleep(15)
   return
 
+def get_current_boss():
+  navigate("fight")
+  boss = ocr(OCRBOSSX1, OCRBOSSY1, OCRBOSSX2, OCRBOSSY2, debug=False)
+  return remove_letters(boss)
+
+def remove_letters(s):
+  return re.sub('[^0-9]','', s)
+
 AUTOMERGEEQUIPMENT = True
 AUTOBOOSTEQUIPMENT = True
 CUBE = True
@@ -406,6 +420,8 @@ top_windows = []
 hwnd = get_hwnd()
 NGU_OFFSET_X, NGU_OFFSET_Y = pixel_search("212429", 0, 0, 500, 1070)
 
+
+#print(get_current_boss())
 
 while True:
   challenge2()
