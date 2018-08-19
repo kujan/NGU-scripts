@@ -175,6 +175,8 @@ def navigate(target):
   elif (target == "exp"):
     x = EXPX
     y += EXPY
+  elif (target == "wandoos"):
+    y += WANADOOSMENUOFFSETY
   click(x,y, button="left")
   time.sleep(0.050)
 
@@ -183,33 +185,33 @@ def do_inventory():
   t_end = time.time() + 10
   while time.time() < t_end:
     if (AUTOMERGEEQUIPMENT):
-      click(ACCESSORY1OFFSETX, ACCESSORY1OFFSETY, button="right")
+      click(ACCESSORY1OFFSETX, ACCESSORY1OFFSETY, button="left")
       send_string("d")
-      click(ACCESSORY2OFFSETX, ACCESSORY2OFFSETY, button="right")
+      click(ACCESSORY2OFFSETX, ACCESSORY2OFFSETY, button="left")
       send_string("d")
-      click(HEADOFFSETX, HEADOFFSETY, button="right")
+      click(HEADOFFSETX, HEADOFFSETY, button="left")
       send_string("d")
-      click(CHESTOFFSETX, CHESTOFFSETY, button="right")
+      click(CHESTOFFSETX, CHESTOFFSETY, button="left")
       send_string("d")
-      click(LEGSOFFSETX, LEGSOFFSETY, button="right")
+      click(LEGSOFFSETX, LEGSOFFSETY, button="left")
       send_string("d")
-      click(BOOTSOFFSETX, BOOTSOFFSETY, button="right")
+      click(BOOTSOFFSETX, BOOTSOFFSETY, button="left")
       send_string("d")
-      click(WEAPONOFFSETX, WEAPONOFFSETY, button="right")
+      click(WEAPONOFFSETX, WEAPONOFFSETY, button="left")
     if (AUTOBOOSTEQUIPMENT):
-      click(ACCESSORY1OFFSETX, ACCESSORY1OFFSETY, button="right")
+      click(ACCESSORY1OFFSETX, ACCESSORY1OFFSETY, button="left")
       send_string("a")
-      click(ACCESSORY2OFFSETX, ACCESSORY2OFFSETY, button="right")
+      click(ACCESSORY2OFFSETX, ACCESSORY2OFFSETY, button="left")
       send_string("a")
-      click(HEADOFFSETX, HEADOFFSETY, button="right")
+      click(HEADOFFSETX, HEADOFFSETY, button="left")
       send_string("a")
-      click(CHESTOFFSETX, CHESTOFFSETY, button="right")
+      click(CHESTOFFSETX, CHESTOFFSETY, button="left")
       send_string("a")
-      click(LEGSOFFSETX, LEGSOFFSETY, button="right")
+      click(LEGSOFFSETX, LEGSOFFSETY, button="left")
       send_string("a")
-      click(BOOTSOFFSETX, BOOTSOFFSETY, button="right")
+      click(BOOTSOFFSETX, BOOTSOFFSETY, button="left")
       send_string("a")
-      click(WEAPONOFFSETX, WEAPONOFFSETY, button="right")
+      click(WEAPONOFFSETX, WEAPONOFFSETY, button="left")
       send_string("a")
     if (CUBE):
       click(CUBEOFFSETX, CUBEOFFSETY, button="right")
@@ -292,6 +294,7 @@ def do_pit():
     navigate("pit")
     click(PITX, PITY)
     click(PITCONFIRMX, PITCONFIRMY, button="left")
+  return
 
 def do_rebirth(challenge=None):
   navigate("yggdrasil")
@@ -337,7 +340,6 @@ def do_time_machine(mult=False):
 
 def do_blood_magic():
   navigate("bloodmagic")
-  send_string("t")
   click(NUMBERINPUTBOXX, NUMBERINPUTBOXY, button="left")
   send_string("10000000")
   click(BMX, BM3, button="left")
@@ -345,28 +347,54 @@ def get_values():
   navigate("exp")
   values = {}
 
+def do_wandoos(magic=False):
+  navigate("wandoos")
+  click(NUMBERINPUTBOXX, NUMBERINPUTBOXY, button="left")
+  send_string("500000000")
+  click(WANDOOSENERGYX, WANDOOSENERGYY, button="left")
+  if magic:
+    click(WANDOOSMAGICX, WANDOOSMAGICY, button="left")
 def challenge2():
-  t_end = time.time() + (30 * 60)
+  t_end = time.time() + (60 * 60)
   magic_assigned = False
+  do_tm = True
+  early_wandoos = True
   do_rebirth(challenge=2)
   do_fight()
   do_snipe(0, 2, once=True, highest=True)
   time.sleep(1)
   do_adventure(zone=0, highest=False, itopod=True, itopodauto=True)
+  i = 0
   while time.time() < t_end:
-    if not magic_assigned:
+    bm_color = pixel_get_color(BMLOCKEDX, BMLOCKEDY)
+    tm_color = pixel_get_color(TMLOCKEDX, TMLOCKEDY)
+    if not magic_assigned and tm_color != TMLOCKEDCOLOR:
       print("doing tm with mult")
       do_time_machine(True)
-    else:
+    elif do_tm and tm_color != TMLOCKEDCOLOR:
       print("doing tm without mult")
       do_time_machine()
-    color = pixel_get_color(BMLOCKEDX, BMLOCKEDY)
-    if (color != BMLOCKEDCOLOR and not magic_assigned):
+    if time.time() > t_end - (30 * 60):
+      if do_tm:
+        send_string("r")
+        do_tm = False
+      do_wandoos()
+    
+    if (bm_color != BMLOCKEDCOLOR and not magic_assigned and time.time() > t_end - (30 * 60)):
       print("assigning magic")
+      send_string("t")
       do_blood_magic()
       magic_assigned = True
+    elif early_wandoos and bm_color == BMLOCKEDCOLOR and tm_color == TMLOCKEDCOLOR: #add magic to wandoos if BM is not unlock
+      do_wandoos(magic=True)
+
     do_inventory()
+    i += 1
+    if i > 15:
+      do_fight()
+      i = 0
   do_fight()
+  do_pit()
   time.sleep(15)
   return
 
