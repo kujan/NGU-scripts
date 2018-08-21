@@ -1,5 +1,6 @@
 import cv2
 import io
+import math
 import numpy
 import pytesseract
 import re
@@ -224,9 +225,10 @@ def do_fight():
   time.sleep(0.5)
   click(NUKEX, NUKEY, button="left")
   time.sleep(2)
-  while(int(get_current_boss()) < 6): #make sure we unlock adventure before continuing
+  while(int(get_current_boss()) < 4): #make sure we unlock adventure before continuing
     click(FIGHTX, FIGHTY, button="left")
     time.sleep(3)
+  click(FIGHTX, FIGHTY, button="left")
 
 def do_adventure(zone=0, highest=True, itopod=None, itopodauto=None):
   navigate("adventure")
@@ -296,6 +298,7 @@ def do_snipe(zone, duration, once=False, highest=False):
         
 def do_pit():
   color = pixel_get_color(PITCOLORX, PITCOLORY)
+  print(color)
   if (color == PITREADY): 
     navigate("pit")
     click(PITX, PITY)
@@ -375,10 +378,8 @@ def challenge2():
     bm_color = pixel_get_color(BMLOCKEDX, BMLOCKEDY)
     tm_color = pixel_get_color(TMLOCKEDX, TMLOCKEDY)
     if not magic_assigned and tm_color != TMLOCKEDCOLOR:
-      print("doing tm with mult")
       do_time_machine(True)
     elif do_tm and tm_color != TMLOCKEDCOLOR:
-      print("doing tm without mult")
       do_time_machine()
     if time.time() > t_end - (30 * 60):
       if do_tm:
@@ -396,8 +397,9 @@ def challenge2():
 
     do_inventory()
     i += 1
-    if i > 15:
+    if i > 10:
       do_fight()
+
       i = 0
   do_fight()
   do_pit()
@@ -412,6 +414,70 @@ def get_current_boss():
 def remove_letters(s):
   return re.sub('[^0-9]','', s)
 
+def check_challenge_active():
+  navigate("rebirth")
+  time.sleep(0.1)
+  click(CHALLENGEBUTTONX, CHALLENGEBUTTONY, button="left")
+  color = pixel_get_color(CHALLENGEACTIVEX, CHALLENGEACTIVEY)
+  if (color == CHALLENGEACTIVECOLOR):
+    print("challenge completed")
+    return False
+  return True
+
+def do_augmentations(energy):
+  ss = math.floor(energy * 0.95)
+  ds = math.floor(energy * 0.05)
+
+  navigate("augmentations")
+  click(NUMBERINPUTBOXX, NUMBERINPUTBOXY)
+  send_string(str(ss))
+  click(AUGMENTX, AUGMENTSCISSORSY)
+  click(NUMBERINPUTBOXX, NUMBERINPUTBOXY)
+  send_string(str(ds))
+  click(AUGMENTX, AUGMENTDSCISSORSY)
+
+def speedrun(duration):
+  t_end = time.time() + (duration * 60)
+  magic_assigned = False
+  do_tm = True
+  do_rebirth()
+  do_fight()
+  do_snipe(0, 2, once=True, highest=True)
+  time.sleep(0.1)
+  do_adventure(zone=0, highest=False, itopod=True, itopodauto=True)
+  i = 0
+  while time.time() < t_end:
+    bm_color = pixel_get_color(BMLOCKEDX, BMLOCKEDY)
+    tm_color = pixel_get_color(TMLOCKEDX, TMLOCKEDY)
+    if not magic_assigned and tm_color != TMLOCKEDCOLOR:
+      do_time_machine(True)
+    elif do_tm and tm_color != TMLOCKEDCOLOR:
+      do_time_machine()
+    if time.time() > t_end - (duration * 0.3 * 60):
+      if do_tm:
+        send_string("r")
+        do_augmentations(15000000)
+        do_tm = False
+      do_wandoos()
+    
+    if (bm_color != BMLOCKEDCOLOR and not magic_assigned and time.time() > t_end - (duration * 0.5 * 60)):
+      print("assigning magic")
+      send_string("t")
+      do_blood_magic()
+      magic_assigned = True
+    
+    do_inventory()
+    i += 1
+    if i > 10:
+      do_fight()
+      i = 0
+
+  do_fight()
+  do_pit()
+  time.sleep(15)
+  return
+
+
 AUTOMERGEEQUIPMENT = True
 AUTOBOOSTEQUIPMENT = True
 CUBE = True
@@ -422,9 +488,20 @@ NGU_OFFSET_X, NGU_OFFSET_Y = pixel_search("212429", 0, 0, 500, 1070)
 
 
 #print(get_current_boss())
-
+#print(check_challenge_active())
+navigate("exp")
+start_exp = int(remove_letters(ocr(EXPX1, EXPY1, EXPX2, EXPY2, True)))
+start_time = math.floor(time.time())
+time.sleep(2)
+rebirth_number = 0
 while True:
-  challenge2()
+  rebirth_number += 1
+  current_time = math.floor(time.time())
+  navigate("exp")
+  current_exp = int(remove_letters(ocr(EXPX1, EXPY1, EXPX2, EXPY2, True)))
+  per_hour = (current_exp - start_exp)//((current_time - start_time) / 3600)
+  print(f'Start exp: {start_exp}\nCurrent exp: {current_exp}\nPer hour: {per_hour}\nRebirth #{rebirth_number}')
+  speedrun(30)
 
 #print("window id: " + str(hwnd))
 
