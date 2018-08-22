@@ -298,7 +298,6 @@ def do_snipe(zone, duration, once=False, highest=False):
         
 def do_pit():
   color = pixel_get_color(PITCOLORX, PITCOLORY)
-  print(color)
   if (color == PITREADY): 
     navigate("pit")
     click(PITX, PITY)
@@ -351,7 +350,7 @@ def do_blood_magic():
   navigate("bloodmagic")
   click(NUMBERINPUTBOXX, NUMBERINPUTBOXY, button="left")
   send_string("10000000")
-  click(BMX, BM3, button="left")
+  click(BMX, BM2, button="left")
 def get_values():
   navigate("exp")
   values = {}
@@ -388,7 +387,6 @@ def challenge2():
       do_wandoos()
     
     if (bm_color != BMLOCKEDCOLOR and not magic_assigned and time.time() > t_end - (30 * 60)):
-      print("assigning magic")
       send_string("t")
       do_blood_magic()
       magic_assigned = True
@@ -440,6 +438,7 @@ def speedrun(duration):
   t_end = time.time() + (duration * 60)
   magic_assigned = False
   do_tm = True
+  augments_assigned = False
   do_rebirth()
   do_fight()
   do_snipe(0, 2, once=True, highest=True)
@@ -454,14 +453,14 @@ def speedrun(duration):
     elif do_tm and tm_color != TMLOCKEDCOLOR:
       do_time_machine()
     if time.time() > t_end - (duration * 0.3 * 60):
-      if do_tm:
+      if do_tm and not augments_assigned:
         send_string("r")
-        do_augmentations(15000000)
-        do_tm = False
-      do_wandoos()
+        do_augmentations(5000000)
+        augments_assigned = True
+        #do_tm = False
+      ##do_wandoos()
     
     if (bm_color != BMLOCKEDCOLOR and not magic_assigned and time.time() > t_end - (duration * 0.5 * 60)):
-      print("assigning magic")
       send_string("t")
       do_blood_magic()
       magic_assigned = True
@@ -500,8 +499,8 @@ while True:
   navigate("exp")
   current_exp = int(remove_letters(ocr(EXPX1, EXPY1, EXPX2, EXPY2, True)))
   per_hour = (current_exp - start_exp)//((current_time - start_time) / 3600)
-  print(f'Start exp: {start_exp}\nCurrent exp: {current_exp}\nPer hour: {per_hour}\nRebirth #{rebirth_number}')
-  speedrun(30)
+  print(f'Rebirth #{rebirth_number}\nStart exp: {start_exp}\nCurrent exp: {current_exp}\nPer hour: {per_hour}\n')
+  speedrun(15)
 
 #print("window id: " + str(hwnd))
 
