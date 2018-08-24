@@ -1,4 +1,4 @@
-"""This is a collection of functions that allows you to automate NGU-Idle or other things in the background.
+r"""This is a collection of functions that allows you to automate NGU-Idle or other things in the background.
 
 Features that requires a bitmap, such as image_search and ocr will only work with firefox, 
 they also requires the window to NOT be minimized and the computer cannot be locked. They
