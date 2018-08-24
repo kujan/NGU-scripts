@@ -1,4 +1,23 @@
-"""Run this command to install deps.
+"""This is a collection of functions that allows you to automate NGU-Idle or other things in the background.
+
+Features that requires a bitmap, such as image_search and ocr will only work with firefox, 
+they also requires the window to NOT be minimized and the computer cannot be locked. They
+still work fine even if you have another window on top. Feel free to test any browser, 
+but firefox will work. If firefox is your main browser and youuse these functions, you will
+notice that your script will steal the focus from your main browsing window. This can be fixed
+by using firefox profiles. 
+
+IGNORE THIS IF YOU DON'T USE FIREFOX FOR YOUR NORMAL BROWSING
+
+1. In firefox enter "about:profiles" in the address field.
+2. Create a new profile and name it (NGU, for example)
+3. Go to your firefox installation folder, right click the "firefox.exe" file and select create shortcut.
+4. Right click the shortcut and select properties.
+5. In the target field, enter "-P YOURPROFILENAME -no-remote" after the quotation mark
+   It should look like this: "C:\Program Files\Mozilla Firefox\firefox.exe" -P NGU -no-remote
+6. Start firefox via the shortcut and load your NGU save.
+
+Run this command to install deps.
 
 pip install -r requirements.txt
 
