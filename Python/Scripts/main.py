@@ -17,12 +17,7 @@ from PIL import ImageEnhance, ImageFilter
 from win32con import *
 
 """
-Run this command to install deps.
-pip install -r requirements.txt
-
-Install Tesseract OCR: https://digi.bib.uni-mannheim.de/tesseract/tesseract-ocr-setup-3.05.02-20180621.exe
-Make sure you add tesseract.exe to your PATH, if you don't know how to, this link might help you
-https://www.java.com/en/download/help/path.xml
+DON'T RUN THIS, THIS IS THE SCRIPT I USE FOR DIFFERENT PURPOSES AND IS NOT INTENDED FOR ANYONE ELSE
 """
 
 def get_hwnd():
