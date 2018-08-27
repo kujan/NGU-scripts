@@ -1,498 +1,397 @@
 import cv2
-import io
-import math
+import ngucon as ncon
 import numpy
 import pytesseract
 import re
 import time
 import win32api
+import win32con as wcon
 import win32gui
 import win32ui
 
 
 from ctypes import windll
-from ngucon import *
 from PIL import Image as image
-from PIL import ImageEnhance, ImageFilter
-from win32con import *
-
-"""
-DON'T RUN THIS, THIS IS THE SCRIPT I USE FOR DIFFERENT PURPOSES AND IS NOT INTENDED FOR ANYONE ELSE
-"""
-
-def get_hwnd():
-  win32gui.EnumWindows(window_enumeration_handler, top_windows)
-  for i in top_windows:
-    if "play ngu idle" in i[1].lower():
-      return i[0]
-
-def window_enumeration_handler(hwnd, top_windows):
-    top_windows.append((hwnd, win32gui.GetWindowText(hwnd)))
-
-def send_string(str):
-  for c in str:
-    while (win32api.GetKeyState(VK_CONTROL) < 0 or win32api.GetKeyState(VK_SHIFT) < 0 or win32api.GetKeyState(VK_MENU) < 0):
-      time.sleep(0.005)
-    if c.isdigit():
-      win32gui.PostMessage(hwnd, WM_KEYUP, ord(c.upper()), 0)
-      time.sleep(0.030)
-      continue
-    win32gui.PostMessage(hwnd, WM_KEYDOWN, ord(c.upper()), 0)
-    time.sleep(0.30)
-    win32gui.PostMessage(hwnd, WM_KEYUP, ord(c.upper()), 0)
-
-  time.sleep(0.1)
-
-def click(x, y, button="left"):
-  x += NGU_OFFSET_X
-  y += NGU_OFFSET_Y
-  lParam = win32api.MAKELONG(x, y)
-  win32gui.PostMessage(hwnd, WM_MOUSEMOVE, 0, lParam)
-  while (win32api.GetKeyState(VK_CONTROL) < 0 or win32api.GetKeyState(VK_SHIFT) < 0 or win32api.GetKeyState(VK_MENU) < 0):
-    time.sleep(0.005)
-  if (button == "left"):
-    win32gui.PostMessage(hwnd, WM_LBUTTONDOWN, MK_LBUTTON, lParam)
-    win32gui.PostMessage(hwnd, WM_LBUTTONUP, MK_LBUTTON, lParam)
-  else:
-    win32gui.PostMessage(hwnd, WM_RBUTTONDOWN, MK_RBUTTON, lParam)
-    win32gui.PostMessage(hwnd, WM_RBUTTONUP, MK_RBUTTON, lParam)
-  time.sleep(0.1)
-
-def get_bitmap():
-  left, top, right, bot = win32gui.GetWindowRect(hwnd)
-  w = right - left
-  h = bot - top
-  hwnd_dc = win32gui.GetWindowDC(hwnd)
-  mfc_dc  = win32ui.CreateDCFromHandle(hwnd_dc)
-  save_dc = mfc_dc.CreateCompatibleDC()
-
-  save_bitmap = win32ui.CreateBitmap()
-  save_bitmap.CreateCompatibleBitmap(mfc_dc, w, h)
-
-  save_dc.SelectObject(save_bitmap)
-
-  result = windll.user32.PrintWindow(hwnd, save_dc.GetSafeHdc(), 0)
-
-  bmpinfo = save_bitmap.GetInfo()
-  bmpstr = save_bitmap.GetBitmapBits(True)
-
-  bmp = image.frombuffer(
-    'RGB',
-    (bmpinfo['bmWidth'], bmpinfo['bmHeight']),
-    bmpstr, 'raw', 'BGRX', 0, 1)
-  win32gui.DeleteObject(save_bitmap.GetHandle())
-  save_dc.DeleteDC()
-  mfc_dc.DeleteDC()
-  win32gui.ReleaseDC(hwnd, hwnd_dc)
-
-  return bmp
-
-def rgb_to_hex(tup):
-  return '%02x%02x%02x'.upper() % (tup[0], tup[1], tup[2])
-
-def pixel_search(color, x_start, y_start, x_end, y_end):
-  bmp = get_bitmap()
-  for y in range(y_start, y_end):
-    for x in range(x_start, x_end):
-      t = bmp.getpixel((x, y))
-      if (rgb_to_hex(t) == color):
-        return x - 8, y - 8
-  return None
-
-def pixel_get_color(x, y):
-  return rgb_to_hex(get_bitmap().getpixel((x + 8 + NGU_OFFSET_X, y + 8 + NGU_OFFSET_Y)))
-
-def ocr(x_start, y_start, x_end, y_end, debug=False):
-  x_start += NGU_OFFSET_X
-  x_end   += NGU_OFFSET_X
-  y_start += NGU_OFFSET_Y
-  y_end   += NGU_OFFSET_Y
-
-  bmp = get_bitmap()
-  bmp = bmp.crop((x_start + 8, y_start + 8, x_end + 8, y_end + 8))
-  *_, right, lower = bmp.getbbox()
-  bmp = bmp.resize((right*3, lower*3), image.BICUBIC)
-  #bmp = ImageEnhance.Contrast(bmp).enhance(0.5)
-  #bmp = bmp.ImageEnhance(bmp)
-  bmp = bmp.filter(ImageFilter.SHARPEN)
-  if debug: 
-    bmp.save("debug.png")
-  s = pytesseract.image_to_string(bmp)
-  return s
-
-def image_search(x_start, y_start, x_end, y_end, image):
-  bmp = get_bitmap()
-  search_area = bmp.crop((x_start + 8, y_start + 8, x_end + 8, y_end + 8))
-  search_area = numpy.asarray(search_area)
-  search_area = cv2.cvtColor(search_area, cv2.COLOR_BGR2GRAY)
-  template = cv2.imread(image, 0)
-  res = cv2.matchTemplate(search_area, template, cv2.TM_CCOEFF)
-  *_, t = cv2.minMaxLoc(res)
-  return t
-
-def navigate(target):
-  y = 0
-  x = MENUOFFSETX
-  time.sleep(0.050)
-  if (target == "inventory"):
-    y += INVENTORYMENUOFFSETY
-  elif (target == "timemachine"):
-    y += TIMEMACHINEMENUOFFSETY
-  elif (target == "ngu"):
-    y += NGUMENUOFFSETY
-  elif (target == "augmentations"):
-    y += AUGMENTATIONMENUOFFSETY
-  elif (target == "bloodmagic"):
-    y += BLOODMAGICMENUOFFSETY
-  elif (target == "advtraining"):
-    y += ADVTRAININGMENUOFFSETY
-  elif (target == "adventure"):
-    y += ADVENTUREMENUOFFSETY
-  elif (target == "yggdrasil"):
-    y += YGGDRASILMENUOFFSETY
-  elif (target == "rebirth"):
-    x = REBIRTHX
-    y += REBIRTHY
-  elif (target == "pit"):
-    y += PITMENUOFFSETY
-  elif (target == "fight"):
-    y += FIGHTBOSSMENUOFFSETY
-  elif (target == "exp"):
-    x = EXPX
-    y += EXPY
-  elif (target == "wandoos"):
-    y += WANADOOSMENUOFFSETY
-  click(x,y, button="left")
-  time.sleep(0.050)
-
-def do_inventory():
-  navigate("inventory")
-  t_end = time.time() + 10
-  while time.time() < t_end:
-    if (AUTOMERGEEQUIPMENT):
-      click(ACCESSORY1OFFSETX, ACCESSORY1OFFSETY, button="left")
-      send_string("d")
-      click(ACCESSORY2OFFSETX, ACCESSORY2OFFSETY, button="left")
-      send_string("d")
-      click(HEADOFFSETX, HEADOFFSETY, button="left")
-      send_string("d")
-      click(CHESTOFFSETX, CHESTOFFSETY, button="left")
-      send_string("d")
-      click(LEGSOFFSETX, LEGSOFFSETY, button="left")
-      send_string("d")
-      click(BOOTSOFFSETX, BOOTSOFFSETY, button="left")
-      send_string("d")
-      click(WEAPONOFFSETX, WEAPONOFFSETY, button="left")
-    if (AUTOBOOSTEQUIPMENT):
-      click(ACCESSORY1OFFSETX, ACCESSORY1OFFSETY, button="left")
-      send_string("a")
-      click(ACCESSORY2OFFSETX, ACCESSORY2OFFSETY, button="left")
-      send_string("a")
-      click(HEADOFFSETX, HEADOFFSETY, button="left")
-      send_string("a")
-      click(CHESTOFFSETX, CHESTOFFSETY, button="left")
-      send_string("a")
-      click(LEGSOFFSETX, LEGSOFFSETY, button="left")
-      send_string("a")
-      click(BOOTSOFFSETX, BOOTSOFFSETY, button="left")
-      send_string("a")
-      click(WEAPONOFFSETX, WEAPONOFFSETY, button="left")
-      send_string("a")
-    if (CUBE):
-      click(CUBEOFFSETX, CUBEOFFSETY, button="right")
-
-def do_fight():
-  navigate("fight")
-  time.sleep(0.5)
-  click(NUKEX, NUKEY, button="left")
-  time.sleep(2)
-  while(int(get_current_boss()) < 4): #make sure we unlock adventure before continuing
-    click(FIGHTX, FIGHTY, button="left")
-    time.sleep(3)
-  click(FIGHTX, FIGHTY, button="left")
-
-def do_adventure(zone=0, highest=True, itopod=None, itopodauto=None):
-  navigate("adventure")
-
-  if itopod:
-    click(ITOPODX, ITOPODY, button="left")
-    if itopodauto:
-      click(ITOPODENDX, ITOPODENDY, button="left")
-      send_string("0") # set end to 0 in case it's higher than start
-      click(ITOPODAUTOX, ITOPODAUTOY, button="left")
-      click(ITOPODENTERX, ITOPODENTERY, button="left")
-      return
-    
-    click(ITOPODSTARTX, ITOPODSTARTY, button="left")
-    send_string(itopod)
-    click(ITOPODENDX, ITOPODENDY, button="left")
-    send_string(itopod)
-    click(ITOPODENTERX, ITOPODENTERY, button="left")
-    return
-  if highest:
-    click(RIGHTARROWX, RIGHTARROWY, button="right")
-    return
-  else:
-    click(LEFTARROWX, LEFTARROWY, button="right")
-    for i in range(zone):
-      click(RIGHTARROWX, RIGHTARROWY, button="left")
-    return
-
-def do_snipe(zone, duration, once=False, highest=False):
-  navigate("adventure")
-  if highest:
-    click(RIGHTARROWX, RIGHTARROWY, button="right")
-  else:
-    click(LEFTARROWX, LEFTARROWY, button="right")
-
-    for i in range(zone):
-      click(RIGHTARROWX, RIGHTARROWY, button="left")
-
-  idle = pixel_get_color(IDLEX, IDLEY)
-
-  #if (idle != IDLECOLOR):
-  #  send_string("q")
-
-  t_end = time.time() + (duration * 60)
-  while time.time() < t_end:
-    health = pixel_get_color(HEALTHX, HEALTHY)
-    if (health == NOTDEAD):
-      crown = pixel_get_color(CROWNX, CROWNY)
-      if (crown == ISBOSS):
-        while (health != DEAD):
-          health = pixel_get_color(HEALTHX, HEALTHY)
-          send_string("ytew")
-          time.sleep(0.15)
-
-        if once:
-          break
-
-      else:
-        win32gui.PostMessage(hwnd, WM_KEYDOWN, VK_LEFT, 0)
-        time.sleep(0.03)
-        win32gui.PostMessage(hwnd, WM_KEYUP, VK_LEFT, 0)
-        win32gui.PostMessage(hwnd, WM_KEYDOWN, VK_RIGHT, 0)  
-        time.sleep(0.03)
-        win32gui.PostMessage(hwnd, WM_KEYUP, VK_RIGHT, 0)
-    time.sleep(0.1)
-  #send_string("q")
-        
-def do_pit():
-  color = pixel_get_color(PITCOLORX, PITCOLORY)
-  if (color == PITREADY): 
-    navigate("pit")
-    click(PITX, PITY)
-    click(PITCONFIRMX, PITCONFIRMY, button="left")
-  return
-
-def do_rebirth(challenge=None):
-  navigate("yggdrasil")
-  for i in range(1, 10):
-    click(FRUITSX[i], FRUITSY[i], button="left")
-
-  navigate("rebirth")
-  if challenge:
-    print("chall")
-    time.sleep(1)
-    click(CHALLENGEBUTTONX, CHALLENGEBUTTONY, button="left")
-    color = pixel_get_color(CHALLENGEACTIVEX, CHALLENGEACTIVEY)
-    if (color == CHALLENGEACTIVECOLOR):
-      do_rebirth()
-      return
-    click(CHALLENGEX, CHALLENGEY + (CHALLENGEOFFSET * challenge), button="left")
-    click(REBIRTHCONFIRMX, REBIRTHCONFIRMY, button="left")
-    return
-  else:
-    click(REBIRTHX, REBIRTHY, button="left")
-    click(REBIRTHBUTTONX, REBIRTHBUTTONY, button="left")
-    click(REBIRTHCONFIRMX, REBIRTHCONFIRMY, button="left")
-  return
-
-def do_advanced_training():
-  navigate("advtraining")
-  click(NUMBERINPUTBOXX, NUMBERINPUTBOXY, button="left")
-  send_string("1337")
-  click(ADVTRAININGX, ADVTRAINING1Y, button="left")
-  click(NUMBERINPUTBOXX, NUMBERINPUTBOXY, button="left")
-  send_string("1447")
-  
-  click(ADVTRAININGX, ADVTRAINING2Y, button="left")
-
-def do_time_machine(mult=False):
-  navigate("timemachine")
-  click(NUMBERINPUTBOXX, NUMBERINPUTBOXY, button="left")
-  send_string("5000000")
-  click(TMSPEEDX, TMSPEEDY, button="left")
-  if mult:
-    click(TMMULTX, TMMULTY, button="left")
-  return
-
-def do_blood_magic():
-  navigate("bloodmagic")
-  click(NUMBERINPUTBOXX, NUMBERINPUTBOXY, button="left")
-  send_string("10000000")
-  click(BMX, BM2, button="left")
-def get_values():
-  navigate("exp")
-  values = {}
-
-def do_wandoos(magic=False):
-  navigate("wandoos")
-  click(NUMBERINPUTBOXX, NUMBERINPUTBOXY, button="left")
-  send_string("500000000")
-  click(WANDOOSENERGYX, WANDOOSENERGYY, button="left")
-  if magic:
-    click(WANDOOSMAGICX, WANDOOSMAGICY, button="left")
-def challenge2():
-  t_end = time.time() + (60 * 60)
-  magic_assigned = False
-  do_tm = True
-  early_wandoos = True
-  do_rebirth(challenge=2)
-  do_fight()
-  do_snipe(0, 2, once=True, highest=True)
-  time.sleep(1)
-  do_adventure(zone=0, highest=False, itopod=True, itopodauto=True)
-  i = 0
-  while time.time() < t_end:
-    bm_color = pixel_get_color(BMLOCKEDX, BMLOCKEDY)
-    tm_color = pixel_get_color(TMLOCKEDX, TMLOCKEDY)
-    if not magic_assigned and tm_color != TMLOCKEDCOLOR:
-      do_time_machine(True)
-    elif do_tm and tm_color != TMLOCKEDCOLOR:
-      do_time_machine()
-    if time.time() > t_end - (30 * 60):
-      if do_tm:
-        send_string("r")
-        do_tm = False
-      do_wandoos()
-    
-    if (bm_color != BMLOCKEDCOLOR and not magic_assigned and time.time() > t_end - (30 * 60)):
-      send_string("t")
-      do_blood_magic()
-      magic_assigned = True
-    elif early_wandoos and bm_color == BMLOCKEDCOLOR and tm_color == TMLOCKEDCOLOR: #add magic to wandoos if BM is not unlock
-      do_wandoos(magic=True)
-
-    do_inventory()
-    i += 1
-    if i > 10:
-      do_fight()
-
-      i = 0
-  do_fight()
-  do_pit()
-  time.sleep(15)
-  return
-
-def get_current_boss():
-  navigate("fight")
-  boss = ocr(OCRBOSSX1, OCRBOSSY1, OCRBOSSX2, OCRBOSSY2, debug=False)
-  return remove_letters(boss)
-
-def remove_letters(s):
-  return re.sub('[^0-9]','', s)
-
-def check_challenge_active():
-  navigate("rebirth")
-  time.sleep(0.1)
-  click(CHALLENGEBUTTONX, CHALLENGEBUTTONY, button="left")
-  color = pixel_get_color(CHALLENGEACTIVEX, CHALLENGEACTIVEY)
-  if (color == CHALLENGEACTIVECOLOR):
-    print("challenge completed")
-    return False
-  return True
-
-def do_augmentations(energy):
-  ss = math.floor(energy * 0.95)
-  ds = math.floor(energy * 0.05)
-
-  navigate("augmentations")
-  click(NUMBERINPUTBOXX, NUMBERINPUTBOXY)
-  send_string(str(ss))
-  click(AUGMENTX, AUGMENTSCISSORSY)
-  click(NUMBERINPUTBOXX, NUMBERINPUTBOXY)
-  send_string(str(ds))
-  click(AUGMENTX, AUGMENTDSCISSORSY)
-
-def do_ygg():
-  navigate("yggdrasil")
-  click(HARVESTX, HARVESTY)
-
-def speedrun(duration):
-  t_end = time.time() + (duration * 60)
-  magic_assigned = False
-  do_tm = True
-  augments_assigned = False
-  do_rebirth()
-  do_fight()
-  do_snipe(0, 2, once=True, highest=True)
-  time.sleep(0.1)
-  do_adventure(zone=0, highest=False, itopod=True, itopodauto=True)
-  i = 0
-  while time.time() < t_end:
-    bm_color = pixel_get_color(BMLOCKEDX, BMLOCKEDY)
-    tm_color = pixel_get_color(TMLOCKEDX, TMLOCKEDY)
-    if not magic_assigned and tm_color != TMLOCKEDCOLOR:
-      do_time_machine(True)
-    elif do_tm and tm_color != TMLOCKEDCOLOR:
-      do_time_machine()
-    if time.time() > t_end - (duration * 0.3 * 60):
-      if do_tm and not augments_assigned:
-        send_string("r")
-        do_augmentations(5000000)
-        augments_assigned = True
-        #do_tm = False
-      ##do_wandoos()
-    
-    if (bm_color != BMLOCKEDCOLOR and not magic_assigned and time.time() > t_end - (duration * 0.5 * 60)):
-      send_string("t")
-      do_blood_magic()
-      magic_assigned = True
-    
-    do_inventory()
-    i += 1
-    if i > 10:
-      do_fight()
-      i = 0
-
-  do_fight()
-  do_pit()
-  time.sleep(15)
-  return
+from PIL import ImageFilter
 
 
-AUTOMERGEEQUIPMENT = False
-AUTOBOOSTEQUIPMENT = True
-CUBE = True
-time.sleep(1)
-top_windows = []
-hwnd = get_hwnd()
-NGU_OFFSET_X, NGU_OFFSET_Y = pixel_search("212429", 0, 0, 500, 1000)
+class Window:
+    """This class contains game window coordinates."""
+
+    id = 0
+    x = 0
+    y = 0
+
+    def __init__(self):
+        """Keyword arguments.
+
+        hwnd -- The window ID
+        x -- The x-coordinate for the top left corner of the game window.
+        y -- The y-coordinate for the top left corner of the game window.
+        """
+        def window_enumeration_handler(hwnd, top_windows):
+            """Add window title and ID to array."""
+            top_windows.append((hwnd, win32gui.GetWindowText(hwnd)))
+
+        top_windows = []
+        win32gui.EnumWindows(window_enumeration_handler, top_windows)
+        for i in top_windows:
+            if "play ngu idle" in i[1].lower():
+                Window.id = i[0]
 
 
-#print(get_current_boss())
-#print(check_challenge_active())
-navigate("exp")
-t = time.time()
-start_exp = int(remove_letters(ocr(EXPX1, EXPY1, EXPX2, EXPY2)))
-print(time.time() - t)
-start_time = math.floor(time.time())
-time.sleep(2)
-rebirth_number = 0
-while True:
-  do_inventory()
-  do_pit()
-  do_ygg()
-  time.sleep(120)
+class Inputs():
+    """This class handles inputs."""
 
-while True:
-  rebirth_number += 1
-  current_time = math.floor(time.time())
-  navigate("exp")
-  
-  current_exp = int(remove_letters(ocr(EXPX1, EXPY1, EXPX2, EXPY2, True)))
+    """
+    def __init__(self):
+        Get the relative coords for game window.
+        Window.__init__(self)
+        Window.x, Window.y = self.pixel_search("212429", 0, 0, 400, 600)
+    """
+    def click(self, x, y, button="left"):
+        """Click at pixel xy."""
+        x += Window.x
+        y += Window.y
+        lParam = win32api.MAKELONG(x, y)
+        # MOUSEMOVE event is required for game to register clicks correctly
+        win32gui.PostMessage(Window.id, wcon.WM_MOUSEMOVE, 0, lParam)
 
-  per_hour = (current_exp - start_exp)//((current_time - start_time) / 3600)
-  print(f'Rebirth #{rebirth_number}\nStart exp: {start_exp}\nCurrent exp: {current_exp}\nPer hour: {per_hour}\n')
-  speedrun(12)
+        while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
+               win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
+               win32api.GetKeyState(wcon.VK_MENU) < 0):
+            time.sleep(0.005)
+
+        if (button == "left"):
+            win32gui.PostMessage(Window.id, wcon.WM_LBUTTONDOWN,
+                                 wcon.MK_LBUTTON, lParam)
+            win32gui.PostMessage(Window.id, wcon.WM_LBUTTONUP,
+                                 wcon.MK_LBUTTON, lParam)
+
+        else:
+            win32gui.PostMessage(Window.id, wcon.WM_RBUTTONDOWN,
+                                 wcon.MK_RBUTTON, lParam)
+            win32gui.PostMessage(Window.id, wcon.WM_RBUTTONUP,
+                                 wcon.MK_RBUTTON, lParam)
+
+        time.sleep(0.1)
+
+    def send_string(self, str):
+        """Send one or multiple characters to the window."""
+        for c in str:
+            while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
+                   win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
+                   win32api.GetKeyState(wcon.VK_MENU) < 0):
+                time.sleep(0.005)
+            if c.isdigit():  # Digits only require KEY_UP event.
+                win32gui.PostMessage(Window.id, wcon.WM_KEYUP, ord(c.upper()),
+                                     0)
+                time.sleep(0.03)  # This can probably be removed
+                continue
+            win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN, ord(c.upper()), 0)
+            time.sleep(0.30)  # This can probably be removed
+            win32gui.PostMessage(Window.id, wcon.WM_KEYUP, ord(c.upper()), 0)
+
+        time.sleep(0.1)  # This can probably be removed
+
+    def get_bitmap(self):
+        """Get and return a bitmap of the window."""
+        left, top, right, bot = win32gui.GetWindowRect(Window.id)
+        w = right - left
+        h = bot - top
+        hwnd_dc = win32gui.GetWindowDC(Window.id)
+        mfc_dc = win32ui.CreateDCFromHandle(hwnd_dc)
+        save_dc = mfc_dc.CreateCompatibleDC()
+        save_bitmap = win32ui.CreateBitmap()
+        save_bitmap.CreateCompatibleBitmap(mfc_dc, w, h)
+        save_dc.SelectObject(save_bitmap)
+        windll.user32.PrintWindow(Window.id, save_dc.GetSafeHdc(), 0)
+        bmpinfo = save_bitmap.GetInfo()
+        bmpstr = save_bitmap.GetBitmapBits(True)
+
+        # This creates an Image object from Pillow
+        bmp = image.frombuffer('RGB',
+                               (bmpinfo['bmWidth'],
+                                bmpinfo['bmHeight']),
+                               bmpstr, 'raw', 'BGRX', 0, 1)
+
+        win32gui.DeleteObject(save_bitmap.GetHandle())
+        save_dc.DeleteDC()
+        mfc_dc.DeleteDC()
+        win32gui.ReleaseDC(Window.id, hwnd_dc)
+
+        return bmp
+
+    def pixel_search(self, color, x_start, y_start, x_end, y_end):
+        """Find the first pixel with the supplied color within area.
+
+        Function searches per row, left to right. Returns the coordinates of
+        first match or None, if nothing is found.
+
+        Color must be supplied in hex.
+        """
+        bmp = self.get_bitmap()
+        for y in range(y_start, y_end):
+            for x in range(x_start, x_end):
+                t = bmp.getpixel((x, y))
+                if (self.rgb_to_hex(t) == color):
+                    return x - 8, y - 8
+        return None
+
+    def image_search(self, x_start, y_start, x_end, y_end, image):
+        """Search the screen for the supplied picture.
+
+        Returns a tuple with x,y-coordinates.
+
+        Keyword arguments:
+        image -- Filename or path to file that you search for.
+        """
+        bmp = self.get_bitmap()
+        # Bitmaps are created with a 8px border
+        search_area = bmp.crop((x_start + 8, y_start + 8,
+                                x_end + 8, y_end + 8))
+        search_area = numpy.asarray(search_area)
+        search_area = cv2.cvtColor(search_area, cv2.COLOR_BGR2GRAY)
+        template = cv2.imread(image, 0)
+        res = cv2.matchTemplate(search_area, template, cv2.TM_CCOEFF)
+        *_, t = cv2.minMaxLoc(res)
+        return t
+
+    def ocr(self, x_start, y_start, x_end, y_end, debug=False):
+        """Perform an OCR of the supplied area, returns a string of the result.
+
+        Keyword arguments:
+        debug -- saves an image of what is sent to the OCR (default False)
+        """
+        x_start += Window.x
+        x_end += Window.x
+        y_start += Window.y
+        y_end += Window.y
+
+        bmp = self.get_bitmap()
+        # Bitmaps are created with a 8px border
+        bmp = bmp.crop((x_start + 8, y_start + 8, x_end + 8, y_end + 8))
+        *_, right, lower = bmp.getbbox()
+        bmp = bmp.resize((right*3, lower*3), image.BICUBIC)  # Resize image
+        bmp = bmp.filter(ImageFilter.SHARPEN)  # Sharpen image for better OCR
+        if debug:
+            bmp.save("debug.png")
+        s = pytesseract.image_to_string(bmp)
+        return s
+
+    def get_pixel_color(self, x, y):
+        """Get the color of selected pixel in HEX."""
+        return self.rgb_to_hex(self.get_bitmap().getpixel((x + 8 +
+                               Window.x, y + 8 + Window.y)))
+
+    def remove_letters(self, s):
+        """Remove all non digit characters from string."""
+        return re.sub('[^0-9]', '', s)
+
+    def rgb_to_hex(self, tup):
+        """Convert RGB value to HEX."""
+        return '%02x%02x%02x'.upper() % (tup[0], tup[1], tup[2])
+
+
+class Navigation(Inputs):
+    """Navigate through menus."""
+
+    menus = ncon.MENUITEMS
+    equipment = ncon.EQUIPMENTSLOTS
+
+    def menu(self, target):
+        """Navigate through main menu."""
+        y = ncon.MENUOFFSETY + ((self.menus.index(target) + 1) *
+                                ncon.MENUDISTANCEY)
+        self.click(ncon.MENUOFFSETX, y)
+        time.sleep(0.1)
+
+    def input_box(self):
+        """Click input box."""
+        self.click(ncon.NUMBERINPUTBOXX, ncon.NUMBERINPUTBOXY)
+
+    def rebirth(self):
+        """Click rebirth menu."""
+        self.click(ncon.REBIRTHX, ncon.REBIRTHY)
+
+    def confirm(self):
+        """Click yes in confirm window."""
+        self.click(ncon.CONFIRMX, ncon.CONFIRMY)
+
+    def ngu_magic(self):
+        """Navigate to NGU magic."""
+        self.menu("ngu")
+        self.click(ncon.NGUMAGICX, ncon.NGUMAGICY)
+
+
+class Features(Navigation, Inputs):
+    """Handles the different features in the game."""
+
+
+    def merge_equipment(self):
+        """Navigate to inventory and merge equipment."""
+        self.menu("inventory")
+        for slot in self.equipment:
+            self.click(self.equipment[slot].x, self.equipment[slot].y)
+            self.send_string("d")
+
+    def boost_equipment(self):
+        """Boost all equipment."""
+        self.menu("inventory")
+        for slot in self.equipment:
+            self.click(self.equipment[slot].x, self.equipment[slot].y)
+            self.send_string("a")
+
+    def get_current_boss(self):
+        """Go to fight and read current boss number."""
+        self.menu("fight")
+        boss = self.ocr(ncon.OCRBOSSX1, ncon.OCRBOSSY1, ncon.OCRBOSSX2,
+                        ncon.OCRBOSSY2, debug=False)
+        return self.remove_letters(boss)
+
+    def fight(self):
+        """Navigate to Fight Boss and Nuke/attack."""
+        self.menu("fight")
+        self.click(ncon.NUKEX, ncon.NUKEY)
+        time.sleep(2)
+        self.click(ncon.FIGHTX, ncon.FIGHTY)
+
+    def ygg(self, rebirth=True):
+        """Navigate to inventory and handle fruits."""
+        self.menu("yggdrasil")
+        if rebirth:
+            for i in ncon.FRUITSX:
+                self.click(ncon.FRUITSX[i], ncon.FRUITSY[i])
+        else:
+            self.click(ncon.HARVESTX, ncon.HARVESTY)
+
+    def adventure(self, zone=0, highest=True, itopod=None, itopodauto=False):
+        """Go to adventure zone to idle.
+
+        Keyword arguments
+        zone -- Zone to idle in, 0 is safe zone, 1 is tutorial and so on.
+        highest -- If true, will go to your highest available non-titan zone.
+        itopod -- If set to true, it will override other settings and will
+                  instead enter the specified ITOPOD floor.
+        itopodauto -- If set to true it will click the "optimal" floor button.
+        """
+        self.menu("adventure")
+        if itopod:
+            self.click(ncon.ITOPODX, ncon.ITOPODY)
+            if itopodauto:
+                self.click(ncon.ITOPODENDX, ncon.ITOPODENDY)
+                # set end to 0 in case it's higher than start
+                self.send_string("0")
+                self.click(ncon.ITOPODAUTOX, ncon.ITOPODAUTOY)
+                self.click(ncon.ITOPODENTERX, ncon.ITOPODENTERY)
+                return
+            self.click(ncon.ITOPODSTARTX, ncon.ITOPODSTARTY)
+            self.send_string(str(itopod))
+            self.click(ncon.ITOPODENDX, ncon.ITOPODENDY)
+            self.send_string(str(itopod))
+            self.click(ncon.ITOPODENTERX, ncon.ITOPODENTERY)
+            return
+        if highest:
+            self.click(ncon.RIGHTARROWX, ncon.RIGHTARROWY, button="right")
+            return
+        else:
+            self.click(ncon.LEFTARROWX, ncon.LEFTARROWY, button="right")
+            for i in range(zone):
+                self.click(ncon.RIGHTARROWX, ncon.RIGHTARROWY)
+            return
+
+    def snipe(self, zone, duration, once=False, highest=False):
+        """Go to adventure and snipe bosses in specified zone.
+
+        Keyword arguments
+        zone -- Zone to snipe, 0 is safe zone, 1 is turorial and so on.
+        duration -- The duration in minutes the sniping will run before
+                    returning.
+        once -- If true it will only kill one boss before returning.
+        highest -- If set to true, it will go to your highest available
+                   non-titan zone.
+        """
+        self.menu("adventure")
+        if highest:
+            self.click(ncon.RIGHTARROWX, ncon.RIGHTARROWY, button="right")
+        else:
+            self.click(ncon.LEFTARROWX, ncon.LEFTARROWY, button="right")
+            for i in range(zone):
+                self.click(ncon.RIGHTARROWX, ncon.RIGHTARROWY)
+        idle_color = self.get_pixel_color(ncon.IDLEX, ncon.IDLEY)
+
+        if (idle_color == ncon.IDLECOLOR):
+            self.send_string("q")
+
+        end = time.time() + (duration * 60)
+        while time.time() < end:
+            health = self.get_pixel_color(ncon.HEALTHX, ncon.HEALTHY)
+            if (health == ncon.NOTDEAD):
+                crown = self.get_pixel_color(ncon.CROWNX, ncon.CROWNY)
+                if (crown == ncon.ISBOSS):
+                    while (health != ncon.DEAD):
+                        health = self.get_pixel_color(ncon.HEALTHX,
+                                                      ncon.HEALTHY)
+                        self.send_string("ytew")
+                        time.sleep(0.05)
+                    if once:
+                        break
+                else:
+                    # Send left arrow and right arrow to refresh monster.
+                    win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN,
+                                         wcon.VK_LEFT, 0)
+                    time.sleep(0.03)
+                    win32gui.PostMessage(Window.id, wcon.WM_KEYUP,
+                                         wcon.VK_LEFT, 0)
+                    time.sleep(0.03)
+                    win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN,
+                                         wcon.VK_RIGHT, 0)
+                    time.sleep(0.03)
+                    win32gui.PostMessage(Window.id, wcon.WM_KEYUP,
+                                         wcon.VK_RIGHT, 0)
+            time.sleep(0.1)
+
+    def do_rebirth(self, challenge=None):
+        """Start a rebirth or challenge."""
+        self.ygg(rebirth=True)  # Eat/harvest all fruit first
+        self.rebirth()
+
+        if challenge:
+            time.sleep(0.1)
+            self.click(ncon.CHALLENGEBUTTONX, ncon.CHALLENGEBUTTONY)
+            color = self.get_pixel_color(ncon.CHALLENGEACTIVEX,
+                                         ncon.CHALLENGEACTIVEY)
+            if (color == ncon.CHALLENGEACTIVECOLOR):
+                self.do_rebirth()  # Do normal rebirth if challenge is active
+                return
+            self.click(ncon.CHALLENGEX, ncon.CHALLENGEY)
+            self.click(ncon.CONFIRMX, ncon.CONFIRMY)
+            return
+        else:
+            self.click(ncon.REBIRTHX, ncon.REBIRTHY)
+            self.click(ncon.REBIRTHBUTTONX, ncon.REBIRTHBUTTONY)
+            self.click(ncon.CONFIRMX, ncon.CONFIRMY)
+        return
+
+
+w = Window()
+i = Inputs()
+nav = Navigation()
+feature = Features()
+
+Window.x, Window.y = i.pixel_search("212429", 0, 0, 400, 600)
+#print(feature.get_current_boss())
+#nav = Navigation()
+
+#nav.fight()
+
+
+pit_color = i.get_pixel_color(195, 108)
+rebirth_text = i.ocr(17, 370, 155, 400, True)
+# This requires you to have the file "sellout.png"
+sellout_shop = i.image_search(0, 0, 1920, 1080, "sellout.png")
+
+print(f"Found top left of game window at: {Window.x}, {Window.y}\n"
+      f"Pit menu color: {pit_color}\nFound Sellout Shop at: {sellout_shop}\n"
+      f"OCR found this rebirth information:\n{rebirth_text}")
+
