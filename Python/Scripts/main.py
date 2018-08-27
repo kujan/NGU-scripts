@@ -74,7 +74,7 @@ class Inputs():
             win32gui.PostMessage(Window.id, wcon.WM_RBUTTONUP,
                                  wcon.MK_RBUTTON, lParam)
 
-        time.sleep(0.1)
+        time.sleep(0.05)
 
     def send_string(self, str):
         """Send one or multiple characters to the window."""
@@ -91,8 +91,6 @@ class Inputs():
             win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN, ord(c.upper()), 0)
             time.sleep(0.30)  # This can probably be removed
             win32gui.PostMessage(Window.id, wcon.WM_KEYUP, ord(c.upper()), 0)
-
-        time.sleep(0.1)  # This can probably be removed
 
     def get_bitmap(self):
         """Get and return a bitmap of the window."""
@@ -232,14 +230,20 @@ class Features(Navigation, Inputs):
         """Navigate to inventory and merge equipment."""
         self.menu("inventory")
         for slot in self.equipment:
-            self.click(self.equipment[slot].x, self.equipment[slot].y)
+            if (slot == "cube"):
+                return
+            self.click(self.equipment[slot]["x"], self.equipment[slot]["y"])
             self.send_string("d")
 
     def boost_equipment(self):
         """Boost all equipment."""
         self.menu("inventory")
         for slot in self.equipment:
-            self.click(self.equipment[slot].x, self.equipment[slot].y)
+            if (slot == "cube"):
+                self.click(self.equipment[slot]["x"],
+                           self.equipment[slot]["y"], "right")
+                return
+            self.click(self.equipment[slot]["x"], self.equipment[slot]["y"])
             self.send_string("a")
 
     def get_current_boss(self):
@@ -256,7 +260,7 @@ class Features(Navigation, Inputs):
         time.sleep(2)
         self.click(ncon.FIGHTX, ncon.FIGHTY)
 
-    def ygg(self, rebirth=True):
+    def ygg(self, rebirth=False):
         """Navigate to inventory and handle fruits."""
         self.menu("yggdrasil")
         if rebirth:
@@ -373,6 +377,13 @@ class Features(Navigation, Inputs):
             self.click(ncon.CONFIRMX, ncon.CONFIRMY)
         return
 
+    def pit(self):
+        color = self.get_pixel_color(ncon.PITCOLORX, ncon.PITCOLORY)
+        if (color == ncon.PITREADY):
+            self.menu("pit")
+            self.click(ncon.PITX, ncon.PITY)
+            self.click(ncon.CONFIRMX, ncon.CONFIRMY)
+
 
 w = Window()
 i = Inputs()
@@ -380,10 +391,13 @@ nav = Navigation()
 feature = Features()
 
 Window.x, Window.y = i.pixel_search("212429", 0, 0, 400, 600)
-#print(feature.get_current_boss())
-#nav = Navigation()
 
-#nav.fight()
+while True:  # main loop
+    feature.snipe(0, 10, False, True)
+    feature.pit()
+    feature.boost_equipment()
+    feature.merge_equipment()
+    feature.ygg()
 
 
 pit_color = i.get_pixel_color(195, 108)

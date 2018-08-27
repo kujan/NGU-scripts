@@ -24,7 +24,13 @@ NOTDEAD = "EB0000"
 ISBOSS = "F7EF29"
 DEAD = "EBEBEB"
 #MENU OFFSETS
+MENUITEMS = ["fight", "pit", "adventure", "inventory", "augmentations",
+             "advtraining", "timemachine", "bloodmagic", "wandoos", "ngu",
+             "yggdrasil", "beard"]
+
 MENUOFFSETX = 230
+MENUOFFSETY = 45
+MENUDISTANCEY = 30
 FIGHTBOSSMENUOFFSETY = 75
 PITMENUOFFSETY = 105
 ADVENTUREMENUOFFSETY = 135
@@ -49,6 +55,10 @@ FIGHTX = 620
 FIGHTY = 220
 
 #INVENTORY OFFSETS
+EQUIPMENTSLOTS = {"accessory1" : {"x": 480, "y": 65}, "accessory2": {"x": 480, "y": 112},
+				  "accessory3": {"x": 475, "y": 165}, "head": {"x": 525, "y": 65}, "chest": {"x": 527, "y": 114},
+				  "legs": {"x": 527, "y": 163}, "boots": {"x": 527, "y": 212},
+				  "weapon": {"x": 575, "y": 115}, "cube": {"x": 627, "y": 115}}
 ACCESSORY1OFFSETX = 480
 ACCESSORY1OFFSETY = 65
 ACCESSORY2OFFSETX = 480
@@ -112,7 +122,8 @@ NGU3Y = 313
 NGU4Y = 349
 NGU5Y = 384
 NGU6Y = 453
-
+NGUMAGICX = 380
+NGUMAGICY = 120
 #ADVTRAINING OFFSETS
 
 ADVTRAININGX = 890
@@ -126,13 +137,11 @@ ADVTRAINING5Y = 390
 
 HARVESTX = 814
 HARVESTY = 450
-FRUITSX = {1: 350, 2: 560, 3: 775, 4: 450, 5: 560, 6: 775, 7: 350, 8: 560, 9: 775}
+FRUITSX = {1: 350, 2: 560, 3: 775, 4: 350, 5: 560, 6: 775, 7: 350, 8: 560, 9: 775}
 FRUITSY = {1: 180, 2: 180, 3: 180, 4: 270, 5: 270, 6: 270, 7: 370, 8: 370, 9: 370}
 
 FRUIT1Y = 180
-
 FRUIT2Y = 180
-
 FRUIT3Y = 180
 FRUIT4X = 350
 FRUIT4Y = 270
@@ -152,8 +161,8 @@ REBIRTHX = 90
 REBIRTHY = 420
 REBIRTHBUTTONX = 545
 REBIRTHBUTTONY = 520
-REBIRTHCONFIRMX = 425 
-REBIRTHCONFIRMY = 320
+CONFIRMX = 425 
+CONFIRMY = 320
 CHALLENGEBUTTONX = 700
 CHALLENGEBUTTONY = 520
 CHALLENGEX = 380
