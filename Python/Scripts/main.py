@@ -1,5 +1,6 @@
 import cv2
 import ngucon as ncon
+import math
 import numpy
 import pytesseract
 import re
@@ -74,7 +75,7 @@ class Inputs():
             win32gui.PostMessage(Window.id, wcon.WM_RBUTTONUP,
                                  wcon.MK_RBUTTON, lParam)
 
-        time.sleep(0.05)
+        time.sleep(0.15)
 
     def send_string(self, str):
         """Send one or multiple characters to the window."""
@@ -221,6 +222,10 @@ class Navigation(Inputs):
         self.menu("ngu")
         self.click(ncon.NGUMAGICX, ncon.NGUMAGICY)
 
+    def exp(self):
+        """Navigate to EXP Menu."""
+        self.click(ncon.EXPX, ncon.EXPY)
+
 
 class Features(Navigation, Inputs):
     """Handles the different features in the game."""
@@ -324,7 +329,7 @@ class Features(Navigation, Inputs):
                 self.click(ncon.RIGHTARROWX, ncon.RIGHTARROWY)
         idle_color = self.get_pixel_color(ncon.IDLEX, ncon.IDLEY)
 
-        if (idle_color == ncon.IDLECOLOR):
+        if (idle_color != ncon.IDLECOLOR):
             self.send_string("q")
 
         end = time.time() + (duration * 60)
@@ -378,27 +383,174 @@ class Features(Navigation, Inputs):
         return
 
     def pit(self):
+        """Throws money into the pit."""
         color = self.get_pixel_color(ncon.PITCOLORX, ncon.PITCOLORY)
         if (color == ncon.PITREADY):
             self.menu("pit")
             self.click(ncon.PITX, ncon.PITY)
             self.click(ncon.CONFIRMX, ncon.CONFIRMY)
 
+    def augments(self, augments, energy):
+        """Dump energy into augmentations.
+
+        Keyword arguments
+        augments -- Dictionary that contains which augments you wish to use and
+                    a ratio that tells how much of the total energy you
+                    allocated you wish to send. Example:
+                    {"SS": 0, "DS": 0, "MI": 0, "DTMT": 0, "CI": 0, "M": 0,
+                     "SM": 0, "AA": 0, "EB": 0, "CS": 0, "AE": 0, "ES": 0,
+                     "LS": 0.9, "QSL": 0.1}
+        Energy -- The total amount of energy you want to use for all augments.
+        """
+        self.menu("augmentations")
+        # Make sure we are scrolled up in the augment screen.
+        
+        self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLTOPY)
+        time.sleep(1.)
+        for i, k in enumerate(augments):
+            # Scroll down if we have to.
+            if (k == "AE" or k == "ES" or k == "LS" or k == "QSL"):
+                print("shouldnt be here")
+                self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLBOTY)
+
+            val = math.floor(augments[k] * energy)
+            self.click(ncon.NUMBERINPUTBOXX, ncon.NUMBERINPUTBOXY)
+            self.send_string(str(val))
+            self.click(ncon.AUGMENTX, ncon.AUGMENTY[k])
+
+    def time_machine(self, magic=False):
+        self.menu("timemachine")
+        self.click(ncon.NUMBERINPUTBOXX, ncon.NUMBERINPUTBOXY)
+        self.send_string("500000000")
+        self.click(ncon.TMSPEEDX, ncon.TMSPEEDY)
+        if magic:
+            self.click(ncon.TMMULTX, ncon.TMMULTY)
+
+    def blood_magic(self, target):
+        self.menu("bloodmagic")
+        self.click(ncon.BMX, ncon.BMY[target])
+        
+    def wandoos(self, magic=False):
+        self.menu("wandoos")
+        self.click(ncon.NUMBERINPUTBOXX, ncon.NUMBERINPUTBOXY)
+        self.send_string("10000000")
+        self.click(ncon.WANDOOSENERGYX, ncon.WANDOOSENERGYY)
+        if magic:
+            self.click(ncon.WANDOOSMAGICX, ncon.WANDOOSMAGICY)
+
+    def loadout(self, target):
+        self.menu("inventory")
+        self.click(ncon.LOADOUTX[target], ncon.LOADOUTY)
+
+    def speedrun_bloodpill(self):
+        self.menu("bloodmagic")
+        self.click(ncon.BMSPELLX, ncon.BMSPELLY)
+        self.click(ncon.BMPILLX, ncon.BMPILLY)
+        self.click(ncon.BMNUMBERX, ncon.BMNUMBERY)
+        time.sleep(2)
+        self.click(ncon.BMNUMBERX, ncon.BMNUMBERY)
+
+class Statistics(Navigation):
+    """Handles various statistics."""
+
+    def __init__(self):
+        self.exp()
+        self.start_exp = int(self.remove_letters(self.ocr(ncon.EXPX1,
+                                                          ncon.EXPY1,
+                                                          ncon.EXPX2,
+                                                          ncon.EXPY2)))
+        self.start_time = time.time()
+        self.rebirth = 1
+
+    def print_exp(self):
+        """Print current exp stats"""
+        self.exp()
+        current_time = time.time()
+        current_exp = int(self.remove_letters(self.ocr(ncon.EXPX1,
+                                                       ncon.EXPY1,
+                                                       ncon.EXPX2,
+                                                       ncon.EXPY2)))
+        per_hour = (current_exp - self.start_exp)//((current_time -
+                                                     self.start_time) / 3600)
+        print(f'Rebirth #{self.rebirth}\nStart exp: {self.start_exp}\nCurrent '
+              f'exp: {current_exp}\nPer hour: {per_hour}\n')
+        self.rebirth += 1
+
+def speedrun(duration, f):
+    """Start a speedrun.
+
+    Keyword arguments
+    duration -- duration in minutes to run
+    f -- feature object
+    """
+    f.do_rebirth()
+    end = time.time() + (duration * 60)
+    magic_assigned = False
+    do_tm = True
+    augments_assigned = False
+    f.fight()
+    f.loadout(1)  # Gold drop equipment
+    f.snipe(0, 2, True, True)  # Kill one boss in the highest zone
+    time.sleep(0.1)
+    f.loadout(2)  # Bar/power equimpent
+    f.adventure(zone=0, highest=False, itopod=True, itopodauto=True)
+    i = 0
+    while time.time() < end:
+        bm_color = f.get_pixel_color(ncon.BMLOCKEDX, ncon.BMLOCKEDY)
+        tm_color = f.get_pixel_color(ncon.TMLOCKEDX, ncon.TMLOCKEDY)
+        # Do TM while waiting for magic cap
+        if not magic_assigned and tm_color != ncon.TMLOCKEDCOLOR:
+            f.time_machine(True)
+        # If magic is assigned, continue adding energy to TM
+        elif do_tm and tm_color != ncon.TMLOCKEDCOLOR:
+            f.time_machine()
+        # Assign augments when energy caps
+        if time.time() > end - (duration * 0.5 * 60):
+            if do_tm and not augments_assigned:
+                f.send_string("r")
+                f.augments({"SS": 0.9, "DS": 0.1}, 34500000)
+                do_tm = False
+                augments_assigned = True
+        # Reassign magic from TM into BM after half the duration
+        if (bm_color != ncon.BMLOCKEDCOLOR and not magic_assigned and
+           time.time() > end - (duration * 0.5 * 60)):
+            f.send_string("t")
+            f.blood_magic(3)
+            magic_assigned = True
+        # Assign leftovers into wandoos
+        if augments_assigned:
+            f.wandoos(True)
+        f.boost_equipment()
+        i += 1
+        if i > 10:
+            f.fight()
+            i = 0
+    f.fight()
+    f.pit()
+    time.sleep(15)
+    f.speedrun_bloodpill()
+    return
 
 w = Window()
 i = Inputs()
 nav = Navigation()
 feature = Features()
 
+
 Window.x, Window.y = i.pixel_search("212429", 0, 0, 400, 600)
+nav.menu("inventory")
+s = Statistics()
 
 while True:  # main loop
-    feature.snipe(0, 10, False, True)
-    feature.pit()
-    feature.boost_equipment()
-    feature.merge_equipment()
-    feature.ygg()
-
+    feature.do_rebirth()
+    speedrun(12, feature)
+    s.print_exp()
+    #feature.snipe(0, 10, False, True)
+    #feature.pit()
+    #feature.boost_equipment()
+    #feature.merge_equipment()
+    #feature.ygg()
+    #time.sleep(120)
 
 pit_color = i.get_pixel_color(195, 108)
 rebirth_text = i.ocr(17, 370, 155, 400, True)
