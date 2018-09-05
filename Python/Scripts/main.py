@@ -1,3 +1,5 @@
+"""I should write someting here at some point."""
+
 import cv2
 import ngucon as ncon
 import math
@@ -9,14 +11,12 @@ import win32api
 import win32con as wcon
 import win32gui
 import win32ui
-
-
 from ctypes import windll
 from PIL import Image as image
 from PIL import ImageFilter
 
 
-class Window:
+class Window():
     """This class contains game window coordinates."""
 
     id = 0
@@ -74,8 +74,8 @@ class Inputs():
                                  wcon.MK_RBUTTON, lParam)
             win32gui.PostMessage(Window.id, wcon.WM_RBUTTONUP,
                                  wcon.MK_RBUTTON, lParam)
-
-        time.sleep(0.15)
+        # Sleep lower than 0.1 might cause issues when clicking in succession
+        time.sleep(0.2)
 
     def send_string(self, str):
         """Send one or multiple characters to the window."""
@@ -229,7 +229,6 @@ class Navigation(Inputs):
 
 class Features(Navigation, Inputs):
     """Handles the different features in the game."""
-
 
     def merge_equipment(self):
         """Navigate to inventory and merge equipment."""
@@ -403,22 +402,23 @@ class Features(Navigation, Inputs):
         Energy -- The total amount of energy you want to use for all augments.
         """
         self.menu("augmentations")
-        # Make sure we are scrolled up in the augment screen.
-        
-        self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLTOPY)
-        time.sleep(1.)
+
         for i, k in enumerate(augments):
+            # Make sure we are scrolled up in the augment screen.
+            self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLTOPY)
             # Scroll down if we have to.
             if (k == "AE" or k == "ES" or k == "LS" or k == "QSL"):
                 print("shouldnt be here")
                 self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLBOTY)
 
+            time.sleep(.3)
             val = math.floor(augments[k] * energy)
             self.click(ncon.NUMBERINPUTBOXX, ncon.NUMBERINPUTBOXY)
             self.send_string(str(val))
             self.click(ncon.AUGMENTX, ncon.AUGMENTY[k])
 
     def time_machine(self, magic=False):
+        """Add energy and/or magic to TM."""
         self.menu("timemachine")
         self.click(ncon.NUMBERINPUTBOXX, ncon.NUMBERINPUTBOXY)
         self.send_string("500000000")
@@ -427,10 +427,12 @@ class Features(Navigation, Inputs):
             self.click(ncon.TMMULTX, ncon.TMMULTY)
 
     def blood_magic(self, target):
+        """Assign magic to BM."""
         self.menu("bloodmagic")
         self.click(ncon.BMX, ncon.BMY[target])
-        
+
     def wandoos(self, magic=False):
+        """Assign energy and/or magic to wandoos."""
         self.menu("wandoos")
         self.click(ncon.NUMBERINPUTBOXX, ncon.NUMBERINPUTBOXY)
         self.send_string("10000000")
@@ -439,10 +441,12 @@ class Features(Navigation, Inputs):
             self.click(ncon.WANDOOSMAGICX, ncon.WANDOOSMAGICY)
 
     def loadout(self, target):
+        """Equip targeted loadout."""
         self.menu("inventory")
         self.click(ncon.LOADOUTX[target], ncon.LOADOUTY)
 
     def speedrun_bloodpill(self):
+        """Try to cast bloodpill, otherwise cast number."""
         self.menu("bloodmagic")
         self.click(ncon.BMSPELLX, ncon.BMSPELLY)
         self.click(ncon.BMPILLX, ncon.BMPILLY)
@@ -450,31 +454,97 @@ class Features(Navigation, Inputs):
         time.sleep(2)
         self.click(ncon.BMNUMBERX, ncon.BMNUMBERY)
 
+
 class Statistics(Navigation):
     """Handles various statistics."""
 
     def __init__(self):
+        """Store start EXP via OCR."""
         self.exp()
-        self.start_exp = int(self.remove_letters(self.ocr(ncon.EXPX1,
-                                                          ncon.EXPY1,
-                                                          ncon.EXPX2,
-                                                          ncon.EXPY2)))
+        try:
+            self.start_exp = int(self.remove_letters(self.ocr(ncon.EXPX1,
+                                                              ncon.EXPY1,
+                                                              ncon.EXPX2,
+                                                              ncon.EXPY2)))
+            print(self.start_exp)
+        except ValueError:
+            print("OCR couldn't detect starting XP, defaulting to 0.")
+            self.start_exp = 0
         self.start_time = time.time()
         self.rebirth = 1
 
     def print_exp(self):
-        """Print current exp stats"""
+        """Print current exp stats."""
         self.exp()
         current_time = time.time()
-        current_exp = int(self.remove_letters(self.ocr(ncon.EXPX1,
-                                                       ncon.EXPY1,
-                                                       ncon.EXPX2,
-                                                       ncon.EXPY2)))
+        try:
+            current_exp = int(self.remove_letters(self.ocr(ncon.EXPX1,
+                                                           ncon.EXPY1,
+                                                           ncon.EXPX2,
+                                                           ncon.EXPY2)))
+        except ValueError:
+            print("OCR couldn't detect current XP.")
+            return
         per_hour = (current_exp - self.start_exp)//((current_time -
                                                      self.start_time) / 3600)
         print(f'Rebirth #{self.rebirth}\nStart exp: {self.start_exp}\nCurrent '
               f'exp: {current_exp}\nPer hour: {per_hour}\n')
         self.rebirth += 1
+
+
+def Upgrade(Navigation):
+    """Buys things for exp.
+
+    Keyword argument:
+    ecap -- The amount of energy cap in the ratio. Must be over 10000 and
+            divisible by 250.
+    mcap -- The amount of magic cap in the ratio. Must be over 10000 and
+            divisible by 250.
+    ebar -- the amount of energy bars to buy in relation to power
+    mbar -- the amount of magic bars to buy in relation to power.
+
+    Example: Upgrade(37500, 37500, 2, 1)
+    This will result in a 1:37500:2 ratio for energy and 1:37500:1 for magic.
+    i.e. 1 power, 37500 ecap and 2 ebars.
+    """
+    def __init__(self, ecap, mcap, ebar, mbar):
+        self.ecap = ecap
+        self.mcap = mcap
+        self.ebar = ebar
+        self.mbar = mbar
+        self.OCR_failures = 0
+
+    def energy(self):
+        if self.ecap < 10000 or self.ecap % 250 != 0:
+            print("Ecap value not divisible by 250, not spending exp.")
+            return
+
+        print("Spending your hard earned xp")
+        self.exp()
+
+        try:
+            current_exp = int(self.remove_letters(self.ocr(ncon.EXPX1,
+                                                           ncon.EXPY1,
+                                                           ncon.EXPX2,
+                                                           ncon.EXPY2)))
+
+            self.OCR_failures = 0
+            total_price = int(ncon.EPOWER + ncon.ECAP * self.ecap + ncon.EBAR * self.ebar)
+            amount = int(current_exp // total_price)
+            power = amount
+            cap = self.ecap * amount
+            bars = self.ebar * amount
+
+
+        except ValueError:
+            
+            self.OCR_failures += 1
+            if self.OCR_failures <= 3:
+                print("OCR couldn't detect current XP, retrying.")
+                self.energy()
+            else:
+                print("Something went wrong with the OCR, see debug.png")
+            return
 
 def speedrun(duration, f):
     """Start a speedrun.
@@ -490,12 +560,12 @@ def speedrun(duration, f):
     augments_assigned = False
     f.fight()
     f.loadout(1)  # Gold drop equipment
-    f.snipe(0, 2, True, True)  # Kill one boss in the highest zone
+    f.snipe(0, 2, once=True, highest=True)  # Kill one boss in the highest zone
     time.sleep(0.1)
     f.loadout(2)  # Bar/power equimpent
     f.adventure(zone=0, highest=False, itopod=True, itopodauto=True)
     i = 0
-    while time.time() < end:
+    while time.time() < end - 15:
         bm_color = f.get_pixel_color(ncon.BMLOCKEDX, ncon.BMLOCKEDY)
         tm_color = f.get_pixel_color(ncon.TMLOCKEDX, ncon.TMLOCKEDY)
         # Do TM while waiting for magic cap
@@ -508,14 +578,24 @@ def speedrun(duration, f):
         if time.time() > end - (duration * 0.5 * 60):
             if do_tm and not augments_assigned:
                 f.send_string("r")
-                f.augments({"SS": 0.9, "DS": 0.1}, 34500000)
+                f.augments({"SS": 0.9, "DS": 0.1}, 32000000)
+                f.fight()
+                f.loadout(1)  # Gold drop equipment
+                f.snipe(0, 2, once=True, highest=True)  # Kill one boss in the highest zone
+                time.sleep(0.1)
+                f.loadout(2)  # Bar/power equimpent
+                f.adventure(zone=0, highest=False, itopod=True, itopodauto=True)
                 do_tm = False
                 augments_assigned = True
         # Reassign magic from TM into BM after half the duration
         if (bm_color != ncon.BMLOCKEDCOLOR and not magic_assigned and
            time.time() > end - (duration * 0.5 * 60)):
+            f.menu("bloodmagic")
+            print("assigning magic")
+            time.sleep(1)
             f.send_string("t")
-            f.blood_magic(3)
+            time.sleep(1)
+            f.blood_magic(4)
             magic_assigned = True
         # Assign leftovers into wandoos
         if augments_assigned:
@@ -531,6 +611,7 @@ def speedrun(duration, f):
     f.speedrun_bloodpill()
     return
 
+
 w = Window()
 i = Inputs()
 nav = Navigation()
@@ -545,19 +626,3 @@ while True:  # main loop
     feature.do_rebirth()
     speedrun(12, feature)
     s.print_exp()
-    #feature.snipe(0, 10, False, True)
-    #feature.pit()
-    #feature.boost_equipment()
-    #feature.merge_equipment()
-    #feature.ygg()
-    #time.sleep(120)
-
-pit_color = i.get_pixel_color(195, 108)
-rebirth_text = i.ocr(17, 370, 155, 400, True)
-# This requires you to have the file "sellout.png"
-sellout_shop = i.image_search(0, 0, 1920, 1080, "sellout.png")
-
-print(f"Found top left of game window at: {Window.x}, {Window.y}\n"
-      f"Pit menu color: {pit_color}\nFound Sellout Shop at: {sellout_shop}\n"
-      f"OCR found this rebirth information:\n{rebirth_text}")
-
