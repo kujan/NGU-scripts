@@ -44,12 +44,6 @@ class Window():
 class Inputs():
     """This class handles inputs."""
 
-    """
-    def __init__(self):
-        Get the relative coords for game window.
-        Window.__init__(self)
-        Window.x, Window.y = self.pixel_search("212429", 0, 0, 400, 600)
-    """
     def click(self, x, y, button="left"):
         """Click at pixel xy."""
         x += Window.x
@@ -87,7 +81,7 @@ class Inputs():
             if c.isdigit():  # Digits only require KEY_UP event.
                 win32gui.PostMessage(Window.id, wcon.WM_KEYUP, ord(c.upper()),
                                      0)
-                time.sleep(0.03)  # This can probably be removed
+                #time.sleep(0.03)  # This can probably be removed
                 continue
             win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN, ord(c.upper()), 0)
             time.sleep(0.30)  # This can probably be removed
@@ -328,8 +322,8 @@ class Features(Navigation, Inputs):
                 self.click(ncon.RIGHTARROWX, ncon.RIGHTARROWY)
         idle_color = self.get_pixel_color(ncon.IDLEX, ncon.IDLEY)
 
-        if (idle_color != ncon.IDLECOLOR):
-            self.send_string("q")
+        #if (idle_color != ncon.IDLECOLOR):
+        #    self.send_string("q")
 
         end = time.time() + (duration * 60)
         while time.time() < end:
@@ -341,7 +335,7 @@ class Features(Navigation, Inputs):
                         health = self.get_pixel_color(ncon.HEALTHX,
                                                       ncon.HEALTHY)
                         self.send_string("ytew")
-                        time.sleep(0.05)
+                        time.sleep(0.1)
                     if once:
                         break
                 else:
@@ -403,15 +397,14 @@ class Features(Navigation, Inputs):
         """
         self.menu("augmentations")
 
-        for i, k in enumerate(augments):
+        for k in augments:
             # Make sure we are scrolled up in the augment screen.
             self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLTOPY)
             # Scroll down if we have to.
             if (k == "AE" or k == "ES" or k == "LS" or k == "QSL"):
-                print("shouldnt be here")
                 self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLBOTY)
 
-            time.sleep(.3)
+            time.sleep(0.3)
             val = math.floor(augments[k] * energy)
             self.click(ncon.NUMBERINPUTBOXX, ncon.NUMBERINPUTBOXY)
             self.send_string(str(val))
@@ -578,7 +571,7 @@ def speedrun(duration, f):
         if time.time() > end - (duration * 0.5 * 60):
             if do_tm and not augments_assigned:
                 f.send_string("r")
-                f.augments({"SS": 0.9, "DS": 0.1}, 32000000)
+                f.augments({"SS": 0.5, "DS": 0.5}, 70000000)
                 f.fight()
                 f.loadout(1)  # Gold drop equipment
                 f.snipe(0, 2, once=True, highest=True)  # Kill one boss in the highest zone
@@ -591,10 +584,8 @@ def speedrun(duration, f):
         if (bm_color != ncon.BMLOCKEDCOLOR and not magic_assigned and
            time.time() > end - (duration * 0.5 * 60)):
             f.menu("bloodmagic")
-            print("assigning magic")
-            time.sleep(1)
+            time.sleep(0.2)
             f.send_string("t")
-            time.sleep(1)
             f.blood_magic(4)
             magic_assigned = True
         # Assign leftovers into wandoos
@@ -605,9 +596,12 @@ def speedrun(duration, f):
         if i > 10:
             f.fight()
             i = 0
+    f.menu("digger")
+    f.click(ncon.DIG_CAP[3]["x"], ncon.DIG_CAP[3]["y"])
+    f.click(ncon.DIG_ACTIVE[3]["x"], ncon.DIG_ACTIVE[3]["y"])
     f.fight()
     f.pit()
-    time.sleep(15)
+    time.sleep(20)
     f.speedrun_bloodpill()
     return
 
@@ -623,6 +617,12 @@ nav.menu("inventory")
 s = Statistics()
 
 while True:  # main loop
-    feature.do_rebirth()
+    #feature.snipe(0, 5, once=False, highest=True)
+    #feature.click(ncon.LEFTARROWX, ncon.LEFTARROWY, button="right")
+    #feature.ygg()
+    #feature.merge_equipment()
+    #feature.boost_equipment()
+    #time.sleep(120)
+    #feature.menu("digger")
     speedrun(12, feature)
     s.print_exp()

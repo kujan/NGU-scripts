@@ -26,7 +26,7 @@ DEAD = "EBEBEB"
 #MENU OFFSETS
 MENUITEMS = ["fight", "pit", "adventure", "inventory", "augmentations",
              "advtraining", "timemachine", "bloodmagic", "wandoos", "ngu",
-             "yggdrasil", "beard"]
+             "yggdrasil", "digger", "beard"]
 
 MENUOFFSETX = 230
 MENUOFFSETY = 45
@@ -164,6 +164,14 @@ EXPY2 = 95
 #BEARD OFFSETS
 
 BEARD_X = {1: 312, 2: 338, 3: 312, 4: 1}
+
+#DIGGER OFFSETS
+
+DIG_PAGEX = [340, 405, 470]
+DIG_PAGEY = 110
+DIG_ACTIVE = {1: {"x": 341, "y": 237}, 2: {"x": 658, "y": 237}, 3: {"x": 341, "y": 427}, 4: {"x": 658, "y": 427}} 
+DIG_CAP = {1: {"x": 550, "y": 185}, 2: {"x": 865, "y": 185}, 3: {"x": 550, "y": 375}, 4: {"x": 865, "y": 375}}
+
 
 #EXP COSTS PER UNIT
 EPOWER = 150
