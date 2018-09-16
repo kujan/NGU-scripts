@@ -150,18 +150,25 @@ class Inputs():
         *_, t = cv2.minMaxLoc(res)
         return t
 
-    def ocr(self, x_start, y_start, x_end, y_end, debug=False):
+    def ocr(self, x_start, y_start, x_end, y_end, debug=False, bmp=None):
         """Perform an OCR of the supplied area, returns a string of the result.
 
         Keyword arguments:
+
         debug -- saves an image of what is sent to the OCR (default False)
+        bmp -- a bitmap from the get_bitmap() function, use this if you're
+               performing multiple different OCR-readings in succession from
+               the same page. This is to avoid to needlessly get the same
+               bitmap multiple times. If a bitmap is not passed, the function
+               will get the bitmap itself. (default None)
         """
         x_start += Window.x
         x_end += Window.x
         y_start += Window.y
         y_end += Window.y
 
-        bmp = self.get_bitmap()
+        if not bmp:
+            bmp = self.get_bitmap()
         # Bitmaps are created with a 8px border
         bmp = bmp.crop((x_start + 8, y_start + 8, x_end + 8, y_end + 8))
         *_, right, lower = bmp.getbbox()
@@ -197,7 +204,7 @@ class Navigation(Inputs):
         y = ncon.MENUOFFSETY + ((self.menus.index(target) + 1) *
                                 ncon.MENUDISTANCEY)
         self.click(ncon.MENUOFFSETX, y)
-        time.sleep(0.1)
+        time.sleep(0.3)
 
     def input_box(self):
         """Click input box."""
@@ -219,6 +226,11 @@ class Navigation(Inputs):
     def exp(self):
         """Navigate to EXP Menu."""
         self.click(ncon.EXPX, ncon.EXPY)
+
+    def exp_magic(self):
+        """Navigate to the magic menu within the EXP menu."""
+        self.exp()
+        self.click(ncon.MMENUX, ncon.MMENUY)
 
 
 class Features(Navigation, Inputs):
@@ -408,6 +420,7 @@ class Features(Navigation, Inputs):
             val = math.floor(augments[k] * energy)
             self.click(ncon.NUMBERINPUTBOXX, ncon.NUMBERINPUTBOXY)
             self.send_string(str(val))
+            time.sleep(0.1)
             self.click(ncon.AUGMENTX, ncon.AUGMENTY[k])
 
     def time_machine(self, magic=False):
@@ -459,7 +472,6 @@ class Statistics(Navigation):
                                                               ncon.EXPY1,
                                                               ncon.EXPX2,
                                                               ncon.EXPY2)))
-            print(self.start_exp)
         except ValueError:
             print("OCR couldn't detect starting XP, defaulting to 0.")
             self.start_exp = 0
@@ -485,34 +497,51 @@ class Statistics(Navigation):
         self.rebirth += 1
 
 
-def Upgrade(Navigation):
-    """Buys things for exp.
+class Upgrade(Navigation):
+    """Buys things for exp."""
 
-    Keyword argument:
-    ecap -- The amount of energy cap in the ratio. Must be over 10000 and
-            divisible by 250.
-    mcap -- The amount of magic cap in the ratio. Must be over 10000 and
-            divisible by 250.
-    ebar -- the amount of energy bars to buy in relation to power
-    mbar -- the amount of magic bars to buy in relation to power.
+    def __init__(self, ecap, mcap, ebar, mbar, e2m_ratio):
+        """Example: Upgrade(37500, 37500, 2, 1).
 
-    Example: Upgrade(37500, 37500, 2, 1)
-    This will result in a 1:37500:2 ratio for energy and 1:37500:1 for magic.
-    i.e. 1 power, 37500 ecap and 2 ebars.
-    """
-    def __init__(self, ecap, mcap, ebar, mbar):
+        This will result in a 1:37500:2 ratio for energy and 1:37500:1 for
+        magic. i.e. 1 power, 37500 ecap and 2 ebars.
+
+        Keyword arguments:
+
+        ecap -- The amount of energy cap in the ratio. Must be over 10000 and
+                divisible by 250.
+        mcap -- The amount of magic cap in the ratio. Must be over 10000 and
+                divisible by 250.
+        ebar -- the amount of energy bars to buy in relation to power
+        mbar -- the amount of magic bars to buy in relation to power.
+        e2m_ratio -- The amount of exp to spend in energy in relation to magic.
+                     a value of 5 will buy 5 times more upgrades in energy than
+                     in magic, maintaining a 5:1 E:M ratio. 
+        """
         self.ecap = ecap
         self.mcap = mcap
         self.ebar = ebar
         self.mbar = mbar
+        self.e2m_ratio = e2m_ratio
         self.OCR_failures = 0
 
-    def energy(self):
+    def em(self):
+        """Buy upgrades for both energy and magic.
+
+        Requires the confirmation popup button for EXP purchases in settings
+        to be turned OFF.
+
+        This uses all available exp, so use with caution.
+        """
         if self.ecap < 10000 or self.ecap % 250 != 0:
-            print("Ecap value not divisible by 250, not spending exp.")
+            print("Ecap value not divisible by 250 or lower than 10000, not" +
+                  " spending exp.")
+            return
+        if self.mcap < 10000 or self.mcap % 250 != 0:
+            print("Mcap value not divisible by 250 or lower than 10000, not" +
+                  " spending exp.")
             return
 
-        print("Spending your hard earned xp")
         self.exp()
 
         try:
@@ -522,22 +551,76 @@ def Upgrade(Navigation):
                                                            ncon.EXPY2)))
 
             self.OCR_failures = 0
-            total_price = int(ncon.EPOWER + ncon.ECAP * self.ecap + ncon.EBAR * self.ebar)
-            amount = int(current_exp // total_price)
-            power = amount
-            cap = self.ecap * amount
-            bars = self.ebar * amount
-
 
         except ValueError:
-            
             self.OCR_failures += 1
             if self.OCR_failures <= 3:
                 print("OCR couldn't detect current XP, retrying.")
-                self.energy()
+                self.em()
+                return
             else:
-                print("Something went wrong with the OCR, see debug.png")
+                print("Something went wrong with the OCR, not buying upgrades")
+                return
+
+        e_cost = ncon.EPOWER_COST + ncon.ECAP_COST * self.ecap + (
+                 ncon.EBAR_COST * self.ebar)
+
+        m_cost = ncon.MPOWER_COST + ncon.MCAP_COST * self.mcap + (
+                 ncon.MBAR_COST * self.mbar)
+
+        total_price = m_cost + self.e2m_ratio * e_cost
+
+        """Skip upgrading if we don't have enough exp to buy at least one
+        complete set of upgrades, in order to maintain our perfect ratios :)"""
+
+        if total_price > current_exp:
             return
+
+        amount = int(current_exp // total_price)
+
+        e_power = amount * self.e2m_ratio
+        e_cap = amount * self.ecap * self.e2m_ratio
+        e_bars = amount * self.ebar * self.e2m_ratio
+        m_power = amount
+        m_cap = amount * self.mcap
+        m_bars = amount * self.mbar
+
+        self.exp()
+
+        self.click(ncon.EMPOWBOXX, ncon.EMBOXY)
+        self.send_string(str(e_power))
+        time.sleep(0.1)
+
+        self.click(ncon.EMCAPBOXX, ncon.EMBOXY)
+        self.send_string(str(e_cap))
+        time.sleep(0.1)
+
+        self.click(ncon.EMBARBOXX, ncon.EMBOXY)
+        self.send_string(str(e_bars))
+        time.sleep(0.1)
+
+        self.click(ncon.EMPOWBUYX, ncon.EMBUYY)
+        self.click(ncon.EMCAPBUYX, ncon.EMBUYY)
+        self.click(ncon.EMBARBUYX, ncon.EMBUYY)
+
+        self.exp_magic()
+
+        self.click(ncon.EMPOWBOXX, ncon.EMBOXY)
+        self.send_string(str(m_power))
+        time.sleep(0.1)
+
+        self.click(ncon.EMCAPBOXX, ncon.EMBOXY)
+        self.send_string(str(m_cap))
+        time.sleep(0.1)
+
+        self.click(ncon.EMBARBOXX, ncon.EMBOXY)
+        self.send_string(str(m_bars))
+        time.sleep(0.1)
+
+        self.click(ncon.EMPOWBUYX, ncon.EMBUYY)
+        self.click(ncon.EMCAPBUYX, ncon.EMBUYY)
+        self.click(ncon.EMBARBUYX, ncon.EMBUYY)
+
 
 def speedrun(duration, f):
     """Start a speedrun.
@@ -574,7 +657,8 @@ def speedrun(duration, f):
                 f.augments({"SS": 0.5, "DS": 0.5}, 70000000)
                 f.fight()
                 f.loadout(1)  # Gold drop equipment
-                f.snipe(0, 2, once=True, highest=True)  # Kill one boss in the highest zone
+                # Kill one boss in the highest zone
+                f.snipe(0, 2, once=True, highest=True)
                 time.sleep(0.1)
                 f.loadout(2)  # Bar/power equimpent
                 f.adventure(zone=0, highest=False, itopod=True, itopodauto=True)
@@ -591,9 +675,9 @@ def speedrun(duration, f):
         # Assign leftovers into wandoos
         if augments_assigned:
             f.wandoos(True)
-        f.boost_equipment()
+        #f.boost_equipment()
         i += 1
-        if i > 10:
+        if i > 50:
             f.fight()
             i = 0
     f.menu("digger")
@@ -615,6 +699,7 @@ feature = Features()
 Window.x, Window.y = i.pixel_search("212429", 0, 0, 400, 600)
 nav.menu("inventory")
 s = Statistics()
+u = Upgrade(37500, 37500, 2, 2, 5)
 
 while True:  # main loop
     #feature.snipe(0, 5, once=False, highest=True)
@@ -624,5 +709,6 @@ while True:  # main loop
     #feature.boost_equipment()
     #time.sleep(120)
     #feature.menu("digger")
-    speedrun(12, feature)
+    speedrun(9, feature)
     s.print_exp()
+    u.em()
