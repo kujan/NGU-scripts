@@ -209,29 +209,45 @@ class Navigation(Inputs):
     def input_box(self):
         """Click input box."""
         self.click(ncon.NUMBERINPUTBOXX, ncon.NUMBERINPUTBOXY)
+        time.sleep(0.1)
 
     def rebirth(self):
         """Click rebirth menu."""
         self.click(ncon.REBIRTHX, ncon.REBIRTHY)
+        time.sleep(0.1)
 
     def confirm(self):
         """Click yes in confirm window."""
         self.click(ncon.CONFIRMX, ncon.CONFIRMY)
+        time.sleep(0.1)
 
     def ngu_magic(self):
         """Navigate to NGU magic."""
         self.menu("ngu")
         self.click(ncon.NGUMAGICX, ncon.NGUMAGICY)
+        time.sleep(0.1)
 
     def exp(self):
         """Navigate to EXP Menu."""
         self.click(ncon.EXPX, ncon.EXPY)
+        time.sleep(0.1)
 
     def exp_magic(self):
         """Navigate to the magic menu within the EXP menu."""
         self.exp()
         self.click(ncon.MMENUX, ncon.MMENUY)
+        time.sleep(0.1)
 
+    def info(self):
+        """Click info 'n stuff."""
+        self.click(ncon.INFOX, ncon.INFOY)
+        time.sleep(0.1)
+
+    def misc(self):
+        """Navigate to Misc stats."""
+        self.info()
+        self.click(ncon.MISCX, ncon.MISCY)
+        time.sleep(0.1)
 
 class Features(Navigation, Inputs):
     """Handles the different features in the game."""
@@ -418,7 +434,7 @@ class Features(Navigation, Inputs):
 
             time.sleep(0.3)
             val = math.floor(augments[k] * energy)
-            self.click(ncon.NUMBERINPUTBOXX, ncon.NUMBERINPUTBOXY)
+            self.input_box()
             self.send_string(str(val))
             time.sleep(0.1)
             self.click(ncon.AUGMENTX, ncon.AUGMENTY[k])
@@ -426,7 +442,7 @@ class Features(Navigation, Inputs):
     def time_machine(self, magic=False):
         """Add energy and/or magic to TM."""
         self.menu("timemachine")
-        self.click(ncon.NUMBERINPUTBOXX, ncon.NUMBERINPUTBOXY)
+        self.input_box()
         self.send_string("500000000")
         self.click(ncon.TMSPEEDX, ncon.TMSPEEDY)
         if magic:
@@ -440,7 +456,7 @@ class Features(Navigation, Inputs):
     def wandoos(self, magic=False):
         """Assign energy and/or magic to wandoos."""
         self.menu("wandoos")
-        self.click(ncon.NUMBERINPUTBOXX, ncon.NUMBERINPUTBOXY)
+        self.input_box()
         self.send_string("10000000")
         self.click(ncon.WANDOOSENERGYX, ncon.WANDOOSENERGYY)
         if magic:
@@ -466,12 +482,12 @@ class Statistics(Navigation):
 
     def __init__(self):
         """Store start EXP via OCR."""
-        self.exp()
+        self.misc()
         try:
-            self.start_exp = int(self.remove_letters(self.ocr(ncon.EXPX1,
-                                                              ncon.EXPY1,
-                                                              ncon.EXPX2,
-                                                              ncon.EXPY2)))
+            self.start_exp = int(self.remove_letters(self.ocr(ncon.OCR_EXPX1,
+                                                              ncon.OCR_EXPY1,
+                                                              ncon.OCR_EXPX2,
+                                                              ncon.OCR_EXPY2)))
         except ValueError:
             print("OCR couldn't detect starting XP, defaulting to 0.")
             self.start_exp = 0
@@ -480,13 +496,13 @@ class Statistics(Navigation):
 
     def print_exp(self):
         """Print current exp stats."""
-        self.exp()
+        self.misc()
         current_time = time.time()
         try:
-            current_exp = int(self.remove_letters(self.ocr(ncon.EXPX1,
-                                                           ncon.EXPY1,
-                                                           ncon.EXPX2,
-                                                           ncon.EXPY2)))
+            current_exp = int(self.remove_letters(self.ocr(ncon.OCR_EXPX1,
+                                                           ncon.OCR_EXPY1,
+                                                           ncon.OCR_EXPX2,
+                                                           ncon.OCR_EXPY2)))
         except ValueError:
             print("OCR couldn't detect current XP.")
             return
@@ -650,6 +666,8 @@ def speedrun(duration, f):
         # If magic is assigned, continue adding energy to TM
         elif do_tm and tm_color != ncon.TMLOCKEDCOLOR:
             f.time_machine()
+        else: 
+            f.wandoos(True)
         # Assign augments when energy caps
         if time.time() > end - (duration * 0.5 * 60):
             if do_tm and not augments_assigned:
@@ -700,7 +718,6 @@ Window.x, Window.y = i.pixel_search("212429", 0, 0, 400, 600)
 nav.menu("inventory")
 s = Statistics()
 u = Upgrade(37500, 37500, 2, 2, 5)
-
 while True:  # main loop
     #feature.snipe(0, 5, once=False, highest=True)
     #feature.click(ncon.LEFTARROWX, ncon.LEFTARROWY, button="right")
@@ -711,4 +728,4 @@ while True:  # main loop
     #feature.menu("digger")
     speedrun(9, feature)
     s.print_exp()
-    u.em()
+    #u.em()
