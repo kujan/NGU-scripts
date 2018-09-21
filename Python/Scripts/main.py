@@ -451,7 +451,8 @@ class Features(Navigation, Inputs):
     def blood_magic(self, target):
         """Assign magic to BM."""
         self.menu("bloodmagic")
-        self.click(ncon.BMX, ncon.BMY[target])
+        for i in range(target):
+            self.click(ncon.BMX, ncon.BMY[i])
 
     def wandoos(self, magic=False):
         """Assign energy and/or magic to wandoos."""
@@ -703,7 +704,7 @@ def speedrun(duration, f):
     f.click(ncon.DIG_ACTIVE[3]["x"], ncon.DIG_ACTIVE[3]["y"])
     f.fight()
     f.pit()
-    time.sleep(20)
+    time.sleep(5)
     f.speedrun_bloodpill()
     return
 
@@ -718,6 +719,7 @@ Window.x, Window.y = i.pixel_search("212429", 0, 0, 400, 600)
 nav.menu("inventory")
 s = Statistics()
 u = Upgrade(37500, 37500, 2, 2, 5)
+
 while True:  # main loop
     #feature.snipe(0, 5, once=False, highest=True)
     #feature.click(ncon.LEFTARROWX, ncon.LEFTARROWY, button="right")
@@ -726,6 +728,6 @@ while True:  # main loop
     #feature.boost_equipment()
     #time.sleep(120)
     #feature.menu("digger")
-    speedrun(9, feature)
+    speedrun(5, feature)
     s.print_exp()
-    #u.em()
+    u.em()
