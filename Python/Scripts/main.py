@@ -512,7 +512,7 @@ class Features(Navigation, Inputs):
         bmp = self.get_bitmap()
         current_ngu = {}
         try:
-            for k in e_ngu:
+            for k in ngu:
                 y1 = ncon.OCR_NGU_E_Y1 + k * 35
                 y2 = ncon.OCR_NGU_E_Y2 + k * 35
                 # remove commas from sub level 1 million NGU's.
