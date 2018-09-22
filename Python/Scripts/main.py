@@ -84,8 +84,9 @@ class Inputs():
                 #time.sleep(0.03)  # This can probably be removed
                 continue
             win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN, ord(c.upper()), 0)
-            time.sleep(0.30)  # This can probably be removed
+            time.sleep(0.10)  # This can probably be removed
             win32gui.PostMessage(Window.id, wcon.WM_KEYUP, ord(c.upper()), 0)
+        time.sleep(0.1)
 
     def get_bitmap(self):
         """Get and return a bitmap of the window."""
@@ -477,6 +478,103 @@ class Features(Navigation, Inputs):
         time.sleep(2)
         self.click(ncon.BMNUMBERX, ncon.BMNUMBERY)
 
+    def set_ngu(self, ngu, magic=False):
+        """Handle NGU upgrades in a non-dumb way.
+
+        Function will check target levels of selected NGU's and equalize the
+        target levels. This means that if one upgrade is ahead of the others,
+        the target level for all NGU's that are behind will be set to the
+        level of the highest upgrade.
+
+        If they are even, it will instead increase target level
+        by 25% of current level. Since the NGU's level at different speeds, I
+        would recommend that you currently set the slower separate from the
+        faster upgrades, unless energy/magic is a non issue.
+
+        Function returns False if NGU's are uneven, so you know to check back
+        occasionally for the proper 25% increase, which can be left unchecked
+        for a longer period of time.
+
+        Keyword arguments:
+
+        ngu -- Dictionary containing information on which energy NGU's you
+               wish to upgrade. Example: {7: True, 8: False, 9: False} - this
+               will use NGU 7 (drop chance), 8 (magic NGU), 9 (PP) in the
+               comparisons.
+
+        magic -- Set to True if these are magic NGU's
+        """
+        if magic:
+            self.ngu_magic()
+        else:
+            self.menu("ngu")
+
+        bmp = self.get_bitmap()
+        current_ngu = {}
+        try:
+            for k in e_ngu:
+                y1 = ncon.OCR_NGU_E_Y1 + k * 35
+                y2 = ncon.OCR_NGU_E_Y2 + k * 35
+                # remove commas from sub level 1 million NGU's.
+                res = re.sub(',', '', self.ocr(ncon.OCR_NGU_E_X1, y1,
+                                               ncon.OCR_NGU_E_X2, y2, False,
+                                               bmp))
+                current_ngu[k] = res
+            print(current_ngu)
+            # find highest and lowest NGU's.
+            high = max(current_ngu.keys(),
+                       key=(lambda i: float(current_ngu[i])))
+            low = min(current_ngu.keys(),
+                      key=(lambda i: float(current_ngu[i])))
+
+            # If one NGU is ahead of the others, fix this.
+            if high != low:
+                for k in current_ngu:
+                    print(float(current_ngu[k]), float(current_ngu[high]))
+                    if float(current_ngu[k]) <= float(current_ngu[high]):
+                        self.click(ncon.NGU_TARGETX, ncon.NGU_TARGETY + 35 * k)
+
+                        """We're casting as float to convert scientific notation
+                        into something usable, then casting as int to get rid
+                        of decimal."""
+
+                        self.send_string(str(int(float(current_ngu[high]))))
+                return False
+            # Otherwise increase target level by 25%.
+            else:
+                for k in current_ngu:
+                    self.click(ncon.NGU_TARGETX, ncon.NGU_TARGETY + 35 * k)
+                    self.send_string(str(int(float(current_ngu[k]) * 1.25)))
+                return True
+
+        except ValueError:
+            print("Something went wrong with the OCR reading for NGU's")
+
+    def assign_ngu(self, value, targets, magic=False):
+        """Assign energy/magic to NGU's.
+
+        Keyword arguments:
+        value -- the amount of energy/magic that will get split over all NGUs.
+        targets -- Array of NGU's to use (1-9).
+        magic -- Set to true if these are magic NGUs
+        """
+        if len(targets) > 9:
+            raise RuntimeError("Passing too many NGU's to assign_ngu,"+
+                " allowed: 9, sent: " + str(len(targets)))
+        if magic:
+            self.ngu_magic()
+        else:
+            self.menu("ngu")
+
+        self.input_box()
+        self.send_string("999999999999999")
+        # remove all energy/magic from NGU's
+        for i in range(1, 10):
+            self.click(ncon.NGU_MINUSX, ncon.NGU_MINUSY + i * 35)
+        self.input_box()
+        self.send_string(str(int(value // len(targets))))
+        for i in targets:
+            self.click(ncon.NGU_PLUSX, ncon.NGU_PLUSY + i * 35)
 
 class Statistics(Navigation):
     """Handles various statistics."""
@@ -720,6 +818,11 @@ nav.menu("inventory")
 s = Statistics()
 u = Upgrade(37500, 37500, 2, 2, 5)
 
+#e_ngu = {1: True, 2: True, 3: True, 4: True, 5: True, 6: True, 7: True, 8: True, 9: True}
+#e_ngu = {1: True, 2: True, 3: True, 4: True}
+
+#feature.set_ngu(e_ngu, False)
+#feature.assign_ngu(1000000, [1, 2, 3, 4, 5, 6, 7, 8, 9])
 while True:  # main loop
     #feature.snipe(0, 5, once=False, highest=True)
     #feature.click(ncon.LEFTARROWX, ncon.LEFTARROWY, button="right")
