@@ -37,7 +37,7 @@ class Window():
         top_windows = []
         win32gui.EnumWindows(window_enumeration_handler, top_windows)
         for i in top_windows:
-            if "play ngu idle" in i[1].lower():
+            if "debuggerino" in i[1].lower():
                 Window.id = i[0]
 
 
@@ -84,8 +84,9 @@ class Inputs():
                 #time.sleep(0.03)  # This can probably be removed
                 continue
             win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN, ord(c.upper()), 0)
-            time.sleep(0.30)  # This can probably be removed
+            time.sleep(0.10)  # This can probably be removed
             win32gui.PostMessage(Window.id, wcon.WM_KEYUP, ord(c.upper()), 0)
+        time.sleep(0.1)
 
     def get_bitmap(self):
         """Get and return a bitmap of the window."""
@@ -477,6 +478,57 @@ class Features(Navigation, Inputs):
         time.sleep(2)
         self.click(ncon.BMNUMBERX, ncon.BMNUMBERY)
 
+    def set_ngu(self, e_ngu, m_ngu):
+        """Handle NGU upgrades in a non-dumb way.
+
+        Function will check target levels of selected NGU's and equalize the
+        target levels. This means that if one upgrade is ahead of the others,
+        the target level for all NGU's that are behind will be set to the
+        level of the highest upgrade.
+
+        If they are even, it will instead increase target level
+        by 25% of current level. Since the NGU's level at different speeds, I
+        would recommend that you currently set the slower separate from the
+        faster upgrades, unless energy/magic is a non issue.
+
+        Keyword arguments:
+
+        e_ngu -- Dictionary containing information on which energy NGU's you
+             wish to upgrade. Example: {1: True, 2: True, 3: True, 4: True,
+             5: True, 6: True, 7: True, 8: False, 9: False}.
+
+        m_ngu -- Dictionary containing information on which magic NGU's you
+                 wish to upgrade.
+        """
+        self.menu("ngu")
+        bmp = self.get_bitmap()
+
+        current_ngu = {}
+        try:
+            for k in e_ngu:
+                y1 = ncon.OCR_NGU_E_Y1 + k * 35
+                y2 = ncon.OCR_NGU_E_Y2 + k * 35
+                res = re.sub(',', '', self.ocr(ncon.OCR_NGU_E_X1, y1,
+                                               ncon.OCR_NGU_E_X2, y2, False,
+                                               bmp))
+                current_ngu[k] = res
+
+            high = max(current_ngu.keys(), key=(lambda i: float(current_ngu[i])))
+            low = min(current_ngu.keys(), key=(lambda i: float(current_ngu[i])))
+
+            if high != low:
+                for k in current_ngu:
+                    if float(current_ngu[k]) <= float(current_ngu[high]):
+                        self.click(ncon.NGU_TARGETX, ncon.NGU_TARGETY + 35 * k)
+                        self.send_string(str(int(float(current_ngu[high]))))
+
+            else:
+                for k in current_ngu:
+                    self.click(ncon.NGU_TARGETX, ncon.NGU_TARGETY + 35 * k)
+                    self.send_string(str(int(float(current_ngu[k]) * 1.25)))
+
+        except ValueError:
+            print("Something went wrong with the OCR reading for NGU's")
 
 class Statistics(Navigation):
     """Handles various statistics."""
@@ -720,7 +772,13 @@ nav.menu("inventory")
 s = Statistics()
 u = Upgrade(37500, 37500, 2, 2, 5)
 
-while True:  # main loop
+e_ngu = {1: True, 2: True, 3: True, 4: True, 5: True, 6: True, 7: True, 8: True}
+e_ngu = {1: True, 2: True, 3: True}
+m_ngu = {}
+
+feature.set_ngu(e_ngu, m_ngu)
+
+"""while True:  # main loop
     #feature.snipe(0, 5, once=False, highest=True)
     #feature.click(ncon.LEFTARROWX, ncon.LEFTARROWY, button="right")
     #feature.ygg()
@@ -731,3 +789,4 @@ while True:  # main loop
     speedrun(5, feature)
     s.print_exp()
     u.em()
+"""
