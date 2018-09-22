@@ -37,7 +37,7 @@ class Window():
         top_windows = []
         win32gui.EnumWindows(window_enumeration_handler, top_windows)
         for i in top_windows:
-            if "debuggerino" in i[1].lower():
+            if "play ngu idle" in i[1].lower():
                 Window.id = i[0]
 
 
@@ -818,13 +818,12 @@ nav.menu("inventory")
 s = Statistics()
 u = Upgrade(37500, 37500, 2, 2, 5)
 
-e_ngu = {1: True, 2: True, 3: True, 4: True, 5: True, 6: True, 7: True, 8: True, 9: True}
+#e_ngu = {1: True, 2: True, 3: True, 4: True, 5: True, 6: True, 7: True, 8: True, 9: True}
 #e_ngu = {1: True, 2: True, 3: True, 4: True}
-m_ngu = {}
 
 #feature.set_ngu(e_ngu, False)
 #feature.assign_ngu(1000000, [1, 2, 3, 4, 5, 6, 7, 8, 9])
-"""while True:  # main loop
+while True:  # main loop
     #feature.snipe(0, 5, once=False, highest=True)
     #feature.click(ncon.LEFTARROWX, ncon.LEFTARROWY, button="right")
     #feature.ygg()
@@ -835,4 +834,3 @@ m_ngu = {}
     speedrun(5, feature)
     s.print_exp()
     u.em()
-"""
