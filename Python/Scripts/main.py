@@ -583,10 +583,10 @@ class Statistics(Navigation):
         """Store start EXP via OCR."""
         self.misc()
         try:
-            self.start_exp = int(self.remove_letters(self.ocr(ncon.OCR_EXPX1,
-                                                              ncon.OCR_EXPY1,
-                                                              ncon.OCR_EXPX2,
-                                                              ncon.OCR_EXPY2)))
+            self.start_exp = int(float(self.ocr(ncon.OCR_EXPX1,
+                                                ncon.OCR_EXPY1,
+                                                ncon.OCR_EXPX2,
+                                                ncon.OCR_EXPY2)))
         except ValueError:
             print("OCR couldn't detect starting XP, defaulting to 0.")
             self.start_exp = 0
@@ -598,10 +598,10 @@ class Statistics(Navigation):
         self.misc()
         current_time = time.time()
         try:
-            current_exp = int(self.remove_letters(self.ocr(ncon.OCR_EXPX1,
-                                                           ncon.OCR_EXPY1,
-                                                           ncon.OCR_EXPX2,
-                                                           ncon.OCR_EXPY2)))
+            current_exp = int(float(re.sub(',', '', self.ocr(ncon.OCR_EXPX1,
+                                                             ncon.OCR_EXPY1,
+                                                             ncon.OCR_EXPX2,
+                                                             ncon.OCR_EXPY2))))
         except ValueError:
             print("OCR couldn't detect current XP.")
             return
@@ -751,8 +751,8 @@ def speedrun(duration, f):
     augments_assigned = False
     f.fight()
     f.loadout(1)  # Gold drop equipment
-    f.snipe(0, 2, once=True, highest=True)  # Kill one boss in the highest zone
-    time.sleep(0.1)
+    f.adventure(0, True, False, False)
+    time.sleep(3)
     f.loadout(2)  # Bar/power equimpent
     f.adventure(zone=0, highest=False, itopod=True, itopodauto=True)
     i = 0
@@ -771,12 +771,13 @@ def speedrun(duration, f):
         if time.time() > end - (duration * 0.5 * 60):
             if do_tm and not augments_assigned:
                 f.send_string("r")
-                f.augments({"SS": 0.5, "DS": 0.5}, 70000000)
+                f.augments({"MI": 0.7, "DTMT": 0.3}, 100000000)
                 f.fight()
                 f.loadout(1)  # Gold drop equipment
                 # Kill one boss in the highest zone
-                f.snipe(0, 2, once=True, highest=True)
-                time.sleep(0.1)
+                #f.snipe(0, 2, once=True, highest=True)
+                f.adventure(0, True, False, False)
+                time.sleep(3)
                 f.loadout(2)  # Bar/power equimpent
                 f.adventure(zone=0, highest=False, itopod=True, itopodauto=True)
                 do_tm = False
@@ -831,6 +832,6 @@ while True:  # main loop
     #feature.boost_equipment()
     #time.sleep(120)
     #feature.menu("digger")
-    speedrun(5, feature)
+    speedrun(3, feature)
     s.print_exp()
     u.em()
