@@ -113,7 +113,7 @@ class Inputs():
         save_dc.DeleteDC()
         mfc_dc.DeleteDC()
         win32gui.ReleaseDC(Window.id, hwnd_dc)
-
+        bmp.save("asdf.png")
         return bmp
 
     def pixel_search(self, color, x_start, y_start, x_end, y_end):
@@ -125,8 +125,11 @@ class Inputs():
         Color must be supplied in hex.
         """
         bmp = self.get_bitmap()
+        width, height = bmp.size
         for y in range(y_start, y_end):
             for x in range(x_start, x_end):
+                if y > height or x > width:
+                    continue
                 t = bmp.getpixel((x, y))
                 if (self.rgb_to_hex(t) == color):
                     return x - 8, y - 8
@@ -176,7 +179,7 @@ class Inputs():
         bmp = bmp.resize((right*3, lower*3), image.BICUBIC)  # Resize image
         bmp = bmp.filter(ImageFilter.SHARPEN)  # Sharpen image for better OCR
         if debug:
-            bmp.save("debug.png")
+            bmp.save("debug_ocr.png")
         s = pytesseract.image_to_string(bmp)
         return s
 
@@ -458,8 +461,6 @@ class Features(Navigation, Inputs):
     def wandoos(self, magic=False):
         """Assign energy and/or magic to wandoos."""
         self.menu("wandoos")
-        self.input_box()
-        self.send_string("10000000")
         self.click(ncon.WANDOOSENERGYX, ncon.WANDOOSENERGYY)
         if magic:
             self.click(ncon.WANDOOSMAGICX, ncon.WANDOOSMAGICY)
@@ -474,8 +475,6 @@ class Features(Navigation, Inputs):
         self.menu("bloodmagic")
         self.click(ncon.BMSPELLX, ncon.BMSPELLY)
         self.click(ncon.BMPILLX, ncon.BMPILLY)
-        self.click(ncon.BMNUMBERX, ncon.BMNUMBERY)
-        time.sleep(2)
         self.click(ncon.BMNUMBERX, ncon.BMNUMBERY)
 
     def set_ngu(self, ngu, magic=False):
@@ -567,11 +566,6 @@ class Features(Navigation, Inputs):
             self.menu("ngu")
 
         self.input_box()
-        self.send_string("999999999999999")
-        # remove all energy/magic from NGU's
-        for i in range(1, 10):
-            self.click(ncon.NGU_MINUSX, ncon.NGU_MINUSY + i * 35)
-        self.input_box()
         self.send_string(str(int(value // len(targets))))
         for i in targets:
             self.click(ncon.NGU_PLUSX, ncon.NGU_PLUSY + i * 35)
@@ -586,7 +580,7 @@ class Statistics(Navigation):
             self.start_exp = int(float(self.ocr(ncon.OCR_EXPX1,
                                                 ncon.OCR_EXPY1,
                                                 ncon.OCR_EXPX2,
-                                                ncon.OCR_EXPY2)))
+                                                ncon.OCR_EXPY2, debug=True)))
         except ValueError:
             print("OCR couldn't detect starting XP, defaulting to 0.")
             self.start_exp = 0
@@ -777,22 +771,35 @@ def speedrun(duration, f):
                 # Kill one boss in the highest zone
                 #f.snipe(0, 2, once=True, highest=True)
                 f.adventure(0, True, False, False)
-                time.sleep(3)
+                time.sleep(4)
                 f.loadout(2)  # Bar/power equimpent
                 f.adventure(zone=0, highest=False, itopod=True, itopodauto=True)
                 do_tm = False
                 augments_assigned = True
+                f.send_string("t")
+                f.wandoos(True)
         # Reassign magic from TM into BM after half the duration
         if (bm_color != ncon.BMLOCKEDCOLOR and not magic_assigned and
            time.time() > end - (duration * 0.5 * 60)):
             f.menu("bloodmagic")
             time.sleep(0.2)
             f.send_string("t")
-            f.blood_magic(4)
+            f.blood_magic(5)
             magic_assigned = True
+            f.wandoos(True)
+            time.sleep(15)
+            try:
+                NGU_energy = int(feature.remove_letters(feature.ocr(ncon.OCR_ENERGY_X1,ncon.OCR_ENERGY_Y1,ncon.OCR_ENERGY_X2,ncon.OCR_ENERGY_Y2)))
+                feature.assign_ngu(NGU_energy, [1, 2, 4, 5, 6]) 
+
+                NGU_magic = int(feature.remove_letters(feature.ocr(ncon.OCR_MAGIC_X1, ncon.OCR_MAGIC_Y1, ncon.OCR_MAGIC_X2, ncon.OCR_MAGIC_Y2)))
+                feature.assign_ngu(NGU_magic, [1], magic=True)
+            except:
+                print("couldn't assign e/m to NGUs")
         # Assign leftovers into wandoos
         if augments_assigned:
-            f.wandoos(True)
+            f.assign_ngu(100000000, [1])
+            f.assign_ngu(100000000, [1], magic=True)
         #f.boost_equipment()
         i += 1
         if i > 50:
@@ -818,6 +825,8 @@ Window.x, Window.y = i.pixel_search("212429", 0, 0, 400, 600)
 nav.menu("inventory")
 s = Statistics()
 u = Upgrade(37500, 37500, 2, 2, 5)
+
+
 
 #e_ngu = {1: True, 2: True, 3: True, 4: True, 5: True, 6: True, 7: True, 8: True, 9: True}
 #e_ngu = {1: True, 2: True, 3: True, 4: True}
