@@ -53,6 +53,9 @@ from PIL import ImageFilter
 from win32con import (VK_CONTROL, VK_SHIFT, VK_MENU, WM_KEYUP, WM_KEYDOWN,
                       WM_LBUTTONDOWN, WM_RBUTTONDOWN, WM_LBUTTONUP,
                       WM_RBUTTONUP, WM_MOUSEMOVE, MK_LBUTTON, MK_RBUTTON)
+import ctypes
+awareness = ctypes.c_int()
+ctypes.windll.shcore.SetProcessDpiAwareness(2)
 
 
 def get_hwnd():
