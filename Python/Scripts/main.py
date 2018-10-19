@@ -299,6 +299,12 @@ class Features(Navigation, Inputs):
         else:
             self.click(ncon.HARVESTX, ncon.HARVESTY)
 
+    def spin(self):
+        """Spin the wheel."""
+        self.menu("pit")
+        self.click(ncon.SPIN_MENUX, ncon.SPIN_MENUY)
+        self.click(ncon.SPINX, ncon.SPINY)
+
     def adventure(self, zone=0, highest=True, itopod=None, itopodauto=False):
         """Go to adventure zone to idle.
 
@@ -472,9 +478,18 @@ class Features(Navigation, Inputs):
 
     def speedrun_bloodpill(self):
         """Try to cast bloodpill, otherwise cast number."""
+        bm_color = self.get_pixel_color(ncon.BMLOCKEDX, ncon.BMLOCKEDY)
+        print(bm_color)
         self.menu("bloodmagic")
         self.click(ncon.BMSPELLX, ncon.BMSPELLY)
-        self.click(ncon.BMPILLX, ncon.BMPILLY)
+        if bm_color == ncon.BM_PILL_READY:
+            self.send_string("t")
+            self.send_string("r")
+            self.blood_magic(8)
+            self.click(ncon.BMSPELLX, ncon.BMSPELLY)
+            time.sleep(300)
+            self.click(ncon.BMPILLX, ncon.BMPILLY)
+            time.sleep(5)
         self.click(ncon.BMNUMBERX, ncon.BMNUMBERY)
 
     def set_ngu(self, ngu, magic=False):
@@ -519,7 +534,6 @@ class Features(Navigation, Inputs):
                                                ncon.OCR_NGU_E_X2, y2, False,
                                                bmp))
                 current_ngu[k] = res
-            print(current_ngu)
             # find highest and lowest NGU's.
             high = max(current_ngu.keys(),
                        key=(lambda i: float(current_ngu[i])))
@@ -529,7 +543,6 @@ class Features(Navigation, Inputs):
             # If one NGU is ahead of the others, fix this.
             if high != low:
                 for k in current_ngu:
-                    print(float(current_ngu[k]), float(current_ngu[high]))
                     if float(current_ngu[k]) <= float(current_ngu[high]):
                         self.click(ncon.NGU_TARGETX, ncon.NGU_TARGETY + 35 * k)
 
@@ -558,8 +571,8 @@ class Features(Navigation, Inputs):
         magic -- Set to true if these are magic NGUs
         """
         if len(targets) > 9:
-            raise RuntimeError("Passing too many NGU's to assign_ngu,"+
-                " allowed: 9, sent: " + str(len(targets)))
+            raise RuntimeError("Passing too many NGU's to assign_ngu," +
+                               " allowed: 9, sent: " + str(len(targets)))
         if magic:
             self.ngu_magic()
         else:
@@ -569,6 +582,25 @@ class Features(Navigation, Inputs):
         self.send_string(str(int(value // len(targets))))
         for i in targets:
             self.click(ncon.NGU_PLUSX, ncon.NGU_PLUSY + i * 35)
+
+    def gold_diggers(self, targets, activate=False):
+        """Activate diggers.
+
+        Keyword arguments:
+        targets -- Array of diggers to use from 1-12. Example: [1, 2, 3, 4, 9].
+        activate -- Set to True if you wish to activate/deactivate these
+                    diggers otherwise it will just try to up the cap.
+        """
+        self.menu("digger")
+        for i in targets:
+            page = ((i-1)//4)
+            item = i - (page * 4)
+            self.click(ncon.DIG_PAGEX[page], ncon.DIG_PAGEY)
+            self.click(ncon.DIG_CAP[item]["x"], ncon.DIG_CAP[item]["y"])
+            if activate:
+                self.click(ncon.DIG_ACTIVE[item]["x"],
+                           ncon.DIG_ACTIVE[item]["y"])
+
 
 class Statistics(Navigation):
     """Handles various statistics."""
@@ -678,7 +710,7 @@ class Upgrade(Navigation):
                  ncon.MBAR_COST * self.mbar)
 
         total_price = m_cost + self.e2m_ratio * e_cost
-
+        
         """Skip upgrading if we don't have enough exp to buy at least one
         complete set of upgrades, in order to maintain our perfect ratios :)"""
 
@@ -731,6 +763,66 @@ class Upgrade(Navigation):
         self.click(ncon.EMBARBUYX, ncon.EMBUYY)
 
 
+class Challenge(Features):
+    """Handles different challenges."""
+
+    def start_challenge(self, challenge):
+        """Start the selected challenge."""
+        self.rebirth()
+        self.click(ncon.CHALLENGEBUTTONX, ncon.CHALLENGEBUTTONY)
+        color = self.get_pixel_color(ncon.CHALLENGEACTIVEX,
+                                     ncon.CHALLENGEACTIVEY)
+
+        if color == ncon.CHALLENGEACTIVECOLOR:
+            challenge = self.ocr(ncon.OCR_CHALLENGE_NAMEX1,
+                                 ncon.OCR_CHALLENGE_NAMEY1,
+                                 ncon.OCR_CHALLENGE_NAMEX2,
+                                 ncon.OCR_CHALLENGE_NAMEY2)
+
+            print("A challenge is already active: " + challenge)
+            if "basic" in challenge.lower():
+                print("Starting basic challenge script")
+
+            else:
+                print("Couldn't determine which script to start from the OCR input")
+            #  TODO: add other challenges here
+
+        else:
+
+            print("start challenge")
+
+    def first_rebirth(self):
+        """Procedure for first rebirth after number reset."""
+        end = time.time() + 15 * 60
+        tm_unlocked = False
+        bm_unlocked = False
+
+        self.loadout(1)
+        self.fight()
+        self.adventure(highest=True)
+
+        while time.time() < end:
+
+            if not tm_unlocked:
+                tm_color = self.get_pixel_color(ncon.TMLOCKEDX, ncon.TMLOCKEDY)
+                if tm_color == ncon.TMLOCKEDCOLOR:
+                    tm_unlocked = True
+            if not bm_unlocked:
+                bm_color = self.get_pixel_color(ncon.BMLOCKEDX, ncon.BMLOCKEDY)
+                if bm_color == ncon.BMLOCKEDCOLOR:
+                    bm_unlocked = True
+
+            if not tm_unlocked:
+                self.wandoos(True)
+            elif tm_unlocked and not bm_unlocked:
+                self.send_string("r")
+                self.send_string("t")
+                self.time_machine()
+
+    def basic(self):
+        """Defeat spiky haired guy."""
+
+
 def speedrun(duration, f):
     """Start a speedrun.
 
@@ -762,10 +854,10 @@ def speedrun(duration, f):
         else: 
             f.wandoos(True)
         # Assign augments when energy caps
-        if time.time() > end - (duration * 0.5 * 60):
+        if time.time() > end - (duration * 0.75 * 60):
             if do_tm and not augments_assigned:
                 f.send_string("r")
-                f.augments({"MI": 0.7, "DTMT": 0.3}, 100000000)
+                f.augments({"CI": 0.7, "ML": 0.3}, 390000000)
                 f.fight()
                 f.loadout(1)  # Gold drop equipment
                 # Kill one boss in the highest zone
@@ -778,28 +870,30 @@ def speedrun(duration, f):
                 augments_assigned = True
                 f.send_string("t")
                 f.wandoos(True)
+                f.boost_equipment()
         # Reassign magic from TM into BM after half the duration
         if (bm_color != ncon.BMLOCKEDCOLOR and not magic_assigned and
-           time.time() > end - (duration * 0.5 * 60)):
+           time.time() > end - (duration * 0.75 * 60)):
             f.menu("bloodmagic")
             time.sleep(0.2)
             f.send_string("t")
-            f.blood_magic(5)
+            f.blood_magic(6)
             magic_assigned = True
             f.wandoos(True)
-            time.sleep(15)
-            try:
+            #time.sleep(15)
+            """try:
                 NGU_energy = int(feature.remove_letters(feature.ocr(ncon.OCR_ENERGY_X1,ncon.OCR_ENERGY_Y1,ncon.OCR_ENERGY_X2,ncon.OCR_ENERGY_Y2)))
                 feature.assign_ngu(NGU_energy, [1, 2, 4, 5, 6]) 
 
                 NGU_magic = int(feature.remove_letters(feature.ocr(ncon.OCR_MAGIC_X1, ncon.OCR_MAGIC_Y1, ncon.OCR_MAGIC_X2, ncon.OCR_MAGIC_Y2)))
                 feature.assign_ngu(NGU_magic, [1], magic=True)
             except:
-                print("couldn't assign e/m to NGUs")
+                print("couldn't assign e/m to NGUs")"""
         # Assign leftovers into wandoos
         if augments_assigned:
-            f.assign_ngu(100000000, [1])
-            f.assign_ngu(100000000, [1], magic=True)
+            f.wandoos(True)
+            #f.assign_ngu(100000000, [1])
+            #f.assign_ngu(100000000, [1], magic=True)
         #f.boost_equipment()
         i += 1
         if i > 50:
@@ -810,6 +904,7 @@ def speedrun(duration, f):
     f.click(ncon.DIG_ACTIVE[3]["x"], ncon.DIG_ACTIVE[3]["y"])
     f.fight()
     f.pit()
+    f.spin()
     time.sleep(5)
     f.speedrun_bloodpill()
     return
@@ -819,28 +914,20 @@ w = Window()
 i = Inputs()
 nav = Navigation()
 feature = Features()
-
+c = Challenge()
 
 Window.x, Window.y = i.pixel_search("212429", 0, 0, 400, 600)
 nav.menu("inventory")
 s = Statistics()
-u = Upgrade(37500, 37500, 2, 2, 5)
+u = Upgrade(37500, 37500, 2, 2, 1)
 
-
-
-#e_ngu = {1: True, 2: True, 3: True, 4: True, 5: True, 6: True, 7: True, 8: True, 9: True}
-#e_ngu = {1: True, 2: True, 3: True, 4: True}
-
-#feature.set_ngu(e_ngu, False)
-#feature.assign_ngu(1000000, [1, 2, 3, 4, 5, 6, 7, 8, 9])
+print(Window.x, Window.y)
+#c.start_challenge(1)
 while True:  # main loop
-    #feature.snipe(0, 5, once=False, highest=True)
-    #feature.click(ncon.LEFTARROWX, ncon.LEFTARROWY, button="right")
-    #feature.ygg()
-    #feature.merge_equipment()
     #feature.boost_equipment()
-    #time.sleep(120)
-    #feature.menu("digger")
+    #feature.ygg()
+    #time.sleep(180)
+    
     speedrun(3, feature)
     s.print_exp()
     u.em()
