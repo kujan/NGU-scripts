@@ -55,10 +55,16 @@ FIGHTX = 620
 FIGHTY = 220
 
 #INVENTORY OFFSETS
-EQUIPMENTSLOTS = {"accessory1" : {"x": 480, "y": 65}, "accessory2": {"x": 480, "y": 115},
-				  "accessory3": {"x": 480, "y": 165}, "accessory4": {"x": 480, "y": 215}, "head": {"x": 525, "y": 65}, "chest": {"x": 527, "y": 114},
-				  "legs": {"x": 527, "y": 163}, "boots": {"x": 527, "y": 212},
-				  "weapon": {"x": 575, "y": 115}, "cube": {"x": 627, "y": 115}}
+EQUIPMENTSLOTS = {"accessory1" : {"x": 480, "y": 65},
+				  "accessory2": {"x": 480, "y": 115},
+				  "accessory3": {"x": 480, "y": 165},
+				  "accessory4": {"x": 480, "y": 215},
+				  "head": {"x": 525, "y": 65},
+				  "chest": {"x": 527, "y": 114},
+				  "legs": {"x": 527, "y": 163},
+				  "boots": {"x": 527, "y": 212},
+				  "weapon": {"x": 575, "y": 115},
+				  "cube": {"x": 627, "y": 115}}
 
 LOADOUTX = {1: 330, 2: 360, 3: 390, 4: 420, 5: 450, 6: 480, 7: 510, 8: 540, 9: 570, 10: 600}
 LOADOUTY = 255
@@ -71,7 +77,7 @@ TMLOCKEDX = 188
 TMLOCKEDY = 257
 TMLOCKEDCOLOR = "97A8B5"
 #BLOOD MAGIC OFFSETS
-BMLOCKEDCOLOR = "7C4B92"
+BMLOCKEDCOLOR = "97A8B5"
 BM_PILL_READY = "BA13A7"
 BMLOCKEDX = 229
 BMLOCKEDY = 294

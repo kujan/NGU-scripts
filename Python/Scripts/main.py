@@ -113,7 +113,7 @@ class Inputs():
         save_dc.DeleteDC()
         mfc_dc.DeleteDC()
         win32gui.ReleaseDC(Window.id, hwnd_dc)
-        bmp.save("asdf.png")
+        #bmp.save("asdf.png")
         return bmp
 
     def pixel_search(self, color, x_start, y_start, x_end, y_end):
@@ -391,26 +391,13 @@ class Features(Navigation, Inputs):
                                          wcon.VK_RIGHT, 0)
             time.sleep(0.1)
 
-    def do_rebirth(self, challenge=None):
+    def do_rebirth(self):
         """Start a rebirth or challenge."""
-        self.ygg(rebirth=True)  # Eat/harvest all fruit first
         self.rebirth()
 
-        if challenge:
-            time.sleep(0.1)
-            self.click(ncon.CHALLENGEBUTTONX, ncon.CHALLENGEBUTTONY)
-            color = self.get_pixel_color(ncon.CHALLENGEACTIVEX,
-                                         ncon.CHALLENGEACTIVEY)
-            if (color == ncon.CHALLENGEACTIVECOLOR):
-                self.do_rebirth()  # Do normal rebirth if challenge is active
-                return
-            self.click(ncon.CHALLENGEX, ncon.CHALLENGEY)
-            self.click(ncon.CONFIRMX, ncon.CONFIRMY)
-            return
-        else:
-            self.click(ncon.REBIRTHX, ncon.REBIRTHY)
-            self.click(ncon.REBIRTHBUTTONX, ncon.REBIRTHBUTTONY)
-            self.click(ncon.CONFIRMX, ncon.CONFIRMY)
+        self.click(ncon.REBIRTHX, ncon.REBIRTHY)
+        self.click(ncon.REBIRTHBUTTONX, ncon.REBIRTHBUTTONY)
+        self.click(ncon.CONFIRMX, ncon.CONFIRMY)
         return
 
     def pit(self):
@@ -765,6 +752,8 @@ class Upgrade(Navigation):
 
 class Challenge(Features):
     """Handles different challenges."""
+    def __init__(self):
+        self.challenge_runtime = 0
 
     def start_challenge(self, challenge):
         """Start the selected challenge."""
@@ -774,54 +763,198 @@ class Challenge(Features):
                                      ncon.CHALLENGEACTIVEY)
 
         if color == ncon.CHALLENGEACTIVECOLOR:
-            challenge = self.ocr(ncon.OCR_CHALLENGE_NAMEX1,
-                                 ncon.OCR_CHALLENGE_NAMEY1,
-                                 ncon.OCR_CHALLENGE_NAMEX2,
-                                 ncon.OCR_CHALLENGE_NAMEY2)
-
-            print("A challenge is already active: " + challenge)
-            if "basic" in challenge.lower():
+            text = self.ocr(ncon.OCR_CHALLENGE_NAMEX1,
+                            ncon.OCR_CHALLENGE_NAMEY1,
+                            ncon.OCR_CHALLENGE_NAMEX2,
+                            ncon.OCR_CHALLENGE_NAMEY2)
+            print("A challenge is already active: " + text)
+            if "basic" in text.lower():
                 print("Starting basic challenge script")
-
+                self.basic()
             else:
                 print("Couldn't determine which script to start from the OCR input")
             #  TODO: add other challenges here
 
         else:
+            x = ncon.CHALLENGEX
+            y = ncon.CHALLENGEY + challenge * ncon.CHALLENGEOFFSET
+            self.click(x, y)
+            time.sleep(0.3)
+            self.confirm()
 
-            print("start challenge")
+            if challenge == 1:
+                self.basic()
+
+    def check_challenge(self):
+        """Check if a challenge is active."""
+        self.rebirth()
+        self.click(ncon.CHALLENGEBUTTONX, ncon.CHALLENGEBUTTONY)
+        color = self.get_pixel_color(ncon.CHALLENGEACTIVEX,
+                                     ncon.CHALLENGEACTIVEY)
+
+        return True if color is ncon.CHALLENGEACTIVECOLOR else False
 
     def first_rebirth(self):
         """Procedure for first rebirth after number reset."""
-        end = time.time() + 15 * 60
+        end = time.time() + 3 * 60
         tm_unlocked = False
         bm_unlocked = False
-
+        ci_assigned = False
+        diggers = [2, 3, 8]
         self.loadout(1)
         self.fight()
         self.adventure(highest=True)
+        while not tm_unlocked:
+            if not ci_assigned:
+                print("assigning CI")
+                time.sleep(1)
+                self.augments({"CI": 1}, 1e6)
+                ci_assigned = True
+            self.wandoos(True)
+            self.fight()
 
-        while time.time() < end:
-
-            if not tm_unlocked:
-                tm_color = self.get_pixel_color(ncon.TMLOCKEDX, ncon.TMLOCKEDY)
-                if tm_color == ncon.TMLOCKEDCOLOR:
-                    tm_unlocked = True
-            if not bm_unlocked:
-                bm_color = self.get_pixel_color(ncon.BMLOCKEDX, ncon.BMLOCKEDY)
-                if bm_color == ncon.BMLOCKEDCOLOR:
-                    bm_unlocked = True
-
-            if not tm_unlocked:
-                self.wandoos(True)
-            elif tm_unlocked and not bm_unlocked:
+            tm_color = self.get_pixel_color(ncon.TMLOCKEDX, ncon.TMLOCKEDY)
+            if tm_color != ncon.TMLOCKEDCOLOR:
                 self.send_string("r")
                 self.send_string("t")
+                self.time_machine(True)
+                self.loadout(2)
+                tm_unlocked = True
+
+        time.sleep(15)
+        self.augments({"CI": 1}, 1e8)
+        self.gold_diggers(diggers, True)
+        self.adventure(highest=True)
+        time.sleep(4)
+        self.adventure(itopod=True, itopodauto=True)
+        while not bm_unlocked:
+            self.wandoos(True)
+            self.fight()
+            self.gold_diggers(diggers)
+            time.sleep(5)
+
+            bm_color = self.get_pixel_color(ncon.BMLOCKEDX, ncon.BMLOCKEDY)
+            if bm_color != ncon.BMLOCKEDCOLOR:
+                self.menu("bloodmagic")
+                time.sleep(0.2)
+                self.send_string("t")
+                self.send_string("r")
+                self.blood_magic(5)
+                bm_unlocked = True
+                self.augments({"SS": 0.7, "DS": 0.3}, 5e8)
+
+        while time.time() < end:
+            self.wandoos(True)
+            self.fight()
+            self.gold_diggers(diggers)
+            time.sleep(5)
+
+        self.do_rebirth()
+
+    def speedrun(self, duration, target):
+        """Start a speedrun.
+
+        Keyword arguments
+        duration -- duration in minutes to run
+        f -- feature object
+        """
+        self.do_rebirth()
+        start = time.time()
+        end = time.time() + (duration * 60)
+        magic_assigned = False
+        do_tm = True
+        augments_assigned = False
+        self.fight()
+        self.loadout(1)  # Gold drop equipment
+        self.adventure(0, True, False, False)
+        time.sleep(3)
+        self.loadout(2)  # Bar/power equimpent
+        self.adventure(zone=0, highest=False, itopod=True, itopodauto=True)
+        while time.time() < end - 15:
+            bm_color = self.get_pixel_color(ncon.BMLOCKEDX, ncon.BMLOCKEDY)
+            tm_color = self.get_pixel_color(ncon.TMLOCKEDX, ncon.TMLOCKEDY)
+            # Do TM while waiting for magic cap
+            if not magic_assigned and tm_color != ncon.TMLOCKEDCOLOR:
+                self.time_machine(True)
+            # If magic is assigned, continue adding energy to TM
+            elif do_tm and tm_color != ncon.TMLOCKEDCOLOR:
                 self.time_machine()
+            else: 
+                self.wandoos(True)
+            # Assign augments when energy caps
+            if time.time() > end - (duration * 0.75 * 60):
+                if do_tm and not augments_assigned:
+                    self.send_string("r")
+                    self.augments({"SM": 0.7, "AA": 0.3}, 8e8)
+                    self.gold_diggers([2, 8, 9], True)
+                    do_tm = False
+                    augments_assigned = True
+                    self.send_string("t")
+                    self.wandoos(True)
+                    self.boost_equipment()
+            # Reassign magic from TM into BM after half the duration
+            if (bm_color != ncon.BMLOCKEDCOLOR and not magic_assigned and
+               time.time() > end - (duration * 0.75 * 60)):
+                self.menu("bloodmagic")
+                time.sleep(0.2)
+                self.send_string("t")
+                self.blood_magic(7)
+                magic_assigned = True
+                self.wandoos(True)
+            # Assign leftovers into wandoos
+            if augments_assigned:
+                self.wandoos(True)
+
+            try:
+                """If current rebirth is scheduled for more than 3 minutes and
+                we already finished the rebirth, we will return here, instead
+                of waiting for the duration. Since we cannot start a new
+                challenge if less than 3 minutes have passed, we must always
+                wait at least 3 minutes."""
+                
+                current_boss = int(self.get_current_boss())
+                if duration > 3 and current_boss > target:
+                    if not self.check_challenge():
+                        while time.time() < start + 180:
+                            time.sleep(1)
+                        return
+                if current_boss < 100:
+                    self.fight()
+
+            except ValueError:
+                print("OCR couldn't find current boss")
+            #self.boost_equipment()
+
+        self.menu("digger")
+        self.gold_diggers([3], True)
+        self.fight()
+        self.pit()
+        self.spin()
+        time.sleep(7)
+        self.speedrun_bloodpill()
+        return
 
     def basic(self):
         """Defeat spiky haired guy."""
-
+        self.first_rebirth()
+        while True:
+            for x in range(8):
+                self.speedrun(3, 58)
+                if not self.check_challenge():
+                    return
+            for x in range(5):
+                self.speedrun(7, 58)
+                if not self.check_challenge():
+                    return
+            for x in range(5):
+                self.speedrun(12, 58)
+                if not self.check_challenge():
+                    return
+            for x in range(5):
+                self.speedrun(60, 58)
+                if not self.check_challenge():
+                    return
+            speedrun(3, feature)
 
 def speedrun(duration, f):
     """Start a speedrun.
@@ -857,15 +990,8 @@ def speedrun(duration, f):
         if time.time() > end - (duration * 0.75 * 60):
             if do_tm and not augments_assigned:
                 f.send_string("r")
-                f.augments({"CI": 0.7, "ML": 0.3}, 390000000)
-                f.fight()
-                f.loadout(1)  # Gold drop equipment
-                # Kill one boss in the highest zone
-                #f.snipe(0, 2, once=True, highest=True)
-                f.adventure(0, True, False, False)
-                time.sleep(4)
-                f.loadout(2)  # Bar/power equimpent
-                f.adventure(zone=0, highest=False, itopod=True, itopodauto=True)
+                f.augments({"SM": 0.7, "AA": 0.3}, 8e8)
+                f.gold_diggers([2, 8, 9], True)
                 do_tm = False
                 augments_assigned = True
                 f.send_string("t")
@@ -877,7 +1003,7 @@ def speedrun(duration, f):
             f.menu("bloodmagic")
             time.sleep(0.2)
             f.send_string("t")
-            f.blood_magic(6)
+            f.blood_magic(7)
             magic_assigned = True
             f.wandoos(True)
             #time.sleep(15)
@@ -895,17 +1021,14 @@ def speedrun(duration, f):
             #f.assign_ngu(100000000, [1])
             #f.assign_ngu(100000000, [1], magic=True)
         #f.boost_equipment()
-        i += 1
-        if i > 50:
-            f.fight()
-            i = 0
+
     f.menu("digger")
-    f.click(ncon.DIG_CAP[3]["x"], ncon.DIG_CAP[3]["y"])
-    f.click(ncon.DIG_ACTIVE[3]["x"], ncon.DIG_ACTIVE[3]["y"])
+    f.gold_diggers([3], True)
+    #f.click(ncon.DIG_ACTIVE[3]["x"], ncon.DIG_ACTIVE[3]["y"])
     f.fight()
     f.pit()
     f.spin()
-    time.sleep(5)
+    time.sleep(7)
     f.speedrun_bloodpill()
     return
 
@@ -922,11 +1045,15 @@ s = Statistics()
 u = Upgrade(37500, 37500, 2, 2, 1)
 
 print(Window.x, Window.y)
-#c.start_challenge(1)
+u.em()
+print(c.check_challenge())
+for x in range(17):
+    c.start_challenge(1)
 while True:  # main loop
-    #feature.boost_equipment()
-    #feature.ygg()
-    #time.sleep(180)
+#    feature.boost_equipment()
+#    feature.merge_equipment()
+#    feature.ygg()
+#    time.sleep(180)
     
     speedrun(3, feature)
     s.print_exp()
