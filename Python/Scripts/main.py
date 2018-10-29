@@ -433,7 +433,7 @@ class Features(Navigation, Inputs):
             val = math.floor(augments[k] * energy)
             self.input_box()
             self.send_string(str(val))
-            time.sleep(0.1)
+            time.sleep(0.3)
             self.click(ncon.AUGMENTX, ncon.AUGMENTY[k])
 
     def time_machine(self, magic=False):
@@ -466,7 +466,6 @@ class Features(Navigation, Inputs):
     def speedrun_bloodpill(self):
         """Try to cast bloodpill, otherwise cast number."""
         bm_color = self.get_pixel_color(ncon.BMLOCKEDX, ncon.BMLOCKEDY)
-        print(bm_color)
         self.menu("bloodmagic")
         self.click(ncon.BMSPELLX, ncon.BMSPELLY)
         if bm_color == ncon.BM_PILL_READY:
@@ -771,6 +770,24 @@ class Challenge(Features):
             if "basic" in text.lower():
                 print("Starting basic challenge script")
                 self.basic()
+
+            elif "24 hour" in text.lower():
+                print("Starting 24 hour challenge script")
+                try:
+                    x = ncon.CHALLENGEX
+                    y = ncon.CHALLENGEY + challenge * ncon.CHALLENGEOFFSET
+                    self.click(x, y, button="right")
+                    time.sleep(0.3)
+                    target = self.ocr(ncon.OCR_CHALLENGE_24HC_TARGETX1,
+                                      ncon.OCR_CHALLENGE_24HC_TARGETY1,
+                                      ncon.OCR_CHALLENGE_24HC_TARGETX2,
+                                      ncon.OCR_CHALLENGE_24HC_TARGETY2)
+                    target = int(self.remove_letters(target))
+                    print(f"Found target boss: {target}")
+                    self.basic(target)
+                except ValueError:
+                    print("couldn't detect the target level of 24HC")
+                
             else:
                 print("Couldn't determine which script to start from the OCR input")
             #  TODO: add other challenges here
@@ -778,21 +795,41 @@ class Challenge(Features):
         else:
             x = ncon.CHALLENGEX
             y = ncon.CHALLENGEY + challenge * ncon.CHALLENGEOFFSET
-            self.click(x, y)
-            time.sleep(0.3)
-            self.confirm()
+
 
             if challenge == 1:
-                self.basic()
+                self.click(x, y)
+                time.sleep(0.3)
+                self.confirm()
+                self.basic(58)
+
+            if challenge == 3:
+                try:
+                    self.click(x, y, button="right")
+                    time.sleep(0.3)
+                    target = self.ocr(ncon.OCR_CHALLENGE_24HC_TARGETX1,
+                                      ncon.OCR_CHALLENGE_24HC_TARGETY1,
+                                      ncon.OCR_CHALLENGE_24HC_TARGETX2,
+                                      ncon.OCR_CHALLENGE_24HC_TARGETY2)
+                    target = int(self.remove_letters(target))
+                    print(f"Found target boss: {target}")
+                    self.click(x, y)
+                    time.sleep(0.3)
+                    self.confirm()
+                    time.sleep(0.3)
+                    self.basic(target)
+                except ValueError:
+                    print("couldn't detect the target level of 24HC")
 
     def check_challenge(self):
         """Check if a challenge is active."""
         self.rebirth()
         self.click(ncon.CHALLENGEBUTTONX, ncon.CHALLENGEBUTTONY)
+        time.sleep(0.3)
         color = self.get_pixel_color(ncon.CHALLENGEACTIVEX,
                                      ncon.CHALLENGEACTIVEY)
 
-        return True if color is ncon.CHALLENGEACTIVECOLOR else False
+        return True if color == ncon.CHALLENGEACTIVECOLOR else False
 
     def first_rebirth(self):
         """Procedure for first rebirth after number reset."""
@@ -806,7 +843,6 @@ class Challenge(Features):
         self.adventure(highest=True)
         while not tm_unlocked:
             if not ci_assigned:
-                print("assigning CI")
                 time.sleep(1)
                 self.augments({"CI": 1}, 1e6)
                 ci_assigned = True
@@ -849,7 +885,6 @@ class Challenge(Features):
             self.gold_diggers(diggers)
             time.sleep(5)
 
-        self.do_rebirth()
 
     def speedrun(self, duration, target):
         """Start a speedrun.
@@ -904,7 +939,7 @@ class Challenge(Features):
             # Assign leftovers into wandoos
             if augments_assigned:
                 self.wandoos(True)
-
+                self.gold_diggers([2, 8, 9])
             try:
                 """If current rebirth is scheduled for more than 3 minutes and
                 we already finished the rebirth, we will return here, instead
@@ -918,7 +953,7 @@ class Challenge(Features):
                         while time.time() < start + 180:
                             time.sleep(1)
                         return
-                if current_boss < 100:
+                if current_boss < 101:
                     self.fight()
 
             except ValueError:
@@ -934,24 +969,24 @@ class Challenge(Features):
         self.speedrun_bloodpill()
         return
 
-    def basic(self):
-        """Defeat spiky haired guy."""
+    def basic(self, target):
+        """Defeat target boss."""
         self.first_rebirth()
         while True:
             for x in range(8):
-                self.speedrun(3, 58)
+                self.speedrun(3, target)
                 if not self.check_challenge():
                     return
             for x in range(5):
-                self.speedrun(7, 58)
+                self.speedrun(7, target)
                 if not self.check_challenge():
                     return
             for x in range(5):
-                self.speedrun(12, 58)
+                self.speedrun(12, target)
                 if not self.check_challenge():
                     return
             for x in range(5):
-                self.speedrun(60, 58)
+                self.speedrun(60, target)
                 if not self.check_challenge():
                     return
             speedrun(3, feature)
@@ -970,10 +1005,10 @@ def speedrun(duration, f):
     augments_assigned = False
     f.fight()
     f.loadout(1)  # Gold drop equipment
-    f.adventure(0, True, False, False)
+    f.adventure(highest=True)
     time.sleep(3)
     f.loadout(2)  # Bar/power equimpent
-    f.adventure(zone=0, highest=False, itopod=True, itopodauto=True)
+    f.adventure(itopod=True, itopodauto=True)
     i = 0
     while time.time() < end - 15:
         bm_color = f.get_pixel_color(ncon.BMLOCKEDX, ncon.BMLOCKEDY)
@@ -1046,15 +1081,16 @@ u = Upgrade(37500, 37500, 2, 2, 1)
 
 print(Window.x, Window.y)
 u.em()
-print(c.check_challenge())
+#print(c.check_challenge())
+#c.start_challenge(3)
 for x in range(17):
-    c.start_challenge(1)
-while True:  # main loop
+    c.start_challenge(3)
+#while True:  # main loop
 #    feature.boost_equipment()
 #    feature.merge_equipment()
 #    feature.ygg()
 #    time.sleep(180)
     
-    speedrun(3, feature)
-    s.print_exp()
-    u.em()
+#    speedrun(3, feature)
+#    s.print_exp()
+#    u.em()
