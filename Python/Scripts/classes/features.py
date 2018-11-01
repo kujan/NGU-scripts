@@ -2,6 +2,7 @@
 from classes.inputs import Inputs
 from classes.navigation import Navigation
 from classes.window import Window
+from decimal import Decimal
 import math
 import ngucon as ncon
 import re
@@ -343,3 +344,36 @@ class Features(Navigation, Inputs):
             if activate:
                 self.click(ncon.DIG_ACTIVE[item]["x"],
                            ncon.DIG_ACTIVE[item]["y"])
+
+    def bb_ngu(self, value, targets, overcap=1, magic=False):
+        """Estimates the BB value of each supplied NGU.
+
+        Keyword arguments:
+        targets -- Array of NGU's to BB. Example: [1, 3, 4, 5, 6]
+        magic -- Set to true if these are magic NGUs
+        """
+        start = time.time()
+        if magic:
+            self.ngu_magic()
+        else:
+            self.menu("ngu")
+
+        #self.input_box()
+        #self.send_string(str(int(value)))
+
+        #bmp = self.get_bitmap()
+        for target in targets:
+            #self.click(ncon.NGU_PLUSX, ncon.NGU_PLUSY + target * 35)
+            for x in range(198):
+                color = self.get_pixel_color(ncon.NGU_BAR_MINX + x,
+                                             ncon.NGU_BAR_Y +
+                                             ncon.NGU_BAR_OFFSETY * target,
+                                             )
+                if color == ncon.NGU_BAR_WHITE:
+                    print(f"found end at position {x}")
+                    pixel_coefficient = x / 198
+                    value_coefficient = overcap / pixel_coefficient
+                    energy = value_coefficient * value
+                    print(f"estimated energy to BB this NGU is {Decimal(energy):.2E}")
+                    print(f"function ran for {time.time() - start} seconds")
+                    break

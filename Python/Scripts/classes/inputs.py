@@ -98,6 +98,7 @@ class Inputs():
 
         Color must be supplied in hex.
         """
+        
         bmp = self.get_bitmap()
         width, height = bmp.size
         for y in range(y_start, y_end):
@@ -107,6 +108,8 @@ class Inputs():
                 t = bmp.getpixel((x, y))
                 if (self.rgb_to_hex(t) == color):
                     return x - 8, y - 8
+
+
         return None
 
     def image_search(self, x_start, y_start, x_end, y_end, image):
@@ -159,8 +162,9 @@ class Inputs():
 
     def get_pixel_color(self, x, y):
         """Get the color of selected pixel in HEX."""
-        return self.rgb_to_hex(self.get_bitmap().getpixel((x + 8 +
-                               window.x, y + 8 + window.y)))
+        dc = win32gui.GetWindowDC(window.id)
+        color = win32gui.GetPixel(dc, x + 8 + window.x, y + 8 + window.y)
+        return hex(color)[2:].upper()
 
     def remove_letters(self, s):
         """Remove all non digit characters from string."""
