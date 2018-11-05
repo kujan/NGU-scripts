@@ -186,7 +186,7 @@ class Features(Navigation, Inputs):
             if health != ncon.DEAD:
                 self.send_string("w")
             else:
-                time.sleep(0.005)
+                time.sleep(0.01)
 
         self.click(ncon.IDLE_BUTTONX, ncon.IDLE_BUTTONY)
 

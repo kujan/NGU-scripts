@@ -1,6 +1,6 @@
 """Handles various statistics."""
 from classes.navigation import Navigation
-from classes.inputs import Inputs
+
 import ngucon as ncon
 import re
 import time

@@ -8,6 +8,7 @@ class Window():
     id = 0
     x = 0
     y = 0
+    dc = 0
 
     def __init__(self):
         """Keyword arguments.
@@ -25,3 +26,4 @@ class Window():
         for i in top_windows:
             if "play ngu idle" in i[1].lower():
                 Window.id = i[0]
+                Window.dc = win32gui.GetWindowDC(i[0])
