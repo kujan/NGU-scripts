@@ -1,5 +1,6 @@
 """Handles various statistics."""
 from classes.navigation import Navigation
+from classes.discord import Discord
 
 import ngucon as ncon
 import re
@@ -18,7 +19,9 @@ class Stats(Navigation):
                                                 ncon.OCR_EXPX2,
                                                 ncon.OCR_EXPY2)))
         except ValueError:
-            print("OCR couldn't detect starting XP, defaulting to 0.")
+            message = "OCR couldn't detect starting XP, defaulting to 0."
+            print(message)
+            Discord.send_message(message, Discord.ERROR)
             self.start_exp = 0
         self.start_time = time.time()
         self.rebirth = 1
@@ -34,9 +37,14 @@ class Stats(Navigation):
                                                              ncon.OCR_EXPY2))))
         except ValueError:
             print("OCR couldn't detect current XP.")
+            Discord.send_message("OCR couldn't detect current XP",
+                                 Discord.ERROR)
             return
         per_hour = (current_exp - self.start_exp)//((current_time -
                                                      self.start_time) / 3600)
-        print(f'Rebirth #{self.rebirth}\nStart exp: {self.start_exp}\nCurrent '
-              f'exp: {current_exp}\nPer hour: {per_hour}\n')
+        message = (f'Rebirth #{self.rebirth}\nStart exp: {self.start_exp}\n'
+                   f'Current exp: {current_exp}\nPer hour: {per_hour}\n')
+
+        print(message)
+        Discord.send_message(message, Discord.INFO)
         self.rebirth += 1
