@@ -17,7 +17,7 @@ import win32ui
 class Inputs():
     """This class handles inputs."""
 
-    def click(self, x, y, button="left"):
+    def click(self, x, y, button="left", fast=False):
         """Click at pixel xy."""
         x += window.x
         y += window.y
@@ -30,6 +30,13 @@ class Inputs():
                win32api.GetKeyState(wcon.VK_MENU) < 0):
             time.sleep(0.005)
 
+        if fast:
+            win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
+                                 wcon.MK_LBUTTON, lParam)
+            time.sleep(0.06)
+            win32gui.PostMessage(window.id, wcon.WM_LBUTTONUP,
+                                 wcon.MK_LBUTTON, lParam)
+            return
         if (button == "left"):
             win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
                                  wcon.MK_LBUTTON, lParam)
@@ -98,7 +105,6 @@ class Inputs():
 
         Color must be supplied in hex.
         """
-        
         bmp = self.get_bitmap()
         width, height = bmp.size
         for y in range(y_start, y_end):
@@ -108,7 +114,6 @@ class Inputs():
                 t = bmp.getpixel((x, y))
                 if (self.rgb_to_hex(t) == color):
                     return x - 8, y - 8
-
 
         return None
 
@@ -163,8 +168,11 @@ class Inputs():
     def get_pixel_color(self, x, y):
         """Get the color of selected pixel in HEX."""
         dc = win32gui.GetWindowDC(window.id)
-        color = win32gui.GetPixel(dc, x + 8 + window.x, y + 8 + window.y)
-        return hex(color)[2:].upper()
+        rgba = win32gui.GetPixel(dc, x + 8 + window.x, y + 8 + window.y)
+        r = rgba & 0xff
+        g = rgba >> 8 & 0xff
+        b = rgba >> 16 & 0xff
+        return self.rgb_to_hex((r, g, b))
 
     def remove_letters(self, s):
         """Remove all non digit characters from string."""

@@ -41,9 +41,13 @@ class Features(Navigation, Inputs):
                         ncon.OCRBOSSY2, debug=False)
         return self.remove_letters(boss)
 
-    def fight(self):
+    def fight(self, target=None):
         """Navigate to Fight Boss and Nuke/attack."""
         self.menu("fight")
+        if target:
+            for x in range(target + 1):
+                self.click(ncon.FIGHTX, ncon.FIGHTY, fast=True)
+            return
         self.click(ncon.NUKEX, ncon.NUKEY)
         time.sleep(2)
         self.click(ncon.FIGHTX, ncon.FIGHTY)
@@ -149,6 +153,45 @@ class Features(Navigation, Inputs):
                                          wcon.VK_RIGHT, 0)
             time.sleep(0.1)
 
+    def itopod_snipe(self, duration):
+        """Manually snipes ITOPOD for increased speed PP/h.
+
+        Keyword arguments:
+        duration -- Duration in seconds to snipe, before toggling idle mode
+                    back on and returning.
+        """
+        end = time.time() + duration
+
+        self.menu("adventure")
+        self.click(625, 500)  # click somewhere to move tooltip
+        itopod_active = self.get_pixel_color(ncon.ITOPOD_ACTIVEX,
+                                             ncon.ITOPOD_ACTIVEY)
+
+        if itopod_active != ncon.ITOPOD_ACTIVE_COLOR:
+            self.click(ncon.ITOPODX, ncon.ITOPODY)
+            self.click(ncon.ITOPODENDX, ncon.ITOPODENDY)
+            # set end to 0 in case it's higher than start
+            self.send_string("0")
+            self.click(ncon.ITOPODAUTOX, ncon.ITOPODAUTOY)
+            self.click(ncon.ITOPODENTERX, ncon.ITOPODENTERY)
+
+        idle_color = self.get_pixel_color(ncon.ABILITY_ATTACKX,
+                                          ncon.ABILITY_ATTACKY)
+        print(idle_color)
+        if idle_color == ncon.IDLECOLOR:
+            self.click(ncon.IDLE_BUTTONX, ncon.IDLE_BUTTONY)
+
+        while time.time() < end:
+            health = self.get_pixel_color(ncon.HEALTHX, ncon.HEALTHY)
+            if health != ncon.DEAD:
+                self.send_string("w")
+            else:
+                time.sleep(0.005)
+
+        self.click(ncon.IDLE_BUTTONX, ncon.IDLE_BUTTONY)
+
+
+
     def do_rebirth(self):
         """Start a rebirth or challenge."""
         self.rebirth()
@@ -222,19 +265,29 @@ class Features(Navigation, Inputs):
         self.click(ncon.LOADOUTX[target], ncon.LOADOUTY)
 
     def speedrun_bloodpill(self):
-        """Try to cast bloodpill, otherwise cast number."""
+        """Check if bloodpill is ready to cast."""
         bm_color = self.get_pixel_color(ncon.BMLOCKEDX, ncon.BMLOCKEDY)
         self.menu("bloodmagic")
         self.click(ncon.BMSPELLX, ncon.BMSPELLY)
         if bm_color == ncon.BM_PILL_READY:
+            start = time.time()
             self.send_string("t")
             self.send_string("r")
             self.blood_magic(8)
             self.click(ncon.BMSPELLX, ncon.BMSPELLY)
-            time.sleep(300)
+            self.click(ncon.BM_AUTO_GOLDX, ncon.BM_AUTO_GOLDY)
+            self.click(ncon.BM_AUTO_NUMBERX, ncon.BM_AUTO_NUMBERY)
+            self.gold_diggers([11], True)
+            while time.time() < start + 300:
+                self.time_machine(True)
+                self.gold_diggers([11])
+                time.sleep(5)
+            self.menu("bloodmagic")
+            self.click(ncon.BMSPELLX, ncon.BMSPELLY)
             self.click(ncon.BMPILLX, ncon.BMPILLY)
             time.sleep(5)
-        self.click(ncon.BMNUMBERX, ncon.BMNUMBERY)
+            self.click(ncon.BM_AUTO_GOLDX, ncon.BM_AUTO_GOLDY)
+            self.click(ncon.BM_AUTO_NUMBERX, ncon.BM_AUTO_NUMBERY)
 
     def set_ngu(self, ngu, magic=False):
         """Handle NGU upgrades in a non-dumb way.
@@ -353,17 +406,19 @@ class Features(Navigation, Inputs):
         magic -- Set to true if these are magic NGUs
         """
         start = time.time()
+
         if magic:
             self.ngu_magic()
         else:
             self.menu("ngu")
 
-        #self.input_box()
-        #self.send_string(str(int(value)))
+        self.input_box()
+        self.send_string(str(int(value)))
 
-        #bmp = self.get_bitmap()
         for target in targets:
-            #self.click(ncon.NGU_PLUSX, ncon.NGU_PLUSY + target * 35)
+            self.click(ncon.NGU_PLUSX, ncon.NGU_PLUSY + target * 35)
+
+        for target in targets:
             for x in range(198):
                 color = self.get_pixel_color(ncon.NGU_BAR_MINX + x,
                                              ncon.NGU_BAR_Y +
@@ -373,7 +428,11 @@ class Features(Navigation, Inputs):
                     print(f"found end at position {x}")
                     pixel_coefficient = x / 198
                     value_coefficient = overcap / pixel_coefficient
-                    energy = value_coefficient * value
+                    energy = (value_coefficient * value) - value
                     print(f"estimated energy to BB this NGU is {Decimal(energy):.2E}")
-                    print(f"function ran for {time.time() - start} seconds")
                     break
+            self.input_box()
+            self.send_string(str(int(energy // 1e3)))
+            self.click(ncon.NGU_PLUSX, ncon.NGU_PLUSY + target * 35)
+
+        print(f"function ran for {time.time() - start} seconds")
