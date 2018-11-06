@@ -14,10 +14,10 @@ class Stats(Navigation):
         """Store start EXP via OCR."""
         self.misc()
         try:
-            self.start_exp = int(float(self.ocr(ncon.OCR_EXPX1,
+            self.start_exp = int(float(re.sub(',', '', self.ocr(ncon.OCR_EXPX1,
                                                 ncon.OCR_EXPY1,
                                                 ncon.OCR_EXPX2,
-                                                ncon.OCR_EXPY2)))
+                                                ncon.OCR_EXPY2))))
         except ValueError:
             message = "OCR couldn't detect starting XP, defaulting to 0."
             print(message)
