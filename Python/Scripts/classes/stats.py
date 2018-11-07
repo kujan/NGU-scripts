@@ -42,9 +42,17 @@ class Stats(Navigation):
             return
         per_hour = (current_exp - self.start_exp)//((current_time -
                                                      self.start_time) / 3600)
+        total_exp = (current_exp - self.start_exp)
         message = (f'Rebirth #{self.rebirth}\nStart exp: {self.start_exp}\n'
-                   f'Current exp: {current_exp}\nPer hour: {per_hour}\n')
+                   f'Current exp: {current_exp}\nPer hour: {per_hour}\n'
+                   f'Total exp this run: {total_exp}\n')
 
         print(message)
         Discord.send_message(message, Discord.INFO)
         self.rebirth += 1
+        
+    def print_run_done(self, count):
+        message = ('{} Rebirths complete. Start again!!!'.format(count))
+
+        print(message)
+        Discord.send_message(message, Discord.ERROR)

@@ -61,7 +61,7 @@ def speedrun(duration, f):
                 f.blood_magic(2)
                 magic_assigned = True
                 f.wandoos(True)
-                f.gold_diggers([2], True)
+                # f.gold_diggers([2], True)
 
 
         """
@@ -84,7 +84,7 @@ def speedrun(duration, f):
         # Assign leftovers into wandoos, turn on digger, fight for boss
         if augments_assigned:
             f.wandoos(True)
-            f.gold_diggers([2], True)
+            # f.gold_diggers([2], True)
             f.fight()
 
         # if time.time() > start + 120 and not blood_digger_active:
@@ -93,7 +93,7 @@ def speedrun(duration, f):
 
         time.sleep(0.5)
 
-    f.gold_diggers([2])
+    f.gold_diggers([2], True)
     f.fight()
     f.pit()
     f.spin()
@@ -118,17 +118,20 @@ print(w.x, w.y)
 
 count = 0
 
-while count <=5: #Adjust # for how many runs you want to do during testing
+while count <=74: # Adjust # for how many runs you want to do during testing
     count += 1
     speedrun(12, feature)
     s.print_exp()
     u.em()
 
-# while True:  # main loop
-#     # feature.boost_equipment()
-#     # feature.merge_equipment()
-#     # feature.ygg(True)
-#     # time.sleep(120)
-#     speedrun(12, feature)
-#     s.print_exp()
-#     u.em()
+
+# while True:  # main loop to go foreverrrrr
+    # feature.boost_equipment()
+    # feature.merge_equipment()
+    # feature.ygg(True)
+    # time.sleep(120)
+    # speedrun(12, feature)
+    # s.print_exp()
+    # u.em()
+
+s.print_run_done(count)
