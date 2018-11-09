@@ -228,7 +228,16 @@ class Features(Navigation, Inputs):
             self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLTOPY)
             # Scroll down if we have to.
             if (k == "AE" or k == "ES" or k == "LS" or k == "QSL"):
-                self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLBOTY)
+
+                color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
+                                             ncon.SANITY_AUG_SCROLLY)
+
+                while (color != ncon.SANITY_AUG_SCROLL_BOTTOM_COLOR):
+                    self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLBOTY)
+                    time.sleep(ncon.MEDIUM_SLEEP)
+                    color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
+                                                 ncon.SANITY_AUG_SCROLLY)
+                    print(color)
 
             time.sleep(ncon.LONG_SLEEP)
             val = math.floor(augments[k] * energy)
