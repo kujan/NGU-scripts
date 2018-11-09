@@ -3,6 +3,7 @@ from classes.features import Features
 from classes.discord import Discord
 from challenges.basic import Basic
 from challenges.level import Level
+from challenges.laser import Laser
 import ngucon as ncon
 import time
 
@@ -14,8 +15,11 @@ class Challenge(Features):
         """Start the selected challenge."""
         self.rebirth()
         self.click(ncon.CHALLENGEBUTTONX, ncon.CHALLENGEBUTTONY)
+
         b = Basic()
-        l = Level()
+        level = Level()
+        laser = Laser()
+
         color = self.get_pixel_color(ncon.CHALLENGEACTIVEX,
                                      ncon.CHALLENGEACTIVEY)
 
@@ -50,11 +54,15 @@ class Challenge(Features):
 
             elif "100 level" in text.lower():
                 print("starting 100 level challenge script")
-                l.lc()
+                level.lc()
 
             elif "blind" in text.lower():
                 print("starting blind challenge script")
-                l.blind()
+                level.blind()
+
+            elif "laser" in text.lower():
+                print("starting laser sword challenge script")
+                laser.laser()
 
             else:
                 print("Couldn't determine which script to start from the OCR",
@@ -95,7 +103,14 @@ class Challenge(Features):
                 self.click(x, y)
                 time.sleep(ncon.LONG_SLEEP)
                 self.confirm()
-                l.lc()
+                level.lc()
+
+            elif challenge == 8:
+                self.click(x, y)
+                time.sleep(ncon.LONG_SLEEP)
+                self.confirm()
+                laser.laser()
+
 
     def check_challenge(self):
         """Check if a challenge is active."""

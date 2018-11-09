@@ -237,7 +237,6 @@ class Features(Navigation, Inputs):
                     time.sleep(ncon.MEDIUM_SLEEP)
                     color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
                                                  ncon.SANITY_AUG_SCROLLY)
-                    print(color)
 
             time.sleep(ncon.LONG_SLEEP)
             val = math.floor(augments[k] * energy)
@@ -286,7 +285,7 @@ class Features(Navigation, Inputs):
             self.click(ncon.BMSPELLX, ncon.BMSPELLY)
             self.click(ncon.BM_AUTO_GOLDX, ncon.BM_AUTO_GOLDY)
             self.click(ncon.BM_AUTO_NUMBERX, ncon.BM_AUTO_NUMBERY)
-            self.gold_diggers([11], True)
+            #self.gold_diggers([11], True)
             while time.time() < start + 300:
                 self.time_machine(True)
                 self.gold_diggers([11])

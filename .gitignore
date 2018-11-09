@@ -1,3 +1,6 @@
 __pycache__/
 gdip.ahk
 main.ahk
+debug.py
+debug_ocr.png
+local_env.py
