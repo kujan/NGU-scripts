@@ -24,6 +24,7 @@ class Inputs():
         y += window.y
         lParam = win32api.MAKELONG(x, y)
         # MOUSEMOVE event is required for game to register clicks correctly
+
         win32gui.PostMessage(window.id, wcon.WM_MOUSEMOVE, 0, lParam)
 
         while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
@@ -53,9 +54,11 @@ class Inputs():
         # Sleep lower than 0.1 might cause issues when clicking in succession
         time.sleep(ncon.MEDIUM_SLEEP)
 
-    def send_string(self, str):
+    def send_string(self, string):
         """Send one or multiple characters to the window."""
-        for c in str:
+        if type(string) == float:  # Remove decimal
+            string = str(int(string))
+        for c in str(string):
             while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
                    win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
                    win32api.GetKeyState(wcon.VK_MENU) < 0):

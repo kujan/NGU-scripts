@@ -28,6 +28,60 @@ IDLECOLOR = "7C4E4E"
 NOTDEAD = "EB0000"
 ISBOSS = "F7EF29"
 DEAD = "EBEBEB"
+
+TITAN_PT = {"GRB": {"p": 1.3e3, "t": 1.3e3}, "GCT": {"p": 5e3, "t": 4e3},
+            "jake": {"p": 1.4e4, "t": 1.2e4}, "UUG": {"p": 4e5, "t": 3e5},
+            "walderp": {"p": 5.5e6, "t": 3.75e6},
+            "BEAST1": {"p": 6e8, "t": 6e8}, "BEAST2": {"p": 6e9, "t": 6e9},
+            "BEAST3": {"p": 6e10, "t": 6e10}, "BEAST4": {"p": 6e11, "t": 6e11}}
+
+TITAN_ZONE = {"GRB": 7, "GCT": 9, "jake": 12, "UUG": 15, "walderp": 17,
+              "BEAST1": 20, "BEAST2": 20, "BEAST3": 20, "BEAST4": 20}
+
+ABILITY_ROW1X = 426
+ABILITY_ROW2X = 321
+ABILITY_ROW3X = 321
+ABILITY_OFFSETX = 105
+ABILITY_ROW1Y = 113
+ABILITY_ROW2Y = 150
+ABILITY_ROW3Y = 186
+
+ABILITY_ROW1_READY_COLOR = "F89B9B"
+ABILITY_ROW2_READY_COLOR = "6687A3"
+ABILITY_ROW3_READY_COLOR = "C39494"
+
+ABILITY_PRIORITY = {1: 6,  # Strong
+                    2: 5,  # Parry
+                    3: 9,  # Piercing
+                    4: 10,  # Ultimate
+                    5: 4,  # Block
+                    6: 6,  # Defensive
+                    11: 7}  # Paralyze
+
+PLAYER_HEAL_THRESHOLDX = 512
+PLAYER_HEAL_THRESHOLDY = 392
+PLAYER_HEAL_COLOR = "FFFFFF"
+
+OCR_ADV_POWX1 = 370
+OCR_ADV_POWY1 = 296
+OCR_ADV_POWX2 = 483
+OCR_ADV_POWY2 = 313
+
+OCR_ADV_TOUGHX1 = 406
+OCR_ADV_TOUGHY1 = 313
+OCR_ADV_TOUGHX2 = 506
+OCR_ADV_TOUGHY2 = 330
+
+OCR_ADV_TITANX1 = 560
+OCR_ADV_TITANY1 = 277
+OCR_ADV_TITANX2 = 685
+OCR_ADV_TITANY2 = 330
+
+OCR_ADV_ENEMY_CHECKX1 = 766
+OCR_ADV_ENEMY_CHECKY1 = 382
+OCR_ADV_ENEMY_CHECKX2 = 889
+OCR_ADV_ENEMY_CHECKY2 = 403
+
 #MENU OFFSETS
 MENUITEMS = ["fight", "pit", "adventure", "inventory", "augmentations",
              "advtraining", "timemachine", "bloodmagic", "wandoos", "ngu",
@@ -61,15 +115,15 @@ FIGHTY = 220
 
 #INVENTORY OFFSETS
 EQUIPMENTSLOTS = {"accessory1" : {"x": 480, "y": 65},
-				  "accessory2": {"x": 480, "y": 115},
-				  "accessory3": {"x": 480, "y": 165},
-				  "accessory4": {"x": 480, "y": 215},
-				  "head": {"x": 525, "y": 65},
-				  "chest": {"x": 527, "y": 114},
-				  "legs": {"x": 527, "y": 163},
-				  "boots": {"x": 527, "y": 212},
-				  "weapon": {"x": 575, "y": 115},
-				  "cube": {"x": 627, "y": 115}}
+                  "accessory2": {"x": 480, "y": 115},
+                  "accessory3": {"x": 480, "y": 165},
+                  "accessory4": {"x": 480, "y": 215},
+                  "head": {"x": 525, "y": 65},
+                  "chest": {"x": 527, "y": 114},
+                  "legs": {"x": 527, "y": 163},
+                  "boots": {"x": 527, "y": 212},
+                  "weapon": {"x": 575, "y": 115},
+                  "cube": {"x": 627, "y": 115}}
 
 LOADOUTX = {1: 330, 2: 360, 3: 390, 4: 420, 5: 450, 6: 480, 7: 510, 8: 540, 9: 570, 10: 600}
 LOADOUTY = 255
@@ -104,7 +158,7 @@ BM_AUTO_DROPY = 360
 #AUGMENTATION OFFSETS
 AUGMENTX = 535
 AUGMENTY = {"SS": 263, "DS": 292, "MI": 329, "DTMT": 357, "CI": 394, "ML": 422,
-		    "SM": 459, "AA": 487, "EB": 525, "CS": 552, "AE": 450, "ES": 478,
+            "SM": 459, "AA": 487, "EB": 525, "CS": 552, "AE": 450, "ES": 478,
             "LS": 516, "QSL": 544}
 AUGMENTSCROLLX = 945
 AUGMENTSCROLLBOTY = 575
@@ -132,21 +186,23 @@ NGU_BAR_OFFSETY = 35
 NGU_BAR_WHITE = "FFFFFF"
 NGU_BAR_GRAY = "FAFAFA"
 
-#ADVTRAINING OFFSETS
+#ADVTRAINING 
 
-ADVTRAININGX = 890
-ADVTRAINING1Y = 230
-ADVTRAINING2Y = 270
-ADVTRAINING3Y = 310
-ADVTRAINING4Y = 350
-ADVTRAINING5Y = 390
+ADV_TRAININGX = 890
+ADV_TRAINING1Y = 230
+ADV_TRAINING2Y = 270
+ADV_TRAINING3Y = 310
+ADV_TRAINING4Y = 350
+ADV_TRAINING5Y = 390
 
 #YGGDRASIL OFFSETS
 
 HARVESTX = 814
 HARVESTY = 450
-FRUITSX = {1: 350, 2: 560, 3: 775, 4: 350, 5: 560, 6: 775, 7: 350, 8: 560, 9: 775}
-FRUITSY = {1: 180, 2: 180, 3: 180, 4: 270, 5: 270, 6: 270, 7: 370, 8: 370, 9: 370}
+FRUITSX = {1: 350, 2: 560, 3: 775, 4: 350, 5: 560,
+           6: 775, 7: 350, 8: 560, 9: 775}
+FRUITSY = {1: 180, 2: 180, 3: 180, 4: 270, 5: 270,
+           6: 270, 7: 370, 8: 370, 9: 370}
 
 
 #REBIRTH OFFSETS

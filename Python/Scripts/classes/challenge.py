@@ -50,7 +50,7 @@ class Challenge(Features):
                 except ValueError:
                     print("couldn't detect the target level of 24HC")
                     Discord.send_message("Couldn't detect the" +
-                                         "target level of 24HC", Discord.ERROR)
+                                         " target level of 24HC", Discord.ERROR)
 
             elif "100 level" in text.lower():
                 print("starting 100 level challenge script")
