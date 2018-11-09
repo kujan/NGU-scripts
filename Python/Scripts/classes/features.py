@@ -151,7 +151,7 @@ class Features(Navigation, Inputs):
                     time.sleep(0.03)
                     win32gui.PostMessage(Window.id, wcon.WM_KEYUP,
                                          wcon.VK_RIGHT, 0)
-            time.sleep(0.1)
+            time.sleep(ncon.SHORT_SLEEP)
 
     def itopod_snipe(self, duration):
         """Manually snipes ITOPOD for increased speed PP/h.
@@ -166,7 +166,7 @@ class Features(Navigation, Inputs):
         self.click(625, 500)  # click somewhere to move tooltip
         itopod_active = self.get_pixel_color(ncon.ITOPOD_ACTIVEX,
                                              ncon.ITOPOD_ACTIVEY)
-
+        # check if we're already in ITOPOD, otherwise enter
         if itopod_active != ncon.ITOPOD_ACTIVE_COLOR:
             self.click(ncon.ITOPODX, ncon.ITOPODY)
             self.click(ncon.ITOPODENDX, ncon.ITOPODENDY)
@@ -177,14 +177,14 @@ class Features(Navigation, Inputs):
 
         idle_color = self.get_pixel_color(ncon.ABILITY_ATTACKX,
                                           ncon.ABILITY_ATTACKY)
-        print(idle_color)
+
         if idle_color == ncon.IDLECOLOR:
             self.click(ncon.IDLE_BUTTONX, ncon.IDLE_BUTTONY)
 
         while time.time() < end:
             health = self.get_pixel_color(ncon.HEALTHX, ncon.HEALTHY)
             if health != ncon.DEAD:
-                self.send_string("w")
+                self.click(ncon.ABILITY_ATTACKX, ncon.ABILITY_ATTACKY)
             else:
                 time.sleep(0.01)
 
@@ -230,18 +230,18 @@ class Features(Navigation, Inputs):
             if (k == "AE" or k == "ES" or k == "LS" or k == "QSL"):
                 self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLBOTY)
 
-            time.sleep(0.3)
+            time.sleep(ncon.LONG_SLEEP)
             val = math.floor(augments[k] * energy)
             self.input_box()
             self.send_string(str(val))
-            time.sleep(0.3)
+            time.sleep(ncon.LONG_SLEEP)
             self.click(ncon.AUGMENTX, ncon.AUGMENTY[k])
 
     def time_machine(self, magic=False):
         """Add energy and/or magic to TM."""
         self.menu("timemachine")
         self.input_box()
-        self.send_string("500000000")
+        self.send_string("600000000")
         self.click(ncon.TMSPEEDX, ncon.TMSPEEDY)
         if magic:
             self.click(ncon.TMMULTX, ncon.TMMULTY)
@@ -267,9 +267,9 @@ class Features(Navigation, Inputs):
     def speedrun_bloodpill(self):
         """Check if bloodpill is ready to cast."""
         bm_color = self.get_pixel_color(ncon.BMLOCKEDX, ncon.BMLOCKEDY)
-        self.menu("bloodmagic")
-        self.click(ncon.BMSPELLX, ncon.BMSPELLY)
         if bm_color == ncon.BM_PILL_READY:
+            self.menu("bloodmagic")
+            self.click(ncon.BMSPELLX, ncon.BMSPELLY)
             start = time.time()
             self.send_string("t")
             self.send_string("r")
@@ -425,14 +425,11 @@ class Features(Navigation, Inputs):
                                              ncon.NGU_BAR_OFFSETY * target,
                                              )
                 if color == ncon.NGU_BAR_WHITE:
-                    print(f"found end at position {x}")
                     pixel_coefficient = x / 198
                     value_coefficient = overcap / pixel_coefficient
                     energy = (value_coefficient * value) - value
-                    print(f"estimated energy to BB this NGU is {Decimal(energy):.2E}")
+                    #print(f"estimated energy to BB this NGU is {Decimal(energy):.2E}")
                     break
             self.input_box()
-            self.send_string(str(int(energy // 1e3)))
+            self.send_string(str(int(energy)))
             self.click(ncon.NGU_PLUSX, ncon.NGU_PLUSY + target * 35)
-
-        print(f"function ran for {time.time() - start} seconds")

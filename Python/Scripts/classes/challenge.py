@@ -1,5 +1,8 @@
 """Handles different challenges"""
 from classes.features import Features
+from classes.discord import Discord
+from challenges.basic import Basic
+from challenges.level import Level
 import ngucon as ncon
 import time
 
@@ -11,6 +14,8 @@ class Challenge(Features):
         """Start the selected challenge."""
         self.rebirth()
         self.click(ncon.CHALLENGEBUTTONX, ncon.CHALLENGEBUTTONY)
+        b = Basic()
+        l = Level()
         color = self.get_pixel_color(ncon.CHALLENGEACTIVEX,
                                      ncon.CHALLENGEACTIVEY)
 
@@ -22,7 +27,7 @@ class Challenge(Features):
             print("A challenge is already active: " + text)
             if "basic" in text.lower():
                 print("Starting basic challenge script")
-                self.basic()
+                b.basic()
 
             elif "24 hour" in text.lower():
                 print("Starting 24 hour challenge script")
@@ -30,20 +35,26 @@ class Challenge(Features):
                     x = ncon.CHALLENGEX
                     y = ncon.CHALLENGEY + challenge * ncon.CHALLENGEOFFSET
                     self.click(x, y, button="right")
-                    time.sleep(0.3)
+                    time.sleep(ncon.LONG_SLEEP)
                     target = self.ocr(ncon.OCR_CHALLENGE_24HC_TARGETX1,
                                       ncon.OCR_CHALLENGE_24HC_TARGETY1,
                                       ncon.OCR_CHALLENGE_24HC_TARGETX2,
                                       ncon.OCR_CHALLENGE_24HC_TARGETY2)
                     target = int(self.remove_letters(target))
                     print(f"Found target boss: {target}")
-                    self.basic(target)
+                    b.basic(target)
                 except ValueError:
                     print("couldn't detect the target level of 24HC")
+                    Discord.send_message("Couldn't detect the" +
+                                         "target level of 24HC", Discord.ERROR)
 
             elif "100 level" in text.lower():
                 print("starting 100 level challenge script")
-                self.lc()
+                l.lc()
+
+            elif "blind" in text.lower():
+                print("starting blind challenge script")
+                l.blind()
 
             else:
                 print("Couldn't determine which script to start from the OCR",
@@ -56,14 +67,14 @@ class Challenge(Features):
 
             if challenge == 1:
                 self.click(x, y)
-                time.sleep(0.3)
+                time.sleep(ncon.LONG_SLEEP)
                 self.confirm()
-                self.basic(58)
+                b.basic(58)
 
             elif challenge == 3:
                 try:
                     self.click(x, y, button="right")
-                    time.sleep(0.3)
+                    time.sleep(ncon.LONG_SLEEP)
                     target = self.ocr(ncon.OCR_CHALLENGE_24HC_TARGETX1,
                                       ncon.OCR_CHALLENGE_24HC_TARGETY1,
                                       ncon.OCR_CHALLENGE_24HC_TARGETX2,
@@ -71,24 +82,26 @@ class Challenge(Features):
                     target = int(self.remove_letters(target))
                     print(f"Found target boss: {target}")
                     self.click(x, y)
-                    time.sleep(0.3)
+                    time.sleep(ncon.LONG_SLEEP)
                     self.confirm()
-                    time.sleep(0.3)
-                    self.basic(target)
+                    time.sleep(ncon.LONG_SLEEP)
+                    b.basic(target)
                 except ValueError:
                     print("couldn't detect the target level of 24HC")
+                    Discord.send_message("Couldn't detect the" +
+                                         "target level of 24HC", Discord.ERROR)
 
             elif challenge == 4:
                 self.click(x, y)
-                time.sleep(0.3)
+                time.sleep(ncon.LONG_SLEEP)
                 self.confirm()
-                self.lc()
+                l.lc()
 
     def check_challenge(self):
         """Check if a challenge is active."""
         self.rebirth()
         self.click(ncon.CHALLENGEBUTTONX, ncon.CHALLENGEBUTTONY)
-        time.sleep(0.3)
+        time.sleep(ncon.LONG_SLEEP)
         color = self.get_pixel_color(ncon.CHALLENGEACTIVEX,
                                      ncon.CHALLENGEACTIVEY)
 

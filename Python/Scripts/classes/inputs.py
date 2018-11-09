@@ -4,6 +4,7 @@ from ctypes import windll
 from PIL import Image as image
 from PIL import ImageFilter
 import cv2
+import ngucon as ncon
 import numpy
 import pytesseract
 import re
@@ -50,7 +51,7 @@ class Inputs():
             win32gui.PostMessage(window.id, wcon.WM_RBUTTONUP,
                                  wcon.MK_RBUTTON, lParam)
         # Sleep lower than 0.1 might cause issues when clicking in succession
-        time.sleep(0.2)
+        time.sleep(ncon.MEDIUM_SLEEP)
 
     def send_string(self, str):
         """Send one or multiple characters to the window."""
@@ -65,9 +66,9 @@ class Inputs():
                 # time.sleep(0.03)  # This can probably be removed
                 continue
             win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, ord(c.upper()), 0)
-            time.sleep(0.10)  # This can probably be removed
+            time.sleep(ncon.SHORT_SLEEP)  # This can probably be removed
             win32gui.PostMessage(window.id, wcon.WM_KEYUP, ord(c.upper()), 0)
-        time.sleep(0.1)
+        time.sleep(ncon.SHORT_SLEEP)
 
     def get_bitmap(self):
         """Get and return a bitmap of the window."""
