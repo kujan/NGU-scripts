@@ -51,12 +51,13 @@ ABILITY_ROW2_READY_COLOR = "6687A3"
 ABILITY_ROW3_READY_COLOR = "C39494"
 
 ABILITY_PRIORITY = {1: 6,  # Strong
-                    2: 5,  # Parry
+                    2: 8,  # Parry
                     3: 9,  # Piercing
                     4: 10,  # Ultimate
                     5: 4,  # Block
-                    6: 6,  # Defensive
-                    11: 7}  # Paralyze
+                    6: 5,  # Defensive
+                    9: 12 # Charge
+                    }  # Paralyze
 
 PLAYER_HEAL_THRESHOLDX = 512
 PLAYER_HEAL_THRESHOLDY = 392
@@ -81,6 +82,11 @@ OCR_ADV_ENEMY_CHECKX1 = 766
 OCR_ADV_ENEMY_CHECKY1 = 382
 OCR_ADV_ENEMY_CHECKX2 = 889
 OCR_ADV_ENEMY_CHECKY2 = 403
+
+OCR_COMBAT_LOGX1 = 310
+OCR_COMBAT_LOGY1 = 496
+OCR_COMBAT_LOGX2 = 600
+OCR_COMBAT_LOGY2 = 589
 
 #MENU OFFSETS
 MENUITEMS = ["fight", "pit", "adventure", "inventory", "augmentations",

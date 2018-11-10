@@ -450,7 +450,7 @@ class Features(Navigation, Inputs):
         self.click(ncon.ADV_TRAININGX, ncon.ADV_TRAINING2Y)
 
     def titan_pt_check(self, target):
-        """Checks if we have the recommended p/t to defeat the target Titan.
+        """Check if we have the recommended p/t to defeat the target Titan.
 
         Keyword arguments:
         target -- The name of the titan you wish to kill. ["GRB", "GCT",
@@ -499,11 +499,14 @@ class Features(Navigation, Inputs):
                              ncon.OCR_ADV_TITANX2, ncon.OCR_ADV_TITANY2)
 
         if "titan" in available.lower():
+            time.sleep(1.5)  # Make sure titans spawn, otherwise loop breaks
             queue = deque(self.get_ability_queue())
-            health = self.get_pixel_color(ncon.HEALTHX, ncon.HEALTHY)
+            health = ""
             while health != ncon.DEAD:
                 if len(queue) == 0:
+                    print("NEW QUEUE")
                     queue = deque(self.get_ability_queue())
+                    print(queue)
 
                 ability = queue.popleft()
                 print(f"using ability {ability}")
@@ -518,16 +521,17 @@ class Features(Navigation, Inputs):
                 if ability > 10:
                     x = ncon.ABILITY_ROW3X + (ability - 11) * ncon.ABILITY_OFFSETX
                     y = ncon.ABILITY_ROW3Y
-                self.click(x, y)
 
+                self.click(x, y)
+                time.sleep(ncon.LONG_SLEEP)
                 color = self.get_pixel_color(ncon.ABILITY_ROW1X,
                                              ncon.ABILITY_ROW1Y)
                 health = self.get_pixel_color(ncon.HEALTHX, ncon.HEALTHY)
+
                 while color != ncon.ABILITY_ROW1_READY_COLOR:
                     time.sleep(0.03)
                     color = self.get_pixel_color(ncon.ABILITY_ROW1X,
                                                  ncon.ABILITY_ROW1Y)
-        #time.sleep(45)  # Wait for all cooldowns
 
     def get_ability_queue(self):
         """Return a queue of usable abilities."""
@@ -543,7 +547,6 @@ class Features(Navigation, Inputs):
             if i >= 5 and i <= 10:
                 x = ncon.ABILITY_ROW2X + (i - 5) * ncon.ABILITY_OFFSETX
                 y = ncon.ABILITY_ROW2Y
-                print(i, x, y)
                 color = self.get_pixel_color(x, y)
                 if color == ncon.ABILITY_ROW2_READY_COLOR:
                     ready.append(i)
@@ -564,13 +567,14 @@ class Features(Navigation, Inputs):
                 queue.append(7)
 
         # check if charge, offensive buff and ultimate buff are all ready
-        buffs = [9, 8, 10]
+        buffs = [8, 10]
         if all(i in ready for i in buffs):
             queue.extend(buffs)
 
         d = ncon.ABILITY_PRIORITY
         abilities = sorted(d, key=d.get, reverse=True)
-        queue.extend(abilities)
+        queue.extend([a for a in abilities if a in ready])
+        #queue.extend(abilities)
 
         if len(queue) == 0:
             queue.append(0)
