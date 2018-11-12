@@ -9,6 +9,7 @@ class Navigation(Inputs):
 
     menus = ncon.MENUITEMS
     equipment = ncon.EQUIPMENTSLOTS
+    inventory = ncon.INVENTORYSLOTS
 
     def menu(self, target):
         """Navigate through main menu."""
