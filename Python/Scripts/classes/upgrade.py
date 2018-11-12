@@ -96,15 +96,15 @@ class Upgrade(Navigation):
 
         self.click(ncon.EMPOWBOXX, ncon.EMBOXY)
         self.send_string(str(e_power))
-        time.sleep(0.1)
+        time.sleep(ncon.MEDIUM_SLEEP)
 
         self.click(ncon.EMCAPBOXX, ncon.EMBOXY)
         self.send_string(str(e_cap))
-        time.sleep(0.1)
+        time.sleep(ncon.MEDIUM_SLEEP)
 
         self.click(ncon.EMBARBOXX, ncon.EMBOXY)
         self.send_string(str(e_bars))
-        time.sleep(0.1)
+        time.sleep(ncon.MEDIUM_SLEEP)
 
         self.click(ncon.EMPOWBUYX, ncon.EMBUYY)
         self.click(ncon.EMCAPBUYX, ncon.EMBUYY)
@@ -114,15 +114,15 @@ class Upgrade(Navigation):
 
         self.click(ncon.EMPOWBOXX, ncon.EMBOXY)
         self.send_string(str(m_power))
-        time.sleep(0.1)
+        time.sleep(ncon.MEDIUM_SLEEP)
 
         self.click(ncon.EMCAPBOXX, ncon.EMBOXY)
         self.send_string(str(m_cap))
-        time.sleep(0.1)
+        time.sleep(ncon.MEDIUM_SLEEP)
 
         self.click(ncon.EMBARBOXX, ncon.EMBOXY)
         self.send_string(str(m_bars))
-        time.sleep(0.1)
+        time.sleep(ncon.MEDIUM_SLEEP)
 
         self.click(ncon.EMPOWBUYX, ncon.EMBUYY)
         self.click(ncon.EMCAPBUYX, ncon.EMBUYY)

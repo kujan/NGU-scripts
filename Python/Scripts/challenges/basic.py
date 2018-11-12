@@ -1,11 +1,10 @@
 """Contains functions for running a basic challenge."""
-from classes.challenge import Challenge
 from classes.features import Features
 import ngucon as ncon
 import time
 
 
-class Basic(Challenge, Features):
+class Basic(Features):
     """Contains functions for running a basic challenge."""
 
     def first_rebirth(self):
@@ -142,6 +141,16 @@ class Basic(Challenge, Features):
         time.sleep(7)
         self.speedrun_bloodpill()
         return
+
+    def check_challenge(self):
+        """Check if a challenge is active."""
+        self.rebirth()
+        self.click(ncon.CHALLENGEBUTTONX, ncon.CHALLENGEBUTTONY)
+        time.sleep(ncon.LONG_SLEEP)
+        color = self.get_pixel_color(ncon.CHALLENGEACTIVEX,
+                                     ncon.CHALLENGEACTIVEY)
+
+        return True if color == ncon.CHALLENGEACTIVECOLOR else False
 
     def basic(self, target):
         """Defeat target boss."""
