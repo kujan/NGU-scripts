@@ -17,6 +17,11 @@ import win32ui
 class Inputs():
     """This class handles inputs."""
 
+    def point(self):
+        x,y = win32gui.GetCursorPos()
+        print(x)
+        print(y)
+    
     def click(self, x, y, button="left", fast=False):
         """Click at pixel xy."""
         x += window.x
@@ -51,6 +56,44 @@ class Inputs():
                                  wcon.MK_RBUTTON, lParam)
         # Sleep lower than 0.1 might cause issues when clicking in succession
         time.sleep(0.2)
+
+    def a_click(self, x, y):
+        x += window.x
+        y += window.y
+        lParam = win32api.MAKELONG(x, y)
+        # MOUSEMOVE event is required for game to register clicks correctly
+        win32gui.PostMessage(window.id, wcon.WM_MOUSEMOVE, 0, lParam)
+        #Left click then A
+        win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
+                                wcon.MK_LBUTTON, lParam)
+        # win32api.keybd_event(0x41, 0,0,0) #A
+        win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, 0x41, 0)
+        win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, 0x41, 0)
+        # win32api.keybd_event(0x41,0 ,wcon.KEYEVENTF_KEYUP ,0)
+        win32gui.PostMessage(window.id, wcon.WM_LBUTTONUP,
+                                wcon.MK_LBUTTON, lParam)
+        time.sleep(0.5)
+
+    def d_click(self, x, y):
+        x += window.x
+        y += window.y
+        lParam = win32api.MAKELONG(x, y)
+        # MOUSEMOVE event is required for game to register clicks correctly
+        win32gui.PostMessage(window.id, wcon.WM_MOUSEMOVE, 0, lParam)
+        #Left click then D
+        win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
+                                wcon.MK_LBUTTON, lParam)
+        # win32api.keybd_event(0x44, 0,0,0) #D
+        win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, 0x44, 0)
+        win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, 0x44, 0)
+        # win32api.keybd_event(0x44,0 ,wcon.KEYEVENTF_KEYUP ,0)
+        win32gui.PostMessage(window.id, wcon.WM_LBUTTONUP,
+                                wcon.MK_LBUTTON, lParam)
+        time.sleep(0.5)
+
+    def ctrl_click(self, x, y):
+        pass
+        '''ctrl:0x11,'''
 
     def send_string(self, str):
         """Send one or multiple characters to the window."""

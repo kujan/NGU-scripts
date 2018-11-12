@@ -118,20 +118,25 @@ print(w.x, w.y)
 
 count = 0
 
-while count <=74: # Adjust # for how many runs you want to do during testing
-    count += 1
-    speedrun(12, feature)
-    s.print_exp()
-    u.em()
+# while count <= 3: # Adjust # for how many runs you want to do during testing minus 1
+#     count += 1
+#     speedrun(15, feature)
+#     s.print_exp()
+#     u.em()
 
 
-# while True:  # main loop to go foreverrrrr
-    # feature.boost_equipment()
-    # feature.merge_equipment()
-    # feature.ygg(True)
-    # time.sleep(120)
+while True:  # main loop to go foreverrrrr
+    feature.merge_equipment()
+    feature.boost_equipment()
+    feature.merge_inventory()
+    feature.boost_inventory()
+    feature.adventure(zone=13, highest=False, itopod=False, itopodauto=False)
+    feature.ygg()
+    time.sleep(120)
     # speedrun(12, feature)
     # s.print_exp()
     # u.em()
+
+
 
 s.print_run_done(count)
