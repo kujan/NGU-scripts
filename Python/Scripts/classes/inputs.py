@@ -171,7 +171,9 @@ class Inputs():
 
     def get_pixel_color(self, x, y):
         """Get the color of selected pixel in HEX."""
-        rgba = win32gui.GetPixel(window.dc, x + 8 + window.x, y + 8 + window.y)
+        dc = win32gui.GetWindowDC(window.id)
+        rgba = win32gui.GetPixel(dc, x + 8 + window.x, y + 8 + window.y)
+        win32gui.ReleaseDC(window.id, dc)
         r = rgba & 0xff
         g = rgba >> 8 & 0xff
         b = rgba >> 16 & 0xff

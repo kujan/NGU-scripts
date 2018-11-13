@@ -12,6 +12,7 @@ class Stats(Navigation):
 
     def __init__(self):
         """Store start EXP via OCR."""
+        super().__init__()
         self.misc()
         try:
             self.start_exp = int(float(self.ocr(ncon.OCR_EXPX1,

@@ -26,4 +26,5 @@ class Window():
         for i in top_windows:
             if "play ngu idle" in i[1].lower():
                 Window.id = i[0]
-                Window.dc = win32gui.GetWindowDC(i[0])
+        if Window.id == 0:
+            raise RuntimeError(f"Couldn't find game window")

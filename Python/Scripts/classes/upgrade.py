@@ -25,6 +25,7 @@ class Upgrade(Navigation):
                      a value of 5 will buy 5 times more upgrades in energy than
                      in magic, maintaining a 5:1 E:M ratio.
         """
+        super().__init__()
         self.ecap = ecap
         self.mcap = mcap
         self.ebar = ebar
