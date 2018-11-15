@@ -161,7 +161,7 @@ class Features(Navigation, Inputs):
                                              wcon.VK_RIGHT, 0)
                 else:
                     self.click(ncon.ABILITY_ATTACKX, ncon.ABILITY_ATTACKY)
-                time.sleep(0.01)
+            time.sleep(0.01)
 
         self.click(ncon.IDLE_BUTTONX, ncon.IDLE_BUTTONY)
 

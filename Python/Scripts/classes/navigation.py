@@ -13,7 +13,7 @@ class Navigation(Inputs):
 
     def menu(self, target):
         """Navigate through main menu."""
-        if Navigation.current_menu == "target":
+        if Navigation.current_menu == target:
             return
         y = ncon.MENUOFFSETY + ((self.menus.index(target) + 1) *
                                 ncon.MENUDISTANCEY)
