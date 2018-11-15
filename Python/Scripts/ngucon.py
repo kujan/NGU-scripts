@@ -70,7 +70,7 @@ EQUIPMENTSLOTS = {"accessory1" : {"x": 480, "y": 65},
 				  "legs": {"x": 527, "y": 163},
 				  "boots": {"x": 527, "y": 212},
 				  "weapon": {"x": 575, "y": 115},
-				#   "cube": {"x": 627, "y": 115}
+				  "cube": {"x": 627, "y": 115}
 				}
 
 #INVENTORY OFFSETS

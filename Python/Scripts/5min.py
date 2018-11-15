@@ -39,12 +39,12 @@ def speedrun(duration, f):
     time.sleep(7)
     f.loadout(1)  # Bar/power equimpent
     f.adventure(itopod=True, itopodauto=True)
-    #Sleep so can get enough E/M for time machine
-    time.sleep(60)
+    #Sleep so can get enough E/M for augments
+    time.sleep(45)
     f.augments({"SS": 0.3, "DS": 0.7}, 5.5e6) #5.5m
     #Sleep so time machine can get some E/M
     #TODO: Optimize
-    time.sleep(60)
+    time.sleep(45)
     f.time_machine(True)
     
     while time.time() < end - 15:
@@ -134,9 +134,9 @@ while True:  # main loop to go foreverrrrr
 #     feature.adventure(zone=13, highest=False, itopod=False, itopodauto=False)
 #     feature.ygg()
 #     time.sleep(120)
-    speedrun(12, feature)
+    speedrun(5, feature)
     s.print_exp()
-    u.em()
+    # u.em()
 
 
 

@@ -14,7 +14,9 @@ class Basic(Challenge, Features):
         tm_unlocked = False
         bm_unlocked = False
         ci_assigned = False
+        #Diggers you want to use
         diggers = [2, 3, 8]
+        #Gold loadout
         self.loadout(1)
         self.fight()
         self.adventure(highest=True)
@@ -31,6 +33,7 @@ class Basic(Challenge, Features):
                 self.send_string("r")
                 self.send_string("t")
                 self.time_machine(True)
+                #Power/Bars Loadout
                 self.loadout(2)
                 tm_unlocked = True
 
