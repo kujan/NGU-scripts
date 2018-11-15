@@ -246,20 +246,23 @@ class Features(Navigation, Inputs):
         self.menu("augmentations")
 
         for k in augments:
-            # Make sure we are scrolled up in the augment screen.
-            self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLTOPY)
             # Scroll down if we have to.
             if (k == "AE" or k == "ES" or k == "LS" or k == "QSL"):
-
                 color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
-                                             ncon.SANITY_AUG_SCROLLY)
-
+                                             ncon.SANITY_AUG_SCROLLY_BOT)
                 while (color != ncon.SANITY_AUG_SCROLL_BOTTOM_COLOR):
                     self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLBOTY)
                     time.sleep(userset.MEDIUM_SLEEP)
                     color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
-                                                 ncon.SANITY_AUG_SCROLLY)
-
+                                                 ncon.SANITY_AUG_SCROLLY_BOT)
+            else:
+                color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
+                                             ncon.SANITY_AUG_SCROLLY_TOP)
+                while (color != ncon.SANITY_AUG_SCROLL_BOTTOM_COLOR):
+                    self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLTOPY)
+                    time.sleep(userset.MEDIUM_SLEEP)
+                    color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
+                                                 ncon.SANITY_AUG_SCROLLY_TOP)
             time.sleep(userset.LONG_SLEEP)
             val = math.floor(augments[k] * energy)
             self.input_box()
