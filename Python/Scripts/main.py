@@ -28,11 +28,11 @@ def speedrun(duration, f):
     start = time.time()
     end = time.time() + (duration * 60)
     blood_digger_active = False
-    f.fight()
+    f.nuke(125)
     current_boss = int(feature.get_current_boss())
-    while current_boss < 117:
-        print(f"at boss {current_boss}, fighting {116-current_boss + 1} more times")
-        feature.fight(116-current_boss + 1)
+    while current_boss < 125:
+        print(f"at boss {current_boss}, fighting {125-current_boss} more times")
+        feature.fight(125-current_boss)
         current_boss = int(feature.get_current_boss())
 
     f.loadout(1)  # Gold drop equipment
@@ -43,7 +43,7 @@ def speedrun(duration, f):
     f.time_machine(True)
     f.augments({"EB": 0.7, "CS": 0.3}, 4.5e9)
 
-    f.blood_magic(7)
+    f.blood_magic(8)
     f.boost_equipment()
     f.wandoos(True)
     f.gold_diggers([2, 5, 8, 9], True)
@@ -59,14 +59,18 @@ def speedrun(duration, f):
         if time.time () > start + 90:
             try:
                 NGU_energy = int(feature.remove_letters(feature.ocr(ncon.OCR_ENERGY_X1,ncon.OCR_ENERGY_Y1,ncon.OCR_ENERGY_X2,ncon.OCR_ENERGY_Y2)))
-                feature.assign_ngu(NGU_energy, [1, 2, 4, 5, 6])
+                feature.assign_ngu(NGU_energy, [1, 2, 4, 5, 6, 7, 8, 9])
+                NGU_magic = int(feature.remove_letters(feature.ocr(ncon.OCR_MAGIC_X1, ncon.OCR_MAGIC_Y1, ncon.OCR_MAGIC_X2, ncon.OCR_MAGIC_Y2)))
+                feature.assign_ngu(NGU_magic, [1, 2, 3, 4, 5, 6, 7], magic=True)
             except ValueError:
                 print("couldn't assign e/m to NGUs")
             time.sleep(0.5)
     f.gold_diggers([2, 3, 5, 9, 12], True)
+    f.nuke()
     f.fight()
     f.pit()
     f.spin()
+    f.save_check()
     f.speedrun_bloodpill()
     while time.time() < end:
         time.sleep(0.1)
@@ -82,7 +86,7 @@ c = Challenge()
 Window.x, Window.y = i.pixel_search("212429", 0, 0, 400, 600)
 nav.menu("inventory")
 s = Stats()
-u = Upgrade(37500, 37500, 4, 4, 10)
+u = Upgrade(37500, 37500, 4, 4, 3)
 
 print(w.x, w.y)
 #u.em()
@@ -92,10 +96,10 @@ print(w.x, w.y)
 #feature.bb_ngu(4e8, [1, 2, 3, 4, 5, 6, 7, 8, 9], 1.05)
 #feature.speedrun_bloodpill()
 while True:  # main loop
-    feature.boost_equipment()
-    feature.ygg()
-    feature.snipe(0, 180, bosses=False)
+    #feature.boost_equipment()
+    #feature.ygg()
+    #feature.snipe(0, 120, bosses=False)
 
     #time.sleep(120)
     #c.start_challenge(3)
-    #speedrun(3, feature)
+    speedrun(3, feature)

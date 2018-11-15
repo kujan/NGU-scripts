@@ -43,7 +43,7 @@ class Features(Navigation, Inputs):
         return self.remove_letters(boss)
 
     def nuke(self, bosses=None):
-        """Navigate to Fight Boss and Nuke or Fast Fight"""
+        """Navigate to Fight Boss and Nuke or Fast Fight."""
         self.menu("fight")
         if bosses:
             for i in range(0, bosses):
@@ -608,3 +608,14 @@ class Features(Navigation, Inputs):
             queue.append(0)
 
         return queue
+
+    def save_check(self):
+        """Check if we can do the daily save for AP.
+
+        Make sure no window in your browser pops up when you click the "Save"
+        button, otherwise sit will mess with the rest of the script.
+        """
+        color = self.get_pixel_color(ncon.SAVEX, ncon.SAVEY)
+        if color == ncon.SAVE_READY_COLOR:
+            self.click(ncon.SAVEX, ncon.SAVEY)
+        return
