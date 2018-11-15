@@ -13,6 +13,7 @@ from classes.stats import Stats
 from classes.upgrade import Upgrade
 from classes.window import Window
 
+import ngucon as ncon
 import time
 
 
@@ -26,10 +27,8 @@ def speedrun(duration, f):
     f.do_rebirth()
     start = time.time()
     end = time.time() + (duration * 60)
-    magic_assigned = False
-    augments_assigned = False
     blood_digger_active = False
-    f.fight(116)
+    f.fight()
     current_boss = int(feature.get_current_boss())
     while current_boss < 117:
         print(f"at boss {current_boss}, fighting {116-current_boss + 1} more times")
@@ -42,25 +41,29 @@ def speedrun(duration, f):
     f.loadout(2)  # Bar/power equimpent
     f.adventure(itopod=True, itopodauto=True)
     f.time_machine(True)
-    f.augments({"EB": 0.7, "CS": 0.3}, 3.5e9)
+    f.augments({"EB": 0.7, "CS": 0.3}, 4.5e9)
 
     f.blood_magic(7)
     f.boost_equipment()
-    f.menu("bloodmagic")
-    time.sleep(0.2)
     f.wandoos(True)
-    f.gold_diggers([2, 8, 9], True)
+    f.gold_diggers([2, 5, 8, 9], True)
     s.print_exp()
     u.em()
 
     while time.time() < end - 15:
         f.wandoos(True)
-        f.gold_diggers([2, 8, 9, 11])
-        if time.time() > start + 80 and not blood_digger_active:
+        f.gold_diggers([2, 5, 8, 9, 11])
+        if time.time() > start + 60 and not blood_digger_active:
             blood_digger_active = True
             f.gold_diggers([11], True)
-        time.sleep(0.5)
-    f.gold_diggers([2, 3, 12], True)
+        if time.time () > start + 90:
+            try:
+                NGU_energy = int(feature.remove_letters(feature.ocr(ncon.OCR_ENERGY_X1,ncon.OCR_ENERGY_Y1,ncon.OCR_ENERGY_X2,ncon.OCR_ENERGY_Y2)))
+                feature.assign_ngu(NGU_energy, [1, 2, 4, 5, 6])
+            except ValueError:
+                print("couldn't assign e/m to NGUs")
+            time.sleep(0.5)
+    f.gold_diggers([2, 3, 5, 9, 12], True)
     f.fight()
     f.pit()
     f.spin()
@@ -89,10 +92,10 @@ print(w.x, w.y)
 #feature.bb_ngu(4e8, [1, 2, 3, 4, 5, 6, 7, 8, 9], 1.05)
 #feature.speedrun_bloodpill()
 while True:  # main loop
-    #feature.boost_equipment()
-    #feature.ygg()
-    #feature.itopod_snipe(180)
+    feature.boost_equipment()
+    feature.ygg()
+    feature.snipe(0, 180, bosses=False)
 
     #time.sleep(120)
-    
-    speedrun(3, feature)
+    #c.start_challenge(3)
+    #speedrun(3, feature)

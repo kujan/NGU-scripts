@@ -71,50 +71,40 @@ class Basic(Features):
         self.do_rebirth()
         start = time.time()
         end = time.time() + (duration * 60)
-        magic_assigned = False
-        do_tm = True
-        augments_assigned = False
+        blood_digger_active = False
         self.fight()
+
         self.loadout(1)  # Gold drop equipment
-        self.adventure(0, True, False, False)
-        time.sleep(3)
+        self.adventure(highest=True)
+        time.sleep(7)
         self.loadout(2)  # Bar/power equimpent
-        self.adventure(zone=0, highest=False, itopod=True, itopodauto=True)
+        self.adventure(itopod=True, itopodauto=True)
+        self.time_machine(True)
+        self.augments({"EB": 0.7, "CS": 0.3}, 4.5e9)
+
+        self.blood_magic(7)
+        self.boost_equipment()
+        self.wandoos(True)
+        self.gold_diggers([2, 5, 8, 9], True)
+
         while time.time() < end - 15:
-            bm_color = self.get_pixel_color(ncon.BMLOCKEDX, ncon.BMLOCKEDY)
-            tm_color = self.get_pixel_color(ncon.TMLOCKEDX, ncon.TMLOCKEDY)
-            # Do TM while waiting for magic cap
-            if not magic_assigned and tm_color != ncon.TMLOCKEDCOLOR:
-                self.time_machine(True)
-            # If magic is assigned, continue adding energy to TM
-            elif do_tm and tm_color != ncon.TMLOCKEDCOLOR:
-                self.time_machine()
-            else:
-                self.wandoos(True)
-            # Assign augments when energy caps
-            if time.time() > end - (duration * 0.75 * 60):
-                if do_tm and not augments_assigned:
-                    self.send_string("r")
-                    self.augments({"SM": 0.7, "AA": 0.3}, 8e8)
-                    self.gold_diggers([2, 8, 9], True)
-                    do_tm = False
-                    augments_assigned = True
-                    self.send_string("t")
-                    self.wandoos(True)
-                    self.boost_equipment()
-            # Reassign magic from TM into BM after half the duration
-            if (bm_color != ncon.BMLOCKEDCOLOR and not magic_assigned and
-               time.time() > end - (duration * 0.75 * 60)):
-                self.menu("bloodmagic")
-                time.sleep(0.2)
-                self.send_string("t")
-                self.blood_magic(7)
-                magic_assigned = True
-                self.wandoos(True)
-            # Assign leftovers into wandoos
-            if augments_assigned:
-                self.wandoos(True)
-                self.gold_diggers([2, 8, 9])
+            self.wandoos(True)
+            self.gold_diggers([2, 5, 8, 9, 11])
+            if time.time() > start + 60 and not blood_digger_active:
+                blood_digger_active = True
+                self.gold_diggers([11], True)
+            if time.time() > start + 90:
+                try:
+                    NGU_energy = int(self.remove_letters(self.ocr(ncon.OCR_ENERGY_X1,ncon.OCR_ENERGY_Y1,ncon.OCR_ENERGY_X2,ncon.OCR_ENERGY_Y2)))
+                    self.assign_ngu(NGU_energy, [1, 2, 4, 5, 6])
+                except ValueError:
+                    print("couldn't assign e/m to NGUs")
+                time.sleep(0.5)
+        self.gold_diggers([2, 3, 5, 9, 12], True)
+        self.fight()
+        self.pit()
+        self.spin()
+        while time.time() < end:
             try:
                 """If current rebirth is scheduled for more than 3 minutes and
                 we already finished the rebirth, we will return here, instead
@@ -133,13 +123,6 @@ class Basic(Features):
 
             except ValueError:
                 print("OCR couldn't find current boss")
-
-        self.gold_diggers([3], True)
-        self.fight()
-        self.pit()
-        self.spin()
-        time.sleep(7)
-        self.speedrun_bloodpill()
         return
 
     def check_challenge(self):

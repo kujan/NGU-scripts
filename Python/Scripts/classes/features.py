@@ -103,56 +103,67 @@ class Features(Navigation, Inputs):
                 self.click(ncon.RIGHTARROWX, ncon.RIGHTARROWY)
             return
 
-    def snipe(self, zone, duration, once=False, highest=False):
+    def snipe(self, zone, duration, once=False, highest=False, bosses=True):
         """Go to adventure and snipe bosses in specified zone.
 
         Keyword arguments
         zone -- Zone to snipe, 0 is safe zone, 1 is turorial and so on.
+                If 0, it will use the current zone (to maintain guffin counter)
         duration -- The duration in minutes the sniping will run before
                     returning.
         once -- If true it will only kill one boss before returning.
         highest -- If set to true, it will go to your highest available
                    non-titan zone.
+        bosses -- If set to true, it will only kill bosses
         """
         self.menu("adventure")
         if highest:
             self.click(ncon.RIGHTARROWX, ncon.RIGHTARROWY, button="right")
-        else:
+        elif zone > 0:
             self.click(ncon.LEFTARROWX, ncon.LEFTARROWY, button="right")
             for i in range(zone):
                 self.click(ncon.RIGHTARROWX, ncon.RIGHTARROWY)
-        idle_color = self.get_pixel_color(ncon.IDLEX, ncon.IDLEY)
 
-        #if (idle_color != ncon.IDLECOLOR):
-        #    self.send_string("q")
+        self.click(625, 500)  # click somewhere to move tooltip
+        idle_color = self.get_pixel_color(ncon.ABILITY_ATTACKX,
+                                          ncon.ABILITY_ATTACKY)
 
-        end = time.time() + (duration * 60)
+        if idle_color == ncon.IDLECOLOR:
+            self.click(ncon.IDLE_BUTTONX, ncon.IDLE_BUTTONY)
+
+        end = time.time() + duration
         while time.time() < end:
             health = self.get_pixel_color(ncon.HEALTHX, ncon.HEALTHY)
             if (health == ncon.NOTDEAD):
-                crown = self.get_pixel_color(ncon.CROWNX, ncon.CROWNY)
-                if (crown == ncon.ISBOSS):
-                    while (health != ncon.DEAD):
-                        health = self.get_pixel_color(ncon.HEALTHX,
-                                                      ncon.HEALTHY)
-                        self.send_string("ytew")
-                        time.sleep(0.1)
-                    if once:
-                        break
+                if bosses:
+                    crown = self.get_pixel_color(ncon.CROWNX, ncon.CROWNY)
+                    if (crown == ncon.ISBOSS):
+                        while (health != ncon.DEAD):
+                            health = self.get_pixel_color(ncon.HEALTHX,
+                                                          ncon.HEALTHY)
+                            self.click(ncon.ABILITY_ATTACKX,
+                                       ncon.ABILITY_ATTACKY)
+                            time.sleep(0.1)
+                        if once:
+                            break
+                    else:
+                        # Send left arrow and right arrow to refresh monster.
+                        win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN,
+                                             wcon.VK_LEFT, 0)
+                        time.sleep(0.03)
+                        win32gui.PostMessage(Window.id, wcon.WM_KEYUP,
+                                             wcon.VK_LEFT, 0)
+                        time.sleep(0.03)
+                        win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN,
+                                             wcon.VK_RIGHT, 0)
+                        time.sleep(0.03)
+                        win32gui.PostMessage(Window.id, wcon.WM_KEYUP,
+                                             wcon.VK_RIGHT, 0)
                 else:
-                    # Send left arrow and right arrow to refresh monster.
-                    win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN,
-                                         wcon.VK_LEFT, 0)
-                    time.sleep(0.03)
-                    win32gui.PostMessage(Window.id, wcon.WM_KEYUP,
-                                         wcon.VK_LEFT, 0)
-                    time.sleep(0.03)
-                    win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN,
-                                         wcon.VK_RIGHT, 0)
-                    time.sleep(0.03)
-                    win32gui.PostMessage(Window.id, wcon.WM_KEYUP,
-                                         wcon.VK_RIGHT, 0)
-            time.sleep(ncon.SHORT_SLEEP)
+                    self.click(ncon.ABILITY_ATTACKX, ncon.ABILITY_ATTACKY)
+                time.sleep(0.01)
+
+        self.click(ncon.IDLE_BUTTONX, ncon.IDLE_BUTTONY)
 
     def itopod_snipe(self, duration):
         """Manually snipes ITOPOD for increased speed PP/h.
@@ -537,6 +548,8 @@ class Features(Navigation, Inputs):
         """Return a queue of usable abilities."""
         ready = []
         queue = []
+
+        # Add all abilities that are ready to the ready array
         for i in range(13):
             if i <= 4:
                 x = ncon.ABILITY_ROW1X + i * ncon.ABILITY_OFFSETX
@@ -566,16 +579,18 @@ class Features(Navigation, Inputs):
             elif 7 in ready:
                 queue.append(7)
 
-        # check if charge, offensive buff and ultimate buff are all ready
+        # check if offensive buff and ultimate buff are both ready
         buffs = [8, 10]
         if all(i in ready for i in buffs):
             queue.extend(buffs)
 
         d = ncon.ABILITY_PRIORITY
+        # Sort the abilities by the set priority
         abilities = sorted(d, key=d.get, reverse=True)
+        # Only add the abilities that are ready to the queue
         queue.extend([a for a in abilities if a in ready])
-        #queue.extend(abilities)
 
+        # If nothing is ready, return a regular attack
         if len(queue) == 0:
             queue.append(0)
 
