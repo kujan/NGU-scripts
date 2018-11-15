@@ -5,6 +5,7 @@ from challenges.basic import Basic
 from challenges.level import Level
 from challenges.laser import Laser
 import ngucon as ncon
+import usersettings as userset
 import time
 
 
@@ -39,7 +40,7 @@ class Challenge(Features):
                     x = ncon.CHALLENGEX
                     y = ncon.CHALLENGEY + challenge * ncon.CHALLENGEOFFSET
                     self.click(x, y, button="right")
-                    time.sleep(ncon.LONG_SLEEP)
+                    time.sleep(userset.LONG_SLEEP)
                     target = self.ocr(ncon.OCR_CHALLENGE_24HC_TARGETX1,
                                       ncon.OCR_CHALLENGE_24HC_TARGETY1,
                                       ncon.OCR_CHALLENGE_24HC_TARGETX2,
@@ -75,14 +76,14 @@ class Challenge(Features):
 
             if challenge == 1:
                 self.click(x, y)
-                time.sleep(ncon.LONG_SLEEP)
+                time.sleep(userset.LONG_SLEEP)
                 self.confirm()
                 b.basic(58)
 
             elif challenge == 3:
                 try:
                     self.click(x, y, button="right")
-                    time.sleep(ncon.LONG_SLEEP)
+                    time.sleep(userset.LONG_SLEEP)
                     target = self.ocr(ncon.OCR_CHALLENGE_24HC_TARGETX1,
                                       ncon.OCR_CHALLENGE_24HC_TARGETY1,
                                       ncon.OCR_CHALLENGE_24HC_TARGETX2,
@@ -90,9 +91,9 @@ class Challenge(Features):
                     target = int(self.remove_letters(target))
                     print(f"Found target boss: {target}")
                     self.click(x, y)
-                    time.sleep(ncon.LONG_SLEEP)
+                    time.sleep(userset.LONG_SLEEP)
                     self.confirm()
-                    time.sleep(ncon.LONG_SLEEP)
+                    time.sleep(userset.LONG_SLEEP)
                     b.basic(target)
                 except ValueError:
                     print("couldn't detect the target level of 24HC")
@@ -101,13 +102,13 @@ class Challenge(Features):
 
             elif challenge == 4:
                 self.click(x, y)
-                time.sleep(ncon.LONG_SLEEP)
+                time.sleep(userset.LONG_SLEEP)
                 self.confirm()
                 level.lc()
 
             elif challenge == 8:
                 self.click(x, y)
-                time.sleep(ncon.LONG_SLEEP)
+                time.sleep(userset.LONG_SLEEP)
                 self.confirm()
                 laser.laser()
 
@@ -116,7 +117,7 @@ class Challenge(Features):
         """Check if a challenge is active."""
         self.rebirth()
         self.click(ncon.CHALLENGEBUTTONX, ncon.CHALLENGEBUTTONY)
-        time.sleep(ncon.LONG_SLEEP)
+        time.sleep(userset.LONG_SLEEP)
         color = self.get_pixel_color(ncon.CHALLENGEACTIVEX,
                                      ncon.CHALLENGEACTIVEY)
 

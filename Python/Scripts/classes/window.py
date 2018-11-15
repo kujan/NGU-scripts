@@ -25,6 +25,7 @@ class Window():
         win32gui.EnumWindows(window_enumeration_handler, top_windows)
         for i in top_windows:
             if "play ngu idle" in i[1].lower():
+            # if "debugg" in i[1].lower():
                 Window.id = i[0]
         if Window.id == 0:
             raise RuntimeError(f"Couldn't find game window")
