@@ -10,7 +10,7 @@ import re
 import time
 import win32con as wcon
 import win32gui
-
+import usersettings as userset
 
 class Features(Navigation, Inputs):
     """Handles the different features in the game."""
@@ -42,15 +42,25 @@ class Features(Navigation, Inputs):
                         ncon.OCRBOSSY2, debug=False)
         return self.remove_letters(boss)
 
-    def fight(self, target=None):
-        """Navigate to Fight Boss and Nuke/attack."""
+    def nuke(self, bosses=None):
+        """Navigate to Fight Boss and Nuke or Fast Fight"""
         self.menu("fight")
-        if target:
-            for x in range(target + 1):
+        if bosses:
+            for i in range(0, bosses):
                 self.click(ncon.FIGHTX, ncon.FIGHTY, fast=True)
-            return
-        self.click(ncon.NUKEX, ncon.NUKEY)
-        time.sleep(2)
+            current_boss = int(self.get_current_boss())
+            while current_boss < bosses:
+                bossdiff = bosses - current_boss
+                print(f"at boss {current_boss}, fighting {bossdiff} more times")
+                for i in range(0, bossdiff):
+                    self.click(ncon.FIGHTX, ncon.FIGHTY, fast=True)
+                current_boss = int(self.get_current_boss())
+        else:
+            self.click(ncon.NUKEX, ncon.NUKEY)
+
+    def fight(self):
+        """Navigate to Fight Boss and Nuke or attack."""
+        self.menu("fight")
         self.click(ncon.FIGHTX, ncon.FIGHTY)
 
     def ygg(self, rebirth=False):
@@ -246,15 +256,15 @@ class Features(Navigation, Inputs):
 
                 while (color != ncon.SANITY_AUG_SCROLL_BOTTOM_COLOR):
                     self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLBOTY)
-                    time.sleep(ncon.MEDIUM_SLEEP)
+                    time.sleep(userset.MEDIUM_SLEEP)
                     color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
                                                  ncon.SANITY_AUG_SCROLLY)
 
-            time.sleep(ncon.LONG_SLEEP)
+            time.sleep(userset.LONG_SLEEP)
             val = math.floor(augments[k] * energy)
             self.input_box()
             self.send_string(str(val))
-            time.sleep(ncon.LONG_SLEEP)
+            time.sleep(userset.LONG_SLEEP)
             self.click(ncon.AUGMENTX, ncon.AUGMENTY[k])
 
     def time_machine(self, magic=False):
@@ -504,7 +514,7 @@ class Features(Navigation, Inputs):
         for i in range(ncon.TITAN_ZONE[target]):
             self.click(ncon.RIGHTARROWX, ncon.RIGHTARROWY)
 
-        time.sleep(ncon.LONG_SLEEP)
+        time.sleep(userset.LONG_SLEEP)
 
         available = self.ocr(ncon.OCR_ADV_TITANX1, ncon.OCR_ADV_TITANY1,
                              ncon.OCR_ADV_TITANX2, ncon.OCR_ADV_TITANY2)
@@ -534,7 +544,7 @@ class Features(Navigation, Inputs):
                     y = ncon.ABILITY_ROW3Y
 
                 self.click(x, y)
-                time.sleep(ncon.LONG_SLEEP)
+                time.sleep(userset.LONG_SLEEP)
                 color = self.get_pixel_color(ncon.ABILITY_ROW1X,
                                              ncon.ABILITY_ROW1Y)
                 health = self.get_pixel_color(ncon.HEALTHX, ncon.HEALTHY)
