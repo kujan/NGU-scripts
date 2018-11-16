@@ -248,10 +248,11 @@ class Features(Navigation, Inputs):
 
         for k in augments:
             # Scroll down if we have to.
-            if (k == "AE" or k == "ES" or k == "LS" or k == "QSL"):
+            bottom_augments = ["AE", "ES", "LS", "QSL"]
+            if (k in bottom_augments):
                 color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
                                              ncon.SANITY_AUG_SCROLLY_BOT)
-                while (color != ncon.SANITY_AUG_SCROLL_BOTTOM_COLOR):
+                while color not in ncon.SANITY_AUG_SCROLL_COLORS:
                     self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLBOTY)
                     time.sleep(userset.MEDIUM_SLEEP)
                     color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
@@ -259,7 +260,7 @@ class Features(Navigation, Inputs):
             else:
                 color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
                                              ncon.SANITY_AUG_SCROLLY_TOP)
-                while (color != ncon.SANITY_AUG_SCROLL_TOP_COLOR):
+                while color not in ncon.SANITY_AUG_SCROLL_COLORS:
                     self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLTOPY)
                     time.sleep(userset.MEDIUM_SLEEP)
                     color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
