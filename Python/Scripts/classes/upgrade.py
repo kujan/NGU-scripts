@@ -112,4 +112,6 @@ class Upgrade(Stats):
         self.click(ncon.EMCAPBUYX, ncon.EMBUYY)
         self.click(ncon.EMBARBUYX, ncon.EMBUYY)
 
-        current_exp = self.ocr_value("XP")
+        final_exp = self.ocr_value("XP")
+        spent = current_exp - final_exp
+        print("Current XP is {:,} || Spent {:,} XP".format(final_exp, spent))

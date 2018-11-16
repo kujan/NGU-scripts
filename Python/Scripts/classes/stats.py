@@ -107,6 +107,10 @@ class EstimateRate(Stats):
         self.dpp_log.append(dpp)
         print("Earned {:,} XP and {:,} PP on this run.".format(dxp, dpp))
 
+    def update_xp(self):
+        """This method is used to update last xp after upgrade spends"""
+        self.last_xp = Stats.xp
+
 
 class Tracker():
     """
@@ -148,4 +152,7 @@ class Tracker():
             self.__update_progress()
             self.__show_progress()
             print("\r Run #{}".format(self.__iteration))
+
+    def adjustxp(self):
+            self.__estimaterate.update_xp()
 
