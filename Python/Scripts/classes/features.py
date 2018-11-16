@@ -43,7 +43,7 @@ class Features(Navigation, Inputs):
         return self.remove_letters(boss)
 
     def nuke(self, bosses=None):
-        """Navigate to Fight Boss and Nuke or Fast Fight"""
+        """Navigate to Fight Boss and Nuke or Fast Fight."""
         self.menu("fight")
         if bosses:
             for i in range(0, bosses):
@@ -246,20 +246,23 @@ class Features(Navigation, Inputs):
         self.menu("augmentations")
 
         for k in augments:
-            # Make sure we are scrolled up in the augment screen.
-            self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLTOPY)
             # Scroll down if we have to.
             if (k == "AE" or k == "ES" or k == "LS" or k == "QSL"):
-
                 color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
-                                             ncon.SANITY_AUG_SCROLLY)
-
+                                             ncon.SANITY_AUG_SCROLLY_BOT)
                 while (color != ncon.SANITY_AUG_SCROLL_BOTTOM_COLOR):
                     self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLBOTY)
                     time.sleep(userset.MEDIUM_SLEEP)
                     color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
-                                                 ncon.SANITY_AUG_SCROLLY)
-
+                                                 ncon.SANITY_AUG_SCROLLY_BOT)
+            else:
+                color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
+                                             ncon.SANITY_AUG_SCROLLY_TOP)
+                while (color != ncon.SANITY_AUG_SCROLL_BOTTOM_COLOR):
+                    self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLTOPY)
+                    time.sleep(userset.MEDIUM_SLEEP)
+                    color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
+                                                 ncon.SANITY_AUG_SCROLLY_TOP)
             time.sleep(userset.LONG_SLEEP)
             val = math.floor(augments[k] * energy)
             self.input_box()
@@ -605,3 +608,14 @@ class Features(Navigation, Inputs):
             queue.append(0)
 
         return queue
+
+    def save_check(self):
+        """Check if we can do the daily save for AP.
+
+        Make sure no window in your browser pops up when you click the "Save"
+        button, otherwise sit will mess with the rest of the script.
+        """
+        color = self.get_pixel_color(ncon.SAVEX, ncon.SAVEY)
+        if color == ncon.SAVE_READY_COLOR:
+            self.click(ncon.SAVEX, ncon.SAVEY)
+        return
