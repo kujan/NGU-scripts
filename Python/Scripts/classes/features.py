@@ -307,9 +307,8 @@ class Features(Navigation, Inputs):
             self.click(ncon.BM_AUTO_GOLDX, ncon.BM_AUTO_GOLDY)
             self.click(ncon.BM_AUTO_NUMBERX, ncon.BM_AUTO_NUMBERY)
             while time.time() < start + 300:
-                self.time_machine(True)
                 self.gold_diggers([11])
-                time.sleep(userset.LONG_SLEEP)
+                time.sleep(5)
             self.spells()
             self.click(ncon.BMPILLX, ncon.BMPILLY)
             time.sleep(userset.LONG_SLEEP)
