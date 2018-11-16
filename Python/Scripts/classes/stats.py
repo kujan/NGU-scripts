@@ -132,7 +132,7 @@ class Tracker():
         else:
             elapsed = self.elapsed_time()
             xph, pph = self.__estimaterate.rates()
-            report_time = "Total Runtime: {}".format(elapsed)
+            report_time = "Total Runtime: {} \n".format(elapsed)
             print('Current XP: {:,} Current PP: {:,}'.format(Stats.xp, Stats.pp))
             print('{:,} xp/h  ||  {:,} pp/h'.format(xph, pph))
             print(report_time)
