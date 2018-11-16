@@ -301,26 +301,22 @@ class Features(Navigation, Inputs):
         """Check if bloodpill is ready to cast."""
         bm_color = self.get_pixel_color(ncon.BMLOCKEDX, ncon.BMLOCKEDY)
         if bm_color == ncon.BM_PILL_READY:
-            self.menu("bloodmagic")
-            self.click(ncon.BMSPELLX, ncon.BMSPELLY)
             start = time.time()
-            self.send_string("t")
-            self.send_string("r")
             self.blood_magic(8)
-            self.click(ncon.BMSPELLX, ncon.BMSPELLY)
+            self.spells()
             self.click(ncon.BM_AUTO_GOLDX, ncon.BM_AUTO_GOLDY)
             self.click(ncon.BM_AUTO_NUMBERX, ncon.BM_AUTO_NUMBERY)
-            #self.gold_diggers([11], True)
             while time.time() < start + 300:
                 self.time_machine(True)
                 self.gold_diggers([11])
-                time.sleep(5)
-            self.menu("bloodmagic")
-            self.click(ncon.BMSPELLX, ncon.BMSPELLY)
+                time.sleep(userset.LONG_SLEEP)
+            self.spells()
             self.click(ncon.BMPILLX, ncon.BMPILLY)
-            time.sleep(5)
+            time.sleep(userset.LONG_SLEEP)
             self.click(ncon.BM_AUTO_GOLDX, ncon.BM_AUTO_GOLDY)
             self.click(ncon.BM_AUTO_NUMBERX, ncon.BM_AUTO_NUMBERY)
+            self.nuke()
+            time.sleep(userset.LONG_SLEEP)
 
     def set_ngu(self, ngu, magic=False):
         """Handle NGU upgrades in a non-dumb way.
