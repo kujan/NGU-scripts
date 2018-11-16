@@ -12,6 +12,7 @@ import win32con as wcon
 import win32gui
 import usersettings as userset
 
+
 class Features(Navigation, Inputs):
     """Handles the different features in the game."""
 
