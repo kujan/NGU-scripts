@@ -259,7 +259,7 @@ class Features(Navigation, Inputs):
             else:
                 color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
                                              ncon.SANITY_AUG_SCROLLY_TOP)
-                while (color != ncon.SANITY_AUG_SCROLL_BOTTOM_COLOR):
+                while (color != ncon.SANITY_AUG_SCROLL_TOP_COLOR):
                     self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLTOPY)
                     time.sleep(userset.MEDIUM_SLEEP)
                     color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
@@ -307,7 +307,13 @@ class Features(Navigation, Inputs):
             self.spells()
             self.click(ncon.BM_AUTO_GOLDX, ncon.BM_AUTO_GOLDY)
             self.click(ncon.BM_AUTO_NUMBERX, ncon.BM_AUTO_NUMBERY)
-            while time.time() < start + 300:
+
+            if userset.PILL == 0:
+                duration = 300
+            else:
+                duration = userset.PILL
+
+            while time.time() < start + duration:
                 self.gold_diggers([11])
                 time.sleep(5)
             self.spells()

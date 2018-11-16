@@ -46,27 +46,28 @@ def speedrun(duration, f):
     f.blood_magic(8)
     f.boost_equipment()
     f.wandoos(True)
-    f.gold_diggers([2, 5, 8, 9], True)
+    f.gold_diggers([2, 5, 6, 8], True)
     s.print_exp()
     u.em()
 
-    while time.time() < end - 15:
+    while time.time() < end - 20:
         f.wandoos(True)
-        f.gold_diggers([2, 5, 8, 9, 11])
+        f.gold_diggers([2, 5, 6, 8, 11])
         if time.time() > start + 60 and not blood_digger_active:
             blood_digger_active = True
             f.gold_diggers([11], True)
-        if time.time () > start + 90:
+        if time.time () > start + 70:
             try:
-                NGU_energy = int(feature.remove_letters(feature.ocr(ncon.OCR_ENERGY_X1,ncon.OCR_ENERGY_Y1,ncon.OCR_ENERGY_X2,ncon.OCR_ENERGY_Y2)))
+                NGU_energy = int(f.remove_letters(f.ocr(ncon.OCR_ENERGY_X1,ncon.OCR_ENERGY_Y1,ncon.OCR_ENERGY_X2,ncon.OCR_ENERGY_Y2)))
                 feature.assign_ngu(NGU_energy, [1, 2, 4, 5, 6, 7, 8, 9])
-                NGU_magic = int(feature.remove_letters(feature.ocr(ncon.OCR_MAGIC_X1, ncon.OCR_MAGIC_Y1, ncon.OCR_MAGIC_X2, ncon.OCR_MAGIC_Y2)))
-                feature.assign_ngu(NGU_magic, [1, 2, 3, 4, 5, 6, 7], magic=True)
+                NGU_magic = int(f.remove_letters(f.ocr(ncon.OCR_MAGIC_X1, ncon.OCR_MAGIC_Y1, ncon.OCR_MAGIC_X2, ncon.OCR_MAGIC_Y2)))
+                feature.assign_ngu(NGU_magic, [2], magic=True)
             except ValueError:
                 print("couldn't assign e/m to NGUs")
             time.sleep(0.5)
-    f.gold_diggers([2, 3, 5, 9, 12], True)
+    f.gold_diggers([2, 3, 5, 6, 12], True)
     f.nuke()
+    time.sleep(2)
     f.fight()
     f.pit()
     f.spin()
@@ -83,7 +84,7 @@ i = Inputs()
 nav = Navigation()
 feature = Features()
 c = Challenge()
-Window.x, Window.y = i.pixel_search("212429", 0, 0, 400, 600)
+Window.x, Window.y = i.pixel_search(ncon.TOP_LEFT_COLOR 0, 0, 400, 600)
 nav.menu("inventory")
 s = Stats()
 u = Upgrade(37500, 37500, 4, 4, 3)
