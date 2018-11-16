@@ -83,6 +83,14 @@ class Navigation(Inputs):
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = "misc"
 
+    def perks(self):
+        """Navigate to Perks screen."""
+        if Navigation.current_menu == "perks":
+            return
+        self.menu("adventure")
+        self.click(ncon.ITOPODX + ncon.ITOPODPERKSOFFSETX, ncon.ITOPODY)
+        Navigation.current_menu = "perks"
+
     def spells(self):
         """Navigate to the spells menu within the magic menu."""
         if Navigation.current_menu == "spells":
@@ -91,3 +99,4 @@ class Navigation(Inputs):
         self.click(ncon.BMSPELLX, ncon.BMSPELLY)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = "spells"
+

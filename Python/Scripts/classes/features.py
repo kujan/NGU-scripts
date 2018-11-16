@@ -49,13 +49,16 @@ class Features(Navigation, Inputs):
         if bosses:
             for i in range(0, bosses):
                 self.click(ncon.FIGHTX, ncon.FIGHTY, fast=True)
+            time.sleep(userset.FAST_SLEEP)
             current_boss = int(self.get_current_boss())
             while current_boss < bosses:
                 bossdiff = bosses - current_boss
-                print(f"at boss {current_boss}, fighting {bossdiff} more times")
+                print(f"{current_boss} bosses killed, fighting {bossdiff} more times")
                 for i in range(0, bossdiff):
                     self.click(ncon.FIGHTX, ncon.FIGHTY, fast=True)
+                time.sleep(userset.FAST_SLEEP)
                 current_boss = int(self.get_current_boss())
+            print('Current Boss is {}'.format(current_boss))
         else:
             self.click(ncon.NUKEX, ncon.NUKEY)
 
@@ -245,8 +248,11 @@ class Features(Navigation, Inputs):
         Energy -- The total amount of energy you want to use for all augments.
         """
         self.menu("augmentations")
-
         for k in augments:
+            val = math.floor(augments[k] * energy)
+            self.input_box()
+            self.send_string(str(val))
+      #      time.sleep(userset.SHORT_SLEEP)
             # Scroll down if we have to.
             bottom_augments = ["AE", "ES", "LS", "QSL"]
             if (k in bottom_augments):
@@ -257,7 +263,9 @@ class Features(Navigation, Inputs):
                     time.sleep(userset.MEDIUM_SLEEP)
                     color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
                                                  ncon.SANITY_AUG_SCROLLY_BOT)
+                    #print("Sanity check gave {}".format(color))
             else:
+                #print("Normal Augs, checking if need to scroll up")
                 color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
                                              ncon.SANITY_AUG_SCROLLY_TOP)
                 while color not in ncon.SANITY_AUG_SCROLL_COLORS:
@@ -265,11 +273,8 @@ class Features(Navigation, Inputs):
                     time.sleep(userset.MEDIUM_SLEEP)
                     color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
                                                  ncon.SANITY_AUG_SCROLLY_TOP)
-            time.sleep(userset.LONG_SLEEP)
-            val = math.floor(augments[k] * energy)
-            self.input_box()
-            self.send_string(str(val))
-            time.sleep(userset.LONG_SLEEP)
+                    #print("Sanity check gave {}".format(color))
+            # time.sleep(userset.SHORT_SLEEP)
             self.click(ncon.AUGMENTX, ncon.AUGMENTY[k])
 
     def time_machine(self, magic=False):
