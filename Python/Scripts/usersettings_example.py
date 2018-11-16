@@ -6,6 +6,10 @@ SHORT_SLEEP = 0.1
 MEDIUM_SLEEP = 0.2
 LONG_SLEEP = 0.3
 
+# How long to farm blood for iron pill
+
+PILL = 300
+
 # DISCORD WEBHOOK URLS
 
 ERROR_URL = ""
