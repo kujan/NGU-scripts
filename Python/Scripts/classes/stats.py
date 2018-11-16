@@ -33,8 +33,7 @@ class Stats(Navigation):
                 Stats.OCR_failures = 0
                 return Stats.xp
             elif value == "PP":
-                self.menu("adventure")
-                self.click(ncon.ITOPODX + ncon.ITOPODPERKSOFFSETX, ncon.ITOPODY)
+                self.perks()
                 Stats.pp = int(self.remove_letters(self.ocr(ncon.PPX1, ncon.PPY1, ncon.PPX2, ncon.PPY2)))
                 # print("OCR Captured Current PP: {:,}".format(Stats.pp))
                 Stats.OCR_failures = 0

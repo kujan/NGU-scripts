@@ -82,3 +82,11 @@ class Navigation(Inputs):
         self.click(ncon.MISCX, ncon.MISCY)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = "misc"
+
+    def perks(self):
+        """Navigate to Perks screen."""
+        if Navigation.current_menu == "perks":
+            return
+        self.menu("adventure")
+        self.click(ncon.ITOPODX + ncon.ITOPODPERKSOFFSETX, ncon.ITOPODY)
+        Navigation.current_menu = "perks"
