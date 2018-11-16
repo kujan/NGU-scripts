@@ -12,6 +12,7 @@ import win32con as wcon
 import win32gui
 import usersettings as userset
 
+
 class Features(Navigation, Inputs):
     """Handles the different features in the game."""
 
@@ -258,7 +259,7 @@ class Features(Navigation, Inputs):
             else:
                 color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
                                              ncon.SANITY_AUG_SCROLLY_TOP)
-                while (color != ncon.SANITY_AUG_SCROLL_BOTTOM_COLOR):
+                while (color != ncon.SANITY_AUG_SCROLL_TOP_COLOR):
                     self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLTOPY)
                     time.sleep(userset.MEDIUM_SLEEP)
                     color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
@@ -301,26 +302,27 @@ class Features(Navigation, Inputs):
         """Check if bloodpill is ready to cast."""
         bm_color = self.get_pixel_color(ncon.BMLOCKEDX, ncon.BMLOCKEDY)
         if bm_color == ncon.BM_PILL_READY:
-            self.menu("bloodmagic")
-            self.click(ncon.BMSPELLX, ncon.BMSPELLY)
             start = time.time()
-            self.send_string("t")
-            self.send_string("r")
             self.blood_magic(8)
-            self.click(ncon.BMSPELLX, ncon.BMSPELLY)
+            self.spells()
             self.click(ncon.BM_AUTO_GOLDX, ncon.BM_AUTO_GOLDY)
             self.click(ncon.BM_AUTO_NUMBERX, ncon.BM_AUTO_NUMBERY)
-            #self.gold_diggers([11], True)
-            while time.time() < start + 300:
-                self.time_machine(True)
+
+            if userset.PILL == 0:
+                duration = 300
+            else:
+                duration = userset.PILL
+
+            while time.time() < start + duration:
                 self.gold_diggers([11])
                 time.sleep(5)
-            self.menu("bloodmagic")
-            self.click(ncon.BMSPELLX, ncon.BMSPELLY)
+            self.spells()
             self.click(ncon.BMPILLX, ncon.BMPILLY)
-            time.sleep(5)
+            time.sleep(userset.LONG_SLEEP)
             self.click(ncon.BM_AUTO_GOLDX, ncon.BM_AUTO_GOLDY)
             self.click(ncon.BM_AUTO_NUMBERX, ncon.BM_AUTO_NUMBERY)
+            self.nuke()
+            time.sleep(userset.LONG_SLEEP)
 
     def set_ngu(self, ngu, magic=False):
         """Handle NGU upgrades in a non-dumb way.

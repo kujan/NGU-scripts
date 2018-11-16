@@ -1,6 +1,6 @@
 """Handles messages to discord."""
 from discord_webhook import DiscordWebhook, DiscordEmbed
-import local_env
+import usersettings as userset
 
 
 class Discord():
@@ -10,7 +10,7 @@ class Discord():
     messages from the script. You can read more about webhooks here:
     https://support.discordapp.com/hc/en-us/articles/228383668-Intro-to-Webhooks
 
-    Add your webhooks to the local_env.py file.
+    Add your webhooks to the usersettings.py file.
     """
 
     INFO = 0
@@ -19,14 +19,18 @@ class Discord():
     @classmethod
     def send_message(self, text, level):
         """Send message to webhook."""
+        url = ""
         if level == 0:  # info
             title = "INFO"
             color = 242424
-            url = local_env.INFO_URL
+            url = userset.INFO_URL
         elif level == 1:  # exception
             title = "ERROR"
             color = 16711680
-            url = local_env.ERROR_URL
+            url = userset.ERROR_URL
+
+        if not url:
+            return
 
         webhook = DiscordWebhook(url=url)
         embed = DiscordEmbed(title=title, description=text, color=color)

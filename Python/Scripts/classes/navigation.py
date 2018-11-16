@@ -82,3 +82,12 @@ class Navigation(Inputs):
         self.click(ncon.MISCX, ncon.MISCY)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = "misc"
+
+    def spells(self):
+        """Navigate to the spells menu within the magic menu."""
+        if Navigation.current_menu == "spells":
+            return
+        self.menu("bloodmagic")
+        self.click(ncon.BMSPELLX, ncon.BMSPELLY)
+        time.sleep(userset.SHORT_SLEEP)
+        Navigation.current_menu = "spells"
