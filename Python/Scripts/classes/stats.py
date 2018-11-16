@@ -69,13 +69,13 @@ class EstimateRate(Stats):
         }
 
     def __average(self):
-        """Returns the average amount per hour"""
-        avg_xp = 3600 * sum(self.dxp_log) / sum(self.dtime_log)
-        avg_pp = 3600 * sum(self.dpp_log) / sum(self.dtime_log)
+        """Returns the average rates"""
+        avg_xp = sum(self.dxp_log) / sum(self.dtime_log)
+        avg_pp = sum(self.dpp_log) / sum(self.dtime_log)
         return avg_xp, avg_pp
 
     def __moving_average(self):
-        """Returns the moving average time per iteration"""
+        """Returns the moving average rates"""
         if len(self.dtime_log) > self.__keep_runs:
             self.dtime_log.pop(0)
             self.dxp_log.pop(0)
