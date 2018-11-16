@@ -50,7 +50,7 @@ class Features(Navigation, Inputs):
             for i in range(0, bosses):
                 self.click(ncon.FIGHTX, ncon.FIGHTY, fast=True)
             current_boss = int(self.get_current_boss())
-            while current_boss <= bosses:
+            while current_boss < bosses:
                 bossdiff = bosses - current_boss
                 print(f"{current_boss} bosses killed, fighting {bossdiff} more times")
                 for i in range(0, bossdiff):
