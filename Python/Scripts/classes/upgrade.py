@@ -1,5 +1,5 @@
 """Buys things for exp."""
-from classes.stats import Stats
+from classes.stats import Stats, Tracker
 import ngucon as ncon
 import usersettings as userset
 import time
@@ -114,4 +114,4 @@ class Upgrade(Stats):
 
         final_exp = self.ocr_value("XP")
         spent = current_exp - final_exp
-        print("Current XP is {:,} || Spent {:,} XP".format(final_exp, spent))
+        #print("Spent {} XP on upgrades".format(Tracker.human_format(final_exp), Tracker.human_format(spent)))

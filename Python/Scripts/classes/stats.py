@@ -93,7 +93,7 @@ class EstimateRate(Stats):
 
     def stop_watch(self):
         """This method needs to be called for time estimation"""
-        self.__iteration +=1
+        self.__iteration += 1
         cxp = self.ocr_value("XP")
         cpp = self.ocr_value("PP")
         dtime = time.time() - self.last_timestamp
@@ -105,7 +105,7 @@ class EstimateRate(Stats):
         self.dtime_log.append(dtime)
         self.dxp_log.append(dxp)
         self.dpp_log.append(dpp)
-        print("Earned {:,} XP and {:,} PP on this run.".format(dxp, dpp))
+        print("This run: {:^8}{:^3}This run: {:^8}".format(Tracker.human_format(dxp), "|", Tracker.human_format(dpp)))
 
     def update_xp(self):
         """This method is used to update last xp after upgrade spends"""
@@ -124,7 +124,10 @@ class Tracker():
         self.__start_time = time.time()
         self.__iteration = 1
         self.__estimaterate = EstimateRate(duration, mode)
-        print("\r Run #{}".format(self.__iteration))
+        #print(f"{'-' * 15} Run # {self.__iteration} {'-' * 15}")
+        print("{0:{fill}{align}40}".format(f" {self.__iteration} ", fill="-", align="^"))
+        print("{:^18}{:^3}{:^18}".format("XP", "|", "PP"))
+        print("-" * 40)
         self.__show_progress()
 
     def __update_progress(self):
@@ -132,17 +135,17 @@ class Tracker():
 
     def __show_progress(self):
         if self.__iteration == 1:
-            print('Starting XP: {:,} Starting PP: {:,}'.format(Stats.xp, Stats.pp))
+            print('Starting: {:^8}{:^3}Starting: {:^8}'.format(self.human_format(Stats.xp), "|", self.human_format(Stats.pp)))
         else:
             elapsed = self.elapsed_time()
             xph, pph = self.__estimaterate.rates()
-            report_time = "Total Runtime: {} \n".format(elapsed)
-            print('Current XP: {:,} Current PP: {:,}'.format(Stats.xp, Stats.pp))
-            print('{:,} xp/h  ||  {:,} pp/h'.format(xph, pph))
+            report_time = "\n{0:^40}\n".format(elapsed)
+            print('Current:  {:^8}{:^3}Current:  {:^8}'.format(self.human_format(Stats.xp), "|", self.human_format(Stats.pp)))
+            print('Per hour: {:^8}{:^3}Per hour: {:^8}'.format(self.human_format(xph), "|", self.human_format(pph)))
             print(report_time)
 
     def elapsed_time(self):
-        """Prints the total elapsed time."""
+        """Print the total elapsed time."""
         elapsed = round(time.time() - self.__start_time)
         elapsed_time = str(datetime.timedelta(seconds=elapsed))
         return elapsed_time
@@ -151,8 +154,19 @@ class Tracker():
             self.__estimaterate.stop_watch()
             self.__update_progress()
             self.__show_progress()
-            print("\r Run #{}".format(self.__iteration))
+            print("{0:{fill}{align}40}".format(f" {self.__iteration} ", fill="-", align="^"))
+            print("{:^18}{:^3}{:^18}".format("XP", "|", "PP"))
+            print("-" * 40)
 
     def adjustxp(self):
             self.__estimaterate.update_xp()
+
+    @classmethod
+    def human_format(self, num):
+        num = float('{:.3g}'.format(num))
+        magnitude = 0
+        while abs(num) >= 1000:
+            magnitude += 1
+            num /= 1000.0
+        return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
 

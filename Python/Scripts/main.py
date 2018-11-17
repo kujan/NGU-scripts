@@ -41,9 +41,6 @@ def speedrun(duration, f):
     f.boost_equipment()
     f.wandoos(True)
     f.gold_diggers([2, 5, 6, 8], True)
-    tracker.progress()
-    u.em()
-    tracker.adjustxp()
 
     while time.time() < end - 20:
         f.wandoos(True)
@@ -67,6 +64,9 @@ def speedrun(duration, f):
     f.pit()
     f.spin()
     f.save_check()
+    tracker.progress()
+    u.em()
+    tracker.adjustxp()
     f.speedrun_bloodpill()
     while time.time() < end:
         time.sleep(0.1)
@@ -81,10 +81,11 @@ feature = Features()
 c = Challenge()
 Window.x, Window.y = i.pixel_search(ncon.TOP_LEFT_COLOR, 0, 0, 400, 600)
 nav.menu("inventory")
-tracker = Tracker(3)
+
 u = Upgrade(37500, 37500, 2, 2, 3)
 
 print(w.x, w.y)
+tracker = Tracker(3)
 #u.em()
 #print(c.check_challenge())
 
