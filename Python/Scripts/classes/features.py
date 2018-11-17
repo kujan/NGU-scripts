@@ -43,16 +43,16 @@ class Features(Navigation, Inputs):
                         ncon.OCRBOSSY2, debug=False)
         return self.remove_letters(boss)
 
-    def nuke(self, bosses=None):
+    def nuke(self, boss=None):
         """Navigate to Fight Boss and Nuke or Fast Fight."""
         self.menu("fight")
-        if bosses:
-            for i in range(0, bosses):
+        if boss:
+            for i in range(0, boss):
                 self.click(ncon.FIGHTX, ncon.FIGHTY, fast=True)
             time.sleep(userset.FAST_SLEEP)
             current_boss = int(self.get_current_boss())
-            while current_boss < bosses:
-                bossdiff = bosses - current_boss
+            while current_boss < boss:
+                bossdiff = boss - current_boss
                 print(f"{current_boss} bosses killed, fighting {bossdiff} more times")
                 for i in range(0, bossdiff):
                     self.click(ncon.FIGHTX, ncon.FIGHTY, fast=True)
