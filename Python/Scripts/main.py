@@ -9,7 +9,7 @@ from classes.challenge import Challenge
 from classes.features import Features
 from classes.inputs import Inputs
 from classes.navigation import Navigation
-from classes.stats import Stats
+from classes.stats import Stats, EstimateRate, Tracker
 from classes.upgrade import Upgrade
 from classes.window import Window
 
@@ -29,12 +29,6 @@ def speedrun(duration, f):
     end = time.time() + (duration * 60)
     blood_digger_active = False
     f.nuke(125)
-    current_boss = int(feature.get_current_boss())
-    while current_boss < 125:
-        print(f"at boss {current_boss}, fighting {125-current_boss} more times")
-        feature.fight(125-current_boss)
-        current_boss = int(feature.get_current_boss())
-
     f.loadout(1)  # Gold drop equipment
     f.adventure(highest=True)
     time.sleep(7)
@@ -47,8 +41,6 @@ def speedrun(duration, f):
     f.boost_equipment()
     f.wandoos(True)
     f.gold_diggers([2, 5, 6, 8], True)
-    s.print_exp()
-    u.em()
 
     while time.time() < end - 20:
         f.wandoos(True)
@@ -58,7 +50,7 @@ def speedrun(duration, f):
             f.gold_diggers([11], True)
         if time.time () > start + 70:
             try:
-                NGU_energy = int(f.remove_letters(f.ocr(ncon.OCR_ENERGY_X1,ncon.OCR_ENERGY_Y1,ncon.OCR_ENERGY_X2,ncon.OCR_ENERGY_Y2)))
+                NGU_energy = int(f.remove_letters(f.ocr(ncon.OCR_ENERGY_X1, ncon.OCR_ENERGY_Y1, ncon.OCR_ENERGY_X2, ncon.OCR_ENERGY_Y2)))
                 feature.assign_ngu(NGU_energy, [1, 2, 4, 5, 6, 7, 8, 9])
                 NGU_magic = int(f.remove_letters(f.ocr(ncon.OCR_MAGIC_X1, ncon.OCR_MAGIC_Y1, ncon.OCR_MAGIC_X2, ncon.OCR_MAGIC_Y2)))
                 feature.assign_ngu(NGU_magic, [2], magic=True)
@@ -72,6 +64,9 @@ def speedrun(duration, f):
     f.pit()
     f.spin()
     f.save_check()
+    tracker.progress()
+    u.em()
+    tracker.adjustxp()
     f.speedrun_bloodpill()
     while time.time() < end:
         time.sleep(0.1)
@@ -84,12 +79,13 @@ i = Inputs()
 nav = Navigation()
 feature = Features()
 c = Challenge()
-Window.x, Window.y = i.pixel_search(ncon.TOP_LEFT_COLOR 0, 0, 400, 600)
+Window.x, Window.y = i.pixel_search(ncon.TOP_LEFT_COLOR, 0, 0, 400, 600)
 nav.menu("inventory")
-s = Stats()
-u = Upgrade(37500, 37500, 4, 4, 3)
+
+u = Upgrade(37500, 37500, 2, 2, 3)
 
 print(w.x, w.y)
+tracker = Tracker(3)
 #u.em()
 #print(c.check_challenge())
 
