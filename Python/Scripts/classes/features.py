@@ -47,21 +47,13 @@ class Features(Navigation, Inputs):
         """Navigate to Fight Boss and Nuke or Fast Fight."""
         self.menu("fight")
         if boss:
-<<<<<<< HEAD
             for i in range(boss):
-=======
-            for i in range(0, boss):
->>>>>>> Update features.py
                 self.click(ncon.FIGHTX, ncon.FIGHTY, fast=True)
             time.sleep(userset.SHORT_SLEEP)
             current_boss = int(self.get_current_boss())
             while current_boss < boss:
                 bossdiff = boss - current_boss
-<<<<<<< HEAD
                 print(f"{current_boss - 1} bosses killed, fighting {bossdiff} more times")
-=======
-                print(f"{current_boss} bosses killed, fighting {bossdiff} more times")
->>>>>>> Update features.py
                 for i in range(0, bossdiff):
                     self.click(ncon.FIGHTX, ncon.FIGHTY, fast=True)
                 time.sleep(userset.SHORT_SLEEP)
