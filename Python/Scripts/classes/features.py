@@ -257,6 +257,7 @@ class Features(Navigation, Inputs):
             self.send_string(str(val))
             # Scroll down if we have to.
             bottom_augments = ["AE", "ES", "LS", "QSL"]
+            i = 0
             if (k in bottom_augments):
                 color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
                                              ncon.SANITY_AUG_SCROLLY_BOT)
@@ -265,6 +266,13 @@ class Features(Navigation, Inputs):
                     time.sleep(userset.MEDIUM_SLEEP)
                     color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
                                                  ncon.SANITY_AUG_SCROLLY_BOT)
+                    i += 1
+                    if i > 5:  # Safeguard if something goes wrong with augs
+                        self.menu("augmentations")
+                    elif i > 20:
+                        print("Couldn't assign augments")
+                        break
+
             else:
                 color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
                                              ncon.SANITY_AUG_SCROLLY_TOP)
@@ -273,6 +281,12 @@ class Features(Navigation, Inputs):
                     time.sleep(userset.MEDIUM_SLEEP)
                     color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
                                                  ncon.SANITY_AUG_SCROLLY_TOP)
+                    i += 1
+                    if i > 5:  # Safeguard if something goes wrong with augs
+                        self.menu("augmentations")
+                    elif i > 20:
+                        print("Couldn't assign augments")
+                        break
             self.click(ncon.AUGMENTX, ncon.AUGMENTY[k])
 
     def time_machine(self, magic=False):
