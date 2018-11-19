@@ -470,6 +470,7 @@ class Features(Navigation, Inputs):
             self.click(ncon.NGU_PLUSX, ncon.NGU_PLUSY + target * 35)
 
         for target in targets:
+            energy = 0
             for x in range(198):
                 color = self.get_pixel_color(ncon.NGU_BAR_MINX + x,
                                              ncon.NGU_BAR_Y +
