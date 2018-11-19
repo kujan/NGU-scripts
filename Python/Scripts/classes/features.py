@@ -126,7 +126,7 @@ class Features(Navigation, Inputs):
         Keyword arguments
         zone -- Zone to snipe, 0 is safe zone, 1 is turorial and so on.
                 If 0, it will use the current zone (to maintain guffin counter)
-        duration -- The duration in minutes the sniping will run before
+        duration -- The duration in seconds the sniping will run before
                     returning.
         once -- If true it will only kill one boss before returning.
         highest -- If set to true, it will go to your highest available
