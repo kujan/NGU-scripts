@@ -16,6 +16,8 @@ class Stats(Navigation):
     pp = 0
     start_time = time.time()
     OCR_failures = 0
+    track_xp = True
+    track_pp = True
 
     def set_value_with_ocr(self, value):
         """Store start EXP via OCR."""
@@ -95,17 +97,23 @@ class EstimateRate(Stats):
         """This method needs to be called for rate estimations"""
         self.__iteration += 1
 
-        self.set_value_with_ocr("XP")
-        cxp = Stats.xp
-        dxp = cxp - self.last_xp
-        self.dxp_log.append(dxp)
-        self.last_xp = cxp
+        if Stats.track_xp:
+            self.set_value_with_ocr("XP")
+            cxp = Stats.xp
+            dxp = cxp - self.last_xp
+            self.dxp_log.append(dxp)
+            self.last_xp = cxp
+        else:
+            dxp = 0
 
-        self.set_value_with_ocr("PP")
-        cpp = Stats.pp
-        dpp = cpp - self.last_pp
-        self.dpp_log.append(dpp)
-        self.last_pp = cpp
+        if Stats.track_pp:
+            self.set_value_with_ocr("PP")
+            cpp = Stats.pp
+            dpp = cpp - self.last_pp
+            self.dpp_log.append(dpp)
+            self.last_pp = cpp
+        else:
+            dpp = 0
 
         dtime = time.time() - self.last_timestamp
         self.dtime_log.append(dtime)
@@ -125,7 +133,7 @@ class Tracker():
            then at the end of each run invoke tracker.progress() to update stats.
     """
 
-    def __init__(self, duration, mode='moving_average'):
+    def __init__(self, duration, track_xp=True, track_pp=True, mode='moving_average'):
         self.__start_time = time.time()
         self.__iteration = 1
         self.__estimaterate = EstimateRate(duration, mode)
@@ -134,6 +142,8 @@ class Tracker():
         print("{:^18}{:^3}{:^18}".format("XP", "|", "PP"))
         print("-" * 40)
         self.__show_progress()
+        Stats.track_xp = track_xp
+        Stats.track_pp = track_pp
 
     def __update_progress(self):
         self.__iteration += 1
