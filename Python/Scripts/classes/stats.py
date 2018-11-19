@@ -17,7 +17,7 @@ class Stats(Navigation):
     start_time = time.time()
     OCR_failures = 0
 
-    def ocr_value(self, value):
+    def set_value_with_ocr(self, value):
         """Store start EXP via OCR."""
         try:
             if value == "TOTAL XP":
@@ -25,36 +25,36 @@ class Stats(Navigation):
                 Stats.total_xp = int(float(self.ocr(ncon.OCR_EXPX1, ncon.OCR_EXPY1, ncon.OCR_EXPX2, ncon.OCR_EXPY2)))
                 # print("OCR Captured TOTAL XP: {:,}".format(Stats.total_xp))
                 Stats.OCR_failures = 0
-                return Stats.total_xp
             elif value == "XP":
                 self.exp()
                 Stats.xp = int(self.remove_letters(self.ocr(ncon.EXPX1, ncon.EXPY1, ncon.EXPX2, ncon.EXPY2)))
                 # print("OCR Captured Current XP: {:,}".format(Stats.xp))
                 Stats.OCR_failures = 0
-                return Stats.xp
             elif value == "PP":
                 self.perks()
                 Stats.pp = int(self.remove_letters(self.ocr(ncon.PPX1, ncon.PPY1, ncon.PPX2, ncon.PPY2)))
                 # print("OCR Captured Current PP: {:,}".format(Stats.pp))
                 Stats.OCR_failures = 0
-                return Stats.pp
         except ValueError:
             Stats.OCR_failures += 1
             if Stats.OCR_failures <= 3:
                 print("OCR couldn't detect {}, retrying.".format(value))
-                self.ocr_value(value)
-                return
+                if Stats.OCR_failures >= 2:
+                    print("Clearing Navigation.current_menu")
+                    Navigation.current_menu = ""
+                self.set_value_with_ocr(value)
             else:
                 print("Something went wrong with the OCR")
-                return
 
 class EstimateRate(Stats):
 
     def __init__(self, duration, mode='moving_average'):
         self.mode = mode
         self.last_timestamp = time.time()
-        self.last_xp = self.ocr_value("XP")
-        self.last_pp = self.ocr_value("PP")
+        self.set_value_with_ocr("XP")
+        self.last_xp = Stats.xp
+        self.set_value_with_ocr("PP")
+        self.last_pp = Stats.pp
         # Differential time log and value
         self.dtime_log = []
         self.dxp_log = []
@@ -92,19 +92,24 @@ class EstimateRate(Stats):
             return 0, 0
 
     def stop_watch(self):
-        """This method needs to be called for time estimation"""
+        """This method needs to be called for rate estimations"""
         self.__iteration += 1
-        cxp = self.ocr_value("XP")
-        cpp = self.ocr_value("PP")
-        dtime = time.time() - self.last_timestamp
+
+        self.set_value_with_ocr("XP")
+        cxp = Stats.xp
         dxp = cxp - self.last_xp
-        dpp = cpp - self.last_pp
-        self.last_timestamp = time.time()
-        self.last_xp = cxp
-        self.last_pp = cpp
-        self.dtime_log.append(dtime)
         self.dxp_log.append(dxp)
+        self.last_xp = cxp
+
+        self.set_value_with_ocr("PP")
+        cpp = Stats.pp
+        dpp = cpp - self.last_pp
         self.dpp_log.append(dpp)
+        self.last_pp = cpp
+
+        dtime = time.time() - self.last_timestamp
+        self.dtime_log.append(dtime)
+        self.last_timestamp = time.time()
         print("This run: {:^8}{:^3}This run: {:^8}".format(Tracker.human_format(dxp), "|", Tracker.human_format(dpp)))
 
     def update_xp(self):

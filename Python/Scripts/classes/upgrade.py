@@ -50,8 +50,8 @@ class Upgrade(Stats):
             return
 
         self.exp()
-
-        current_exp = self.ocr_value("XP")
+        self.set_value_with_ocr("XP")
+        current_exp = Stats.xp
 
         e_cost = ncon.EPOWER_COST + ncon.ECAP_COST * self.ecap + (
                  ncon.EBAR_COST * self.ebar)
@@ -112,6 +112,6 @@ class Upgrade(Stats):
         self.click(ncon.EMCAPBUYX, ncon.EMBUYY)
         self.click(ncon.EMBARBUYX, ncon.EMBUYY)
 
-        final_exp = self.ocr_value("XP")
-        spent = current_exp - final_exp
+        self.set_value_with_ocr("XP")
+        spent = current_exp - Stats.xp
         #print("Spent {} XP on upgrades".format(Tracker.human_format(final_exp), Tracker.human_format(spent)))
