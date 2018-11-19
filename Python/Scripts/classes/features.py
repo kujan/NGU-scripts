@@ -54,7 +54,6 @@ class Features(Navigation, Inputs):
             x = 0
             while current_boss < boss:
                 bossdiff = boss - current_boss
-                print(f"{current_boss - 1} bosses killed, fighting {bossdiff} more times")
                 for i in range(0, bossdiff):
                     self.click(ncon.FIGHTX, ncon.FIGHTY, fast=True)
                 time.sleep(userset.SHORT_SLEEP)
