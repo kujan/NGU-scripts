@@ -53,9 +53,11 @@ class EstimateRate(Stats):
     def __init__(self, duration, mode='moving_average'):
         self.mode = mode
         self.last_timestamp = time.time()
-        self.set_value_with_ocr("XP")
+        if Stats.track_xp:
+            self.set_value_with_ocr("XP")
         self.last_xp = Stats.xp
-        self.set_value_with_ocr("PP")
+        if Stats.track_pp:
+           self.set_value_with_ocr("PP")
         self.last_pp = Stats.pp
         # Differential time log and value
         self.dtime_log = []
@@ -136,14 +138,15 @@ class Tracker():
     def __init__(self, duration, track_xp=True, track_pp=True, mode='moving_average'):
         self.__start_time = time.time()
         self.__iteration = 1
+        Stats.track_xp = track_xp
+        Stats.track_pp = track_pp
         self.__estimaterate = EstimateRate(duration, mode)
         #print(f"{'-' * 15} Run # {self.__iteration} {'-' * 15}")
         print("{0:{fill}{align}40}".format(f" {self.__iteration} ", fill="-", align="^"))
         print("{:^18}{:^3}{:^18}".format("XP", "|", "PP"))
         print("-" * 40)
         self.__show_progress()
-        Stats.track_xp = track_xp
-        Stats.track_pp = track_pp
+
 
     def __update_progress(self):
         self.__iteration += 1
