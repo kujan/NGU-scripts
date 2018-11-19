@@ -59,7 +59,7 @@ class Features(Navigation, Inputs):
                 time.sleep(userset.SHORT_SLEEP)
                 current_boss = int(self.get_current_boss())
                 x += 1
-                if x > 20:  # Safeguard if number is too low to reach target boss, otherwise we get stuck here
+                if x > 7:  # Safeguard if number is too low to reach target boss, otherwise we get stuck here
                     print("Couldn't reach the target boss, something probably went wrong the last rebirth.")
                     break
         else:
