@@ -2,7 +2,7 @@
 from classes.inputs import Inputs
 from classes.navigation import Navigation
 from classes.window import Window
-from collections import deque
+from collections import deque, namedtuple
 from decimal import Decimal
 import math
 import ngucon as ncon
@@ -640,3 +640,45 @@ class Features(Navigation, Inputs):
         if color == ncon.SAVE_READY_COLOR:
             self.click(ncon.SAVEX, ncon.SAVEY)
         return
+
+    def get_inventory_slots(self, slots):
+        """Get coords for inventory slots from 1 to slots."""
+        point = namedtuple("p", ("x", "y"))
+        i = 1
+        row = 1
+        x_pos = ncon.INVENTORY_SLOTS_X
+        y_pos = ncon.INVENTORY_SLOTS_Y
+        coords = []
+
+        while i <= slots:
+            x = x_pos + (i - (12 * (row - 1))) * 50
+            y = y_pos + ((row - 1) * 50)
+            coords.append(point(x, y))
+            if i % 12 == 0:
+                row += 1
+            i += 1
+        return coords
+
+    def merge_inventory(self, slots):
+        """Merge all inventory slots starting from 1 to slots.
+
+        Keyword arguments:
+        slots -- The amount of slots you wish to merge
+        """
+        self.menu("inventory")
+        coords = self.get_inventory_slots(slots)
+        for slot in coords:
+            self.click(slot.x, slot.y)
+            self.send_string("d")
+
+    def boost_inventory(self, slots):
+        """Merge all inventory slots starting from 1 to slots.
+
+        Keyword arguments:
+        slots -- The amount of slots you wish to merge
+        """
+        self.menu("inventory")
+        coords = self.get_inventory_slots(slots)
+        for slot in coords:
+            self.click(slot.x, slot.y)
+            self.send_string("a")
