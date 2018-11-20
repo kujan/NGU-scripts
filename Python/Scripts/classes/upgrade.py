@@ -3,7 +3,7 @@ from classes.stats import Stats, Tracker
 import ngucon as ncon
 import usersettings as userset
 import time
-
+# TODO replace ngucon with coordinates
 
 class Upgrade(Stats):
     """Buys things for exp."""

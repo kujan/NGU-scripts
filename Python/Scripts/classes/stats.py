@@ -1,12 +1,8 @@
 """Handles various statistics."""
-from classes.navigation import Navigation
-from classes.discord import Discord
-
-import ngucon as ncon
-import re
-import time
 import datetime
-import shutil
+import time
+import coordinates as ncon
+from classes.navigation import Navigation
 
 class Stats(Navigation):
     """Handles various statistics."""
@@ -24,17 +20,17 @@ class Stats(Navigation):
         try:
             if value == "TOTAL XP":
                 self.misc()
-                Stats.total_xp = int(float(self.ocr(ncon.OCR_EXPX1, ncon.OCR_EXPY1, ncon.OCR_EXPX2, ncon.OCR_EXPY2)))
+                Stats.total_xp = self.ocr_notation(*ncon.OCR_TOTAL_EXP)
                 # print("OCR Captured TOTAL XP: {:,}".format(Stats.total_xp))
                 Stats.OCR_failures = 0
             elif value == "XP":
                 self.exp()
-                Stats.xp = int(self.remove_letters(self.ocr(ncon.EXPX1, ncon.EXPY1, ncon.EXPX2, ncon.EXPY2)))
+                Stats.xp = self.ocr_number(*ncon.ORC_EXP)
                 # print("OCR Captured Current XP: {:,}".format(Stats.xp))
                 Stats.OCR_failures = 0
             elif value == "PP":
                 self.perks()
-                Stats.pp = int(self.remove_letters(self.ocr(ncon.PPX1, ncon.PPY1, ncon.PPX2, ncon.PPY2)))
+                Stats.pp = self.ocr_number(*ncon.OCR_PP)
                 # print("OCR Captured Current PP: {:,}".format(Stats.pp))
                 Stats.OCR_failures = 0
         except ValueError:
@@ -82,9 +78,9 @@ class EstimateRate(Stats):
         """Returns the moving average rates"""
         if len(self.dtime_log) > self.__keep_runs:
             self.dtime_log.pop(0)
-            if track_xp:
+            if Stats.track_xp:
                 self.dxp_log.pop(0)
-            if track_pp:
+            if Stats.track_pp:
                 self.dpp_log.pop(0)
         avg_xp = sum(self.dxp_log) / sum(self.dtime_log)
         avg_pp = sum(self.dpp_log) / sum(self.dtime_log)

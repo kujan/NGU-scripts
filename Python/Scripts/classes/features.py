@@ -11,7 +11,7 @@ import time
 import win32con as wcon
 import win32gui
 import usersettings as userset
-
+# TODO: replace ngucon with coordinates
 
 class Features(Navigation, Inputs):
     """Handles the different features in the game."""
@@ -682,3 +682,10 @@ class Features(Navigation, Inputs):
         for slot in coords:
             self.click(slot.x, slot.y)
             self.send_string("a")
+
+    def check_challenge(self):
+        """Check if a challenge is active."""
+        self.rebirth()
+        self.click(*ncon.CHALLENGE_BUTTON)
+        time.sleep(userset.LONG_SLEEP)
+        return self.check_pixel_color(*ncon.COLOR_CHALLENGE_ACTIVE)

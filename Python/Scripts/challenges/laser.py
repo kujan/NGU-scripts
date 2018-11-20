@@ -1,7 +1,7 @@
 """Contains functions for running a basic challenge."""
 from classes.features import Features
 from classes.inputs import Inputs
-import ngucon as ncon
+import coordinates as ncon
 import time
 
 
@@ -67,16 +67,6 @@ class Laser(Features, Inputs):
             time.sleep(0.1)
 
         return
-
-    def check_challenge(self):
-        """Check if a challenge is active."""
-        self.rebirth()
-        self.click(ncon.CHALLENGEBUTTONX, ncon.CHALLENGEBUTTONY)
-        time.sleep(ncon.LONG_SLEEP)
-        color = self.get_pixel_color(ncon.CHALLENGEACTIVEX,
-                                     ncon.CHALLENGEACTIVEY)
-
-        return True if color == ncon.CHALLENGEACTIVECOLOR else False
 
     def laser(self):
         """Defeat target boss."""
