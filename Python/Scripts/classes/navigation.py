@@ -89,6 +89,7 @@ class Navigation(Inputs):
             return
         self.menu("adventure")
         self.click(ncon.ITOPODX + ncon.ITOPODPERKSOFFSETX, ncon.ITOPODY)
+        time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = "perks"
 
     def spells(self):
