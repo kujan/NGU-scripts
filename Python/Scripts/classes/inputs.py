@@ -5,6 +5,7 @@ from PIL import Image as image
 from PIL import ImageFilter
 import cv2
 import ngucon as ncon
+import usersettings as userset
 import numpy
 import pytesseract
 import re
@@ -29,35 +30,27 @@ class Inputs():
         y += window.y
         lParam = win32api.MAKELONG(x, y)
         # MOUSEMOVE event is required for game to register clicks correctly
-
         win32gui.PostMessage(window.id, wcon.WM_MOUSEMOVE, 0, lParam)
-
         while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
                win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
                win32api.GetKeyState(wcon.VK_MENU) < 0):
             time.sleep(0.005)
-
-        if fast:
-            win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
-                                 wcon.MK_LBUTTON, lParam)
-            time.sleep(0.06)
-            win32gui.PostMessage(window.id, wcon.WM_LBUTTONUP,
-                                 wcon.MK_LBUTTON, lParam)
-            return
         if (button == "left"):
             win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
                                  wcon.MK_LBUTTON, lParam)
-            time.sleep(0.05)
             win32gui.PostMessage(window.id, wcon.WM_LBUTTONUP,
                                  wcon.MK_LBUTTON, lParam)
-
         else:
             win32gui.PostMessage(window.id, wcon.WM_RBUTTONDOWN,
                                  wcon.MK_RBUTTON, lParam)
             win32gui.PostMessage(window.id, wcon.WM_RBUTTONUP,
                                  wcon.MK_RBUTTON, lParam)
         # Sleep lower than 0.1 might cause issues when clicking in succession
-        time.sleep(ncon.MEDIUM_SLEEP)
+        if fast:
+            time.sleep(userset.FAST_SLEEP)
+        else:
+            time.sleep(userset.MEDIUM_SLEEP)
+
 
     def a_click(self, x, y):
         x += window.x
@@ -112,9 +105,9 @@ class Inputs():
                 # time.sleep(0.03)  # This can probably be removed
                 continue
             win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, ord(c.upper()), 0)
-            time.sleep(ncon.SHORT_SLEEP)  # This can probably be removed
+            time.sleep(userset.SHORT_SLEEP)  # This can probably be removed
             win32gui.PostMessage(window.id, wcon.WM_KEYUP, ord(c.upper()), 0)
-        time.sleep(ncon.SHORT_SLEEP)
+        time.sleep(userset.SHORT_SLEEP)
 
     def get_bitmap(self):
         """Get and return a bitmap of the window."""
@@ -214,7 +207,9 @@ class Inputs():
 
     def get_pixel_color(self, x, y):
         """Get the color of selected pixel in HEX."""
-        rgba = win32gui.GetPixel(window.dc, x + 8 + window.x, y + 8 + window.y)
+        dc = win32gui.GetWindowDC(window.id)
+        rgba = win32gui.GetPixel(dc, x + 8 + window.x, y + 8 + window.y)
+        win32gui.ReleaseDC(window.id, dc)
         r = rgba & 0xff
         g = rgba >> 8 & 0xff
         b = rgba >> 16 & 0xff

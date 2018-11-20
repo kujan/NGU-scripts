@@ -1,10 +1,11 @@
 """Buys things for exp."""
-from classes.navigation import Navigation
+from classes.stats import Stats, Tracker
 import ngucon as ncon
+import usersettings as userset
 import time
 
 
-class Upgrade(Navigation):
+class Upgrade(Stats):
     """Buys things for exp."""
 
     def __init__(self, ecap, mcap, ebar, mbar, e2m_ratio):
@@ -30,7 +31,6 @@ class Upgrade(Navigation):
         self.ebar = ebar
         self.mbar = mbar
         self.e2m_ratio = e2m_ratio
-        self.OCR_failures = 0
 
     def em(self):
         """Buy upgrades for both energy and magic.
@@ -50,24 +50,8 @@ class Upgrade(Navigation):
             return
 
         self.exp()
-
-        try:
-            current_exp = int(self.remove_letters(self.ocr(ncon.EXPX1,
-                                                           ncon.EXPY1,
-                                                           ncon.EXPX2,
-                                                           ncon.EXPY2)))
-
-            self.OCR_failures = 0
-
-        except ValueError:
-            self.OCR_failures += 1
-            if self.OCR_failures <= 3:
-                print("OCR couldn't detect current XP, retrying.")
-                self.em()
-                return
-            else:
-                print("Something went wrong with the OCR, not buying upgrades")
-                return
+        self.set_value_with_ocr("XP")
+        current_exp = Stats.xp
 
         e_cost = ncon.EPOWER_COST + ncon.ECAP_COST * self.ecap + (
                  ncon.EBAR_COST * self.ebar)
@@ -96,15 +80,15 @@ class Upgrade(Navigation):
 
         self.click(ncon.EMPOWBOXX, ncon.EMBOXY)
         self.send_string(str(e_power))
-        time.sleep(ncon.MEDIUM_SLEEP)
+        time.sleep(userset.MEDIUM_SLEEP)
 
         self.click(ncon.EMCAPBOXX, ncon.EMBOXY)
         self.send_string(str(e_cap))
-        time.sleep(ncon.MEDIUM_SLEEP)
+        time.sleep(userset.MEDIUM_SLEEP)
 
         self.click(ncon.EMBARBOXX, ncon.EMBOXY)
         self.send_string(str(e_bars))
-        time.sleep(ncon.MEDIUM_SLEEP)
+        time.sleep(userset.MEDIUM_SLEEP)
 
         self.click(ncon.EMPOWBUYX, ncon.EMBUYY)
         self.click(ncon.EMCAPBUYX, ncon.EMBUYY)
@@ -114,16 +98,20 @@ class Upgrade(Navigation):
 
         self.click(ncon.EMPOWBOXX, ncon.EMBOXY)
         self.send_string(str(m_power))
-        time.sleep(ncon.MEDIUM_SLEEP)
+        time.sleep(userset.MEDIUM_SLEEP)
 
         self.click(ncon.EMCAPBOXX, ncon.EMBOXY)
         self.send_string(str(m_cap))
-        time.sleep(ncon.MEDIUM_SLEEP)
+        time.sleep(userset.MEDIUM_SLEEP)
 
         self.click(ncon.EMBARBOXX, ncon.EMBOXY)
         self.send_string(str(m_bars))
-        time.sleep(ncon.MEDIUM_SLEEP)
+        time.sleep(userset.MEDIUM_SLEEP)
 
         self.click(ncon.EMPOWBUYX, ncon.EMBUYY)
         self.click(ncon.EMCAPBUYX, ncon.EMBUYY)
         self.click(ncon.EMBARBUYX, ncon.EMBUYY)
+
+        self.set_value_with_ocr("XP")
+        spent = current_exp - Stats.xp
+        #print("Spent {} XP on upgrades".format(Tracker.human_format(final_exp), Tracker.human_format(spent)))

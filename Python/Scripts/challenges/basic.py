@@ -1,11 +1,16 @@
 """Contains functions for running a basic challenge."""
 from classes.features import Features
+from classes.stats import Tracker
 import ngucon as ncon
+import usersettings as userset
 import time
 
 
 class Basic(Features):
     """Contains functions for running a basic challenge."""
+
+    def __init__(self, tracker):
+        self.tracker = tracker
 
     def first_rebirth(self):
         """Procedure for first rebirth after number reset."""
@@ -17,6 +22,8 @@ class Basic(Features):
         diggers = [2, 3, 8]
         #Gold loadout
         self.loadout(1)
+        self.nuke()
+        time.sleep(2)
         self.fight()
         self.adventure(highest=True)
         while not tm_unlocked:
@@ -25,6 +32,8 @@ class Basic(Features):
                 self.augments({"CI": 1}, 1e6)
                 ci_assigned = True
             self.wandoos(True)
+            self.nuke()
+            time.sleep(2)
             self.fight()
 
             tm_color = self.get_pixel_color(ncon.TMLOCKEDX, ncon.TMLOCKEDY)
@@ -44,6 +53,8 @@ class Basic(Features):
         self.adventure(itopod=True, itopodauto=True)
         while not bm_unlocked:
             self.wandoos(True)
+            self.nuke()
+            time.sleep(2)
             self.fight()
             self.gold_diggers(diggers)
             time.sleep(5)
@@ -60,6 +71,8 @@ class Basic(Features):
 
         while time.time() < end:
             self.wandoos(True)
+            self.nuke()
+            time.sleep(2)
             self.fight()
             self.gold_diggers(diggers)
             time.sleep(5)
@@ -74,50 +87,46 @@ class Basic(Features):
         self.do_rebirth()
         start = time.time()
         end = time.time() + (duration * 60)
-        magic_assigned = False
-        do_tm = True
-        augments_assigned = False
-        self.fight()
+        blood_digger_active = False
+        self.nuke(125)
+        time.sleep(2)
         self.loadout(1)  # Gold drop equipment
-        self.adventure(0, True, False, False)
-        time.sleep(3)
+        self.adventure(highest=True)
+        time.sleep(7)
         self.loadout(2)  # Bar/power equimpent
-        self.adventure(zone=0, highest=False, itopod=True, itopodauto=True)
-        while time.time() < end - 15:
-            bm_color = self.get_pixel_color(ncon.BMLOCKEDX, ncon.BMLOCKEDY)
-            tm_color = self.get_pixel_color(ncon.TMLOCKEDX, ncon.TMLOCKEDY)
-            # Do TM while waiting for magic cap
-            if not magic_assigned and tm_color != ncon.TMLOCKEDCOLOR:
-                self.time_machine(True)
-            # If magic is assigned, continue adding energy to TM
-            elif do_tm and tm_color != ncon.TMLOCKEDCOLOR:
-                self.time_machine()
-            else:
-                self.wandoos(True)
-            # Assign augments when energy caps
-            if time.time() > end - (duration * 0.75 * 60):
-                if do_tm and not augments_assigned:
-                    self.send_string("r")
-                    self.augments({"SM": 0.7, "AA": 0.3}, 8e8)
-                    self.gold_diggers([2, 8, 9], True)
-                    do_tm = False
-                    augments_assigned = True
-                    self.send_string("t")
-                    self.wandoos(True)
-                    self.boost_equipment()
-            # Reassign magic from TM into BM after half the duration
-            if (bm_color != ncon.BMLOCKEDCOLOR and not magic_assigned and
-               time.time() > end - (duration * 0.75 * 60)):
-                self.menu("bloodmagic")
-                time.sleep(0.2)
-                self.send_string("t")
-                self.blood_magic(7)
-                magic_assigned = True
-                self.wandoos(True)
-            # Assign leftovers into wandoos
-            if augments_assigned:
-                self.wandoos(True)
-                self.gold_diggers([2, 8, 9])
+        self.adventure(itopod=True, itopodauto=True)
+        self.time_machine(True)
+        self.augments({"EB": 0.7, "CS": 0.3}, 4.5e9)
+
+        self.blood_magic(8)
+        self.boost_equipment()
+        self.wandoos(True)
+        self.gold_diggers([2, 5, 8, 9], True)
+
+        while time.time() < end - 20:
+            self.wandoos(True)
+            self.gold_diggers([2, 5, 8, 9, 11])
+            if time.time() > start + 60 and not blood_digger_active:
+                blood_digger_active = True
+                self.gold_diggers([11], True)
+            if time.time() > start + 90:
+                try:
+                    NGU_energy = int(self.remove_letters(self.ocr(ncon.OCR_ENERGY_X1,ncon.OCR_ENERGY_Y1,ncon.OCR_ENERGY_X2,ncon.OCR_ENERGY_Y2)))
+                    self.assign_ngu(NGU_energy, [1, 2, 4, 5, 6])
+                    NGU_magic = int(self.remove_letters(self.ocr(ncon.OCR_MAGIC_X1, ncon.OCR_MAGIC_Y1, ncon.OCR_MAGIC_X2, ncon.OCR_MAGIC_Y2)))
+                    self.assign_ngu(NGU_magic, [2], magic=True)
+                except ValueError:
+                    print("couldn't assign e/m to NGUs")
+                time.sleep(0.5)
+        self.gold_diggers([2, 3, 5, 9, 12], True)
+        self.nuke()
+        time.sleep(2)
+        self.fight()
+        self.pit()
+        self.spin()
+        self.tracker.progress()
+        #tracker.adjustxp()
+        while time.time() < end:
             try:
                 """If current rebirth is scheduled for more than 3 minutes and
                 we already finished the rebirth, we will return here, instead
@@ -136,20 +145,13 @@ class Basic(Features):
 
             except ValueError:
                 print("OCR couldn't find current boss")
-
-        self.gold_diggers([3], True)
-        self.fight()
-        self.pit()
-        self.spin()
-        time.sleep(7)
-        self.speedrun_bloodpill()
         return
 
     def check_challenge(self):
         """Check if a challenge is active."""
         self.rebirth()
         self.click(ncon.CHALLENGEBUTTONX, ncon.CHALLENGEBUTTONY)
-        time.sleep(ncon.LONG_SLEEP)
+        time.sleep(userset.LONG_SLEEP)
         color = self.get_pixel_color(ncon.CHALLENGEACTIVEX,
                                      ncon.CHALLENGEACTIVEY)
 

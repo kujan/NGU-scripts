@@ -10,7 +10,7 @@ class Window():
     y = 0
     dc = 0
 
-    def __init__(self):
+    def __init__(self, debug=False):
         """Keyword arguments.
 
         hwnd -- The window ID
@@ -21,9 +21,15 @@ class Window():
             """Add window title and ID to array."""
             top_windows.append((hwnd, win32gui.GetWindowText(hwnd)))
 
+        if debug:
+            window_name = "debugg"
+        else:
+            window_name = "play ngu idle"
+
         top_windows = []
         win32gui.EnumWindows(window_enumeration_handler, top_windows)
         for i in top_windows:
-            if "play ngu idle" in i[1].lower():
+            if window_name in i[1].lower():
                 Window.id = i[0]
-                Window.dc = win32gui.GetWindowDC(i[0])
+        if Window.id == 0:
+            raise RuntimeError(f"Couldn't find game window")

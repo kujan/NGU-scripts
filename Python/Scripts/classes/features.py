@@ -2,7 +2,7 @@
 from classes.inputs import Inputs
 from classes.navigation import Navigation
 from classes.window import Window
-from collections import deque
+from collections import deque, namedtuple
 from decimal import Decimal
 import math
 import ngucon as ncon
@@ -10,6 +10,7 @@ import re
 import time
 import win32con as wcon
 import win32gui
+import usersettings as userset
 
 
 class Features(Navigation, Inputs):
@@ -62,15 +63,31 @@ class Features(Navigation, Inputs):
                         ncon.OCRBOSSY2, debug=False)
         return self.remove_letters(boss)
 
-    def fight(self, target=None):
-        """Navigate to Fight Boss and Nuke/attack."""
+    def nuke(self, boss=None):
+        """Navigate to Fight Boss and Nuke or Fast Fight."""
         self.menu("fight")
-        if target:
-            for x in range(target + 1):
+        if boss:
+            for i in range(boss):
                 self.click(ncon.FIGHTX, ncon.FIGHTY, fast=True)
-            return
-        self.click(ncon.NUKEX, ncon.NUKEY)
-        time.sleep(2)
+            time.sleep(userset.SHORT_SLEEP)
+            current_boss = int(self.get_current_boss())
+            x = 0
+            while current_boss < boss:
+                bossdiff = boss - current_boss
+                for i in range(0, bossdiff):
+                    self.click(ncon.FIGHTX, ncon.FIGHTY, fast=True)
+                time.sleep(userset.SHORT_SLEEP)
+                current_boss = int(self.get_current_boss())
+                x += 1
+                if x > 7:  # Safeguard if number is too low to reach target boss, otherwise we get stuck here
+                    print("Couldn't reach the target boss, something probably went wrong the last rebirth.")
+                    break
+        else:
+            self.click(ncon.NUKEX, ncon.NUKEY)
+
+    def fight(self):
+        """Navigate to Fight Boss and click fight."""
+        self.menu("fight")
         self.click(ncon.FIGHTX, ncon.FIGHTY)
 
     def ygg(self, rebirth=False):
@@ -123,56 +140,67 @@ class Features(Navigation, Inputs):
                 self.click(ncon.RIGHTARROWX, ncon.RIGHTARROWY)
             return
 
-    def snipe(self, zone, duration, once=False, highest=False):
+    def snipe(self, zone, duration, once=False, highest=False, bosses=True):
         """Go to adventure and snipe bosses in specified zone.
 
         Keyword arguments
         zone -- Zone to snipe, 0 is safe zone, 1 is turorial and so on.
-        duration -- The duration in minutes the sniping will run before
+                If 0, it will use the current zone (to maintain guffin counter)
+        duration -- The duration in seconds the sniping will run before
                     returning.
         once -- If true it will only kill one boss before returning.
         highest -- If set to true, it will go to your highest available
                    non-titan zone.
+        bosses -- If set to true, it will only kill bosses
         """
         self.menu("adventure")
         if highest:
             self.click(ncon.RIGHTARROWX, ncon.RIGHTARROWY, button="right")
-        else:
+        elif zone > 0:
             self.click(ncon.LEFTARROWX, ncon.LEFTARROWY, button="right")
             for i in range(zone):
                 self.click(ncon.RIGHTARROWX, ncon.RIGHTARROWY)
-        idle_color = self.get_pixel_color(ncon.IDLEX, ncon.IDLEY)
 
-        #if (idle_color != ncon.IDLECOLOR):
-        #    self.send_string("q")
+        self.click(625, 500)  # click somewhere to move tooltip
+        idle_color = self.get_pixel_color(ncon.ABILITY_ATTACKX,
+                                          ncon.ABILITY_ATTACKY)
 
-        end = time.time() + (duration * 60)
+        if idle_color == ncon.IDLECOLOR:
+            self.click(ncon.IDLE_BUTTONX, ncon.IDLE_BUTTONY)
+
+        end = time.time() + duration
         while time.time() < end:
             health = self.get_pixel_color(ncon.HEALTHX, ncon.HEALTHY)
             if (health == ncon.NOTDEAD):
-                crown = self.get_pixel_color(ncon.CROWNX, ncon.CROWNY)
-                if (crown == ncon.ISBOSS):
-                    while (health != ncon.DEAD):
-                        health = self.get_pixel_color(ncon.HEALTHX,
-                                                      ncon.HEALTHY)
-                        self.send_string("ytew")
-                        time.sleep(0.1)
-                    if once:
-                        break
+                if bosses:
+                    crown = self.get_pixel_color(ncon.CROWNX, ncon.CROWNY)
+                    if (crown == ncon.ISBOSS):
+                        while (health != ncon.DEAD):
+                            health = self.get_pixel_color(ncon.HEALTHX,
+                                                          ncon.HEALTHY)
+                            self.click(ncon.ABILITY_ATTACKX,
+                                       ncon.ABILITY_ATTACKY)
+                            time.sleep(0.1)
+                        if once:
+                            break
+                    else:
+                        # Send left arrow and right arrow to refresh monster.
+                        win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN,
+                                             wcon.VK_LEFT, 0)
+                        time.sleep(0.03)
+                        win32gui.PostMessage(Window.id, wcon.WM_KEYUP,
+                                             wcon.VK_LEFT, 0)
+                        time.sleep(0.03)
+                        win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN,
+                                             wcon.VK_RIGHT, 0)
+                        time.sleep(0.03)
+                        win32gui.PostMessage(Window.id, wcon.WM_KEYUP,
+                                             wcon.VK_RIGHT, 0)
                 else:
-                    # Send left arrow and right arrow to refresh monster.
-                    win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN,
-                                         wcon.VK_LEFT, 0)
-                    time.sleep(0.03)
-                    win32gui.PostMessage(Window.id, wcon.WM_KEYUP,
-                                         wcon.VK_LEFT, 0)
-                    time.sleep(0.03)
-                    win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN,
-                                         wcon.VK_RIGHT, 0)
-                    time.sleep(0.03)
-                    win32gui.PostMessage(Window.id, wcon.WM_KEYUP,
-                                         wcon.VK_RIGHT, 0)
-            time.sleep(ncon.SHORT_SLEEP)
+                    self.click(ncon.ABILITY_ATTACKX, ncon.ABILITY_ATTACKY)
+            time.sleep(0.01)
+
+        self.click(ncon.IDLE_BUTTONX, ncon.IDLE_BUTTONY)
 
     def itopod_snipe(self, duration):
         """Manually snipes ITOPOD for increased speed PP/h.
@@ -243,27 +271,44 @@ class Features(Navigation, Inputs):
         Energy -- The total amount of energy you want to use for all augments.
         """
         self.menu("augmentations")
-
         for k in augments:
-            # Make sure we are scrolled up in the augment screen.
-            self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLTOPY)
-            # Scroll down if we have to.
-            if (k == "AE" or k == "ES" or k == "LS" or k == "QSL"):
-
-                color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
-                                             ncon.SANITY_AUG_SCROLLY)
-
-                while (color != ncon.SANITY_AUG_SCROLL_BOTTOM_COLOR):
-                    self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLBOTY)
-                    time.sleep(ncon.MEDIUM_SLEEP)
-                    color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
-                                                 ncon.SANITY_AUG_SCROLLY)
-
-            time.sleep(ncon.LONG_SLEEP)
             val = math.floor(augments[k] * energy)
             self.input_box()
             self.send_string(str(val))
-            time.sleep(ncon.LONG_SLEEP)
+            # Scroll down if we have to.
+            bottom_augments = ["AE", "ES", "LS", "QSL"]
+            i = 0
+            if (k in bottom_augments):
+                color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
+                                             ncon.SANITY_AUG_SCROLLY_BOT)
+                while color not in ncon.SANITY_AUG_SCROLL_COLORS:
+                    self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLBOTY)
+                    time.sleep(userset.MEDIUM_SLEEP)
+                    color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
+                                                 ncon.SANITY_AUG_SCROLLY_BOT)
+                    i += 1
+                    if i > 5 and i <= 10:  # Safeguard if something goes wrong with augs
+                        Navigation.current_menu = ""
+                        self.menu("augmentations")
+                    elif i > 10:
+                        print("Couldn't assign augments")
+                        break
+
+            else:
+                color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
+                                             ncon.SANITY_AUG_SCROLLY_TOP)
+                while color not in ncon.SANITY_AUG_SCROLL_COLORS:
+                    self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLTOPY)
+                    time.sleep(userset.MEDIUM_SLEEP)
+                    color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
+                                                 ncon.SANITY_AUG_SCROLLY_TOP)
+                    i += 1
+                    if i > 5 and i <= 10:  # Safeguard if something goes wrong with augs
+                        Navigation.current_menu = ""
+                        self.menu("augmentations")
+                    elif i > 10:
+                        print("Couldn't assign augments")
+                        break
             self.click(ncon.AUGMENTX, ncon.AUGMENTY[k])
 
     def time_machine(self, magic=False):
@@ -297,26 +342,27 @@ class Features(Navigation, Inputs):
         """Check if bloodpill is ready to cast."""
         bm_color = self.get_pixel_color(ncon.BMLOCKEDX, ncon.BMLOCKEDY)
         if bm_color == ncon.BM_PILL_READY:
-            self.menu("bloodmagic")
-            self.click(ncon.BMSPELLX, ncon.BMSPELLY)
             start = time.time()
-            self.send_string("t")
-            self.send_string("r")
             self.blood_magic(8)
-            self.click(ncon.BMSPELLX, ncon.BMSPELLY)
+            self.spells()
             self.click(ncon.BM_AUTO_GOLDX, ncon.BM_AUTO_GOLDY)
             self.click(ncon.BM_AUTO_NUMBERX, ncon.BM_AUTO_NUMBERY)
-            #self.gold_diggers([11], True)
-            while time.time() < start + 300:
-                self.time_machine(True)
+
+            if userset.PILL == 0:
+                duration = 300
+            else:
+                duration = userset.PILL
+
+            while time.time() < start + duration:
                 self.gold_diggers([11])
                 time.sleep(5)
-            self.menu("bloodmagic")
-            self.click(ncon.BMSPELLX, ncon.BMSPELLY)
+            self.spells()
             self.click(ncon.BMPILLX, ncon.BMPILLY)
-            time.sleep(5)
+            time.sleep(userset.LONG_SLEEP)
             self.click(ncon.BM_AUTO_GOLDX, ncon.BM_AUTO_GOLDY)
             self.click(ncon.BM_AUTO_NUMBERX, ncon.BM_AUTO_NUMBERY)
+            self.nuke()
+            time.sleep(userset.LONG_SLEEP)
 
     def set_ngu(self, ngu, magic=False):
         """Handle NGU upgrades in a non-dumb way.
@@ -446,6 +492,7 @@ class Features(Navigation, Inputs):
             self.click(ncon.NGU_PLUSX, ncon.NGU_PLUSY + target * 35)
 
         for target in targets:
+            energy = 0
             for x in range(198):
                 color = self.get_pixel_color(ncon.NGU_BAR_MINX + x,
                                              ncon.NGU_BAR_Y +
@@ -513,7 +560,7 @@ class Features(Navigation, Inputs):
         for i in range(ncon.TITAN_ZONE[target]):
             self.click(ncon.RIGHTARROWX, ncon.RIGHTARROWY)
 
-        time.sleep(ncon.LONG_SLEEP)
+        time.sleep(userset.LONG_SLEEP)
 
         available = self.ocr(ncon.OCR_ADV_TITANX1, ncon.OCR_ADV_TITANY1,
                              ncon.OCR_ADV_TITANX2, ncon.OCR_ADV_TITANY2)
@@ -543,7 +590,7 @@ class Features(Navigation, Inputs):
                     y = ncon.ABILITY_ROW3Y
 
                 self.click(x, y)
-                time.sleep(ncon.LONG_SLEEP)
+                time.sleep(userset.LONG_SLEEP)
                 color = self.get_pixel_color(ncon.ABILITY_ROW1X,
                                              ncon.ABILITY_ROW1Y)
                 health = self.get_pixel_color(ncon.HEALTHX, ncon.HEALTHY)
@@ -557,6 +604,8 @@ class Features(Navigation, Inputs):
         """Return a queue of usable abilities."""
         ready = []
         queue = []
+
+        # Add all abilities that are ready to the ready array
         for i in range(13):
             if i <= 4:
                 x = ncon.ABILITY_ROW1X + i * ncon.ABILITY_OFFSETX
@@ -586,17 +635,72 @@ class Features(Navigation, Inputs):
             elif 7 in ready:
                 queue.append(7)
 
-        # check if charge, offensive buff and ultimate buff are all ready
+        # check if offensive buff and ultimate buff are both ready
         buffs = [8, 10]
         if all(i in ready for i in buffs):
             queue.extend(buffs)
 
         d = ncon.ABILITY_PRIORITY
+        # Sort the abilities by the set priority
         abilities = sorted(d, key=d.get, reverse=True)
+        # Only add the abilities that are ready to the queue
         queue.extend([a for a in abilities if a in ready])
-        #queue.extend(abilities)
 
+        # If nothing is ready, return a regular attack
         if len(queue) == 0:
             queue.append(0)
 
         return queue
+
+    def save_check(self):
+        """Check if we can do the daily save for AP.
+
+        Make sure no window in your browser pops up when you click the "Save"
+        button, otherwise sit will mess with the rest of the script.
+        """
+        color = self.get_pixel_color(ncon.SAVEX, ncon.SAVEY)
+        if color == ncon.SAVE_READY_COLOR:
+            self.click(ncon.SAVEX, ncon.SAVEY)
+        return
+
+    def get_inventory_slots(self, slots):
+        """Get coords for inventory slots from 1 to slots."""
+        point = namedtuple("p", ("x", "y"))
+        i = 1
+        row = 1
+        x_pos = ncon.INVENTORY_SLOTS_X
+        y_pos = ncon.INVENTORY_SLOTS_Y
+        coords = []
+
+        while i <= slots:
+            x = x_pos + (i - (12 * (row - 1))) * 50
+            y = y_pos + ((row - 1) * 50)
+            coords.append(point(x, y))
+            if i % 12 == 0:
+                row += 1
+            i += 1
+        return coords
+
+    def merge_inventory(self, slots):
+        """Merge all inventory slots starting from 1 to slots.
+
+        Keyword arguments:
+        slots -- The amount of slots you wish to merge
+        """
+        self.menu("inventory")
+        coords = self.get_inventory_slots(slots)
+        for slot in coords:
+            self.click(slot.x, slot.y)
+            self.send_string("d")
+
+    def boost_inventory(self, slots):
+        """Merge all inventory slots starting from 1 to slots.
+
+        Keyword arguments:
+        slots -- The amount of slots you wish to merge
+        """
+        self.menu("inventory")
+        coords = self.get_inventory_slots(slots)
+        for slot in coords:
+            self.click(slot.x, slot.y)
+            self.send_string("a")
