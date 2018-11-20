@@ -222,7 +222,7 @@ class Features(Navigation, Inputs):
         return
 
     def pit(self):
-        """Throws money into the pit."""
+        """Throws money into the pit."""        
         color = self.get_pixel_color(ncon.PITCOLORX, ncon.PITCOLORY)
         if (color == ncon.PITREADY):
             self.menu("pit")

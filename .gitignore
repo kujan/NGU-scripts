@@ -3,3 +3,4 @@ gdip.ahk
 main.ahk
 Python/.vscode/settings.json
 Python/Scripts/local_env.py
+Python/Scripts/test.py

@@ -111,31 +111,31 @@ c = Challenge()
 Window.x, Window.y = i.pixel_search("212429", 0, 0, 400, 600)
 nav.menu("inventory")
 s = Stats()
-u = Upgrade(37500, 37500, 1, 1, 5)
+u = Upgrade(37500, 37500, 1, 1, 3)
 # How much XP is this?
 
 print(w.x, w.y)
 
 count = 0
 
-# while count <= 19: # Adjust # for how many runs you want to do during testing minus 1
-#     count += 1
-#     speedrun(12, feature)
-#     s.print_exp()
-    # u.em()
-
-
-while True:  # main loop to go foreverrrrr
+while count <= 11: # Adjust # for how many runs you want to do during testing minus 1
     count += 1
+    speedrun(5, feature)
+    s.print_exp()
+    u.em()
+
+
+# while True:  # main loop to go foreverrrrr
+    # count += 1
 #     feature.merge_equipment()
-    feature.boost_equipment()
+    # feature.boost_equipment()
 #     feature.merge_inventory()
 #     feature.boost_inventory()
 #     feature.adventure(zone=13, highest=False, itopod=False, itopodauto=False)
 #     feature.ygg()
 #     time.sleep(120)
-    speedrun(5, feature)
-    s.print_exp()
+    # speedrun(5, feature)
+    # s.print_exp()
     # u.em()
 
 
