@@ -16,8 +16,10 @@ class Stats(Navigation):
     pp = 0
     start_time = time.time()
     OCR_failures = 0
+    track_xp = True
+    track_pp = True
 
-    def ocr_value(self, value):
+    def set_value_with_ocr(self, value):
         """Store start EXP via OCR."""
         try:
             if value == "TOTAL XP":
@@ -25,36 +27,38 @@ class Stats(Navigation):
                 Stats.total_xp = int(float(self.ocr(ncon.OCR_EXPX1, ncon.OCR_EXPY1, ncon.OCR_EXPX2, ncon.OCR_EXPY2)))
                 # print("OCR Captured TOTAL XP: {:,}".format(Stats.total_xp))
                 Stats.OCR_failures = 0
-                return Stats.total_xp
             elif value == "XP":
                 self.exp()
                 Stats.xp = int(self.remove_letters(self.ocr(ncon.EXPX1, ncon.EXPY1, ncon.EXPX2, ncon.EXPY2)))
                 # print("OCR Captured Current XP: {:,}".format(Stats.xp))
                 Stats.OCR_failures = 0
-                return Stats.xp
             elif value == "PP":
                 self.perks()
                 Stats.pp = int(self.remove_letters(self.ocr(ncon.PPX1, ncon.PPY1, ncon.PPX2, ncon.PPY2)))
                 # print("OCR Captured Current PP: {:,}".format(Stats.pp))
                 Stats.OCR_failures = 0
-                return Stats.pp
         except ValueError:
             Stats.OCR_failures += 1
             if Stats.OCR_failures <= 3:
                 print("OCR couldn't detect {}, retrying.".format(value))
-                self.ocr_value(value)
-                return
+                if Stats.OCR_failures >= 2:
+                    print("Clearing Navigation.current_menu")
+                    Navigation.current_menu = ""
+                self.set_value_with_ocr(value)
             else:
                 print("Something went wrong with the OCR")
-                return
 
 class EstimateRate(Stats):
 
     def __init__(self, duration, mode='moving_average'):
         self.mode = mode
         self.last_timestamp = time.time()
-        self.last_xp = self.ocr_value("XP")
-        self.last_pp = self.ocr_value("PP")
+        if Stats.track_xp:
+            self.set_value_with_ocr("XP")
+        self.last_xp = Stats.xp
+        if Stats.track_pp:
+           self.set_value_with_ocr("PP")
+        self.last_pp = Stats.pp
         # Differential time log and value
         self.dtime_log = []
         self.dxp_log = []
@@ -92,19 +96,30 @@ class EstimateRate(Stats):
             return 0, 0
 
     def stop_watch(self):
-        """This method needs to be called for time estimation"""
+        """This method needs to be called for rate estimations"""
         self.__iteration += 1
-        cxp = self.ocr_value("XP")
-        cpp = self.ocr_value("PP")
+
+        if Stats.track_xp:
+            self.set_value_with_ocr("XP")
+            cxp = Stats.xp
+            dxp = cxp - self.last_xp
+            self.dxp_log.append(dxp)
+            self.last_xp = cxp
+        else:
+            dxp = 0
+
+        if Stats.track_pp:
+            self.set_value_with_ocr("PP")
+            cpp = Stats.pp
+            dpp = cpp - self.last_pp
+            self.dpp_log.append(dpp)
+            self.last_pp = cpp
+        else:
+            dpp = 0
+
         dtime = time.time() - self.last_timestamp
-        dxp = cxp - self.last_xp
-        dpp = cpp - self.last_pp
-        self.last_timestamp = time.time()
-        self.last_xp = cxp
-        self.last_pp = cpp
         self.dtime_log.append(dtime)
-        self.dxp_log.append(dxp)
-        self.dpp_log.append(dpp)
+        self.last_timestamp = time.time()
         print("This run: {:^8}{:^3}This run: {:^8}".format(Tracker.human_format(dxp), "|", Tracker.human_format(dpp)))
 
     def update_xp(self):
@@ -120,15 +135,18 @@ class Tracker():
            then at the end of each run invoke tracker.progress() to update stats.
     """
 
-    def __init__(self, duration, mode='moving_average'):
+    def __init__(self, duration, track_xp=True, track_pp=True, mode='moving_average'):
         self.__start_time = time.time()
         self.__iteration = 1
+        Stats.track_xp = track_xp
+        Stats.track_pp = track_pp
         self.__estimaterate = EstimateRate(duration, mode)
         #print(f"{'-' * 15} Run # {self.__iteration} {'-' * 15}")
         print("{0:{fill}{align}40}".format(f" {self.__iteration} ", fill="-", align="^"))
         print("{:^18}{:^3}{:^18}".format("XP", "|", "PP"))
         print("-" * 40)
         self.__show_progress()
+
 
     def __update_progress(self):
         self.__iteration += 1

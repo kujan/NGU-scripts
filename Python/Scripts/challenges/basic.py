@@ -1,11 +1,16 @@
 """Contains functions for running a basic challenge."""
 from classes.features import Features
+from classes.stats import Tracker
 import ngucon as ncon
+import usersettings as userset
 import time
 
 
 class Basic(Features):
     """Contains functions for running a basic challenge."""
+
+    def __init__(self, tracker):
+        self.tracker = tracker
 
     def first_rebirth(self):
         """Procedure for first rebirth after number reset."""
@@ -15,6 +20,8 @@ class Basic(Features):
         ci_assigned = False
         diggers = [2, 3, 8]
         self.loadout(1)
+        self.nuke()
+        time.sleep(2)
         self.fight()
         self.adventure(highest=True)
         while not tm_unlocked:
@@ -23,6 +30,8 @@ class Basic(Features):
                 self.augments({"CI": 1}, 1e6)
                 ci_assigned = True
             self.wandoos(True)
+            self.nuke()
+            time.sleep(2)
             self.fight()
 
             tm_color = self.get_pixel_color(ncon.TMLOCKEDX, ncon.TMLOCKEDY)
@@ -41,6 +50,8 @@ class Basic(Features):
         self.adventure(itopod=True, itopodauto=True)
         while not bm_unlocked:
             self.wandoos(True)
+            self.nuke()
+            time.sleep(2)
             self.fight()
             self.gold_diggers(diggers)
             time.sleep(5)
@@ -57,6 +68,8 @@ class Basic(Features):
 
         while time.time() < end:
             self.wandoos(True)
+            self.nuke()
+            time.sleep(2)
             self.fight()
             self.gold_diggers(diggers)
             time.sleep(5)
@@ -72,8 +85,8 @@ class Basic(Features):
         start = time.time()
         end = time.time() + (duration * 60)
         blood_digger_active = False
-        self.fight()
-
+        self.nuke(125)
+        time.sleep(2)
         self.loadout(1)  # Gold drop equipment
         self.adventure(highest=True)
         time.sleep(7)
@@ -82,12 +95,12 @@ class Basic(Features):
         self.time_machine(True)
         self.augments({"EB": 0.7, "CS": 0.3}, 4.5e9)
 
-        self.blood_magic(7)
+        self.blood_magic(8)
         self.boost_equipment()
         self.wandoos(True)
         self.gold_diggers([2, 5, 8, 9], True)
 
-        while time.time() < end - 15:
+        while time.time() < end - 20:
             self.wandoos(True)
             self.gold_diggers([2, 5, 8, 9, 11])
             if time.time() > start + 60 and not blood_digger_active:
@@ -97,13 +110,19 @@ class Basic(Features):
                 try:
                     NGU_energy = int(self.remove_letters(self.ocr(ncon.OCR_ENERGY_X1,ncon.OCR_ENERGY_Y1,ncon.OCR_ENERGY_X2,ncon.OCR_ENERGY_Y2)))
                     self.assign_ngu(NGU_energy, [1, 2, 4, 5, 6])
+                    NGU_magic = int(self.remove_letters(self.ocr(ncon.OCR_MAGIC_X1, ncon.OCR_MAGIC_Y1, ncon.OCR_MAGIC_X2, ncon.OCR_MAGIC_Y2)))
+                    self.assign_ngu(NGU_magic, [2], magic=True)
                 except ValueError:
                     print("couldn't assign e/m to NGUs")
                 time.sleep(0.5)
         self.gold_diggers([2, 3, 5, 9, 12], True)
+        self.nuke()
+        time.sleep(2)
         self.fight()
         self.pit()
         self.spin()
+        self.tracker.progress()
+        #tracker.adjustxp()
         while time.time() < end:
             try:
                 """If current rebirth is scheduled for more than 3 minutes and
@@ -129,7 +148,7 @@ class Basic(Features):
         """Check if a challenge is active."""
         self.rebirth()
         self.click(ncon.CHALLENGEBUTTONX, ncon.CHALLENGEBUTTONY)
-        time.sleep(ncon.LONG_SLEEP)
+        time.sleep(userset.LONG_SLEEP)
         color = self.get_pixel_color(ncon.CHALLENGEACTIVEX,
                                      ncon.CHALLENGEACTIVEY)
 

@@ -2,7 +2,7 @@
 from classes.inputs import Inputs
 from classes.navigation import Navigation
 from classes.window import Window
-from collections import deque
+from collections import deque, namedtuple
 from decimal import Decimal
 import math
 import ngucon as ncon
@@ -51,15 +51,15 @@ class Features(Navigation, Inputs):
                 self.click(ncon.FIGHTX, ncon.FIGHTY, fast=True)
             time.sleep(userset.SHORT_SLEEP)
             current_boss = int(self.get_current_boss())
-            i = 0
+            x = 0
             while current_boss < boss:
                 bossdiff = boss - current_boss
                 for i in range(0, bossdiff):
                     self.click(ncon.FIGHTX, ncon.FIGHTY, fast=True)
                 time.sleep(userset.SHORT_SLEEP)
                 current_boss = int(self.get_current_boss())
-                i += 1
-                if i > 20:  # Safeguard if number is too low to reach target boss, otherwise we get stuck here
+                x += 1
+                if x > 7:  # Safeguard if number is too low to reach target boss, otherwise we get stuck here
                     print("Couldn't reach the target boss, something probably went wrong the last rebirth.")
                     break
         else:
@@ -126,7 +126,7 @@ class Features(Navigation, Inputs):
         Keyword arguments
         zone -- Zone to snipe, 0 is safe zone, 1 is turorial and so on.
                 If 0, it will use the current zone (to maintain guffin counter)
-        duration -- The duration in minutes the sniping will run before
+        duration -- The duration in seconds the sniping will run before
                     returning.
         once -- If true it will only kill one boss before returning.
         highest -- If set to true, it will go to your highest available
@@ -257,6 +257,7 @@ class Features(Navigation, Inputs):
             self.send_string(str(val))
             # Scroll down if we have to.
             bottom_augments = ["AE", "ES", "LS", "QSL"]
+            i = 0
             if (k in bottom_augments):
                 color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
                                              ncon.SANITY_AUG_SCROLLY_BOT)
@@ -265,6 +266,13 @@ class Features(Navigation, Inputs):
                     time.sleep(userset.MEDIUM_SLEEP)
                     color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
                                                  ncon.SANITY_AUG_SCROLLY_BOT)
+                    i += 1
+                    if i > 5:  # Safeguard if something goes wrong with augs
+                        self.menu("augmentations")
+                    elif i > 20:
+                        print("Couldn't assign augments")
+                        break
+
             else:
                 color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
                                              ncon.SANITY_AUG_SCROLLY_TOP)
@@ -273,6 +281,12 @@ class Features(Navigation, Inputs):
                     time.sleep(userset.MEDIUM_SLEEP)
                     color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
                                                  ncon.SANITY_AUG_SCROLLY_TOP)
+                    i += 1
+                    if i > 5:  # Safeguard if something goes wrong with augs
+                        self.menu("augmentations")
+                    elif i > 20:
+                        print("Couldn't assign augments")
+                        break
             self.click(ncon.AUGMENTX, ncon.AUGMENTY[k])
 
     def time_machine(self, magic=False):
@@ -456,6 +470,7 @@ class Features(Navigation, Inputs):
             self.click(ncon.NGU_PLUSX, ncon.NGU_PLUSY + target * 35)
 
         for target in targets:
+            energy = 0
             for x in range(198):
                 color = self.get_pixel_color(ncon.NGU_BAR_MINX + x,
                                              ncon.NGU_BAR_Y +
@@ -625,3 +640,45 @@ class Features(Navigation, Inputs):
         if color == ncon.SAVE_READY_COLOR:
             self.click(ncon.SAVEX, ncon.SAVEY)
         return
+
+    def get_inventory_slots(self, slots):
+        """Get coords for inventory slots from 1 to slots."""
+        point = namedtuple("p", ("x", "y"))
+        i = 1
+        row = 1
+        x_pos = ncon.INVENTORY_SLOTS_X
+        y_pos = ncon.INVENTORY_SLOTS_Y
+        coords = []
+
+        while i <= slots:
+            x = x_pos + (i - (12 * (row - 1))) * 50
+            y = y_pos + ((row - 1) * 50)
+            coords.append(point(x, y))
+            if i % 12 == 0:
+                row += 1
+            i += 1
+        return coords
+
+    def merge_inventory(self, slots):
+        """Merge all inventory slots starting from 1 to slots.
+
+        Keyword arguments:
+        slots -- The amount of slots you wish to merge
+        """
+        self.menu("inventory")
+        coords = self.get_inventory_slots(slots)
+        for slot in coords:
+            self.click(slot.x, slot.y)
+            self.send_string("d")
+
+    def boost_inventory(self, slots):
+        """Merge all inventory slots starting from 1 to slots.
+
+        Keyword arguments:
+        slots -- The amount of slots you wish to merge
+        """
+        self.menu("inventory")
+        coords = self.get_inventory_slots(slots)
+        for slot in coords:
+            self.click(slot.x, slot.y)
+            self.send_string("a")
