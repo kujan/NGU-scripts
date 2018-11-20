@@ -82,9 +82,9 @@ class EstimateRate(Stats):
         """Returns the moving average rates"""
         if len(self.dtime_log) > self.__keep_runs:
             self.dtime_log.pop(0)
-            if track_xp:
+            if Stats.track_xp:
                 self.dxp_log.pop(0)
-            if track_pp:
+            if Stats.track_pp:
                 self.dpp_log.pop(0)
         avg_xp = sum(self.dxp_log) / sum(self.dtime_log)
         avg_pp = sum(self.dpp_log) / sum(self.dtime_log)
