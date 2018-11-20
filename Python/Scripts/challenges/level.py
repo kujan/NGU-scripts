@@ -1,11 +1,10 @@
 """Contains functions for running a 100 level challenge."""
-from classes.challenge import Challenge
 from classes.features import Features
 import ngucon as ncon
 import time
 
 
-class Level(Challenge, Features):
+class Level(Features):
     """Contains functions for running a 100 level challenge.
 
     IMPORTANT
@@ -130,6 +129,16 @@ class Level(Challenge, Features):
             time.sleep(5)
 
         return
+
+    def check_challenge(self):
+        """Check if a challenge is active."""
+        self.rebirth()
+        self.click(ncon.CHALLENGEBUTTONX, ncon.CHALLENGEBUTTONY)
+        time.sleep(ncon.LONG_SLEEP)
+        color = self.get_pixel_color(ncon.CHALLENGEACTIVEX,
+                                     ncon.CHALLENGEACTIVEY)
+
+        return True if color == ncon.CHALLENGEACTIVECOLOR else False
 
     def lc(self):
         """Handle LC run."""

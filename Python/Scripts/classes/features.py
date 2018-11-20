@@ -2,6 +2,7 @@
 from classes.inputs import Inputs
 from classes.navigation import Navigation
 from classes.window import Window
+from collections import deque
 from decimal import Decimal
 import math
 import ngucon as ncon
@@ -171,7 +172,7 @@ class Features(Navigation, Inputs):
                     time.sleep(0.03)
                     win32gui.PostMessage(Window.id, wcon.WM_KEYUP,
                                          wcon.VK_RIGHT, 0)
-            time.sleep(0.1)
+            time.sleep(ncon.SHORT_SLEEP)
 
     def itopod_snipe(self, duration):
         """Manually snipes ITOPOD for increased speed PP/h.
@@ -186,7 +187,7 @@ class Features(Navigation, Inputs):
         self.click(625, 500)  # click somewhere to move tooltip
         itopod_active = self.get_pixel_color(ncon.ITOPOD_ACTIVEX,
                                              ncon.ITOPOD_ACTIVEY)
-
+        # check if we're already in ITOPOD, otherwise enter
         if itopod_active != ncon.ITOPOD_ACTIVE_COLOR:
             self.click(ncon.ITOPODX, ncon.ITOPODY)
             self.click(ncon.ITOPODENDX, ncon.ITOPODENDY)
@@ -197,14 +198,14 @@ class Features(Navigation, Inputs):
 
         idle_color = self.get_pixel_color(ncon.ABILITY_ATTACKX,
                                           ncon.ABILITY_ATTACKY)
-        print(idle_color)
+
         if idle_color == ncon.IDLECOLOR:
             self.click(ncon.IDLE_BUTTONX, ncon.IDLE_BUTTONY)
 
         while time.time() < end:
             health = self.get_pixel_color(ncon.HEALTHX, ncon.HEALTHY)
             if health != ncon.DEAD:
-                self.send_string("w")
+                self.click(ncon.ABILITY_ATTACKX, ncon.ABILITY_ATTACKY)
             else:
                 time.sleep(0.01)
 
@@ -248,20 +249,28 @@ class Features(Navigation, Inputs):
             self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLTOPY)
             # Scroll down if we have to.
             if (k == "AE" or k == "ES" or k == "LS" or k == "QSL"):
-                self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLBOTY)
 
-            time.sleep(0.3)
+                color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
+                                             ncon.SANITY_AUG_SCROLLY)
+
+                while (color != ncon.SANITY_AUG_SCROLL_BOTTOM_COLOR):
+                    self.click(ncon.AUGMENTSCROLLX, ncon.AUGMENTSCROLLBOTY)
+                    time.sleep(ncon.MEDIUM_SLEEP)
+                    color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
+                                                 ncon.SANITY_AUG_SCROLLY)
+
+            time.sleep(ncon.LONG_SLEEP)
             val = math.floor(augments[k] * energy)
             self.input_box()
             self.send_string(str(val))
-            time.sleep(0.3)
+            time.sleep(ncon.LONG_SLEEP)
             self.click(ncon.AUGMENTX, ncon.AUGMENTY[k])
 
     def time_machine(self, magic=False):
         """Add energy and/or magic to TM."""
         self.menu("timemachine")
         self.input_box()
-        self.send_string("500000000")
+        self.send_string("600000000")
         self.click(ncon.TMSPEEDX, ncon.TMSPEEDY)
         if magic:
             self.click(ncon.TMMULTX, ncon.TMMULTY)
@@ -287,9 +296,9 @@ class Features(Navigation, Inputs):
     def speedrun_bloodpill(self):
         """Check if bloodpill is ready to cast."""
         bm_color = self.get_pixel_color(ncon.BMLOCKEDX, ncon.BMLOCKEDY)
-        self.menu("bloodmagic")
-        self.click(ncon.BMSPELLX, ncon.BMSPELLY)
         if bm_color == ncon.BM_PILL_READY:
+            self.menu("bloodmagic")
+            self.click(ncon.BMSPELLX, ncon.BMSPELLY)
             start = time.time()
             self.send_string("t")
             self.send_string("r")
@@ -297,7 +306,7 @@ class Features(Navigation, Inputs):
             self.click(ncon.BMSPELLX, ncon.BMSPELLY)
             self.click(ncon.BM_AUTO_GOLDX, ncon.BM_AUTO_GOLDY)
             self.click(ncon.BM_AUTO_NUMBERX, ncon.BM_AUTO_NUMBERY)
-            self.gold_diggers([11], True)
+            #self.gold_diggers([11], True)
             while time.time() < start + 300:
                 self.time_machine(True)
                 self.gold_diggers([11])
@@ -425,8 +434,6 @@ class Features(Navigation, Inputs):
         targets -- Array of NGU's to BB. Example: [1, 3, 4, 5, 6]
         magic -- Set to true if these are magic NGUs
         """
-        start = time.time()
-
         if magic:
             self.ngu_magic()
         else:
@@ -445,14 +452,151 @@ class Features(Navigation, Inputs):
                                              ncon.NGU_BAR_OFFSETY * target,
                                              )
                 if color == ncon.NGU_BAR_WHITE:
-                    print(f"found end at position {x}")
                     pixel_coefficient = x / 198
                     value_coefficient = overcap / pixel_coefficient
                     energy = (value_coefficient * value) - value
-                    print(f"estimated energy to BB this NGU is {Decimal(energy):.2E}")
+                    #print(f"estimated energy to BB this NGU is {Decimal(energy):.2E}")
                     break
             self.input_box()
-            self.send_string(str(int(energy // 1e3)))
+            self.send_string(str(int(energy)))
             self.click(ncon.NGU_PLUSX, ncon.NGU_PLUSY + target * 35)
 
-        print(f"function ran for {time.time() - start} seconds")
+    def advanced_training(self, value):
+        self.menu("advtraining")
+        value = value // 2
+        self.input_box()
+        self.send_string(value)
+        self.click(ncon.ADV_TRAININGX, ncon.ADV_TRAINING1Y)
+        self.click(ncon.ADV_TRAININGX, ncon.ADV_TRAINING2Y)
+
+    def titan_pt_check(self, target):
+        """Check if we have the recommended p/t to defeat the target Titan.
+
+        Keyword arguments:
+        target -- The name of the titan you wish to kill. ["GRB", "GCT",
+                  "jake", "UUG", "walderp", "BEAST1", "BEAST2", "BEAST3",
+                  "BEAST4"]
+        """
+        self.menu("adventure")
+        bmp = self.get_bitmap()
+        power = self.ocr(ncon.OCR_ADV_POWX1, ncon.OCR_ADV_POWY1,
+                         ncon.OCR_ADV_POWX2, ncon.OCR_ADV_POWY2, bmp=bmp)
+        tough = self.ocr(ncon.OCR_ADV_TOUGHX1, ncon.OCR_ADV_TOUGHY1,
+                         ncon.OCR_ADV_TOUGHX2, ncon.OCR_ADV_TOUGHY2, bmp=bmp)
+
+        if (float(power) > ncon.TITAN_PT[target]["p"] and
+           float(tough) > ncon.TITAN_PT[target]["t"]):
+            return True
+
+        else:
+            print(f"Lacking: {Decimal(ncon.TITAN_PT[target]['p'] - float(power)):.2E}"
+                  f"/{Decimal(ncon.TITAN_PT[target]['t'] - float(tough)):.2E} P/T"
+                  f" to kill {target}")
+            return False
+
+    def kill_titan(self, target):
+        """Attempt to kill the target titan.
+
+        Keyword arguments:
+        target -- The name of the titan you wish to kill. ["GRB", "GCT",
+                  "jake", "UUG", "walderp", "BEAST1", "BEAST2", "BEAST3",
+                  "BEAST4"]
+        """
+        self.menu("adventure")
+        idle_color = self.get_pixel_color(ncon.ABILITY_ATTACKX,
+                                          ncon.ABILITY_ATTACKY)
+
+        if idle_color == ncon.IDLECOLOR:
+            self.click(ncon.IDLE_BUTTONX, ncon.IDLE_BUTTONY)
+
+        self.click(ncon.LEFTARROWX, ncon.LEFTARROWY, button="right")
+        for i in range(ncon.TITAN_ZONE[target]):
+            self.click(ncon.RIGHTARROWX, ncon.RIGHTARROWY)
+
+        time.sleep(ncon.LONG_SLEEP)
+
+        available = self.ocr(ncon.OCR_ADV_TITANX1, ncon.OCR_ADV_TITANY1,
+                             ncon.OCR_ADV_TITANX2, ncon.OCR_ADV_TITANY2)
+
+        if "titan" in available.lower():
+            time.sleep(1.5)  # Make sure titans spawn, otherwise loop breaks
+            queue = deque(self.get_ability_queue())
+            health = ""
+            while health != ncon.DEAD:
+                if len(queue) == 0:
+                    print("NEW QUEUE")
+                    queue = deque(self.get_ability_queue())
+                    print(queue)
+
+                ability = queue.popleft()
+                print(f"using ability {ability}")
+                if ability <= 4:
+                    x = ncon.ABILITY_ROW1X + ability * ncon.ABILITY_OFFSETX
+                    y = ncon.ABILITY_ROW1Y
+
+                if ability >= 5 and ability <= 10:
+                    x = ncon.ABILITY_ROW2X + (ability - 5) * ncon.ABILITY_OFFSETX
+                    y = ncon.ABILITY_ROW2Y
+
+                if ability > 10:
+                    x = ncon.ABILITY_ROW3X + (ability - 11) * ncon.ABILITY_OFFSETX
+                    y = ncon.ABILITY_ROW3Y
+
+                self.click(x, y)
+                time.sleep(ncon.LONG_SLEEP)
+                color = self.get_pixel_color(ncon.ABILITY_ROW1X,
+                                             ncon.ABILITY_ROW1Y)
+                health = self.get_pixel_color(ncon.HEALTHX, ncon.HEALTHY)
+
+                while color != ncon.ABILITY_ROW1_READY_COLOR:
+                    time.sleep(0.03)
+                    color = self.get_pixel_color(ncon.ABILITY_ROW1X,
+                                                 ncon.ABILITY_ROW1Y)
+
+    def get_ability_queue(self):
+        """Return a queue of usable abilities."""
+        ready = []
+        queue = []
+        for i in range(13):
+            if i <= 4:
+                x = ncon.ABILITY_ROW1X + i * ncon.ABILITY_OFFSETX
+                y = ncon.ABILITY_ROW1Y
+                color = self.get_pixel_color(x, y)
+                if color == ncon.ABILITY_ROW1_READY_COLOR:
+                    ready.append(i)
+            if i >= 5 and i <= 10:
+                x = ncon.ABILITY_ROW2X + (i - 5) * ncon.ABILITY_OFFSETX
+                y = ncon.ABILITY_ROW2Y
+                color = self.get_pixel_color(x, y)
+                if color == ncon.ABILITY_ROW2_READY_COLOR:
+                    ready.append(i)
+            if i > 10:
+                x = ncon.ABILITY_ROW3X + (i - 11) * ncon.ABILITY_OFFSETX
+                y = ncon.ABILITY_ROW3Y
+                color = self.get_pixel_color(x, y)
+                if color == ncon.ABILITY_ROW3_READY_COLOR:
+                    ready.append(i)
+
+        health = self.get_pixel_color(ncon.PLAYER_HEAL_THRESHOLDX,
+                                      ncon.PLAYER_HEAL_THRESHOLDY)
+        # heal if we need to heal
+        if health == ncon.PLAYER_HEAL_COLOR:
+            if 12 in ready:
+                queue.append(12)
+            elif 7 in ready:
+                queue.append(7)
+
+        # check if charge, offensive buff and ultimate buff are all ready
+        buffs = [8, 10]
+        if all(i in ready for i in buffs):
+            queue.extend(buffs)
+
+        d = ncon.ABILITY_PRIORITY
+        abilities = sorted(d, key=d.get, reverse=True)
+        queue.extend([a for a in abilities if a in ready])
+        #queue.extend(abilities)
+
+        if len(queue) == 0:
+            queue.append(0)
+
+        return queue
