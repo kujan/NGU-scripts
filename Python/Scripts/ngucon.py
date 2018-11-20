@@ -70,7 +70,7 @@ EQUIPMENTSLOTS = {"accessory1" : {"x": 480, "y": 65},
 				  "legs": {"x": 527, "y": 163},
 				  "boots": {"x": 527, "y": 212},
 				  "weapon": {"x": 575, "y": 115},
-				  "cube": {"x": 627, "y": 115}
+				#   "cube": {"x": 627, "y": 115},
 				}
 
 #INVENTORY OFFSETS
@@ -86,9 +86,20 @@ INVENTORYSLOTS = {
 	"inventory9" : {"x": 755, "y" : 335},
 	"inventory10" : {"x": 805, "y" : 335},
 	"inventory11" : {"x": 855, "y" : 335},
-	# "inventory12" : {"x": 905, "y" : 335},
+	"inventory12" : {"x": 905, "y" : 335},
 	# Row 2
-	# "inventory13" : {"x": 355, "y" : 405},
+	"inventory13" : {"x": 355, "y" : 405},
+	"inventory14" : {"x": 405, "y" : 405},
+	"inventory15" : {"x": 455, "y" : 405},
+	# "inventory16" : {"x": 505, "y" : 405},
+	# "inventory17" : {"x": 555, "y" : 405},
+	# "inventory18" : {"x": 605, "y" : 405},
+	# "inventory19" : {"x": 655, "y" : 405},
+	# "inventory20" : {"x": 705, "y" : 405},
+	# "inventory21" : {"x": 755, "y" : 405},
+	# "inventory22" : {"x": 805, "y" : 405},
+	# "inventory23" : {"x": 855, "y" : 405},
+	# "inventory24" : {"x": 905, "y" : 405},
 	# Cube
 	"cube": {"x": 627, "y": 115},
 }
@@ -184,7 +195,7 @@ CHALLENGEACTIVECOLOR = "000000"
 #PIT OFFSETS
 PITCOLORX = 195
 PITCOLORY = 108
-PITREADY = "7ACA39"
+PITREADY = "7FD23B"
 PITSPIN = "FFD23B"
 PITX = 630
 PITY = 290
