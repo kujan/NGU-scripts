@@ -183,7 +183,9 @@ class Inputs():
         return '%02x%02x%02x'.upper() % (tup[0], tup[1], tup[2])
 
     def ocr_number(self, x_1, y_1, x_2, y_2):
+        """Remove all non-digits."""
         return int(self.remove_letters(self.ocr(x_1, y_1, x_2, y_2)))
 
     def ocr_notation(self, x_1, y_1, x_2, y_2):
+        """Convert scientific notation from string to int."""
         return int(float(self.ocr(x_1, y_1, x_2, y_2)))

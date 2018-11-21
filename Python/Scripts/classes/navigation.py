@@ -98,4 +98,3 @@ class Navigation(Inputs):
         self.click(*ncon.BM_SPELL)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = 'spells'
-

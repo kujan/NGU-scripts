@@ -1,9 +1,10 @@
 """Buys things for exp."""
-from classes.stats import Stats, Tracker
+from classes.stats import Stats
 import ngucon as ncon
 import usersettings as userset
 import time
 # TODO replace ngucon with coordinates
+
 
 class Upgrade(Stats):
     """Buys things for exp."""
@@ -113,5 +114,5 @@ class Upgrade(Stats):
         self.click(ncon.EMBARBUYX, ncon.EMBUYY)
 
         self.set_value_with_ocr("XP")
-        spent = current_exp - Stats.xp
+        #spent = current_exp - Stats.xp
         #print("Spent {} XP on upgrades".format(Tracker.human_format(final_exp), Tracker.human_format(spent)))

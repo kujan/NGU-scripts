@@ -1,5 +1,4 @@
 from collections import namedtuple
-from operator import add
 
 Pixel = namedtuple('Pixel', 'x y')
 ColorPixel = namedtuple('ColorPixel', Pixel._fields + ('color',))
@@ -10,23 +9,6 @@ TOP_LEFT_COLOR = '000408'
 SANITY_AUG_SCROLL_COLORS = ["497C9F", "4C81A5", "4C80A4", "497B9E"]
 NGU_BAR_WHITE = "FFFFFF"
 NGU_BAR_GRAY = "FAFAFA"
-
-# PIXEL CHECKS
-# TODO: CONVERT to ColorPixel of COLOR_
-IS_BOSS_CROWN = ColorPixel(705, 275, 'F7EF29')
-IS_NOT_DEAD = ColorPixel(*HEALTH, 'EB0000')
-IS_DEAD = ColorPixel(*HEALTH, 'EBEBEB')
-IS_ITOPOD_ACTIVE = ColorPixel(594, 277, '000000') # Checks color of pixel in "Floor x" text
-IS_IDLE = ColorPixel(*ABILITY_REGULAR_ATTACK, '7C4E4E')
-IS_SAVE_READY = ColorPixel(*SAVE, '99FF99')
-IS_PIT_READY = ColorPixel(*PIT_CHECK, '7FD23B')
-IS_SPIN_READY = ColorPixel(*PIT_CHECK, 'FFD23B')
-COLOR_CHALLENGE_ACTIVE = ColorPixel(391, 111, '000000')
-COLOR_TM_LOCKED = ColorPixel(188, 257, '97A8B5')
-IS_BM_LOCKED = ColorPixel(*BM_LOCKED, '97A8B5')
-IS_IRON_PILL_READY = ColorPixel(*BM_LOCKED, 'BA13A7')
-PLAYER_HEAL_THRESHOLDX = ColorPixel(512, 392, 'FFFFFF')
-
 
 # Here are the colors I found for Dark_Gold_Theme
 #     SANITY_AUG_SCROLL_COLORS, # DIFF ['9E7D11', 'B59012', '94760E' '8B7304'] ('C19915' maybe a bugged value))
@@ -148,7 +130,7 @@ NUKE = Pixel(620, 110)
 FIGHT = Pixel(620, 220)
 
 #TODO: INVENTORY OFFSETS
-EQUIPMENTSLOTS = {"accessory1" : {"x": 480, "y": 65},
+EQUIPMENTSLOTS = {"accessory1": {"x": 480, "y": 65},
                   "accessory2": {"x": 480, "y": 115},
                   "accessory3": {"x": 480, "y": 165},
                   "accessory4": {"x": 480, "y": 215},
@@ -309,4 +291,18 @@ MAGIC_MENU = Pixel(420, 110)
 INFO = Pixel(84, 542)
 MISC = Pixel(355, 200)
 
-
+# PIXEL CHECKS
+# TODO: CONVERT to ColorPixel of COLOR_
+IS_BOSS_CROWN = ColorPixel(705, 275, 'F7EF29')
+IS_NOT_DEAD = ColorPixel(*HEALTH, 'EB0000')
+IS_DEAD = ColorPixel(*HEALTH, 'EBEBEB')
+IS_ITOPOD_ACTIVE = ColorPixel(594, 277, '000000') # Checks color of pixel in "Floor x" text
+IS_IDLE = ColorPixel(*ABILITY_REGULAR_ATTACK, '7C4E4E')
+IS_SAVE_READY = ColorPixel(*SAVE, '99FF99')
+IS_PIT_READY = ColorPixel(*PIT_CHECK, '7FD23B')
+IS_SPIN_READY = ColorPixel(*PIT_CHECK, 'FFD23B')
+COLOR_CHALLENGE_ACTIVE = ColorPixel(391, 111, '000000')
+COLOR_TM_LOCKED = ColorPixel(188, 257, '97A8B5')
+IS_BM_LOCKED = ColorPixel(*BM_LOCKED, '97A8B5')
+IS_IRON_PILL_READY = ColorPixel(*BM_LOCKED, 'BA13A7')
+PLAYER_HEAL_THRESHOLDX = ColorPixel(512, 392, 'FFFFFF')

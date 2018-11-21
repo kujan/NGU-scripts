@@ -99,5 +99,3 @@ class Challenge(Features):
                 time.sleep(userset.LONG_SLEEP)
                 self.confirm()
                 laser.laser()
-
-
