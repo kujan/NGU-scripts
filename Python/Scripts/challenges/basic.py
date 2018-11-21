@@ -53,7 +53,7 @@ class Basic(Features):
             self.gold_diggers(diggers)
             time.sleep(5)
 
-            if not check_pixel_color(*ncon.COLOR_BM_LOCKED):
+            if not self.check_pixel_color(*ncon.COLOR_BM_LOCKED):
                 self.menu("bloodmagic")
                 time.sleep(0.2)
                 self.send_string("t")
