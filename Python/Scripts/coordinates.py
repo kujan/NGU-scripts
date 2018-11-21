@@ -30,8 +30,8 @@ NGU_BAR_GRAY = "FAFAFA"
 # ]
 
 # Adventure Offsets
-RIGHTARROW = Pixel(930, 220)
-LEFTARROW = Pixel(325, 225)
+RIGHT_ARROW = Pixel(930, 220)
+LEFT_ARROW = Pixel(325, 225)
 ITOPOD = Pixel(405, 225)
 ITOPOD_PERKS = Pixel(490, 225)
 ITOPOD_START = Pixel(625, 230)
@@ -141,8 +141,8 @@ EQUIPMENTSLOTS = {"accessory1": {"x": 480, "y": 65},
                   "weapon": {"x": 575, "y": 115},
                   "cube": {"x": 627, "y": 115}}
 
-LOADOUTX = {1: 330, 2: 360, 3: 390, 4: 420, 5: 450, 6: 480, 7: 510, 8: 540, 9: 570, 10: 600}
-LOADOUTY = 255
+LOADOUT_X = {1: 330, 2: 360, 3: 390, 4: 420, 5: 450, 6: 480, 7: 510, 8: 540, 9: 570, 10: 600}
+LOADOUT_Y = 255
 
 INVENTORY_SLOTS_X = 300
 INVENTORY_SLOTS_Y = 330
@@ -157,8 +157,8 @@ BM_LOCKED = Pixel(229, 294)
 
 
 #TODO: Multibutton Logic
-BMX = 570
-BMY = {0: 228, 1: 263, 2: 298, 3: 333, 4: 369, 5: 403, 6: 438, 7: 473}
+BM_X = 570
+BM_Y = {0: 228, 1: 263, 2: 298, 3: 333, 4: 369, 5: 403, 6: 438, 7: 473}
 
 BM_SPELL = Pixel(390, 115)
 BM_PILL = Pixel(744, 216)
@@ -168,15 +168,16 @@ BM_AUTO_GOLD = Pixel(848, 308)
 BM_AUTO_DROP = Pixel(514, 360)
 
 #TODO: AUGMENTATION OFFSETS
-AUGMENTX = 535
-AUGMENTY = {"SS": 263, "DS": 292, "MI": 329, "DTMT": 357, "CI": 394, "ML": 422,
-            "SM": 459, "AA": 487, "EB": 525, "CS": 552, "AE": 450, "ES": 478,
-            "LS": 516, "QSL": 544}
+AUGMENT_X = 535
+AUGMENT_Y = {"SS": 263, "DS": 292, "MI": 329, "DTMT": 357, "CI": 394, "ML": 422,
+             "SM": 459, "AA": 487, "EB": 525, "CS": 552, "AE": 450, "ES": 478,
+             "LS": 516, "QSL": 544}
 
 AUG_SCROLL_TOP = Pixel(945, 264)
 AUG_SCROLL_BOT = Pixel(945, 575)
 AUG_SCROLL_SANITY_TOP = Pixel(943, 261)
 AUG_SCROLL_SANITY_BOT = Pixel(943, 578)
+SANITY_AUG_SCROLL_COLORS
 
 #TODO: NGU OFFSETS
 NGU_TARGET = Pixel(635, 205)
@@ -294,7 +295,7 @@ MISC = Pixel(355, 200)
 # PIXEL CHECKS
 # TODO: CONVERT to ColorPixel of COLOR_
 IS_BOSS_CROWN = ColorPixel(705, 275, 'F7EF29')
-IS_NOT_DEAD = ColorPixel(*HEALTH, 'EB0000')
+IS_ENEMY_ALIVE = ColorPixel(*HEALTH, 'EB0000')
 IS_DEAD = ColorPixel(*HEALTH, 'EBEBEB')
 IS_ITOPOD_ACTIVE = ColorPixel(594, 277, '000000') # Checks color of pixel in "Floor x" text
 IS_IDLE = ColorPixel(*ABILITY_REGULAR_ATTACK, '7C4E4E')
