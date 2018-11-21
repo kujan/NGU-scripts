@@ -78,7 +78,7 @@ def speedrun(duration, f):
     return
 
 
-w = Window(True)
+w = Window()
 i = Inputs()
 nav = Navigation()
 feature = Features()
