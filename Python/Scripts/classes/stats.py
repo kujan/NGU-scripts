@@ -184,6 +184,8 @@ class Tracker():
     @classmethod
     def human_format(self, num):
         num = float('{:.3g}'.format(num))
+        if num > 1e14:
+            return
         magnitude = 0
         while abs(num) >= 1000:
             magnitude += 1
