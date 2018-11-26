@@ -57,7 +57,10 @@ class Features(Navigation, Inputs):
                 for i in range(0, bossdiff):
                     self.click(ncon.FIGHTX, ncon.FIGHTY, fast=True)
                 time.sleep(userset.SHORT_SLEEP)
-                current_boss = int(self.get_current_boss())
+                try:
+                    current_boss = int(self.get_current_boss())
+                except ValueError:
+                    current_boss = 1
                 x += 1
                 if x > 7:  # Safeguard if number is too low to reach target boss, otherwise we get stuck here
                     print("Couldn't reach the target boss, something probably went wrong the last rebirth.")
@@ -267,9 +270,10 @@ class Features(Navigation, Inputs):
                     color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
                                                  ncon.SANITY_AUG_SCROLLY_BOT)
                     i += 1
-                    if i > 5:  # Safeguard if something goes wrong with augs
+                    if i > 5 and i <= 10:  # Safeguard if something goes wrong with augs
+                        Navigation.current_menu = ""
                         self.menu("augmentations")
-                    elif i > 20:
+                    elif i > 10:
                         print("Couldn't assign augments")
                         break
 
@@ -282,9 +286,10 @@ class Features(Navigation, Inputs):
                     color = self.get_pixel_color(ncon.SANITY_AUG_SCROLLX,
                                                  ncon.SANITY_AUG_SCROLLY_TOP)
                     i += 1
-                    if i > 5:  # Safeguard if something goes wrong with augs
+                    if i > 5 and i <= 10:  # Safeguard if something goes wrong with augs
+                        Navigation.current_menu = ""
                         self.menu("augmentations")
-                    elif i > 20:
+                    elif i > 10:
                         print("Couldn't assign augments")
                         break
             self.click(ncon.AUGMENTX, ncon.AUGMENTY[k])
