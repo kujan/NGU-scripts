@@ -294,13 +294,30 @@ class Features(Navigation, Inputs):
                         break
             self.click(ncon.AUGMENTX, ncon.AUGMENTY[k])
 
-    def time_machine(self, magic=False):
-        """Add energy and/or magic to TM."""
+    def time_machine(self, e, m=0, magic=False):
+        """Add energy and/or magic to TM.
+
+        Example: self.time_machine(1000, 2000)
+                 self.time_machine(1000, magic=True)
+                 self.time_machine(1000)
+
+        First example will add 1000 energy and 2000 magic to TM.
+        Second example will add 1000 energy and 1000 magic to TM.
+        Third example will add 1000 energy to TM.
+
+        Keyword arguments:
+        e -- The amount of energy to put into TM.
+        m -- The amount of magic to put into TM, if this is 0, it will use the
+             energy value to save unnecessary clicks to the input box.
+        magic -- Set to true if you wish to add magic as well"""
         self.menu("timemachine")
         self.input_box()
-        self.send_string("600000000")
+        self.send_string(e)
         self.click(ncon.TMSPEEDX, ncon.TMSPEEDY)
-        if magic:
+        if magic or m:
+            if m:
+                self.input_box()
+                self.send_string(m)
             self.click(ncon.TMMULTX, ncon.TMMULTY)
 
     def blood_magic(self, target):
