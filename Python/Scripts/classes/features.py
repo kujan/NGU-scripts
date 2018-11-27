@@ -233,10 +233,20 @@ class Features(Navigation, Inputs):
         self.click(ncon.CONFIRMX, ncon.CONFIRMY)
         return
 
-    def pit(self):
-        """Throws money into the pit."""
+    def pit(self, loadout=0):
+        """Throws money into the pit.
+
+        Keyword arguments:
+        loadout -- The loadout you wish to equip before throwing gold
+                   into the pit, for gear you wish to shock. Make
+                   sure that you don't get cap-blocked by either using
+                   the unassign setting in the game or swapping gear that
+                   doesn't have e/m cap.
+        """
         color = self.get_pixel_color(ncon.PITCOLORX, ncon.PITCOLORY)
         if (color == ncon.PITREADY):
+            if loadout:
+                self.loadout(loadout)
             self.menu("pit")
             self.click(ncon.PITX, ncon.PITY)
             self.click(ncon.CONFIRMX, ncon.CONFIRMY)
