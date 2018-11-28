@@ -52,6 +52,8 @@ class Upgrade(Stats):
         self.set_value_with_ocr("XP")
         if Stats.OCR_failed:
             print('OCR failed, exiting upgrade routine.')
+            return
+
         current_exp = Stats.xp
 
         e_cost = ncon.EPOWER_COST + ncon.ECAP_COST * self.ecap + (
