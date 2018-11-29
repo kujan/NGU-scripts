@@ -23,6 +23,8 @@ pip -r install requirements.txt
 ```
 Install [Tesseract](https://github.com/tesseract-ocr/tesseract/releases) and add it to your [PATH variable](https://helpdeskgeek.com/windows-10/add-windows-path-environment-variable/).
 
+Remember to restart your command prompt/IDE after changing your environment variables.
+
 Change the settings in ``usersettings_example.py`` and rename it to ``usersettings.py``
 ### Optional
 If you're using Firefox as your main browser, you will notice that the script will steal focus each time it performs an action. To solve this you can create a specific profile that only runs the game. 
