@@ -715,3 +715,32 @@ class Features(Navigation, Inputs):
         for slot in coords:
             self.click(slot.x, slot.y)
             self.send_string("a")
+
+    def transform_slot(self, slot, threshold, consume=False):
+        """Check if slot is transformable and transform if it is.
+
+        Be careful using this, make sure the item you want to transform is
+        not protected, and that all other items are protected, this might
+        delete items otherwise. Another note, consuming items will show
+        a special tooltip that will block you from doing another check
+        for a few seconds, keep this in mind if you're checking multiple
+        slots in succession.
+
+        Keyword arguments:
+        slot -- The slot you wish to transform, if possible
+        threshold -- The fuzziness in the image search, I recommend a value
+                     between 0.7 - 0.95.
+        consume -- Set to true if item is consumable instead.
+        """
+        self.menu("inventory")
+        slot = self.get_inventory_slots(slot)[-1]
+        self.click(*slot)
+        time.sleep(userset.SHORT_SLEEP)
+
+        if consume:
+            coords = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600, "images/consumable.png", threshold)
+        else:
+            coords = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600, "images/transformable.png", threshold)
+
+        if coords:
+            self.ctrl_click(*slot)
