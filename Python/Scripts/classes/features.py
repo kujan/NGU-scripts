@@ -716,7 +716,7 @@ class Features(Navigation, Inputs):
             self.click(slot.x, slot.y)
             self.send_string("a")
 
-    def transform_slot(self, slot, threshold, consume=False):
+    def transform_slot(self, slot, threshold=0.8, consume=False):
         """Check if slot is transformable and transform if it is.
 
         Be careful using this, make sure the item you want to transform is
