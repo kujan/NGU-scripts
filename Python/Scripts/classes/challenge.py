@@ -4,6 +4,7 @@ from classes.discord import Discord
 from challenges.basic import Basic
 from challenges.level import Level
 from challenges.laser import Laser
+from challenges.rebirth import Rebirth
 import ngucon as ncon
 import usersettings as userset
 import time
@@ -20,6 +21,7 @@ class Challenge(Features):
         b = Basic()
         level = Level()
         laser = Laser()
+        rebirth = Rebirth()
 
         color = self.get_pixel_color(ncon.CHALLENGEACTIVEX,
                                      ncon.CHALLENGEACTIVEY)
@@ -65,6 +67,9 @@ class Challenge(Features):
                 print("starting laser sword challenge script")
                 laser.laser()
 
+            elif "rebirth" in text.lower():
+                print("starting no rebirth challenge script")
+                rebirth.rebirth_challenge()
             else:
                 print("Couldn't determine which script to start from the OCR",
                       "input")
@@ -105,6 +110,12 @@ class Challenge(Features):
                 time.sleep(userset.LONG_SLEEP)
                 self.confirm()
                 level.lc()
+
+            elif challenge == 7:
+                self.click(x, y)
+                time.sleep(userset.LONG_SLEEP)
+                self.confirm()
+                rebirth.rebirth_challenge()
 
             elif challenge == 8:
                 self.click(x, y)
