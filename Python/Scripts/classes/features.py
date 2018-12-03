@@ -153,6 +153,7 @@ class Features(Navigation, Inputs):
 
         end = time.time() + duration
         while time.time() < end:
+            self.click(625, 500)  # click somewhere to move tooltip
             health = self.get_pixel_color(ncon.HEALTHX, ncon.HEALTHY)
             if (health == ncon.NOTDEAD):
                 if bosses:
