@@ -738,9 +738,9 @@ class Features(Navigation, Inputs):
         time.sleep(userset.SHORT_SLEEP)
 
         if consume:
-            coords = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600, "images/consumable.png", threshold)
+            coords = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600, self.get_file_path("images", "consumable.png"), threshold)
         else:
-            coords = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600, "images/transformable.png", threshold)
+            coords = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600, self.get_file_path("images", "transformable.png"), threshold)
 
         if coords:
             self.ctrl_click(*slot)
