@@ -10,6 +10,8 @@ import numpy
 import pytesseract
 import re
 import time
+import os
+import sys
 import win32api
 import win32con as wcon
 import win32gui
@@ -205,3 +207,9 @@ class Inputs():
     def rgb_to_hex(self, tup):
         """Convert RGB value to HEX."""
         return '%02x%02x%02x'.upper() % (tup[0], tup[1], tup[2])
+
+    def get_file_path(self, directory, file):
+        """Get the absolute path for a file."""
+        working = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        path = os.path.join(working, directory, file)
+        return path
