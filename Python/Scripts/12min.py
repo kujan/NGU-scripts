@@ -97,6 +97,10 @@ def speedrun(duration, f):
     f.fight()
     f.pit()
     f.spin()
+    f.save_check()
+    tracker.progress()
+    u.em()
+    tracker.adjustxp()
     time.sleep(7)
     f.speedrun_bloodpill()
 
@@ -135,8 +139,6 @@ while True:  # main loop to go foreverrrrr
 #     feature.ygg()
 #     time.sleep(120)
     speedrun(12, feature)
-    s.print_exp()
-    u.em()
 
 
 
