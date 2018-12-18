@@ -49,8 +49,11 @@ class Upgrade(Stats):
                   " spending exp.")
             return
 
-        self.exp()
         self.set_value_with_ocr("XP")
+        if Stats.OCR_failed:
+            print('OCR failed, exiting upgrade routine.')
+            return
+
         current_exp = Stats.xp
 
         e_cost = ncon.EPOWER_COST + ncon.ECAP_COST * self.ecap + (
@@ -113,5 +116,4 @@ class Upgrade(Stats):
         self.click(ncon.EMBARBUYX, ncon.EMBUYY)
 
         self.set_value_with_ocr("XP")
-        spent = current_exp - Stats.xp
-        #print("Spent {} XP on upgrades".format(Tracker.human_format(final_exp), Tracker.human_format(spent)))
+

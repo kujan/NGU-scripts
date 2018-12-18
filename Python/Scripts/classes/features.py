@@ -77,7 +77,10 @@ class Features(Navigation, Inputs):
                 for i in range(0, bossdiff):
                     self.click(ncon.FIGHTX, ncon.FIGHTY, fast=True)
                 time.sleep(userset.SHORT_SLEEP)
-                current_boss = int(self.get_current_boss())
+                try:
+                    current_boss = int(self.get_current_boss())
+                except ValueError:
+                    current_boss = 1
                 x += 1
                 if x > 7:  # Safeguard if number is too low to reach target boss, otherwise we get stuck here
                     print("Couldn't reach the target boss, something probably went wrong the last rebirth.")
@@ -170,6 +173,7 @@ class Features(Navigation, Inputs):
 
         end = time.time() + duration
         while time.time() < end:
+            self.click(625, 500)  # click somewhere to move tooltip
             health = self.get_pixel_color(ncon.HEALTHX, ncon.HEALTHY)
             if (health == ncon.NOTDEAD):
                 if bosses:
@@ -250,10 +254,20 @@ class Features(Navigation, Inputs):
         self.click(ncon.CONFIRMX, ncon.CONFIRMY)
         return
 
-    def pit(self):
-        """Throws money into the pit."""        
+    def pit(self, loadout=0):
+        """Throws money into the pit.
+
+        Keyword arguments:
+        loadout -- The loadout you wish to equip before throwing gold
+                   into the pit, for gear you wish to shock. Make
+                   sure that you don't get cap-blocked by either using
+                   the unassign setting in the game or swapping gear that
+                   doesn't have e/m cap.
+        """
         color = self.get_pixel_color(ncon.PITCOLORX, ncon.PITCOLORY)
         if (color == ncon.PITREADY):
+            if loadout:
+                self.loadout(loadout)
             self.menu("pit")
             self.click(ncon.PITX, ncon.PITY)
             self.click(ncon.CONFIRMX, ncon.CONFIRMY)
@@ -311,13 +325,30 @@ class Features(Navigation, Inputs):
                         break
             self.click(ncon.AUGMENTX, ncon.AUGMENTY[k])
 
-    def time_machine(self, magic=False):
-        """Add energy and/or magic to TM."""
+    def time_machine(self, e, m=0, magic=False):
+        """Add energy and/or magic to TM.
+
+        Example: self.time_machine(1000, 2000)
+                 self.time_machine(1000, magic=True)
+                 self.time_machine(1000)
+
+        First example will add 1000 energy and 2000 magic to TM.
+        Second example will add 1000 energy and 1000 magic to TM.
+        Third example will add 1000 energy to TM.
+
+        Keyword arguments:
+        e -- The amount of energy to put into TM.
+        m -- The amount of magic to put into TM, if this is 0, it will use the
+             energy value to save unnecessary clicks to the input box.
+        magic -- Set to true if you wish to add magic as well"""
         self.menu("timemachine")
         self.input_box()
-        self.send_string("600000000")
+        self.send_string(e)
         self.click(ncon.TMSPEEDX, ncon.TMSPEEDY)
-        if magic:
+        if magic or m:
+            if m:
+                self.input_box()
+                self.send_string(m)
             self.click(ncon.TMMULTX, ncon.TMMULTY)
 
     def blood_magic(self, target):
@@ -704,3 +735,32 @@ class Features(Navigation, Inputs):
         for slot in coords:
             self.click(slot.x, slot.y)
             self.send_string("a")
+
+    def transform_slot(self, slot, threshold=0.8, consume=False):
+        """Check if slot is transformable and transform if it is.
+
+        Be careful using this, make sure the item you want to transform is
+        not protected, and that all other items are protected, this might
+        delete items otherwise. Another note, consuming items will show
+        a special tooltip that will block you from doing another check
+        for a few seconds, keep this in mind if you're checking multiple
+        slots in succession.
+
+        Keyword arguments:
+        slot -- The slot you wish to transform, if possible
+        threshold -- The fuzziness in the image search, I recommend a value
+                     between 0.7 - 0.95.
+        consume -- Set to true if item is consumable instead.
+        """
+        self.menu("inventory")
+        slot = self.get_inventory_slots(slot)[-1]
+        self.click(*slot)
+        time.sleep(userset.SHORT_SLEEP)
+
+        if consume:
+            coords = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600, self.get_file_path("images", "consumable.png"), threshold)
+        else:
+            coords = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600, self.get_file_path("images", "transformable.png"), threshold)
+
+        if coords:
+            self.ctrl_click(*slot)

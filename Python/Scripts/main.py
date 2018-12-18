@@ -36,13 +36,13 @@ def speedrun(duration, f):
     f.loadout(2)  # Bar/power equimpent
     f.adventure(itopod=True, itopodauto=True)
     f.time_machine(True)
-    f.augments({"EB": 0.7, "CS": 0.3}, 4.5e9)
+    f.augments({"AE": 0.7, "ES": 0.3}, 1.8e10)
 
     f.blood_magic(8)
     f.boost_equipment()
-    f.wandoos(True)
     f.gold_diggers([2, 5, 6, 8], True)
-
+    f.augments({"AE": 0.7, "ES": 0.3}, 1.5e10)
+    f.wandoos(True)
     while time.time() < end - 20:
         f.wandoos(True)
         f.gold_diggers([2, 5, 6, 8, 11])
@@ -52,7 +52,7 @@ def speedrun(duration, f):
         if time.time () > start + 40:
             try:
                 NGU_energy = int(f.remove_letters(f.ocr(ncon.OCR_ENERGY_X1, ncon.OCR_ENERGY_Y1, ncon.OCR_ENERGY_X2, ncon.OCR_ENERGY_Y2)))
-                feature.assign_ngu(NGU_energy, [1, 2, 4, 5, 6, 7, 8, 9])
+                feature.assign_ngu(NGU_energy, [1, 2, 4, 5, 6])
                 NGU_magic = int(f.remove_letters(f.ocr(ncon.OCR_MAGIC_X1, ncon.OCR_MAGIC_Y1, ncon.OCR_MAGIC_X2, ncon.OCR_MAGIC_Y2)))
                 feature.assign_ngu(NGU_magic, [2], magic=True)
             except ValueError:
@@ -90,7 +90,7 @@ u = Upgrade(37500, 37500, 2, 2, 3)
 
 print(w.x, w.y)
 tracker = Tracker(3)
-c = Challenge(tracker)
+#c = Challenge(tracker)
 #print(c.check_challenge())
 
 
