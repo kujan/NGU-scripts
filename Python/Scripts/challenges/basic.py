@@ -15,9 +15,7 @@ class Basic(Features):
         tm_unlocked = False
         bm_unlocked = False
         ci_assigned = False
-    
         diggers = [2, 3, 8]
-
         self.loadout(1)
         self.nuke()
         time.sleep(2)
