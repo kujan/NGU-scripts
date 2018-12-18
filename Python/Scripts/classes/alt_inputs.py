@@ -18,6 +18,7 @@ import win32gui
 import win32ui
 
 class AltInputs():
+    
     def a_click(self, x, y):
         x += window.x
         y += window.y

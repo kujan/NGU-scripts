@@ -1,5 +1,6 @@
 """Feature class handles the alternative features in the game for Windows Server."""
 from classes.inputs import Inputs
+from classes.alt_inputs import AltInputs
 from classes.navigation import Navigation
 from classes.window import Window
 from collections import deque, namedtuple
@@ -15,7 +16,7 @@ import usersettings as userset
 class AltFeatures(Navigation, Inputs):
     """Handles the Windows 2018 different features in the game."""
 
-     def alt_merge_equipment(self):
+    def alt_merge_equipment(self):
         """Navigate to inventory and merge equipment."""
         self.menu("inventory")
         time.sleep(0.5)
@@ -53,7 +54,7 @@ class AltFeatures(Navigation, Inputs):
         coords = self.get_inventory_slots(slots)
         for slot in coords:
             self.a_click(slot.x, slot.y)
-            
+
     def boost_cube(self):
         """Boost cube."""
         self.menu("inventory")
