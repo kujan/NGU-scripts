@@ -19,7 +19,7 @@ class AltFeatures(Navigation, Inputs):
     def alt_merge_equipment(self):
         """Navigate to inventory and merge equipment."""
         self.menu("inventory")
-        time.sleep(0.5)
+        time.sleep(0.2)
         for slot in self.equipment:
             if (slot == "cube"):
                 return
@@ -28,7 +28,7 @@ class AltFeatures(Navigation, Inputs):
     def alt_boost_equipment(self):
         """Boost all equipment."""
         self.menu("inventory")
-        time.sleep(0.5)
+        time.sleep(0.2)
         for slot in self.equipment:
             if (slot == "cube"):
                 return
