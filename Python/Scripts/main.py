@@ -77,19 +77,39 @@ def speedrun(duration, f):
 
     return
 
+def always_check(f):
+    f.pit()
+    f.spin()
+    f.ygg()
+    return
+
+def inventory_boosts(f, merge_count, second_merge_multi, boost_count, equip):
+    f.merge_inventory(merge_count)
+    f.boost_inventory(boost_count)
+    if equip:
+        f.boost_equipment()
+    f.merge_inventory(merge_count * second_merge_multi)
+    return
+
+def bloodpill(f):
+    bm_color = f.get_pixel_color(ncon.BMLOCKEDX, ncon.BMLOCKEDY)
+    if bm_color == ncon.BM_PILL_READY:
+        f.spells()
+        f.click(ncon.BMPILLX, ncon.BMPILLY)
+    return
 
 w = Window()
 i = Inputs()
 nav = Navigation()
 feature = Features()
 
-Window.x, Window.y = i.pixel_search(ncon.TOP_LEFT_COLOR, 0, 0, 400, 600)
+Window.x, Window.y = i.pixel_search(ncon.TOP_LEFT_COLOR, 0, 0, 1440, 2560)
 nav.menu("inventory")
 
 u = Upgrade(37500, 37500, 2, 2, 3)
 
 print(w.x, w.y)
-tracker = Tracker(3)
+#tracker = Tracker(3)
 #c = Challenge(tracker)
 #print(c.check_challenge())
 
@@ -97,10 +117,14 @@ tracker = Tracker(3)
 #feature.bb_ngu(4e8, [1, 2, 3, 4, 5, 6, 7, 8, 9], 1.05)
 #feature.speedrun_bloodpill()
 while True:  # main loop
+    bloodpill(feature)
+    always_check(feature)
+    inventory_boosts(feature, 8, 6, 8, True)
     #feature.boost_equipment()
     #feature.ygg()
     #feature.snipe(0, 120, bosses=False)
 
-    #time.sleep(120)
+
     #c.start_challenge(9)
-    speedrun(3, feature)
+    #speedrun(3, feature)
+    time.sleep(30)

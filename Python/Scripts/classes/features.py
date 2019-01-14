@@ -684,8 +684,8 @@ class Features(Navigation, Inputs):
         coords = []
 
         while i <= slots:
-            x = x_pos + (i - (12 * (row - 1))) * 50
-            y = y_pos + ((row - 1) * 50)
+            x = x_pos + math.floor((i - (12 * (row - 1))) * 50 * ncon.XMULTI)
+            y = y_pos + math.floor(((row - 1) * 50) * ncon.YMULTI)
             coords.append(point(x, y))
             if i % 12 == 0:
                 row += 1
