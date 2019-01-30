@@ -7,7 +7,6 @@ from decimal import Decimal
 from deprecated import deprecated
 import coordinates as coords
 import math
-import ngucon as ncon
 import re
 import time
 import win32con as wcon
@@ -21,21 +20,20 @@ class Features(Navigation, Inputs):
     def merge_equipment(self):
         """Navigate to inventory and merge equipment."""
         self.menu("inventory")
-        for slot in self.equipment:
+        for slot in coords.EQUIPMENT_SLOTS:
             if (slot == "cube"):
                 return
-            self.click(self.equipment[slot]["x"], self.equipment[slot]["y"])
+            self.click(*coords.EQUIPMENT_SLOTS[slot])
             self.send_string("d")
 
     def boost_equipment(self):
         """Boost all equipment."""
         self.menu("inventory")
-        for slot in self.equipment:
+        for slot in coords.EQUIPMENT_SLOTS:
             if (slot == "cube"):
-                self.click(self.equipment[slot]["x"],
-                           self.equipment[slot]["y"], "right")
+                self.click(*coords.EQUIPMENT_SLOTS[slot], "right")
                 return
-            self.click(self.equipment[slot]["x"], self.equipment[slot]["y"])
+            self.click(*coords.EQUIPMENT_SLOTS[slot])
             self.send_string("a")
 
     def get_current_boss(self):
@@ -157,13 +155,11 @@ class Features(Navigation, Inputs):
 
         end = time.time() + duration
         while time.time() < end:
-            enemy_alive = self.check_pixel_color(*coords.IS_ENEMY_ALIVE)
-            if enemy_alive:
             self.click(625, 500)  # click somewhere to move tooltip
-            health = self.get_pixel_color(ncon.HEALTHX, ncon.HEALTHY)
-            if (health == ncon.NOTDEAD):
+            if self.check_pixel_color(*coords.IS_ENEMY_ALIVE):
                 if bosses:
                     if self.check_pixel_color(*coords.IS_BOSS_CROWN):
+                        enemy_alive = True
                         while enemy_alive:
                             enemy_alive = self.check_pixel_color(*coords.IS_ENEMY_ALIVE)
                             self.click(*coords.ABILITY_REGULAR_ATTACK)
@@ -243,8 +239,7 @@ class Features(Navigation, Inputs):
                    the unassign setting in the game or swapping gear that
                    doesn't have e/m cap.
         """
-        color = self.get_pixel_color(ncon.PITCOLORX, ncon.PITCOLORY)
-        if (color == ncon.PITREADY):
+        if self.check_pixel_color(*coords.IS_PIT_READY):
             if loadout:
                 self.loadout(loadout)
             self.menu("pit")
@@ -298,7 +293,7 @@ class Features(Navigation, Inputs):
                     elif i > 10:
                         print("Couldn't assign augments")
                         break
-            self.click(coords.AUGMENT_X, coords.AUGMENT_Y[k])
+            self.click(*coords.AUGMENT[k])
 
     def time_machine(self, e, m=0, magic=False):
         """Add energy and/or magic to TM.
@@ -319,18 +314,18 @@ class Features(Navigation, Inputs):
         self.menu("timemachine")
         self.input_box()
         self.send_string(e)
-        self.click(ncon.TMSPEEDX, ncon.TMSPEEDY)
+        self.click(*coords.TM_SPEED)
         if magic or m:
             if m:
                 self.input_box()
                 self.send_string(m)
-            self.click(ncon.TMMULTX, ncon.TMMULTY)
+            self.click(*coords.TM_MULT)
 
     def blood_magic(self, target):
         """Assign magic to BM."""
         self.menu("bloodmagic")
         for i in range(target):
-            self.click(coords.BM_X, coords.BM_Y[i])
+            self.click(*coords.BM[i])
 
     def wandoos(self, magic=False):
         """Assign energy and/or magic to wandoos."""
@@ -342,33 +337,11 @@ class Features(Navigation, Inputs):
     def loadout(self, target):
         """Equip targeted loadout."""
         self.menu("inventory")
-        self.click(coords.LOADOUT_X[target], coords.LOADOUT_Y)
+        self.click(*coords.LOADOUT[target])
 
-    @deprecated(version='0.1', reason="You should use speedrun_iron_pill() instead")
+    @deprecated(version='0.1', reason="speedrun_bloodpill is deprecated, use speedrun_iron_pill instead")
     def speedrun_bloodpill(self):
-        """Check if bloodpill is ready to cast."""
-        if self.check_pixel_color(*coords.IS_IRON_PILL_READY):
-            start = time.time()
-            self.blood_magic(8)
-            self.spells()
-            self.click(*coords.BM_AUTO_GOLD)
-            self.click(*coords.BM_AUTO_NUMBER)
-
-            if userset.PILL == 0:  # Default to 5 mins if not set
-                duration = 300
-            else:
-                duration = userset.PILL
-
-            while time.time() < start + duration:
-                self.gold_diggers([11])
-                time.sleep(5)
-            self.spells()
-            self.click(*coords.BM_PILL)
-            time.sleep(userset.LONG_SLEEP)
-            self.click(*coords.BM_AUTO_GOLD)
-            self.click(*coords.BM_AUTO_NUMBER)
-            self.nuke()
-            time.sleep(userset.LONG_SLEEP)
+        self.speedrun_iron_pill()
 
     def speedrun_iron_pill(self):
         """Check if bloodpill is ready to cast."""
@@ -394,77 +367,6 @@ class Features(Navigation, Inputs):
             self.click(*coords.BM_AUTO_NUMBER)
             self.nuke()
             time.sleep(userset.LONG_SLEEP)
-
-    @deprecated(version='0.1', reason="This function will be deleted soon")
-    def set_ngu(self, ngu, magic=False):
-        """Handle NGU upgrades in a non-dumb way.
-
-        Function will check target levels of selected NGU's and equalize the
-        target levels. This means that if one upgrade is ahead of the others,
-        the target level for all NGU's that are behind will be set to the
-        level of the highest upgrade.
-
-        If they are even, it will instead increase target level
-        by 25% of current level. Since the NGU's level at different speeds, I
-        would recommend that you currently set the slower separate from the
-        faster upgrades, unless energy/magic is a non issue.
-
-        Function returns False if NGU's are uneven, so you know to check back
-        occasionally for the proper 25% increase, which can be left unchecked
-        for a longer period of time.
-
-        Keyword arguments:
-
-        ngu -- Dictionary containing information on which energy NGU's you
-               wish to upgrade. Example: {7: True, 8: False, 9: False} - this
-               will use NGU 7 (drop chance), 8 (magic NGU), 9 (PP) in the
-               comparisons.
-
-        magic -- Set to True if these are magic NGU's
-        """
-        if magic:
-            self.ngu_magic()
-        else:
-            self.menu("ngu")
-
-        bmp = self.get_bitmap()
-        current_ngu = {}
-        try:
-            for k in ngu:
-                y1 = ncon.OCR_NGU_E_Y1 + k * 35
-                y2 = ncon.OCR_NGU_E_Y2 + k * 35
-                # remove commas from sub level 1 million NGU's.
-                res = re.sub(',', '', self.ocr(ncon.OCR_NGU_E_X1, y1,
-                                               ncon.OCR_NGU_E_X2, y2, False,
-                                               bmp))
-                current_ngu[k] = res
-            # find highest and lowest NGU's.
-            high = max(current_ngu.keys(),
-                       key=(lambda i: float(current_ngu[i])))
-            low = min(current_ngu.keys(),
-                      key=(lambda i: float(current_ngu[i])))
-
-            # If one NGU is ahead of the others, fix this.
-            if high != low:
-                for k in current_ngu:
-                    if float(current_ngu[k]) <= float(current_ngu[high]):
-                        self.click(ncon.NGU_TARGETX, ncon.NGU_TARGETY + 35 * k)
-
-                        """We're casting as float to convert scientific notation
-                        into something usable, then casting as int to get rid
-                        of decimal."""
-
-                        self.send_string(str(int(float(current_ngu[high]))))
-                return False
-            # Otherwise increase target level by 25%.
-            else:
-                for k in current_ngu:
-                    self.click(ncon.NGU_TARGETX, ncon.NGU_TARGETY + 35 * k)
-                    self.send_string(str(int(float(current_ngu[k]) * 1.25)))
-                return True
-
-        except ValueError:
-            print("Something went wrong with the OCR reading for NGU's")
 
     def assign_ngu(self, value, targets, magic=False):
         """Assign energy/magic to NGU's.
@@ -500,21 +402,29 @@ class Features(Navigation, Inputs):
         for i in targets:
             page = ((i-1)//4)
             item = i - (page * 4)
-            self.click(ncon.DIG_PAGEX[page], ncon.DIG_PAGEY)
+            self.click(*coords.DIG_PAGE[page])
             if deactivate:
-                self.click(ncon.DIG_ACTIVE[item]["x"], ncon.DIG_ACTIVE[item]["y"])
+                self.click(*coords.DIG_ACTIVE[item])
             else:
-                self.click(ncon.DIG_CAP[item]["x"], ncon.DIG_CAP[item]["y"])
+                self.click(*coords.DIG_CAP[item])
 
     def deactivate_all_diggers(self):
         self.menu("digger")
-        self.click(ncon.DIG_DEACTIVATE_ALL_X, ncon.DIG_DEACTIVATE_ALL_Y)    
+        self.click(*coords.DIG_DEACTIVATE_ALL)    
 
     def bb_ngu(self, value, targets, overcap=1, magic=False):
         """Estimates the BB value of each supplied NGU.
 
+        It will send value into the target NGU's, which will fill the progress bar. It's very
+        important that you put enough e/m into the NGU's to trigger the "anti-flicker" (>10% of BB cost),
+        otherwise it will not function properly. 
+
         Keyword arguments:
+        value -- The amount of energy used to determine the cost of BBing the target NGU's
         targets -- Array of NGU's to BB. Example: [1, 3, 4, 5, 6]
+        overcap -- Use this if you wish to assign more e/m than absolute minimum to BB
+                   the NGU's. This might be useful for longer runs to make sure the cost
+                   to BB doesn't exceed the assigned e/m. A value of 1.1 assigns 10% extra.
         magic -- Set to true if these are magic NGUs
         """
         if magic:
@@ -532,30 +442,30 @@ class Features(Navigation, Inputs):
         for target in targets:
             energy = 0
             for x in range(198):
-                color = self.get_pixel_color(ncon.NGU_BAR_MINX + x,
-                                             ncon.NGU_BAR_Y +
-                                             ncon.NGU_BAR_OFFSETY * target,
-                                             )
-                if color == ncon.NGU_BAR_WHITE:
+                color = self.get_pixel_color(coords.NGU_BAR_MIN.x + x,
+                                             coords.NGU_BAR_MIN.y +
+                                             coords.NGU_BAR_OFFSET_Y * target,
+                                            )
+                if color == coords.NGU_BAR_WHITE:
                     pixel_coefficient = x / 198
                     value_coefficient = overcap / pixel_coefficient
                     energy = (value_coefficient * value) - value
-                    #print(f"estimated energy to BB this NGU is {Decimal(energy):.2E}")
                     break
             if energy == 0:
                 print(f"Warning: You might be overcapping NGU #{target}")
                 
             self.input_box()
             self.send_string(str(int(energy)))
-            self.click(ncon.NGU_PLUSX, ncon.NGU_PLUSY + target * 35)
+            self.click(coords.NGU_PLUS.x, coords.NGU_PLUS.y + target * 35)
 
+    # TODO: make this actually useful for anything
     def advanced_training(self, value):
         self.menu("advtraining")
         value = value // 2
         self.input_box()
         self.send_string(value)
-        self.click(ncon.ADV_TRAININGX, ncon.ADV_TRAINING1Y)
-        self.click(ncon.ADV_TRAININGX, ncon.ADV_TRAINING2Y)
+        self.click(*coords.ADV_TRAINING_POWER)
+        self.click(*coords.ADV_TRAINING_TOUGHNESS)
 
     def titan_pt_check(self, target):
         """Check if we have the recommended p/t to defeat the target Titan.
@@ -567,18 +477,16 @@ class Features(Navigation, Inputs):
         """
         self.menu("adventure")
         bmp = self.get_bitmap()
-        power = self.ocr(ncon.OCR_ADV_POWX1, ncon.OCR_ADV_POWY1,
-                         ncon.OCR_ADV_POWX2, ncon.OCR_ADV_POWY2, bmp=bmp)
-        tough = self.ocr(ncon.OCR_ADV_TOUGHX1, ncon.OCR_ADV_TOUGHY1,
-                         ncon.OCR_ADV_TOUGHX2, ncon.OCR_ADV_TOUGHY2, bmp=bmp)
+        power = self.ocr(*coords.OCR_ADV_POW, bmp=bmp)
+        tough = self.ocr(*coords.OCR_ADV_TOUGH, bmp=bmp)
 
-        if (float(power) > ncon.TITAN_PT[target]["p"] and
-           float(tough) > ncon.TITAN_PT[target]["t"]):
+        if (float(power) > coords.TITAN_PT[target]["p"] and
+           float(tough) > coords.TITAN_PT[target]["t"]):
             return True
 
         else:
-            print(f"Lacking: {Decimal(ncon.TITAN_PT[target]['p'] - float(power)):.2E}"
-                  f"/{Decimal(ncon.TITAN_PT[target]['t'] - float(tough)):.2E} P/T"
+            print(f"Lacking: {Decimal(coords.TITAN_PT[target]['p'] - float(power)):.2E}"
+                  f"/{Decimal(coords.TITAN_PT[target]['t'] - float(tough)):.2E} P/T"
                   f" to kill {target}")
             return False
 
@@ -591,26 +499,21 @@ class Features(Navigation, Inputs):
                   "BEAST4"]
         """
         self.menu("adventure")
-        idle_color = self.get_pixel_color(ncon.ABILITY_ATTACKX,
-                                          ncon.ABILITY_ATTACKY)
+        if self.check_pixel_color(*coords.IS_IDLE)
+            self.click(*coords.ABILITY_IDLE_MODE)
 
-        if idle_color == ncon.IDLECOLOR:
-            self.click(ncon.IDLE_BUTTONX, ncon.IDLE_BUTTONY)
-
-        self.click(ncon.LEFTARROWX, ncon.LEFTARROWY, button="right")
-        for i in range(ncon.TITAN_ZONE[target]):
-            self.click(ncon.RIGHTARROWX, ncon.RIGHTARROWY)
+        self.click(*coords.LEFT_ARROW, button="right")
+        for i in range(coords.TITAN_ZONE[target]):
+            self.click(*coords.RIGHT_ARROW)
 
         time.sleep(userset.LONG_SLEEP)
 
-        available = self.ocr(ncon.OCR_ADV_TITANX1, ncon.OCR_ADV_TITANY1,
-                             ncon.OCR_ADV_TITANX2, ncon.OCR_ADV_TITANY2)
+        available = self.ocr(*coords.OCR_ADV_TITAN)
 
         if "titan" in available.lower():
             time.sleep(1.5)  # Make sure titans spawn, otherwise loop breaks
             queue = deque(self.get_ability_queue())
-            health = ""
-            while health != ncon.DEAD:
+            while self.check_pixel_color(*coords.IS_ENEMY_ALIVE):
                 if len(queue) == 0:
                     print("NEW QUEUE")
                     queue = deque(self.get_ability_queue())
@@ -634,7 +537,6 @@ class Features(Navigation, Inputs):
                 time.sleep(userset.LONG_SLEEP)
                 color = self.get_pixel_color(ncon.ABILITY_ROW1X,
                                              ncon.ABILITY_ROW1Y)
-                health = self.get_pixel_color(ncon.HEALTHX, ncon.HEALTHY)
 
                 while color != ncon.ABILITY_ROW1_READY_COLOR:
                     time.sleep(0.03)
@@ -699,8 +601,7 @@ class Features(Navigation, Inputs):
         Make sure no window in your browser pops up when you click the "Save"
         button, otherwise sit will mess with the rest of the script.
         """
-        color = self.get_pixel_color(ncon.SAVEX, ncon.SAVEY)
-        if color == ncon.SAVE_READY_COLOR:
+        if self.check_pixel_color(*coords.IS_SAVE_READY):
             self.click(ncon.SAVEX, ncon.SAVEY)
         return
 
@@ -709,8 +610,7 @@ class Features(Navigation, Inputs):
         point = namedtuple("p", ("x", "y"))
         i = 1
         row = 1
-        x_pos = ncon.INVENTORY_SLOTS_X
-        y_pos = ncon.INVENTORY_SLOTS_Y
+        x_pos, y_pos = coords.INVENTORY_SLOTS
         coords = []
 
         while i <= slots:
@@ -731,7 +631,7 @@ class Features(Navigation, Inputs):
         self.menu("inventory")
         coords = self.get_inventory_slots(slots)
         for slot in coords:
-            self.click(slot.x, slot.y)
+            self.click(*slot)
             self.send_string("d")
 
     def boost_inventory(self, slots):
@@ -743,7 +643,7 @@ class Features(Navigation, Inputs):
         self.menu("inventory")
         coords = self.get_inventory_slots(slots)
         for slot in coords:
-            self.click(slot.x, slot.y)
+            self.click(*slot)
             self.send_string("a")
 
     def transform_slot(self, slot, threshold=0.8, consume=False):

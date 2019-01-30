@@ -1,15 +1,15 @@
 """Navigation class handles navigation through the menus."""
 import time
 from classes.inputs import Inputs
-import coordinates as ncon
+import coordinates as coords
 import usersettings as userset
 
 
 class Navigation(Inputs):
     """Navigate through menus."""
 
-    menus = ncon.MENUITEMS
-    equipment = ncon.EQUIPMENTSLOTS
+    menus = coords.MENUITEMS
+    equipment = coords.EQUIPMENTSLOTS
     current_menu = ''
 
     def menu(self, target):
@@ -22,20 +22,20 @@ class Navigation(Inputs):
 
     def input_box(self):
         """Click input box."""
-        self.click(*ncon.NUMBER_INPUT_BOX)
+        self.click(*coords.NUMBER_INPUT_BOX)
         time.sleep(userset.SHORT_SLEEP)
 
     def rebirth(self):
         """Click rebirth menu."""
         if Navigation.current_menu == 'rebirth':
             return
-        self.click(*ncon.REBIRTH)
+        self.click(*coords.REBIRTH)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = 'rebirth'
 
     def confirm(self):
         """Click yes in confirm window."""
-        self.click(*ncon.CONFIRM)
+        self.click(*coords.CONFIRM)
         time.sleep(userset.SHORT_SLEEP)
 
     def ngu_magic(self):
@@ -43,7 +43,7 @@ class Navigation(Inputs):
         if Navigation.current_menu == 'ngu_magic':
             return
         self.menu('ngu')
-        self.click(*ncon.NGU_MAGIC)
+        self.click(*coords.NGU_MAGIC)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = 'ngu_magic'
 
@@ -51,7 +51,7 @@ class Navigation(Inputs):
         """Navigate to EXP Menu."""
         if Navigation.current_menu == 'exp':
             return
-        self.click(*ncon.XP_MENU)
+        self.click(*coords.XP_MENU)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = 'exp'
 
@@ -60,7 +60,7 @@ class Navigation(Inputs):
         if Navigation.current_menu == 'exp_magic':
             return
         self.exp()
-        self.click(*ncon.MAGIC_MENU)
+        self.click(*coords.MAGIC_MENU)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = 'exp_magic'
 
@@ -68,7 +68,7 @@ class Navigation(Inputs):
         """Click info 'n stuff."""
         if Navigation.current_menu == 'info':
             return
-        self.click(*ncon.INFO)
+        self.click(*coords.INFO)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = 'info'
 
@@ -77,7 +77,7 @@ class Navigation(Inputs):
         if Navigation.current_menu == 'misc':
             return
         self.info()
-        self.click(*ncon.MISC)
+        self.click(*coords.MISC)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = 'misc'
 
@@ -86,7 +86,7 @@ class Navigation(Inputs):
         if Navigation.current_menu == 'perks':
             return
         self.menu('adventure')
-        self.click(*ncon.ITOPOD_PERKS)
+        self.click(*coords.ITOPOD_PERKS)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = 'perks'
 
@@ -95,6 +95,6 @@ class Navigation(Inputs):
         if Navigation.current_menu == 'spells':
             return
         self.menu('bloodmagic')
-        self.click(*ncon.BM_SPELL)
+        self.click(*coords.BM_SPELL)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = 'spells'

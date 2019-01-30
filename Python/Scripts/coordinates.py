@@ -37,8 +37,8 @@ ITOPOD_PERKS = Pixel(490, 225)
 ITOPOD_START = Pixel(625, 230)
 ITOPOD_END = Pixel(625, 265)
 ITOPOD_ENTER = Pixel(625, 630)
-ITOPOD_AUTO = Pixel(710, 250)
-HEALTH = Pixel(706, 392)
+ITOPOD_AUTO = Pixel(710, 215)
+HEALTH = Pixel(703, 411)
 
 # Need to think about how to handle these
 # ROW 1 ABILITIES
@@ -129,24 +129,22 @@ SAVE = Pixel(23, 483)
 NUKE = Pixel(620, 110)
 FIGHT = Pixel(620, 220)
 
-#TODO: INVENTORY OFFSETS
-EQUIPMENTSLOTS = {"accessory1": {"x": 480, "y": 65},
-                  "accessory2": {"x": 480, "y": 115},
-                  "accessory3": {"x": 480, "y": 165},
-                  "accessory4": {"x": 480, "y": 215},
-                  "head": {"x": 525, "y": 65},
-                  "chest": {"x": 527, "y": 114},
-                  "legs": {"x": 527, "y": 163},
-                  "boots": {"x": 527, "y": 212},
-                  "weapon": {"x": 575, "y": 115},
-                  "cube": {"x": 627, "y": 115}}
-
-LOADOUT_X = {1: 330, 2: 360, 3: 390, 4: 420, 5: 450, 6: 480, 7: 510, 8: 540, 9: 570, 10: 600}
+# INVENTORY OFFSETS
+EQUIPMENT_SLOTS = {"accessory1": Pixel(480, 65),
+                  "accessory2": Pixel(480, 115),
+                  "accessory3": Pixel(480, 165),
+                  "accessory4": Pixel(480, 215),
+                  "head": Pixel(525, 65),
+                  "chest": Pixel(525, 115),
+                  "legs": Pixel(525, 165),
+                  "boots": Pixel(525, 210),
+                  "weapon": Pixel(575, 115),
+                  "cube": Pixel(625, 115)}
 LOADOUT_Y = 255
+LOADOUT = {1: Pixel(330, LOADOUT_Y), 2: Pixel(360, LOADOUT_Y), 3: Pixel(390, LOADOUT_Y), 4: Pixel(420, LOADOUT_Y), 5: Pixel(450, LOADOUT_Y),
+           6: Pixel(480, LOADOUT_Y), 7: Pixel(510, LOADOUT_Y), 8: Pixel(540, LOADOUT_Y), 9: Pixel(570, LOADOUT_Y), 10: Pixel(600, LOADOUT_Y)}
 
-INVENTORY_SLOTS_X = 300
-INVENTORY_SLOTS_Y = 330
-
+INVENTORY_SLOTS = Pixel(300, 330)
 
 #TIME MACHINE OFFSETS
 TM_SPEED = Pixel(532, 233)
@@ -155,10 +153,9 @@ TM_MULT = Pixel(532, 330)
 #BLOOD MAGIC OFFSETS
 BM_LOCKED = Pixel(229, 294)
 
-
-#TODO: Multibutton Logic
 BM_X = 570
-BM_Y = {0: 228, 1: 263, 2: 298, 3: 333, 4: 369, 5: 403, 6: 438, 7: 473}
+BM = {0: Pixel(BM_X, 228), 1: Pixel(BM_X, 263), 2: Pixel(BM_X, 298), 3: Pixel(BM_X, 333),
+      4: Pixel(BM_X, 369), 5: Pixel(BM_X, 403), 6: Pixel(BM_X, 438), 7: Pixel(BM_X, 473)}
 
 BM_SPELL = Pixel(390, 115)
 BM_PILL = Pixel(744, 216)
@@ -169,9 +166,12 @@ BM_AUTO_DROP = Pixel(514, 360)
 
 #TODO: AUGMENTATION OFFSETS
 AUGMENT_X = 535
-AUGMENT_Y = {"SS": 263, "DS": 292, "MI": 329, "DTMT": 357, "CI": 394, "ML": 422,
-             "SM": 459, "AA": 487, "EB": 525, "CS": 552, "AE": 450, "ES": 478,
-             "LS": 516, "QSL": 544}
+
+AUGMENT = {"SS": Pixel(AUGMENT_X, 263), "DS": Pixel(AUGMENT_X, 292), "MI": Pixel(AUGMENT_X, 329),
+           "DTMT": Pixel(AUGMENT_X, 357), "CI": Pixel(AUGMENT_X, 394), "ML": Pixel(AUGMENT_X, 422),
+            "SM": Pixel(AUGMENT_X, 459), "AA": Pixel(AUGMENT_X, 487), "EB": Pixel(AUGMENT_X, 525), 
+            "CS": Pixel(AUGMENT_X, 552), "AE": Pixel(AUGMENT_X, 450), "ES": Pixel(AUGMENT_X, 478),
+            "LS": Pixel(AUGMENT_X, 516), "QSL": Pixel(AUGMENT_X, 544)}
 
 AUG_SCROLL_TOP = Pixel(945, 264)
 AUG_SCROLL_BOT = Pixel(945, 575)
@@ -187,7 +187,7 @@ NGU_PLUS = Pixel(529, 207)
 
 NGU_BAR_MIN = Pixel(306, 215)
 NGU_BAR_MAX = Pixel(503, 215)
-NGU_BAR_OFFSETY = 35
+NGU_BAR_OFFSET_Y = 35
 
 #TODO: Make into dict ADVTRAINING
 ADV_TRAINING_TOUGHNESS = Pixel(890, 230)
@@ -263,12 +263,13 @@ OCR_CHALLENGE_24HC_TARGET = OCRBox(479, 267, 771, 297)
 BEARD_X = {1: 312, 2: 338, 3: 312, 4: 1}
 
 #TODO: DIGGER OFFSETS
+DIG_PAGE_Y = 110
+DIG_PAGE = [Pixel(340, DIG_PAGE_Y), Pixel(405, DIG_PAGE_Y), Pixel(470, DIG_PAGE_Y)]
 
-DIG_PAGEX = [340, 405, 470]
-DIG_PAGEY = 110
-DIG_ACTIVE = {1: {"x": 341, "y": 237}, 2: {"x": 658, "y": 237}, 3: {"x": 341, "y": 427}, 4: {"x": 658, "y": 427}}
-DIG_CAP = {1: {"x": 550, "y": 185}, 2: {"x": 865, "y": 185}, 3: {"x": 550, "y": 375}, 4: {"x": 865, "y": 375}}
+DIG_ACTIVE = {1: Pixel(341, 237), 2: Pixel(658, 237), 3: Pixel(341, 427), 4: Pixel(658, 427)}
+DIG_CAP = {1: Pixel(550, 185), 2: Pixel(865, 185), 3: Pixel(550, 375), 4: Pixel(865, 375)}
 
+DIG_DEACTIVATE_ALL = Pixel(850, 110)
 
 #EXP COSTS PER UNIT
 EPOWER_COST = 150
