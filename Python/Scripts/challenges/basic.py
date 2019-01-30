@@ -7,9 +7,6 @@ import time
 class Basic(Features):
     """Contains functions for running a basic challenge."""
 
-    def __init__(self, tracker):
-        self.tracker = tracker
-
     def first_rebirth(self):
         """Procedure for first rebirth after number reset."""
         end = time.time() + 3 * 60

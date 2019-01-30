@@ -58,7 +58,10 @@ class Features(Navigation, Inputs):
                 for i in range(0, bossdiff):
                     self.click(*coords.FIGHT, fast=True)
                 time.sleep(userset.SHORT_SLEEP)
-                current_boss = int(self.get_current_boss())
+                try:
+                    current_boss = int(self.get_current_boss())
+                except ValueError:
+                    current_boss = 1
                 x += 1
                 if x > 7:  # Safeguard if number is too low to reach target boss, otherwise we get stuck here
                     print("Couldn't reach the target boss, something probably went wrong the last rebirth.")
@@ -156,6 +159,9 @@ class Features(Navigation, Inputs):
         while time.time() < end:
             enemy_alive = self.check_pixel_color(*coords.IS_ENEMY_ALIVE)
             if enemy_alive:
+            self.click(625, 500)  # click somewhere to move tooltip
+            health = self.get_pixel_color(ncon.HEALTHX, ncon.HEALTHY)
+            if (health == ncon.NOTDEAD):
                 if bosses:
                     if self.check_pixel_color(*coords.IS_BOSS_CROWN):
                         while enemy_alive:
@@ -227,9 +233,20 @@ class Features(Navigation, Inputs):
         self.click(*coords.CONFIRM)
         return
 
-    def pit(self):
-        """Throws money into the pit."""
-        if self.check_pixel_color(*coords.IS_PIT_READY):
+    def pit(self, loadout=0):
+        """Throws money into the pit.
+
+        Keyword arguments:
+        loadout -- The loadout you wish to equip before throwing gold
+                   into the pit, for gear you wish to shock. Make
+                   sure that you don't get cap-blocked by either using
+                   the unassign setting in the game or swapping gear that
+                   doesn't have e/m cap.
+        """
+        color = self.get_pixel_color(ncon.PITCOLORX, ncon.PITCOLORY)
+        if (color == ncon.PITREADY):
+            if loadout:
+                self.loadout(loadout)
             self.menu("pit")
             self.click(*coords.PIT)
             self.click(*coords.CONFIRM)
@@ -262,6 +279,7 @@ class Features(Navigation, Inputs):
                     color = self.get_pixel_color(*coords.AUG_SCROLL_SANITY_BOT)
                     i += 1
                     if i > 5 and i <= 10:  # Safeguard if something goes wrong with augs
+                        Navigation.current_menu = ""
                         self.menu("augmentations")
                     elif i > 10:
                         print("Couldn't assign augments")
@@ -274,21 +292,39 @@ class Features(Navigation, Inputs):
                     time.sleep(userset.MEDIUM_SLEEP)
                     color = self.get_pixel_color(*coords.AUG_SCROLL_SANITY_TOP)
                     i += 1
-                    if i > 5:  # Safeguard if something goes wrong with augs
+                    if i > 5 and i <= 10:  # Safeguard if something goes wrong with augs
+                        Navigation.current_menu = ""
                         self.menu("augmentations")
-                    elif i > 20:
+                    elif i > 10:
                         print("Couldn't assign augments")
                         break
             self.click(coords.AUGMENT_X, coords.AUGMENT_Y[k])
 
-    def time_machine(self, magic=False):
-        """Add energy and/or magic to TM."""
+    def time_machine(self, e, m=0, magic=False):
+        """Add energy and/or magic to TM.
+
+        Example: self.time_machine(1000, 2000)
+                 self.time_machine(1000, magic=True)
+                 self.time_machine(1000)
+
+        First example will add 1000 energy and 2000 magic to TM.
+        Second example will add 1000 energy and 1000 magic to TM.
+        Third example will add 1000 energy to TM.
+
+        Keyword arguments:
+        e -- The amount of energy to put into TM.
+        m -- The amount of magic to put into TM, if this is 0, it will use the
+             energy value to save unnecessary clicks to the input box.
+        magic -- Set to true if you wish to add magic as well"""
         self.menu("timemachine")
         self.input_box()
-        self.send_string("600000000")
-        self.click(*coords.TM_SPEED)
-        if magic:
-            self.click(*coords.TM_MULT)
+        self.send_string(e)
+        self.click(ncon.TMSPEEDX, ncon.TMSPEEDY)
+        if magic or m:
+            if m:
+                self.input_box()
+                self.send_string(m)
+            self.click(ncon.TMMULTX, ncon.TMMULTY)
 
     def blood_magic(self, target):
         """Assign magic to BM."""
@@ -452,12 +488,12 @@ class Features(Navigation, Inputs):
             NGU = coords.Pixel(coords.NGU_PLUS.x, coords.NGU_PLUS.y + i * 35)
             self.click(*NGU)
 
-    def gold_diggers(self, targets, activate=False):
+    def gold_diggers(self, targets, deactivate=False):
         """Activate diggers.
 
         Keyword arguments:
         targets -- Array of diggers to use from 1-12. Example: [1, 2, 3, 4, 9].
-        activate -- Set to True if you wish to activate/deactivate these
+        deactivate -- Set to True if you wish to deactivate these
                     diggers otherwise it will just try to up the cap.
         """
         self.menu("digger")
@@ -465,10 +501,14 @@ class Features(Navigation, Inputs):
             page = ((i-1)//4)
             item = i - (page * 4)
             self.click(ncon.DIG_PAGEX[page], ncon.DIG_PAGEY)
-            self.click(ncon.DIG_CAP[item]["x"], ncon.DIG_CAP[item]["y"])
-            if activate:
-                self.click(ncon.DIG_ACTIVE[item]["x"],
-                           ncon.DIG_ACTIVE[item]["y"])
+            if deactivate:
+                self.click(ncon.DIG_ACTIVE[item]["x"], ncon.DIG_ACTIVE[item]["y"])
+            else:
+                self.click(ncon.DIG_CAP[item]["x"], ncon.DIG_CAP[item]["y"])
+
+    def deactivate_all_diggers(self):
+        self.menu("digger")
+        self.click(ncon.DIG_DEACTIVATE_ALL_X, ncon.DIG_DEACTIVATE_ALL_Y)    
 
     def bb_ngu(self, value, targets, overcap=1, magic=False):
         """Estimates the BB value of each supplied NGU.
@@ -706,9 +746,31 @@ class Features(Navigation, Inputs):
             self.click(slot.x, slot.y)
             self.send_string("a")
 
-    def check_challenge(self):
-        """Check if a challenge is active."""
-        self.rebirth()
-        self.click(*ncon.CHALLENGE_BUTTON)
-        time.sleep(userset.LONG_SLEEP)
-        return self.check_pixel_color(*ncon.COLOR_CHALLENGE_ACTIVE)
+    def transform_slot(self, slot, threshold=0.8, consume=False):
+        """Check if slot is transformable and transform if it is.
+
+        Be careful using this, make sure the item you want to transform is
+        not protected, and that all other items are protected, this might
+        delete items otherwise. Another note, consuming items will show
+        a special tooltip that will block you from doing another check
+        for a few seconds, keep this in mind if you're checking multiple
+        slots in succession.
+
+        Keyword arguments:
+        slot -- The slot you wish to transform, if possible
+        threshold -- The fuzziness in the image search, I recommend a value
+                     between 0.7 - 0.95.
+        consume -- Set to true if item is consumable instead.
+        """
+        self.menu("inventory")
+        slot = self.get_inventory_slots(slot)[-1]
+        self.click(*slot)
+        time.sleep(userset.SHORT_SLEEP)
+
+        if consume:
+            coords = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600, self.get_file_path("images", "consumable.png"), threshold)
+        else:
+            coords = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600, self.get_file_path("images", "transformable.png"), threshold)
+
+        if coords:
+            self.ctrl_click(*slot)

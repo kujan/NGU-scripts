@@ -12,6 +12,7 @@ class Stats(Navigation):
     pp = 0
     start_time = time.time()
     OCR_failures = 0
+    OCR_failed = False
     track_xp = True
     track_pp = True
 
@@ -22,17 +23,16 @@ class Stats(Navigation):
                 self.misc()
                 Stats.total_xp = self.ocr_notation(*ncon.OCR_TOTAL_EXP)
                 # print("OCR Captured TOTAL XP: {:,}".format(Stats.total_xp))
-                Stats.OCR_failures = 0
             elif value == "XP":
                 self.exp()
                 Stats.xp = self.ocr_number(*ncon.ORC_EXP)
                 # print("OCR Captured Current XP: {:,}".format(Stats.xp))
-                Stats.OCR_failures = 0
             elif value == "PP":
                 self.perks()
                 Stats.pp = self.ocr_number(*ncon.OCR_PP)
                 # print("OCR Captured Current PP: {:,}".format(Stats.pp))
-                Stats.OCR_failures = 0
+            Stats.OCR_failed = False
+            Stats.OCR_failures = 0
         except ValueError:
             Stats.OCR_failures += 1
             if Stats.OCR_failures <= 3:
@@ -43,6 +43,8 @@ class Stats(Navigation):
                 self.set_value_with_ocr(value)
             else:
                 print("Something went wrong with the OCR")
+                Stats.OCR_failures = 0
+                Stats.OCR_failed = True
 
 class EstimateRate(Stats):
 
@@ -53,7 +55,7 @@ class EstimateRate(Stats):
             self.set_value_with_ocr("XP")
         self.last_xp = Stats.xp
         if Stats.track_pp:
-           self.set_value_with_ocr("PP")
+            self.set_value_with_ocr("PP")
         self.last_pp = Stats.pp
         # Differential time log and value
         self.dtime_log = []
@@ -96,25 +98,28 @@ class EstimateRate(Stats):
     def stop_watch(self):
         """This method needs to be called for rate estimations"""
         self.__iteration += 1
-
         if Stats.track_xp:
             self.set_value_with_ocr("XP")
-            cxp = Stats.xp
-            dxp = cxp - self.last_xp
-            self.dxp_log.append(dxp)
-            self.last_xp = cxp
-        else:
-            dxp = 0
-
+            if not Stats.OCR_failed:
+                cxp = Stats.xp
+                dxp = cxp - self.last_xp
+                self.dxp_log.append(dxp)
+                self.last_xp = cxp
+            else:
+                print("Problems with OCR, skipping stats for this run")
+                self.last_timestamp = time.time()
+                return
         if Stats.track_pp:
             self.set_value_with_ocr("PP")
-            cpp = Stats.pp
-            dpp = cpp - self.last_pp
-            self.dpp_log.append(dpp)
-            self.last_pp = cpp
-        else:
-            dpp = 0
-
+            if not Stats.OCR_failed:
+                cpp = Stats.pp
+                dpp = cpp - self.last_pp
+                self.dpp_log.append(dpp)
+                self.last_pp = cpp
+            else:
+                print("Problems with OCR, skipping stats for this run")
+                self.last_timestamp = time.time()
+                return
         dtime = time.time() - self.last_timestamp
         self.dtime_log.append(dtime)
         self.last_timestamp = time.time()
@@ -169,7 +174,8 @@ class Tracker():
     def progress(self):
             self.__estimaterate.stop_watch()
             self.__update_progress()
-            self.__show_progress()
+            if not Stats.OCR_failed:
+                self.__show_progress()
             print("{0:{fill}{align}40}".format(f" {self.__iteration} ", fill="-", align="^"))
             print("{:^18}{:^3}{:^18}".format("XP", "|", "PP"))
             print("-" * 40)
@@ -180,6 +186,8 @@ class Tracker():
     @classmethod
     def human_format(self, num):
         num = float('{:.3g}'.format(num))
+        if num > 1e14:
+            return
         magnitude = 0
         while abs(num) >= 1000:
             magnitude += 1

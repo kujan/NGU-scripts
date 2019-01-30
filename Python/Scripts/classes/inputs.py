@@ -9,6 +9,8 @@ import numpy
 import pytesseract
 import re
 import time
+import os
+import sys
 import win32api
 import win32con as wcon
 import win32gui
@@ -45,6 +47,23 @@ class Inputs():
         else:
             time.sleep(userset.MEDIUM_SLEEP)
 
+    def ctrl_click(self, x, y):
+        """Clicks at pixel x, y while simulating the CTRL button to be down."""
+        x += window.x
+        y += window.y
+        lParam = win32api.MAKELONG(x, y)
+        while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
+               win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
+               win32api.GetKeyState(wcon.VK_MENU) < 0):
+            time.sleep(0.005)
+
+        win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, wcon.VK_CONTROL, 0)
+        win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
+                             wcon.MK_LBUTTON, lParam)
+        win32gui.PostMessage(window.id, wcon.WM_LBUTTONUP,
+                             wcon.MK_LBUTTON, lParam)
+        win32gui.PostMessage(window.id, wcon.WM_KEYUP, wcon.VK_CONTROL, 0)
+        time.sleep(userset.MEDIUM_SLEEP)
 
     def send_string(self, string):
         """Send one or multiple characters to the window."""
@@ -113,13 +132,18 @@ class Inputs():
 
         return None
 
-    def image_search(self, x_start, y_start, x_end, y_end, image):
+    def image_search(self, x_start, y_start, x_end, y_end, image, threshold):
         """Search the screen for the supplied picture.
 
-        Returns a tuple with x,y-coordinates.
+        Returns a tuple with x,y-coordinates, or None if result is below
+        the threshold.
 
         Keyword arguments:
         image -- Filename or path to file that you search for.
+        threshold -- The level of fuzziness to use - a perfect match will be
+                     close to 1, but probably never 1. In my testing use a
+                     value between 0.7-0.95 depending on how strict you wish
+                     to be.
         """
         bmp = self.get_bitmap()
         # Bitmaps are created with a 8px border
@@ -128,9 +152,13 @@ class Inputs():
         search_area = numpy.asarray(search_area)
         search_area = cv2.cvtColor(search_area, cv2.COLOR_BGR2GRAY)
         template = cv2.imread(image, 0)
-        res = cv2.matchTemplate(search_area, template, cv2.TM_CCOEFF)
-        *_, t = cv2.minMaxLoc(res)
-        return t
+        res = cv2.matchTemplate(search_area, template, cv2.TM_CCOEFF_NORMED)
+        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+
+        if max_val < threshold:
+            return None
+
+        return max_loc
 
     def ocr(self, x_start, y_start, x_end, y_end, debug=False, bmp=None):
         """Perform an OCR of the supplied area, returns a string of the result.
@@ -181,6 +209,12 @@ class Inputs():
     def rgb_to_hex(self, tup):
         """Convert RGB value to HEX."""
         return '%02x%02x%02x'.upper() % (tup[0], tup[1], tup[2])
+
+    def get_file_path(self, directory, file):
+        """Get the absolute path for a file."""
+        working = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        path = os.path.join(working, directory, file)
+        return path
 
     def ocr_number(self, x_1, y_1, x_2, y_2):
         """Remove all non-digits."""
