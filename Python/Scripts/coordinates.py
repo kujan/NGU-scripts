@@ -38,7 +38,7 @@ ITOPOD_START = Pixel(625, 230)
 ITOPOD_END = Pixel(625, 265)
 ITOPOD_ENTER = Pixel(625, 630)
 ITOPOD_AUTO = Pixel(710, 215)
-HEALTH = Pixel(703, 411)
+HEALTH = Pixel(706, 411)
 
 # Need to think about how to handle these
 # ROW 1 ABILITIES
