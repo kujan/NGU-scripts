@@ -19,7 +19,7 @@ The AHK script is unsupported and deleted, but I kept the functions here because
 ## Installation
 Install Python dependencies using [pip](https://pip.pypa.io/en/stable/quickstart/):
 ```
-pip -r install requirements.txt
+pip install -r requirements.txt
 ```
 Install [Tesseract](https://github.com/tesseract-ocr/tesseract/releases) and add it to your [PATH variable](https://helpdeskgeek.com/windows-10/add-windows-path-environment-variable/).
 

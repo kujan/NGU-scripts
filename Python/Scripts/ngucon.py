@@ -315,15 +315,15 @@ OCR_NGU_E_Y2 = 219
 
 #STATS OCR
 
-OCR_ENERGY_X1 =  12 #9
+OCR_ENERGY_X1 = 12
 OCR_ENERGY_Y1 = 28
 OCR_ENERGY_X2 = 165
-OCR_ENERGY_Y2 =  50 #46
+OCR_ENERGY_Y2 = 50
 
-OCR_MAGIC_X1 =  12 #9
-OCR_MAGIC_Y1 = 70 #110
+OCR_MAGIC_X1 = 12
+OCR_MAGIC_Y1 = 70
 OCR_MAGIC_X2 = 165
-OCR_MAGIC_Y2 = 90 #126
+OCR_MAGIC_Y2 = 90
 
 #OCR CHALLENGES
 
@@ -350,8 +350,10 @@ BEARD_X = {1: 312, 2: 338, 3: 312, 4: 1}
 
 DIG_PAGEX = [340, 405, 470]
 DIG_PAGEY = 110
-DIG_ACTIVE = {1: {"x": 341, "y": 237}, 2: {"x": 658, "y": 237}, 3: {"x": 341, "y": 427}, 4: {"x": 658, "y": 427}} 
+DIG_ACTIVE = {1: {"x": 340, "y": 240}, 2: {"x": 655, "y": 240}, 3: {"x": 340, "y": 430}, 4: {"x": 655, "y": 430}} 
 DIG_CAP = {1: {"x": 550, "y": 185}, 2: {"x": 865, "y": 185}, 3: {"x": 550, "y": 375}, 4: {"x": 865, "y": 375}}
+DIG_DEACTIVATE_ALL_X = 850
+DIG_DEACTIVATE_ALL_Y = 110
 
 
 #EXP COSTS PER UNIT x 10

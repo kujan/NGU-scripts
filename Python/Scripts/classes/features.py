@@ -473,12 +473,12 @@ class Features(Navigation, Inputs):
             self.click(ncon.NGU_PLUSX, ncon.NGU_PLUSY + i * 35)
             time.sleep(.1)
 
-    def gold_diggers(self, targets, activate=False):
+    def gold_diggers(self, targets, deactivate=False):
         """Activate diggers.
 
         Keyword arguments:
         targets -- Array of diggers to use from 1-12. Example: [1, 2, 3, 4, 9].
-        activate -- Set to True if you wish to activate/deactivate these
+        deactivate -- Set to True if you wish to deactivate these
                     diggers otherwise it will just try to up the cap.
         """
         self.menu("digger")
@@ -486,10 +486,14 @@ class Features(Navigation, Inputs):
             page = ((i-1)//4)
             item = i - (page * 4)
             self.click(ncon.DIG_PAGEX[page], ncon.DIG_PAGEY)
-            self.click(ncon.DIG_CAP[item]["x"], ncon.DIG_CAP[item]["y"])
-            if activate:
-                self.click(ncon.DIG_ACTIVE[item]["x"],
-                           ncon.DIG_ACTIVE[item]["y"])
+            if deactivate:
+                self.click(ncon.DIG_ACTIVE[item]["x"], ncon.DIG_ACTIVE[item]["y"])
+            else:
+                self.click(ncon.DIG_CAP[item]["x"], ncon.DIG_CAP[item]["y"])
+
+    def deactivate_all_diggers(self):
+        self.menu("digger")
+        self.click(ncon.DIG_DEACTIVATE_ALL_X, ncon.DIG_DEACTIVATE_ALL_Y)    
 
     def bb_ngu(self, value, targets, overcap=1, magic=False):
         """Estimates the BB value of each supplied NGU.
