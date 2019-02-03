@@ -77,26 +77,6 @@ class AltFeatures(Navigation, Inputs):
         for slot in coords:
             self.a_click(slot.x, slot.y)
 
-    def boost_cube(self):
-        """Boost cube."""
-        self.menu("inventory")
-        for slot in self.equipment:
-            if (slot == "cube"):
-                self.click(self.equipment[slot]["x"],
-                            self.equipment[slot]["y"], "right")
-                return
-
-    def check_challenge(self):
-        """Check if a challenge is active."""
-        self.rebirth()
-        self.click(ncon.CHALLENGEBUTTONX, ncon.CHALLENGEBUTTONY)
-        time.sleep(userset.LONG_SLEEP)
-        color = self.get_pixel_color(ncon.CHALLENGEACTIVEX,
-                                        ncon.CHALLENGEACTIVEY)
-
-        return True if color == ncon.CHALLENGEACTIVECOLOR else False
-    
-
     #TODO: Why is this not importing from inputs and I had to put it here?
     def alt_ctrl_click(self, x, y):
         """Clicks at pixel x, y while simulating the CTRL button to be down."""

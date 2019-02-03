@@ -720,6 +720,16 @@ class Features(Navigation, Inputs):
             self.click(slot.x, slot.y)
             self.send_string("a")
 
+    def boost_cube(self):
+        """Boost cube."""
+
+        self.menu("inventory")
+        for slot in self.equipment:
+            if (slot == "cube"):
+                self.click(self.equipment[slot]["x"],
+                            self.equipment[slot]["y"], "right")
+                return
+
     def transform_slot(self, slot, threshold=0.8, consume=False):
         """Check if slot is transformable and transform if it is.
 
@@ -748,3 +758,12 @@ class Features(Navigation, Inputs):
 
         if coords:
             self.ctrl_click(*slot)
+
+    def quest_complete(self):
+        """Check if quest is complete and go to ITOPOD if it is"""
+        # self.click(ncon.QUESTLOCKEDX, ncon.QUESTLOCKEDY)
+        quest_color = self.get_pixel_color(ncon.QUESTLOCKEDX, ncon.QUESTLOCKEDY)
+        print(quest_color)
+        if quest_color == ncon.QUEST_READY_COLOR:
+            time.sleep(.2)
+        return True if quest_color == ncon.QUEST_READY_COLOR else False
