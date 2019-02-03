@@ -20,11 +20,6 @@ import win32ui
 
 class Inputs():
     """This class handles inputs."""
-
-    def point(self):
-        x,y = win32gui.GetCursorPos()
-        print(x)
-        print(y)
     
     def click(self, x, y, button="left", fast=False):
         """Click at pixel xy."""
@@ -71,43 +66,6 @@ class Inputs():
         win32gui.PostMessage(window.id, wcon.WM_KEYUP, wcon.VK_CONTROL, 0)
         time.sleep(userset.MEDIUM_SLEEP)
 
-    def a_click(self, x, y):
-        x += window.x
-        y += window.y
-        lParam = win32api.MAKELONG(x, y)
-        # MOUSEMOVE event is required for game to register clicks correctly
-        win32gui.PostMessage(window.id, wcon.WM_MOUSEMOVE, 0, lParam)
-        #Left click then A
-        win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
-                                wcon.MK_LBUTTON, lParam)
-        # win32api.keybd_event(0x41, 0,0,0) #A
-        win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, 0x41, 0)
-        win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, 0x41, 0)
-        # win32api.keybd_event(0x41,0 ,wcon.KEYEVENTF_KEYUP ,0)
-        win32gui.PostMessage(window.id, wcon.WM_LBUTTONUP,
-                                wcon.MK_LBUTTON, lParam)
-        time.sleep(0.5)
-
-    def d_click(self, x, y):
-        x += window.x
-        y += window.y
-        lParam = win32api.MAKELONG(x, y)
-        # MOUSEMOVE event is required for game to register clicks correctly
-        win32gui.PostMessage(window.id, wcon.WM_MOUSEMOVE, 0, lParam)
-        #Left click then D
-        win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
-                                wcon.MK_LBUTTON, lParam)
-        # win32api.keybd_event(0x44, 0,0,0) #D
-        win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, 0x44, 0)
-        win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, 0x44, 0)
-        # win32api.keybd_event(0x44,0 ,wcon.KEYEVENTF_KEYUP ,0)
-        win32gui.PostMessage(window.id, wcon.WM_LBUTTONUP,
-                                wcon.MK_LBUTTON, lParam)
-        time.sleep(0.5)
-
-    def ctrl_click(self, x, y):
-        pass
-        '''ctrl:0x11,'''
 
     def send_string(self, string):
         """Send one or multiple characters to the window."""
@@ -256,13 +214,3 @@ class Inputs():
         working = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         path = os.path.join(working, directory, file)
         return path
-
-    def ctrl_click(self, x, y):
-        """Clicks at pixel x, y while simulating the CTRL button to be down."""
-        x += window.x
-        y += window.y
-        lParam = win32api.MAKELONG(x, y)
-        while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
-               win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
-               win32api.GetKeyState(wcon.VK_MENU) < 0):
-            time.sleep(0.005)
