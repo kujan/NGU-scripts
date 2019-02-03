@@ -128,15 +128,6 @@ class AltFeatures(Navigation, Inputs):
                 self.alt_ctrl_click([slot.x][-1], [slot.y][-1])
             time.sleep(.5)
             break
-
-    def quest_complete(self):
-        """Check if quest is complet and go to ITOPOD if it is"""
-        # self.click(ncon.QUESTLOCKEDX, ncon.QUESTLOCKEDY)
-        quest_color = self.get_pixel_color(ncon.QUESTLOCKEDX, ncon.QUESTLOCKEDY)
-        print(quest_color)
-        if quest_color == ncon.QUEST_READY_COLOR:
-            time.sleep(.2)
-        return True if quest_color == ncon.QUEST_READY_COLOR else False
     
     def clear_keypresses(self):
         #D key gets stuck down on d_click???
