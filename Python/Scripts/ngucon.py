@@ -96,7 +96,7 @@ OCR_COMBAT_LOGY2 = 589
 #MENU OFFSETS
 MENUITEMS = ["fight", "pit", "adventure", "inventory", "augmentations",
              "advtraining", "timemachine", "bloodmagic", "wandoos", "ngu",
-             "yggdrasil", "digger", "beard","quest"]
+             "yggdrasil", "digger", "beard", "quest"]
 
 MENUOFFSETX = 230
 MENUOFFSETY = 45
@@ -336,11 +336,6 @@ OCR_CHALLENGE_24HC_TARGETX1 = 479
 OCR_CHALLENGE_24HC_TARGETY1 = 267
 OCR_CHALLENGE_24HC_TARGETX2 = 771
 OCR_CHALLENGE_24HC_TARGETY2 = 297
-
-OCR_CHALLENGE_NO_EQUIP_TARGETX1 = 0
-OCR_CHALLENGE_NO_EQUIP_TARGETY1 = 0
-OCR_CHALLENGE_NO_EQUIP_TARGETX2 = 0
-OCR_CHALLENGE_NO_EQUIP_TARGETY2 = 0
 
 #BEARD OFFSETS
 
