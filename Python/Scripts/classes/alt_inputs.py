@@ -28,10 +28,8 @@ class AltInputs():
         #Left click then A
         win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
                                 wcon.MK_LBUTTON, lParam)
-        # win32api.keybd_event(0x41, 0,0,0) #A
         win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, 0x41, 0)
         win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, 0x41, 0)
-        # win32api.keybd_event(0x41,0 ,wcon.KEYEVENTF_KEYUP ,0)
         win32gui.PostMessage(window.id, wcon.WM_LBUTTONUP,
                                 wcon.MK_LBUTTON, lParam)
         time.sleep(0.5)
@@ -45,10 +43,9 @@ class AltInputs():
         #Left click then D
         win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
                                 wcon.MK_LBUTTON, lParam)
-        # win32api.keybd_event(0x44, 0,0,0) #D
         win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, 0x44, 0)
         win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, 0x44, 0)
-        # win32api.keybd_event(0x44,0 ,wcon.KEYEVENTF_KEYUP ,0)
         win32gui.PostMessage(window.id, wcon.WM_LBUTTONUP,
                                 wcon.MK_LBUTTON, lParam)
+        #TODO: What is this sleep for?
         time.sleep(0.5)
