@@ -59,7 +59,10 @@ class Features(Navigation, Inputs):
                 for i in range(0, bossdiff):
                     self.click(ncon.FIGHTX, ncon.FIGHTY, fast=True)
                 time.sleep(userset.SHORT_SLEEP)
-                current_boss = int(self.get_current_boss())
+                try:
+                    current_boss = int(self.get_current_boss())
+                except ValueError:
+                    current_boss = 1
                 x += 1
                 if x > 7:  # Safeguard if number is too low to reach target boss, otherwise we get stuck here
                     print("Couldn't reach the target boss, something probably went wrong the last rebirth.")
