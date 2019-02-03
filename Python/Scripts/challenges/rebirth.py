@@ -32,15 +32,14 @@ class Rebirth(Features):
 
             tm_color = self.get_pixel_color(ncon.TMLOCKEDX, ncon.TMLOCKEDY)
             if tm_color != ncon.TMLOCKEDCOLOR:
-                self.time_machine(1e9, magic=True)
-                self.loadout(2)
+                self.time_machine(True)
                 tm_unlocked = True
 
         time.sleep(15)
         self.augments({"CI": 1}, 1e8)
         self.gold_diggers(diggers, True)
         self.adventure(highest=True)
-        time.sleep(4)
+        time.sleep(15)
         self.adventure(itopod=True, itopodauto=True)
         while not bm_unlocked:
             self.wandoos(True)
@@ -58,6 +57,9 @@ class Rebirth(Features):
                 bm_unlocked = True
                 self.augments({"SS": 0.7, "DS": 0.3}, 5e8)
         final_aug = False
+        self.adventure(highest=True)
+        time.sleep(4)
+        self.adventure(itopod=True, itopodauto=True)
         while True:
             self.wandoos(True)
             self.nuke()
@@ -79,6 +81,7 @@ class Rebirth(Features):
     def check_challenge(self):
         """Check if a challenge is active."""
         self.rebirth()
+        time.sleep(.5)
         self.click(ncon.CHALLENGEBUTTONX, ncon.CHALLENGEBUTTONY)
         time.sleep(userset.LONG_SLEEP)
         color = self.get_pixel_color(ncon.CHALLENGEACTIVEX,

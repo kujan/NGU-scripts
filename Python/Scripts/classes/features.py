@@ -19,22 +19,42 @@ class Features(Navigation, Inputs):
     def merge_equipment(self):
         """Navigate to inventory and merge equipment."""
         self.menu("inventory")
+        time.sleep(0.5)
         for slot in self.equipment:
             if (slot == "cube"):
                 return
-            self.click(self.equipment[slot]["x"], self.equipment[slot]["y"])
-            self.send_string("d")
+            self.d_click(self.equipment[slot]["x"], self.equipment[slot]["y"])
 
     def boost_equipment(self):
         """Boost all equipment."""
         self.menu("inventory")
+        time.sleep(0.5)
         for slot in self.equipment:
             if (slot == "cube"):
                 self.click(self.equipment[slot]["x"],
                            self.equipment[slot]["y"], "right")
                 return
-            self.click(self.equipment[slot]["x"], self.equipment[slot]["y"])
-            self.send_string("a")
+            self.a_click(self.equipment[slot]["x"], self.equipment[slot]["y"])
+
+    def merge_inventory(self):
+        """Merge all inventory through slot X."""
+        self.menu("inventory")
+        time.sleep(0.5)
+        for slot in self.inventory:
+            if (slot == "cube"):
+                return
+            self.d_click(self.inventory[slot]["x"], self.inventory[slot]["y"])
+
+    def boost_inventory(self):
+        """Boost all inventory through slot X."""
+        self.menu("inventory")
+        time.sleep(0.5)
+        for slot in self.inventory:
+            if (slot == "cube"):
+                self.click(self.inventory[slot]["x"],
+                           self.inventory[slot]["y"], "right")
+                return
+            self.a_click(self.inventory[slot]["x"], self.inventory[slot]["y"])
 
     def get_current_boss(self):
         """Go to fight and read current boss number."""
@@ -57,10 +77,7 @@ class Features(Navigation, Inputs):
                 for i in range(0, bossdiff):
                     self.click(ncon.FIGHTX, ncon.FIGHTY, fast=True)
                 time.sleep(userset.SHORT_SLEEP)
-                try:
-                    current_boss = int(self.get_current_boss())
-                except ValueError:
-                    current_boss = 1
+                current_boss = int(self.get_current_boss())
                 x += 1
                 if x > 7:  # Safeguard if number is too low to reach target boss, otherwise we get stuck here
                     print("Couldn't reach the target boss, something probably went wrong the last rebirth.")
@@ -90,6 +107,7 @@ class Features(Navigation, Inputs):
 
     def adventure(self, zone=0, highest=True, itopod=None, itopodauto=False):
         """Go to adventure zone to idle.
+
         Keyword arguments
         zone -- Zone to idle in, 0 is safe zone, 1 is tutorial and so on.
         highest -- If true, will go to your highest available non-titan zone.
@@ -124,6 +142,7 @@ class Features(Navigation, Inputs):
 
     def snipe(self, zone, duration, once=False, highest=False, bosses=True):
         """Go to adventure and snipe bosses in specified zone.
+
         Keyword arguments
         zone -- Zone to snipe, 0 is safe zone, 1 is turorial and so on.
                 If 0, it will use the current zone (to maintain guffin counter)
@@ -151,7 +170,6 @@ class Features(Navigation, Inputs):
 
         end = time.time() + duration
         while time.time() < end:
-            self.click(625, 500)  # click somewhere to move tooltip
             health = self.get_pixel_color(ncon.HEALTHX, ncon.HEALTHY)
             if (health == ncon.NOTDEAD):
                 if bosses:
@@ -186,6 +204,7 @@ class Features(Navigation, Inputs):
 
     def itopod_snipe(self, duration):
         """Manually snipes ITOPOD for increased speed PP/h.
+
         Keyword arguments:
         duration -- Duration in seconds to snipe, before toggling idle mode
                     back on and returning.
@@ -352,7 +371,7 @@ class Features(Navigation, Inputs):
             self.click(ncon.BM_AUTO_NUMBERX, ncon.BM_AUTO_NUMBERY)
 
             if userset.PILL == 0:
-                duration = 300
+                duration = 900
             else:
                 duration = userset.PILL
 
@@ -447,12 +466,16 @@ class Features(Navigation, Inputs):
             self.menu("ngu")
 
         self.input_box()
+        time.sleep(.1)
         self.send_string(str(int(value // len(targets))))
+        time.sleep(.1)
         for i in targets:
             self.click(ncon.NGU_PLUSX, ncon.NGU_PLUSY + i * 35)
+            time.sleep(.1)
 
     def gold_diggers(self, targets, activate=False):
         """Activate diggers.
+
         Keyword arguments:
         targets -- Array of diggers to use from 1-12. Example: [1, 2, 3, 4, 9].
         activate -- Set to True if you wish to activate/deactivate these
@@ -693,7 +716,6 @@ class Features(Navigation, Inputs):
         for slot in coords:
             self.click(slot.x, slot.y)
             self.send_string("a")
-
     def transform_slot(self, slot, threshold=0.8, consume=False):
         """Check if slot is transformable and transform if it is.
         Be careful using this, make sure the item you want to transform is

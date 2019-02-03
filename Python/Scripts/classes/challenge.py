@@ -5,6 +5,7 @@ from challenges.basic import Basic
 from challenges.level import Level
 from challenges.laser import Laser
 from challenges.rebirth import Rebirth
+
 import ngucon as ncon
 import usersettings as userset
 import time
@@ -54,10 +55,11 @@ class Challenge(Features):
                     print("couldn't detect the target level of 24HC")
                     Discord.send_message("Couldn't detect the" +
                                          " target level of 24HC", Discord.ERROR)
-
+            elif "no equipment challenge" in text.lower():
+                print("starting no equipment challenge script")
+                return
             elif "100 level" in text.lower():
                 print("starting 100 level challenge script")
-                level.lc()
 
             elif "blind" in text.lower():
                 print("starting blind challenge script")
@@ -77,6 +79,7 @@ class Challenge(Features):
 
         else:
             x = ncon.CHALLENGEX
+            print(challenge)
             y = ncon.CHALLENGEY + challenge * ncon.CHALLENGEOFFSET
 
             if challenge == 1:
@@ -109,19 +112,36 @@ class Challenge(Features):
                 self.click(x, y)
                 time.sleep(userset.LONG_SLEEP)
                 self.confirm()
-                level.lc()
 
+            elif challenge == 5:
+                try:
+                    self.click(x, y)
+                    time.sleep(userset.LONG_SLEEP)
+                    self.confirm()
+                    return
+                except ValueError:
+                    print("Error starting No Equip")
+                    Discord.send_message("Error starting" +
+                                        "No Equip challenge", Discord.ERROR)
             elif challenge == 7:
                 self.click(x, y)
                 time.sleep(userset.LONG_SLEEP)
                 self.confirm()
                 rebirth.rebirth_challenge()
-
             elif challenge == 8:
                 self.click(x, y)
                 time.sleep(userset.LONG_SLEEP)
                 self.confirm()
                 laser.laser()
+            elif challenge == 10:
+                self.click(x, y)
+                time.sleep(userset.LONG_SLEEP)
+                self.confirm()
+            elif challenge == 11:
+                self.click(x, y)
+                time.sleep(userset.LONG_SLEEP)
+                self.confirm()
+
 
 
     def check_challenge(self):

@@ -256,3 +256,13 @@ class Inputs():
         working = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         path = os.path.join(working, directory, file)
         return path
+
+    def ctrl_click(self, x, y):
+        """Clicks at pixel x, y while simulating the CTRL button to be down."""
+        x += window.x
+        y += window.y
+        lParam = win32api.MAKELONG(x, y)
+        while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
+               win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
+               win32api.GetKeyState(wcon.VK_MENU) < 0):
+            time.sleep(0.005)
