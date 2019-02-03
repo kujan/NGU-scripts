@@ -462,12 +462,9 @@ class Features(Navigation, Inputs):
             self.menu("ngu")
 
         self.input_box()
-        time.sleep(.1)
         self.send_string(str(int(value // len(targets))))
-        time.sleep(.1)
         for i in targets:
             self.click(ncon.NGU_PLUSX, ncon.NGU_PLUSY + i * 35)
-            time.sleep(.1)
 
     def gold_diggers(self, targets, deactivate=False):
         """Activate diggers.
