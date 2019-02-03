@@ -79,7 +79,6 @@ class Challenge(Features):
 
         else:
             x = ncon.CHALLENGEX
-            print(challenge)
             y = ncon.CHALLENGEY + challenge * ncon.CHALLENGEOFFSET
 
             if challenge == 1:
