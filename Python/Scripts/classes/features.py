@@ -36,26 +36,6 @@ class Features(Navigation, Inputs):
                 return
             self.a_click(self.equipment[slot]["x"], self.equipment[slot]["y"])
 
-    def merge_inventory(self):
-        """Merge all inventory through slot X."""
-        self.menu("inventory")
-        for slot in self.inventory:
-            if (slot == "cube"):
-                return
-            self.click(self.inventory[slot]["x"], self.inventory[slot]["y"])
-            self.send_string("d")
-
-    def boost_inventory(self):
-        """Boost all inventory through slot X."""
-        self.menu("inventory")
-        for slot in self.inventory:
-            if (slot == "cube"):
-                self.click(self.inventory[slot]["x"],
-                           self.inventory[slot]["y"], "right")
-                return
-            self.click(self.inventory[slot]["x"], self.inventory[slot]["y"])
-            self.send_string("a")
-
     def get_current_boss(self):
         """Go to fight and read current boss number."""
         self.menu("fight")
@@ -371,7 +351,7 @@ class Features(Navigation, Inputs):
             self.click(ncon.BM_AUTO_NUMBERX, ncon.BM_AUTO_NUMBERY)
 
             if userset.PILL == 0:
-                duration = 900
+                duration = 300
             else:
                 duration = userset.PILL
 
@@ -388,22 +368,27 @@ class Features(Navigation, Inputs):
 
     def set_ngu(self, ngu, magic=False):
         """Handle NGU upgrades in a non-dumb way.
+
         Function will check target levels of selected NGU's and equalize the
         target levels. This means that if one upgrade is ahead of the others,
         the target level for all NGU's that are behind will be set to the
         level of the highest upgrade.
+
         If they are even, it will instead increase target level
         by 25% of current level. Since the NGU's level at different speeds, I
         would recommend that you currently set the slower separate from the
         faster upgrades, unless energy/magic is a non issue.
+
         Function returns False if NGU's are uneven, so you know to check back
         occasionally for the proper 25% increase, which can be left unchecked
         for a longer period of time.
         Keyword arguments:
+
         ngu -- Dictionary containing information on which energy NGU's you
                wish to upgrade. Example: {7: True, 8: False, 9: False} - this
                will use NGU 7 (drop chance), 8 (magic NGU), 9 (PP) in the
                comparisons.
+
         magic -- Set to True if these are magic NGU's
         """
         if magic:
@@ -452,6 +437,7 @@ class Features(Navigation, Inputs):
 
     def assign_ngu(self, value, targets, magic=False):
         """Assign energy/magic to NGU's.
+
         Keyword arguments:
         value -- the amount of energy/magic that will get split over all NGUs.
         targets -- Array of NGU's to use (1-9).
@@ -497,6 +483,7 @@ class Features(Navigation, Inputs):
 
     def bb_ngu(self, value, targets, overcap=1, magic=False):
         """Estimates the BB value of each supplied NGU.
+
         Keyword arguments:
         targets -- Array of NGU's to BB. Example: [1, 3, 4, 5, 6]
         magic -- Set to true if these are magic NGUs
@@ -539,6 +526,7 @@ class Features(Navigation, Inputs):
 
     def titan_pt_check(self, target):
         """Check if we have the recommended p/t to defeat the target Titan.
+
         Keyword arguments:
         target -- The name of the titan you wish to kill. ["GRB", "GCT",
                   "jake", "UUG", "walderp", "BEAST1", "BEAST2", "BEAST3",
@@ -563,6 +551,7 @@ class Features(Navigation, Inputs):
 
     def kill_titan(self, target):
         """Attempt to kill the target titan.
+
         Keyword arguments:
         target -- The name of the titan you wish to kill. ["GRB", "GCT",
                   "jake", "UUG", "walderp", "BEAST1", "BEAST2", "BEAST3",
@@ -673,6 +662,7 @@ class Features(Navigation, Inputs):
 
     def save_check(self):
         """Check if we can do the daily save for AP.
+
         Make sure no window in your browser pops up when you click the "Save"
         button, otherwise sit will mess with the rest of the script.
         """
@@ -701,6 +691,7 @@ class Features(Navigation, Inputs):
 
     def merge_inventory(self, slots):
         """Merge all inventory slots starting from 1 to slots.
+
         Keyword arguments:
         slots -- The amount of slots you wish to merge
         """
@@ -712,6 +703,7 @@ class Features(Navigation, Inputs):
 
     def boost_inventory(self, slots):
         """Merge all inventory slots starting from 1 to slots.
+
         Keyword arguments:
         slots -- The amount of slots you wish to merge
         """
@@ -722,12 +714,14 @@ class Features(Navigation, Inputs):
             self.send_string("a")
     def transform_slot(self, slot, threshold=0.8, consume=False):
         """Check if slot is transformable and transform if it is.
+
         Be careful using this, make sure the item you want to transform is
         not protected, and that all other items are protected, this might
         delete items otherwise. Another note, consuming items will show
         a special tooltip that will block you from doing another check
         for a few seconds, keep this in mind if you're checking multiple
         slots in succession.
+
         Keyword arguments:
         slot -- The slot you wish to transform, if possible
         threshold -- The fuzziness in the image search, I recommend a value
