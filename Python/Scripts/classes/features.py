@@ -43,7 +43,8 @@ class Features(Navigation, Inputs):
         for slot in self.inventory:
             if (slot == "cube"):
                 return
-            self.d_click(self.inventory[slot]["x"], self.inventory[slot]["y"])
+            self.click(self.inventory[slot]["x"], self.inventory[slot]["y"])
+            self.send_string("d")
 
     def boost_inventory(self):
         """Boost all inventory through slot X."""
@@ -54,7 +55,8 @@ class Features(Navigation, Inputs):
                 self.click(self.inventory[slot]["x"],
                            self.inventory[slot]["y"], "right")
                 return
-            self.a_click(self.inventory[slot]["x"], self.inventory[slot]["y"])
+            self.click(self.inventory[slot]["x"], self.inventory[slot]["y"])
+            self.send_string("a")
 
     def get_current_boss(self):
         """Go to fight and read current boss number."""
