@@ -123,6 +123,7 @@ class Challenge(Features):
                 self.confirm()
                 laser.laser()
 
+
     def check_challenge(self):
         """Check if a challenge is active."""
         self.rebirth()
