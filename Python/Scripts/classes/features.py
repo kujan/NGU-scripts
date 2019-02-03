@@ -23,7 +23,8 @@ class Features(Navigation, Inputs):
         for slot in self.equipment:
             if (slot == "cube"):
                 return
-            self.d_click(self.equipment[slot]["x"], self.equipment[slot]["y"])
+            self.click(self.equipment[slot]["x"], self.equipment[slot]["y"])
+            self.send_string("d")
 
     def boost_equipment(self):
         """Boost all equipment."""
@@ -34,7 +35,8 @@ class Features(Navigation, Inputs):
                 self.click(self.equipment[slot]["x"],
                            self.equipment[slot]["y"], "right")
                 return
-            self.a_click(self.equipment[slot]["x"], self.equipment[slot]["y"])
+            self.click(self.equipment[slot]["x"], self.equipment[slot]["y"])
+            self.send_string("a")
 
     def get_current_boss(self):
         """Go to fight and read current boss number."""

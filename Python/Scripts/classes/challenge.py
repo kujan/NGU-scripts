@@ -5,7 +5,6 @@ from challenges.basic import Basic
 from challenges.level import Level
 from challenges.laser import Laser
 from challenges.rebirth import Rebirth
-
 import ngucon as ncon
 import usersettings as userset
 import time
