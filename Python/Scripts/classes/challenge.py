@@ -54,6 +54,7 @@ class Challenge(Features):
                     print("couldn't detect the target level of 24HC")
                     Discord.send_message("Couldn't detect the" +
                                          " target level of 24HC", Discord.ERROR)
+
             elif "100 level" in text.lower():
                 print("starting 100 level challenge script")
                 level.lc()
@@ -110,16 +111,6 @@ class Challenge(Features):
                 self.confirm()
                 level.lc()
 
-            elif challenge == 5:
-                try:
-                    self.click(x, y)
-                    time.sleep(userset.LONG_SLEEP)
-                    self.confirm()
-                    return
-                except ValueError:
-                    print("Error starting No Equip")
-                    Discord.send_message("Error starting" +
-                                        "No Equip challenge", Discord.ERROR)
             elif challenge == 7:
                 self.click(x, y)
                 time.sleep(userset.LONG_SLEEP)
@@ -131,8 +122,6 @@ class Challenge(Features):
                 time.sleep(userset.LONG_SLEEP)
                 self.confirm()
                 laser.laser()
-
-
 
     def check_challenge(self):
         """Check if a challenge is active."""

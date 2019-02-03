@@ -20,7 +20,7 @@ import win32ui
 
 class Inputs():
     """This class handles inputs."""
-    
+
     def click(self, x, y, button="left", fast=False):
         """Click at pixel xy."""
         x += window.x

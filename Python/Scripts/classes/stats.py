@@ -1,5 +1,6 @@
 """Handles various statistics."""
 from classes.navigation import Navigation
+# from classes.discord import Discord
 
 import ngucon as ncon
 import time
