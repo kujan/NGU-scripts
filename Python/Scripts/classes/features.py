@@ -19,7 +19,6 @@ class Features(Navigation, Inputs):
     def merge_equipment(self):
         """Navigate to inventory and merge equipment."""
         self.menu("inventory")
-        time.sleep(0.5)
         for slot in self.equipment:
             if (slot == "cube"):
                 return
@@ -29,7 +28,6 @@ class Features(Navigation, Inputs):
     def boost_equipment(self):
         """Boost all equipment."""
         self.menu("inventory")
-        time.sleep(0.5)
         for slot in self.equipment:
             if (slot == "cube"):
                 self.click(self.equipment[slot]["x"],
@@ -155,6 +153,7 @@ class Features(Navigation, Inputs):
 
         end = time.time() + duration
         while time.time() < end:
+            self.click(625, 500)  # click somewhere to move tooltip
             health = self.get_pixel_color(ncon.HEALTHX, ncon.HEALTHY)
             if (health == ncon.NOTDEAD):
                 if bosses:
@@ -237,6 +236,7 @@ class Features(Navigation, Inputs):
 
     def pit(self, loadout=0):
         """Throws money into the pit.
+
         Keyword arguments:
         loadout -- The loadout you wish to equip before throwing gold
                    into the pit, for gear you wish to shock. Make
@@ -254,6 +254,7 @@ class Features(Navigation, Inputs):
 
     def augments(self, augments, energy):
         """Dump energy into augmentations.
+
         Keyword arguments
         augments -- Dictionary that contains which augments you wish to use and
                     a ratio that tells how much of the total energy you
@@ -306,12 +307,15 @@ class Features(Navigation, Inputs):
 
     def time_machine(self, e, m=0, magic=False):
         """Add energy and/or magic to TM.
+
         Example: self.time_machine(1000, 2000)
                  self.time_machine(1000, magic=True)
                  self.time_machine(1000)
+
         First example will add 1000 energy and 2000 magic to TM.
         Second example will add 1000 energy and 1000 magic to TM.
         Third example will add 1000 energy to TM.
+
         Keyword arguments:
         e -- The amount of energy to put into TM.
         m -- The amount of magic to put into TM, if this is 0, it will use the
@@ -387,6 +391,7 @@ class Features(Navigation, Inputs):
         Function returns False if NGU's are uneven, so you know to check back
         occasionally for the proper 25% increase, which can be left unchecked
         for a longer period of time.
+
         Keyword arguments:
 
         ngu -- Dictionary containing information on which energy NGU's you
@@ -717,6 +722,7 @@ class Features(Navigation, Inputs):
         for slot in coords:
             self.click(slot.x, slot.y)
             self.send_string("a")
+            
     def transform_slot(self, slot, threshold=0.8, consume=False):
         """Check if slot is transformable and transform if it is.
 

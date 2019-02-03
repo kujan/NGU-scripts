@@ -1,6 +1,5 @@
 """Handles various statistics."""
 from classes.navigation import Navigation
-from classes.discord import Discord
 
 import ngucon as ncon
 import time
@@ -167,8 +166,7 @@ class Tracker():
             print('Current:  {:^8}{:^3}Current:  {:^8}'.format(self.human_format(Stats.xp), "|", self.human_format(Stats.pp)))
             print('Per hour: {:^8}{:^3}Per hour: {:^8}'.format(self.human_format(xph), "|", self.human_format(pph)))
             print(report_time)
-            # Discord.send_message('Current:  {:^8}{:^3}Current:  {:^8}'.format(self.human_format(Stats.xp), "|", self.human_format(Stats.pp)), Discord.INFO)
-            Discord.send_message('Per hour: {:^8}{:^3}Per hour: {:^8}'.format(self.human_format(xph), "|", self.human_format(pph)), Discord.INFO)
+
     def elapsed_time(self):
         """Print the total elapsed time."""
         elapsed = round(time.time() - self.__start_time)
