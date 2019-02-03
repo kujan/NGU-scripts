@@ -760,10 +760,8 @@ class Features(Navigation, Inputs):
             self.ctrl_click(*slot)
 
     def quest_complete(self):
-        """Check if quest is complete and go to ITOPOD if it is"""
-        # self.click(ncon.QUESTLOCKEDX, ncon.QUESTLOCKEDY)
+        """Check if quest is complete.  Can be used in your main script to send an alert or other action"""
         quest_color = self.get_pixel_color(ncon.QUESTLOCKEDX, ncon.QUESTLOCKEDY)
-        print(quest_color)
         if quest_color == ncon.QUEST_READY_COLOR:
-            time.sleep(.2)
+            time.sleep(userset.SHORT_SLEEP)
         return True if quest_color == ncon.QUEST_READY_COLOR else False
