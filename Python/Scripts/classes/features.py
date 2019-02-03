@@ -315,7 +315,7 @@ class Features(Navigation, Inputs):
         """Add energy and/or magic to TM."""
         self.menu("timemachine")
         self.input_box()
-        self.send_string("600000000")
+        self.send_string("500000000")
         self.click(ncon.TMSPEEDX, ncon.TMSPEEDY)
         if magic:
             self.click(ncon.TMMULTX, ncon.TMMULTY)
@@ -349,7 +349,7 @@ class Features(Navigation, Inputs):
             self.click(ncon.BM_AUTO_NUMBERX, ncon.BM_AUTO_NUMBERY)
 
             if userset.PILL == 0:
-                duration = 300
+                duration = 900
             else:
                 duration = userset.PILL
 
@@ -451,9 +451,12 @@ class Features(Navigation, Inputs):
             self.menu("ngu")
 
         self.input_box()
+        time.sleep(.1)
         self.send_string(str(int(value // len(targets))))
+        time.sleep(.1)
         for i in targets:
             self.click(ncon.NGU_PLUSX, ncon.NGU_PLUSY + i * 35)
+            time.sleep(.1)
 
     def gold_diggers(self, targets, activate=False):
         """Activate diggers.
@@ -704,3 +707,30 @@ class Features(Navigation, Inputs):
         for slot in coords:
             self.click(slot.x, slot.y)
             self.send_string("a")
+    def transform_slot(self, slot, threshold=0.8, consume=False):
+        """Check if slot is transformable and transform if it is.
+        Be careful using this, make sure the item you want to transform is
+        not protected, and that all other items are protected, this might
+        delete items otherwise. Another note, consuming items will show
+        a special tooltip that will block you from doing another check
+        for a few seconds, keep this in mind if you're checking multiple
+        slots in succession.
+        Keyword arguments:
+        slot -- The slot you wish to transform, if possible
+        threshold -- The fuzziness in the image search, I recommend a value
+                     between 0.7 - 0.95.
+        consume -- Set to true if item is consumable instead.
+        """
+
+        self.menu("inventory")
+        slot = self.get_inventory_slots(slot)[-1]
+        self.click(*slot)
+        time.sleep(userset.SHORT_SLEEP)
+
+        if consume:
+            coords = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600, self.get_file_path("images", "consumable.png"), threshold)
+        else:
+            coords = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600, self.get_file_path("images", "transformable.png"), threshold)
+
+        if coords:
+            self.ctrl_click(*slot)
