@@ -17,7 +17,7 @@ import usersettings as userset
 from classes.window import Window as window
 from classes.discord import Discord
 
-class AltFeatures(Navigation, Inputs):
+class AltFeatures(Navigation, Inputs, AltInputs):
     """Handles the Windows 2018 different features in the game."""
 
     def get_inventory_slots(self, slots):
@@ -76,28 +76,6 @@ class AltFeatures(Navigation, Inputs):
         coords = self.get_inventory_slots(slots)
         for slot in coords:
             self.a_click(slot.x, slot.y)
-
-    #TODO: Why is this not importing from inputs and I had to put it here?
-    def alt_ctrl_click(self, x, y):
-        """Clicks at pixel x, y while simulating the CTRL button to be down."""
-        x += window.x
-        y += window.y
-        lParam = win32api.MAKELONG(x, y)
-        # MOUSEMOVE event is required for game to register clicks correctly
-        win32gui.PostMessage(window.id, wcon.WM_MOUSEMOVE, 0, lParam)
-        time.sleep(.7)
-        #Ctrl then left click
-        win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, 0x11, 0)
-        time.sleep(.2)   
-        win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
-                                wcon.MK_LBUTTON, lParam)
-        time.sleep(.2)
-        print("Down")
-        win32gui.PostMessage(window.id, wcon.WM_LBUTTONUP,
-                                wcon.MK_LBUTTON, lParam)
-        time.sleep(.2)
-        win32gui.PostMessage(window.id, wcon.WM_KEYUP, 0x11, 0)
-        time.sleep(0.5)
 
     def alt_transform_slot(self, slots, threshold=0.8, consume=False):
         """Check if slot is transformable and transform if it is.
