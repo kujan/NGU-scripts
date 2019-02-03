@@ -719,7 +719,7 @@ class Features(Navigation, Inputs):
         for slot in coords:
             self.click(slot.x, slot.y)
             self.send_string("a")
-            
+
     def transform_slot(self, slot, threshold=0.8, consume=False):
         """Check if slot is transformable and transform if it is.
 
