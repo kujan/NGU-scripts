@@ -39,7 +39,6 @@ class Features(Navigation, Inputs):
     def merge_inventory(self):
         """Merge all inventory through slot X."""
         self.menu("inventory")
-        time.sleep(0.5)
         for slot in self.inventory:
             if (slot == "cube"):
                 return
@@ -49,7 +48,6 @@ class Features(Navigation, Inputs):
     def boost_inventory(self):
         """Boost all inventory through slot X."""
         self.menu("inventory")
-        time.sleep(0.5)
         for slot in self.inventory:
             if (slot == "cube"):
                 self.click(self.inventory[slot]["x"],
