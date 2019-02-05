@@ -748,3 +748,18 @@ class Features(Navigation, Inputs):
 
         if coords:
             self.ctrl_click(*slot)
+            
+    def get_idle_cap(self, magic=False):
+        """Get the available idle energy or magic."""
+        try:
+            if magic:
+                res = self.ocr(ncon.OCR_MAGIC_X1, ncon.OCR_MAGIC_Y1, ncon.OCR_MAGIC_X2, ncon.OCR_MAGIC_Y2)
+            else:
+                res = self.ocr(ncon.OCR_ENERGY_X1, ncon.OCR_ENERGY_Y1, ncon.OCR_ENERGY_X2, ncon.OCR_ENERGY_Y2)
+            match = re.search(".*(\d+\.\d+E\+\d+)", res)
+            if match is not None:
+                return int(float(match.group(1)))
+            elif match is None:
+                return 0
+        except ValueError:
+            print("Couldn't get idle e/m")
