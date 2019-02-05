@@ -462,7 +462,7 @@ class Features(Navigation, Inputs):
             self.menu("ngu")
 
         self.input_box()
-        self.send_string(str(int(value // len(targets))))
+         self.send_string(value // len(targets))
         for i in targets:
             self.click(ncon.NGU_PLUSX, ncon.NGU_PLUSY + i * 35)
 
