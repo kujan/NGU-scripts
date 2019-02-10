@@ -1,6 +1,5 @@
 """Contains functions for running a no rebirth challenge."""
 from classes.features import Features
-import ngucon as ncon
 import usersettings as userset
 import time
 

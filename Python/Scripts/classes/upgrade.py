@@ -1,6 +1,5 @@
 """Buys things for exp."""
 from classes.stats import Stats
-import ngucon as ncon
 import usersettings as userset
 import time
 # TODO replace ngucon with coordinates

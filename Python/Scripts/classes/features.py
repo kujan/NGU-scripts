@@ -339,11 +339,11 @@ class Features(Navigation, Inputs):
         self.menu("inventory")
         self.click(*coords.LOADOUT[target])
 
-    @deprecated(version='0.1', reason="speedrun_bloodpill is deprecated, use speedrun_iron_pill instead")
+    @deprecated(version='0.1', reason="speedrun_bloodpill is deprecated, use iron_pill() instead")
     def speedrun_bloodpill(self):
-        self.speedrun_iron_pill()
+        self.iron_pill()
 
-    def speedrun_iron_pill(self):
+    def iron_pill(self):
         """Check if bloodpill is ready to cast."""
         if self.check_pixel_color(*coords.IS_IRON_PILL_READY):
             start = time.time()
@@ -499,7 +499,7 @@ class Features(Navigation, Inputs):
                   "BEAST4"]
         """
         self.menu("adventure")
-        if self.check_pixel_color(*coords.IS_IDLE)
+        if self.check_pixel_color(*coords.IS_IDLE):
             self.click(*coords.ABILITY_IDLE_MODE)
 
         self.click(*coords.LEFT_ARROW, button="right")
@@ -522,26 +522,26 @@ class Features(Navigation, Inputs):
                 ability = queue.popleft()
                 print(f"using ability {ability}")
                 if ability <= 4:
-                    x = ncon.ABILITY_ROW1X + ability * ncon.ABILITY_OFFSETX
-                    y = ncon.ABILITY_ROW1Y
+                    x = coords.ABILITY_ROW1X + ability * coords.ABILITY_OFFSETX
+                    y = coords.ABILITY_ROW1Y
 
                 if ability >= 5 and ability <= 10:
-                    x = ncon.ABILITY_ROW2X + (ability - 5) * ncon.ABILITY_OFFSETX
-                    y = ncon.ABILITY_ROW2Y
+                    x = coords.ABILITY_ROW2X + (ability - 5) * coords.ABILITY_OFFSETX
+                    y = coords.ABILITY_ROW2Y
 
                 if ability > 10:
-                    x = ncon.ABILITY_ROW3X + (ability - 11) * ncon.ABILITY_OFFSETX
-                    y = ncon.ABILITY_ROW3Y
+                    x = coords.ABILITY_ROW3X + (ability - 11) * coords.ABILITY_OFFSETX
+                    y = coords.ABILITY_ROW3Y
 
                 self.click(x, y)
                 time.sleep(userset.LONG_SLEEP)
-                color = self.get_pixel_color(ncon.ABILITY_ROW1X,
-                                             ncon.ABILITY_ROW1Y)
+                color = self.get_pixel_color(coords.ABILITY_ROW1X,
+                                             coords.ABILITY_ROW1Y)
 
-                while color != ncon.ABILITY_ROW1_READY_COLOR:
+                while color != coords.ABILITY_ROW1_READY_COLOR:
                     time.sleep(0.03)
-                    color = self.get_pixel_color(ncon.ABILITY_ROW1X,
-                                                 ncon.ABILITY_ROW1Y)
+                    color = self.get_pixel_color(coords.ABILITY_ROW1X,
+                                                 coords.ABILITY_ROW1Y)
 
     def get_ability_queue(self):
         """Return a queue of usable abilities."""
@@ -551,28 +551,28 @@ class Features(Navigation, Inputs):
         # Add all abilities that are ready to the ready array
         for i in range(13):
             if i <= 4:
-                x = ncon.ABILITY_ROW1X + i * ncon.ABILITY_OFFSETX
-                y = ncon.ABILITY_ROW1Y
+                x = coords.ABILITY_ROW1X + i * coords.ABILITY_OFFSETX
+                y = coords.ABILITY_ROW1Y
                 color = self.get_pixel_color(x, y)
-                if color == ncon.ABILITY_ROW1_READY_COLOR:
+                if color == coords.ABILITY_ROW1_READY_COLOR:
                     ready.append(i)
             if i >= 5 and i <= 10:
-                x = ncon.ABILITY_ROW2X + (i - 5) * ncon.ABILITY_OFFSETX
-                y = ncon.ABILITY_ROW2Y
+                x = coords.ABILITY_ROW2X + (i - 5) * coords.ABILITY_OFFSETX
+                y = coords.ABILITY_ROW2Y
                 color = self.get_pixel_color(x, y)
-                if color == ncon.ABILITY_ROW2_READY_COLOR:
+                if color == coords.ABILITY_ROW2_READY_COLOR:
                     ready.append(i)
             if i > 10:
-                x = ncon.ABILITY_ROW3X + (i - 11) * ncon.ABILITY_OFFSETX
-                y = ncon.ABILITY_ROW3Y
+                x = coords.ABILITY_ROW3X + (i - 11) * coords.ABILITY_OFFSETX
+                y = coords.ABILITY_ROW3Y
                 color = self.get_pixel_color(x, y)
-                if color == ncon.ABILITY_ROW3_READY_COLOR:
+                if color == coords.ABILITY_ROW3_READY_COLOR:
                     ready.append(i)
 
-        health = self.get_pixel_color(ncon.PLAYER_HEAL_THRESHOLDX,
-                                      ncon.PLAYER_HEAL_THRESHOLDY)
+        health = self.get_pixel_color(coords.PLAYER_HEAL_THRESHOLDX,
+                                      coords.PLAYER_HEAL_THRESHOLDY)
         # heal if we need to heal
-        if health == ncon.PLAYER_HEAL_COLOR:
+        if self.check_pixel_color(*coords.PLAYER_HEAL_THRESHOLD):
             if 12 in ready:
                 queue.append(12)
             elif 7 in ready:
@@ -583,7 +583,7 @@ class Features(Navigation, Inputs):
         if all(i in ready for i in buffs):
             queue.extend(buffs)
 
-        d = ncon.ABILITY_PRIORITY
+        d = coords.ABILITY_PRIORITY
         # Sort the abilities by the set priority
         abilities = sorted(d, key=d.get, reverse=True)
         # Only add the abilities that are ready to the queue
@@ -602,7 +602,7 @@ class Features(Navigation, Inputs):
         button, otherwise sit will mess with the rest of the script.
         """
         if self.check_pixel_color(*coords.IS_SAVE_READY):
-            self.click(ncon.SAVEX, ncon.SAVEY)
+            self.click(*coords.SAVE)
         return
 
     def get_inventory_slots(self, slots):
@@ -674,3 +674,18 @@ class Features(Navigation, Inputs):
 
         if coords:
             self.ctrl_click(*slot)
+
+    def get_idle_cap(self, magic=False):
+        """Get the available idle energy or magic."""
+        try:
+            if magic:
+                res = self.ocr(*coords.OCR_MAGIC)
+            else:
+                res = self.ocr(*coords.OCR_ENERGY)
+            match = re.search(".*(\d+\.\d+E\+\d+)", res)
+            if match is not None:
+                return int(float(match.group(1)))
+            elif match is None:
+                return 0
+        except ValueError:
+            print("Couldn't get idle e/m")

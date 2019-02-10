@@ -9,7 +9,7 @@ class Navigation(Inputs):
     """Navigate through menus."""
 
     menus = coords.MENUITEMS
-    equipment = coords.EQUIPMENTSLOTS
+    equipment = coords.EQUIPMENT_SLOTS
     current_menu = ''
 
     def menu(self, target):

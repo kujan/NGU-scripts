@@ -1,7 +1,7 @@
 """Handles various statistics."""
 import datetime
 import time
-import coordinates as ncon
+import coordinates as coords
 from classes.navigation import Navigation
 
 class Stats(Navigation):
@@ -21,15 +21,15 @@ class Stats(Navigation):
         try:
             if value == "TOTAL XP":
                 self.misc()
-                Stats.total_xp = self.ocr_notation(*ncon.OCR_TOTAL_EXP)
+                Stats.total_xp = self.ocr_notation(*coords.OCR_TOTAL_EXP)
                 # print("OCR Captured TOTAL XP: {:,}".format(Stats.total_xp))
             elif value == "XP":
                 self.exp()
-                Stats.xp = self.ocr_number(*ncon.ORC_EXP)
+                Stats.xp = self.ocr_number(*coords.OCR_EXP)
                 # print("OCR Captured Current XP: {:,}".format(Stats.xp))
             elif value == "PP":
                 self.perks()
-                Stats.pp = self.ocr_number(*ncon.OCR_PP)
+                Stats.pp = self.ocr_number(*coords.OCR_PP)
                 # print("OCR Captured Current PP: {:,}".format(Stats.pp))
             Stats.OCR_failed = False
             Stats.OCR_failures = 0
