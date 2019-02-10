@@ -51,10 +51,10 @@ def speedrun(duration, f):
             f.gold_diggers([11], True)
         if time.time () > start + 40:
             try:
-                NGU_energy = int(f.remove_letters(f.ocr(ncon.OCR_ENERGY_X1, ncon.OCR_ENERGY_Y1, ncon.OCR_ENERGY_X2, ncon.OCR_ENERGY_Y2)))
-                feature.assign_ngu(NGU_energy, [1, 2, 4, 5, 6])
-                NGU_magic = int(f.remove_letters(f.ocr(ncon.OCR_MAGIC_X1, ncon.OCR_MAGIC_Y1, ncon.OCR_MAGIC_X2, ncon.OCR_MAGIC_Y2)))
-                feature.assign_ngu(NGU_magic, [2], magic=True)
+                NGU_energy = f.get_idle_cap()
+                feature.assign_ngu(NGU_energy, [1, 2, 4, 5, 6, 7, 8, 9])
+                NGU_magic = f.get_idle_cap(magic=True)
+                feature.assign_ngu(NGU_magic, [1, 2, 3, 4], magic=True)
             except ValueError:
                 print("couldn't assign e/m to NGUs")
             time.sleep(0.5)
