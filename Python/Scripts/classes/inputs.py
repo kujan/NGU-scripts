@@ -4,7 +4,6 @@ from ctypes import windll
 from PIL import Image as image
 from PIL import ImageFilter
 import cv2
-import ngucon as ncon
 import usersettings as userset
 import numpy
 import pytesseract
@@ -200,6 +199,9 @@ class Inputs():
         b = rgba >> 16 & 0xff
         return self.rgb_to_hex((r, g, b))
 
+    def check_pixel_color(self, x, y, check):
+        return check == self.get_pixel_color(x, y)
+
     def remove_letters(self, s):
         """Remove all non digit characters from string."""
         return re.sub('[^0-9]', '', s)
@@ -213,3 +215,11 @@ class Inputs():
         working = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         path = os.path.join(working, directory, file)
         return path
+
+    def ocr_number(self, x_1, y_1, x_2, y_2):
+        """Remove all non-digits."""
+        return int(self.remove_letters(self.ocr(x_1, y_1, x_2, y_2)))
+
+    def ocr_notation(self, x_1, y_1, x_2, y_2):
+        """Convert scientific notation from string to int."""
+        return int(float(self.ocr(x_1, y_1, x_2, y_2)))

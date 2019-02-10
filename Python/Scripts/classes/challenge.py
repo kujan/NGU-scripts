@@ -5,7 +5,7 @@ from challenges.basic import Basic
 from challenges.level import Level
 from challenges.laser import Laser
 from challenges.rebirth import Rebirth
-import ngucon as ncon
+import coordinates as coords
 import usersettings as userset
 import time
 
@@ -16,21 +16,15 @@ class Challenge(Features):
     def start_challenge(self, challenge):
         """Start the selected challenge."""
         self.rebirth()
-        self.click(ncon.CHALLENGEBUTTONX, ncon.CHALLENGEBUTTONY)
+        self.click(*ncon.CHALLENGE_BUTTON)
 
         b = Basic()
         level = Level()
         laser = Laser()
         rebirth = Rebirth()
 
-        color = self.get_pixel_color(ncon.CHALLENGEACTIVEX,
-                                     ncon.CHALLENGEACTIVEY)
-
-        if color == ncon.CHALLENGEACTIVECOLOR:
-            text = self.ocr(ncon.OCR_CHALLENGE_NAMEX1,
-                            ncon.OCR_CHALLENGE_NAMEY1,
-                            ncon.OCR_CHALLENGE_NAMEX2,
-                            ncon.OCR_CHALLENGE_NAMEY2)
+        if self.check_pixel_color(*ncon.COLOR_CHALLENGE_ACTIVE):
+            text = self.ocr(*ncon.OCR_CHALLENGE_NAME)
             print("A challenge is already active: " + text)
             if "basic" in text.lower():
                 print("Starting basic challenge script")
@@ -39,14 +33,11 @@ class Challenge(Features):
             elif "24 hour" in text.lower():
                 print("Starting 24 hour challenge script")
                 try:
-                    x = ncon.CHALLENGEX
-                    y = ncon.CHALLENGEY + challenge * ncon.CHALLENGEOFFSET
+                    x = ncon.CHALLENGE.x
+                    y = ncon.CHALLENGE.y + challenge * ncon.CHALLENGEOFFSET
                     self.click(x, y, button="right")
                     time.sleep(userset.LONG_SLEEP)
-                    target = self.ocr(ncon.OCR_CHALLENGE_24HC_TARGETX1,
-                                      ncon.OCR_CHALLENGE_24HC_TARGETY1,
-                                      ncon.OCR_CHALLENGE_24HC_TARGETX2,
-                                      ncon.OCR_CHALLENGE_24HC_TARGETY2)
+                    target = self.ocr(*ncon.OCR_CHALLENGE_24HC_TARGET)
                     target = int(self.remove_letters(target))
                     print(f"Found target boss: {target}")
                     b.basic(target)
@@ -76,8 +67,8 @@ class Challenge(Features):
             #  TODO: add other challenges here
 
         else:
-            x = ncon.CHALLENGEX
-            y = ncon.CHALLENGEY + challenge * ncon.CHALLENGEOFFSET
+            x = ncon.CHALLENGE.x
+            y = ncon.CHALLENGE.y + challenge * ncon.CHALLENGEOFFSET
 
             if challenge == 1:
                 self.click(x, y)
@@ -89,10 +80,7 @@ class Challenge(Features):
                 try:
                     self.click(x, y, button="right")
                     time.sleep(userset.LONG_SLEEP)
-                    target = self.ocr(ncon.OCR_CHALLENGE_24HC_TARGETX1,
-                                      ncon.OCR_CHALLENGE_24HC_TARGETY1,
-                                      ncon.OCR_CHALLENGE_24HC_TARGETX2,
-                                      ncon.OCR_CHALLENGE_24HC_TARGETY2)
+                    target = self.ocr(*ncon.OCR_CHALLENGE_24HC_TARGET)
                     target = int(self.remove_letters(target))
                     print(f"Found target boss: {target}")
                     self.click(x, y)
@@ -122,14 +110,3 @@ class Challenge(Features):
                 time.sleep(userset.LONG_SLEEP)
                 self.confirm()
                 laser.laser()
-
-
-    def check_challenge(self):
-        """Check if a challenge is active."""
-        self.rebirth()
-        self.click(ncon.CHALLENGEBUTTONX, ncon.CHALLENGEBUTTONY)
-        time.sleep(userset.LONG_SLEEP)
-        color = self.get_pixel_color(ncon.CHALLENGEACTIVEX,
-                                     ncon.CHALLENGEACTIVEY)
-
-        return True if color == ncon.CHALLENGEACTIVECOLOR else False

@@ -1,11 +1,8 @@
 """Handles various statistics."""
-from classes.navigation import Navigation
-# from classes.discord import Discord
-
-import ngucon as ncon
-import time
 import datetime
-
+import time
+import coordinates as coords
+from classes.navigation import Navigation
 
 class Stats(Navigation):
     """Handles various statistics."""
@@ -24,15 +21,15 @@ class Stats(Navigation):
         try:
             if value == "TOTAL XP":
                 self.misc()
-                Stats.total_xp = int(float(self.ocr(ncon.OCR_EXPX1, ncon.OCR_EXPY1, ncon.OCR_EXPX2, ncon.OCR_EXPY2)))
+                Stats.total_xp = self.ocr_notation(*coords.OCR_TOTAL_EXP)
                 # print("OCR Captured TOTAL XP: {:,}".format(Stats.total_xp))
             elif value == "XP":
                 self.exp()
-                Stats.xp = int(self.remove_letters(self.ocr(ncon.EXPX1, ncon.EXPY1, ncon.EXPX2, ncon.EXPY2)))
+                Stats.xp = self.ocr_number(*coords.OCR_EXP)
                 # print("OCR Captured Current XP: {:,}".format(Stats.xp))
             elif value == "PP":
                 self.perks()
-                Stats.pp = int(self.remove_letters(self.ocr(ncon.PPX1, ncon.PPY1, ncon.PPX2, ncon.PPY2)))
+                Stats.pp = self.ocr_number(*coords.OCR_PP)
                 # print("OCR Captured Current PP: {:,}".format(Stats.pp))
             Stats.OCR_failed = False
             Stats.OCR_failures = 0
@@ -196,4 +193,3 @@ class Tracker():
             magnitude += 1
             num /= 1000.0
         return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
-
