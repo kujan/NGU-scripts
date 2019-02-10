@@ -35,20 +35,17 @@ def speedrun(duration, f):
     time.sleep(4)
     f.loadout(2)  # Bar/power equimpent
     f.adventure(itopod=True, itopodauto=True)
-    f.time_machine(True)
+    f.time_machine(1e8, magic=True)
     f.augments({"AE": 0.7, "ES": 0.3}, 1.8e10)
 
     f.blood_magic(8)
     f.boost_equipment()
-    f.gold_diggers([2, 5, 6, 8], True)
+    f.gold_diggers([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
     f.augments({"AE": 0.7, "ES": 0.3}, 1.5e10)
     f.wandoos(True)
     while time.time() < end - 20:
         f.wandoos(True)
-        f.gold_diggers([2, 5, 6, 8, 11])
-        if time.time() > start + 40 and not blood_digger_active:
-            blood_digger_active = True
-            f.gold_diggers([11], True)
+        f.gold_diggers([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
         if time.time () > start + 40:
             try:
                 NGU_energy = f.get_idle_cap()
@@ -61,7 +58,6 @@ def speedrun(duration, f):
         if time.time() > start + 90 and not itopod_advance:
             f.adventure(itopod=True, itopodauto=True)
             itopod_advance = True
-    f.gold_diggers([2, 3, 5, 6, 12], True)
     f.nuke()
     time.sleep(2)
     f.fight()
@@ -83,14 +79,14 @@ i = Inputs()
 nav = Navigation()
 feature = Features()
 
-Window.x, Window.y = i.pixel_search(ncon.TOP_LEFT_COLOR, 0, 0, 400, 600)
+Window.x, Window.y = i.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 400, 600)
 nav.menu("inventory")
 
 u = Upgrade(37500, 37500, 2, 2, 3)
 
 print(w.x, w.y)
 tracker = Tracker(3)
-#c = Challenge(tracker)
+#c = Challenge()
 #print(c.check_challenge())
 
 
