@@ -49,7 +49,10 @@ class Features(Navigation, Inputs):
             for i in range(boss):
                 self.click(*coords.FIGHT, fast=True)
             time.sleep(userset.SHORT_SLEEP)
-            current_boss = int(self.get_current_boss())
+            try:
+                current_boss = int(self.get_current_boss())
+            except ValueError:
+                current_boss = 1
             x = 0
             while current_boss < boss:
                 bossdiff = boss - current_boss
