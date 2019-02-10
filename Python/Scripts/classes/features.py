@@ -679,9 +679,9 @@ class Features(Navigation, Inputs):
         """Get the available idle energy or magic."""
         try:
             if magic:
-                res = self.ocr(ncon.OCR_MAGIC_X1, ncon.OCR_MAGIC_Y1, ncon.OCR_MAGIC_X2, ncon.OCR_MAGIC_Y2)
+                res = self.ocr(*coords.OCR_MAGIC)
             else:
-                res = self.ocr(ncon.OCR_ENERGY_X1, ncon.OCR_ENERGY_Y1, ncon.OCR_ENERGY_X2, ncon.OCR_ENERGY_Y2)
+                res = self.ocr(*coords.OCR_ENERGY)
             match = re.search(".*(\d+\.\d+E\+\d+)", res)
             if match is not None:
                 return int(float(match.group(1)))
