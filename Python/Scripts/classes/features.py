@@ -689,18 +689,3 @@ class Features(Navigation, Inputs):
                 return 0
         except ValueError:
             print("Couldn't get idle e/m")
-
-    def get_idle_cap(self, magic=False):
-        """Get the available idle energy or magic."""
-        try:
-            if magic:
-                res = self.ocr(*coords.OCR_MAGIC)
-            else:
-                res = self.ocr(*coords.OCR_ENERGY)
-            match = re.search(".*(\d+\.\d+E\+\d+)", res)
-            if match is not None:
-                return int(float(match.group(1)))
-            elif match is None:
-                return 0
-        except ValueError:
-            print("Couldn't get idle e/m")
