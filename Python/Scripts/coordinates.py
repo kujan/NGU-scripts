@@ -290,7 +290,7 @@ QUESTING_NO_QUEST_ACTIVE = "start quest"
 OCR_QUESTING_LEFT_TEXT = OCRBox(301, 296, 617, 497)
 QUESTING_ZONES = ["safe zone", "tutorial zone", "sewers", "forest", "cave of many things", "the sky",
                   "high security base", "grb", "clock dimension", "gct", "the 2d universe", "ancient battlefield",
-                  "jfa", "a very strange place", "megalands", "uug", "the beardverse", "waldo", "badly drawn world",
+                  "jfa", "a very\nstrange place", "megalands", "uug", "the beardverse", "waldo", "badly drawn world",
                   "boring-ass earth", "thebeasto", "chocolate world", "the evilverse", "pretty pink princess", "greasynerdman", "meta land",
                   "interdimensional party", "thegodmom"]
 
