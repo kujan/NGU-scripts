@@ -120,12 +120,14 @@ MENU_NGU = Pixel(MENU_OFFSET_X, 345)
 MENU_YGGDRASIL = Pixel(MENU_OFFSET_X, 375)
 MENU_DIGGERS = Pixel(MENU_OFFSET_X, 405)
 MENU_BEARD = Pixel(MENU_OFFSET_X, 435)
-MENUITEMS = {
+MENU_QUESTING = Pixel(MENU_OFFSET_X, 465)
+MENU_ITEMS = {
     'fight': MENU_FIGHT, 'pit': MENU_PIT, 'adventure': MENU_ADVENTURE,
     'inventory': MENU_INVENTORY, 'augmentations': MENU_AUGMENTATIONS,
     'advtraining': MENU_ADV_TRAINING, 'timemachine': MENU_TIME_MACHINE,
     'bloodmagic': MENU_BLOOD_MAGIC, 'wandoos': MENU_WANDOOS, 'ngu': MENU_NGU,
-    'yggdrasil': MENU_YGGDRASIL, 'digger': MENU_DIGGERS, 'beard': MENU_BEARD
+    'yggdrasil': MENU_YGGDRASIL, 'digger': MENU_DIGGERS, 'beard': MENU_BEARD,
+    'questing': MENU_QUESTING,
 }
 NUMBER_INPUT_BOX = Pixel(375, 65)
 EXP = Pixel(90, 450)
@@ -153,6 +155,7 @@ LOADOUT = {1: Pixel(330, LOADOUT_Y), 2: Pixel(360, LOADOUT_Y), 3: Pixel(390, LOA
            6: Pixel(480, LOADOUT_Y), 7: Pixel(510, LOADOUT_Y), 8: Pixel(540, LOADOUT_Y), 9: Pixel(570, LOADOUT_Y), 10: Pixel(600, LOADOUT_Y)}
 
 INVENTORY_SLOTS = Pixel(300, 330)
+INVENTORY_AREA = OCRBox(315, 290, 930, 560)
 
 #TIME MACHINE OFFSETS
 TM_SPEED = Pixel(532, 233)
@@ -278,6 +281,20 @@ DIG_ACTIVE = {1: Pixel(341, 237), 2: Pixel(658, 237), 3: Pixel(341, 427), 4: Pix
 DIG_CAP = {1: Pixel(550, 185), 2: Pixel(865, 185), 3: Pixel(550, 375), 4: Pixel(865, 375)}
 
 DIG_DEACTIVATE_ALL = Pixel(850, 110)
+
+#QUESTING OFFSETS
+
+START_QUEST = Pixel(700, 165)
+QUESTING_QUEST_COMPLETE = "this quest can be handed in"
+QUESTING_NO_QUEST_ACTIVE = "start quest"
+OCR_QUESTING_LEFT_TEXT = OCRBox(301, 296, 617, 497)
+QUESTING_ZONES = ["safe zone", "tutorial zone", "sewers", "forest", "cave of many things", "the sky",
+                  "high security base", "grb", "clock dimension", "gct", "the 2d universe", "ancient battlefield",
+                  "jfa", "a very strange place", "megalands", "uug", "the beardverse", "waldo", "badly drawn world",
+                  "boring-ass earth", "thebeasto", "chocolate world", "the evilverse", "pretty pink princess", "greasynerdman", "meta land",
+                  "interdimensional party", "thegodmom"]
+
+QUESTING_FILENAMES = ["q1.png", "q2.png", "q3.png", "q4.png", "q5.png", "q6.png", "q7.png", "q8.png", "q9.png", "q10.png"]
 
 #EXP COSTS PER UNIT
 EPOWER_COST = 150
