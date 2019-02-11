@@ -704,17 +704,6 @@ class Features(Navigation, Inputs):
     def questing_consume_items(self, cleanup=False):
         """Check for items in inventory that can be turned in"""
         self.menu("inventory")
-        if cleanup:
-            for item in coords.QUESTING_FILENAMES:
-                path = self.get_file_path("images", item)
-                loc = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600, path, 0.91)
-                if loc:
-                    self.click(*loc, button="right")
-                    self.send_string("d")
-                    self.ctrl_click(*loc)
-                    time.sleep(3)
-            return
-
         bmp = self.get_bitmap()
         for item in coords.QUESTING_FILENAMES:
             path = self.get_file_path("images", item)
@@ -722,18 +711,22 @@ class Features(Navigation, Inputs):
             if loc:
                 print(f"Found quest item at {loc}")
                 self.click(*loc, button="right")
+                if cleanup:
+                    self.send_string("d")
+                    self.ctrl_click(*loc)
                 time.sleep(3) # Need to wait for tooltip to disappear after consuming
 
-    def questing(self, duration=20, main=False, subcontract=False):
+    def questing(self, duration=20, major=False, subcontract=False):
         """Main procedure for questing
 
         Keyword arguments:
         duration -- The duration to run if manual mode is selected. If
                     quest gets completed, function will return prematurely.
-        main -- Set to true if you only wish to manually do main quests,
+        major -- Set to true if you only wish to manually do main quests,
                 if False it will manually do all quests.
         subcontract -- Set to True if you wish to subcontract all quests.
         """
+        # TODO: Add subcontracting and support for only doing major quests manually.
 
         start = time.time()
         end = time.time() + duration * 60
