@@ -213,8 +213,7 @@ class Features(Navigation, Inputs):
             self.click(*coords.ABILITY_IDLE_MODE)
 
         while time.time() < end:
-            enemy_alive = self.check_pixel_color(*coords.IS_ENEMY_ALIVE)
-            if enemy_alive:
+            if self.check_pixel_color(*coords.IS_ENEMY_ALIVE):
                 self.click(*coords.ABILITY_REGULAR_ATTACK)
             else:
                 time.sleep(0.01)
@@ -614,16 +613,16 @@ class Features(Navigation, Inputs):
         i = 1
         row = 1
         x_pos, y_pos = coords.INVENTORY_SLOTS
-        coords = []
+        res = []
 
         while i <= slots:
             x = x_pos + (i - (12 * (row - 1))) * 50
             y = y_pos + ((row - 1) * 50)
-            coords.append(point(x, y))
+            res.append(point(x, y))
             if i % 12 == 0:
                 row += 1
             i += 1
-        return coords
+        return res
 
     def merge_inventory(self, slots):
         """Merge all inventory slots starting from 1 to slots.
