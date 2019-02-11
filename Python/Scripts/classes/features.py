@@ -454,7 +454,11 @@ class Features(Navigation, Inputs):
                     energy = (value_coefficient * value) - value
                     break
             if energy == 0:
-                print(f"Warning: You might be overcapping NGU #{target}")
+                if magic:
+                    print(f"Warning: You might be overcapping magic NGU #{target}")
+                else:
+                    print(f"Warning: You might be overcapping energy NGU #{target}")
+                continue
                 
             self.input_box()
             self.send_string(str(int(energy)))
