@@ -13,7 +13,7 @@ from classes.stats import Stats, EstimateRate, Tracker
 from classes.upgrade import Upgrade
 from classes.window import Window
 
-import ngucon as ncon
+import coordinates as coords
 import time
 
 
@@ -67,14 +67,13 @@ def speedrun(duration, f):
     tracker.progress()
     u.em()
     tracker.adjustxp()
-    f.speedrun_bloodpill()
     while time.time() < end:
         time.sleep(0.1)
 
     return
 
 
-w = Window()
+w = Window(True)
 i = Inputs()
 nav = Navigation()
 feature = Features()
