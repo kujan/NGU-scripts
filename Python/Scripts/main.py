@@ -84,18 +84,24 @@ nav.menu("inventory")
 u = Upgrade(37500, 37500, 2, 2, 3)
 
 print(w.x, w.y)
-tracker = Tracker(3)
+#feature.questing_consume_items(True)
+while True:
+    #print("start of loop")
+    #feature.snipe(21, 10)
+    feature.questing()
+#feature.questing_consume_items()
+#tracker = Tracker(3)
 #c = Challenge()
 #print(c.check_challenge())
 
 
 #feature.bb_ngu(4e8, [1, 2, 3, 4, 5, 6, 7, 8, 9], 1.05)
 #feature.speedrun_bloodpill()
-while True:  # main loop
+#while True:  # main loop
     #feature.boost_equipment()
     #feature.ygg()
     #feature.snipe(0, 120, bosses=False)
 
     #time.sleep(120)
     #c.start_challenge(9)
-    speedrun(3, feature)
+    #speedrun(3, feature)

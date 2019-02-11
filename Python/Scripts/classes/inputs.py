@@ -132,7 +132,7 @@ class Inputs():
 
         return None
 
-    def image_search(self, x_start, y_start, x_end, y_end, image, threshold):
+    def image_search(self, x_start, y_start, x_end, y_end, image, threshold, bmp=None):
         """Search the screen for the supplied picture.
 
         Returns a tuple with x,y-coordinates, or None if result is below
@@ -144,8 +144,14 @@ class Inputs():
                      close to 1, but probably never 1. In my testing use a
                      value between 0.7-0.95 depending on how strict you wish
                      to be.
+        bmp -- a bitmap from the get_bitmap() function, use this if you're
+               performing multiple different OCR-readings in succession from
+               the same page. This is to avoid to needlessly get the same
+               bitmap multiple times. If a bitmap is not passed, the function
+               will get the bitmap itself. (default None)
         """
-        bmp = self.get_bitmap()
+        if not bmp:
+            bmp = self.get_bitmap()
         # Bitmaps are created with a 8px border
         search_area = bmp.crop((x_start + 8, y_start + 8,
                                 x_end + 8, y_end + 8))

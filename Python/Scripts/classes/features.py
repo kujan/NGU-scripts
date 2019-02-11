@@ -130,13 +130,13 @@ class Features(Navigation, Inputs):
                 self.click(*coords.RIGHT_ARROW)
             return
 
-    def snipe(self, zone, duration, once=False, highest=False, bosses=True):
+    def snipe(self, zone, duration, once=False, highest=False, bosses=False):
         """Go to adventure and snipe bosses in specified zone.
 
         Keyword arguments
         zone -- Zone to snipe, 0 is safe zone, 1 is turorial and so on.
                 If 0, it will use the current zone (to maintain guffin counter)
-        duration -- The duration in seconds the sniping will run before
+        duration -- The duration in minutes the sniping will run before
                     returning.
         once -- If true it will only kill one boss before returning.
         highest -- If set to true, it will go to your highest available
@@ -153,10 +153,10 @@ class Features(Navigation, Inputs):
 
         self.click(625, 500)  # click somewhere to move tooltip
 
-        if self.check_pixel_color(coords.IS_IDLE):
+        if self.check_pixel_color(*coords.IS_IDLE):
             self.click(*coords.ABILITY_IDLE_MODE)
 
-        end = time.time() + duration
+        end = time.time() + duration * 60
         while time.time() < end:
             self.click(625, 500)  # click somewhere to move tooltip
             if self.check_pixel_color(*coords.IS_ENEMY_ALIVE):
@@ -695,3 +695,76 @@ class Features(Navigation, Inputs):
                 return 0
         except ValueError:
             print("Couldn't get idle e/m")
+
+    def get_quest_text(self):
+        """Check if we have an active quest or not"""
+        self.menu("questing")
+        return self.ocr(*coords.OCR_QUESTING_LEFT_TEXT)
+
+    def questing_consume_items(self, cleanup=False):
+        """Check for items in inventory that can be turned in"""
+        self.menu("inventory")
+        if cleanup:
+            for item in coords.QUESTING_FILENAMES:
+                path = self.get_file_path("images", item)
+                loc = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600, path, 0.91)
+                if loc:
+                    self.click(*loc, button="right")
+                    self.send_string("d")
+                    self.ctrl_click(*loc)
+                    time.sleep(3)
+            return
+
+        bmp = self.get_bitmap()
+        for item in coords.QUESTING_FILENAMES:
+            path = self.get_file_path("images", item)
+            loc = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600, path, 0.91, bmp=bmp)
+            if loc:
+                print(f"Found quest item at {loc}")
+                self.click(*loc, button="right")
+                time.sleep(3) # Need to wait for tooltip to disappear after consuming
+
+    def questing(self, duration=20, main=False, subcontract=False):
+        """Main procedure for questing
+
+        Keyword arguments:
+        duration -- The duration to run if manual mode is selected. If
+                    quest gets completed, function will return prematurely.
+        main -- Set to true if you only wish to manually do main quests,
+                if False it will manually do all quests.
+        subcontract -- Set to True if you wish to subcontract all quests.
+        """
+
+        start = time.time()
+        end = time.time() + duration * 60
+        self.menu("questing")
+
+        text = self.get_quest_text()
+        print(text)
+
+        if coords.QUESTING_QUEST_COMPLETE in text.lower():
+            print("handing in quest")
+            self.click(*coords.START_QUEST)
+            time.sleep(userset.LONG_SLEEP * 2) #
+            text = self.get_quest_text() # fetch new quest text
+
+        if coords.QUESTING_NO_QUEST_ACTIVE in text.lower():
+            print("starting quest")
+            self.click(*coords.START_QUEST)
+            self.questing_consume_items(True)
+            time.sleep(userset.LONG_SLEEP)
+            text = self.get_quest_text() # fetch new quest text
+
+        for count, zone in enumerate(coords.QUESTING_ZONES, start=0):
+            if zone in text.lower():
+                print(zone, count)
+                while time.time() < end:
+                    self.snipe(count, 2)
+                    self.questing_consume_items()
+                    text = self.get_quest_text()
+                    if coords.QUESTING_QUEST_COMPLETE in text.lower():
+                        print("handing in quest")
+                        self.click(*coords.START_QUEST)
+                        return
+
+        #print(text)

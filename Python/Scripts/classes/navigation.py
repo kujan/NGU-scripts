@@ -8,7 +8,7 @@ import usersettings as userset
 class Navigation(Inputs):
     """Navigate through menus."""
 
-    menus = coords.MENUITEMS
+    menus = coords.MENU_ITEMS
     equipment = coords.EQUIPMENT_SLOTS
     current_menu = ''
 
