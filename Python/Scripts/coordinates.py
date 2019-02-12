@@ -284,9 +284,12 @@ DIG_DEACTIVATE_ALL = Pixel(850, 110)
 
 #QUESTING OFFSETS
 
-START_QUEST = Pixel(700, 165)
+QUESTING_START_QUEST = Pixel(700, 165)
+QUESTING_SUBCONTRACT = Pixel(470, 560)
 QUESTING_QUEST_COMPLETE = "this quest can be handed in"
 QUESTING_NO_QUEST_ACTIVE = "start quest"
+QUESTING_MINOR_QUEST = "this is a minor quest"
+
 OCR_QUESTING_LEFT_TEXT = OCRBox(301, 296, 617, 497)
 QUESTING_ZONES = ["safe zone", "tutorial zone", "sewers", "forest", "cave of many things", "the sky",
                   "high\nsecurity base", "grb", "clock dimension", "gct", "2d universe", "ancient battlefield",
@@ -333,3 +336,4 @@ COLOR_TM_LOCKED = ColorPixel(188, 257, '97A8B5')
 IS_BM_LOCKED = ColorPixel(*BM_LOCKED, '97A8B5')
 IS_IRON_PILL_READY = ColorPixel(*BM_LOCKED, 'BA13A7')
 PLAYER_HEAL_THRESHOLD = ColorPixel(512, 392, 'FFFFFF')
+QUESTING_IDLE_INACTIVE = ColorPixel(386, 555, '111111') # Pixel in the subcontracting button

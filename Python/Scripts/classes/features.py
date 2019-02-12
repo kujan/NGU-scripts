@@ -716,7 +716,7 @@ class Features(Navigation, Inputs):
                     self.ctrl_click(*loc)
                 time.sleep(3) # Need to wait for tooltip to disappear after consuming
 
-    def questing(self, duration=20, major=False, subcontract=False):
+    def questing(self, duration=30, major=False, subcontract=False):
         """Main procedure for questing
 
         Keyword arguments:
@@ -725,39 +725,75 @@ class Features(Navigation, Inputs):
         major -- Set to true if you only wish to manually do main quests,
                 if False it will manually do all quests.
         subcontract -- Set to True if you wish to subcontract all quests.
-        """
-        # TODO: Add subcontracting and support for only doing major quests manually.
 
+        Suggested usages:
+
+        questing(major=True)
+        questing(subcontract=True)
+
+        If you only wish to manually do major quests (so you can do ITOPOD)
+        then I suggest that you only call questing() every 10-15 minutes because
+        subcontracting takes very long to finish. Same obviously goes for subcontracting
+        only.
+
+        Remember the default duration is 30, which is there to safeguard if something
+        goes wrong to break out of the function. Set this higher/lower after your own
+        preferences. 
+
+        questing(duration=30)
+
+        This will manually complete any quest you get for 30 minutes, then it returns,
+        or it returns when the quest is completed.
+
+        Use this together with harvesting ygg, recapping diggers and so on, or even
+        sniping ITOPOD.
+
+        ===== IMPORTANT =====
+
+        This method uses imagesearch to find items in your inventory, it will
+        both right click and ctrl-click items (quick delete keybind), so make
+        sure all items are protected.
+
+        The method will only check the inventory page that is currently open,
+        so make sure it's set to page 1 and that your inventory has space.
+        If your inventory fills with mcguffins/other drops while it runs, it
+        will get stuck doing the same quest forever. Make sure you will have
+        space for the entire duration you will leave it running unattended. 
+        
+        """
         start = time.time()
         end = time.time() + duration * 60
         self.menu("questing")
 
         text = self.get_quest_text()
-        print(text)
 
         if coords.QUESTING_QUEST_COMPLETE in text.lower():
-            print("handing in quest")
-            self.click(*coords.START_QUEST)
+            self.click(*coords.QUESTING_START_QUEST)
             time.sleep(userset.LONG_SLEEP * 2) #
             text = self.get_quest_text() # fetch new quest text
 
-        if coords.QUESTING_NO_QUEST_ACTIVE in text.lower():
-            print("starting quest")
-            self.click(*coords.START_QUEST)
-            self.questing_consume_items(True)
+        if coords.QUESTING_NO_QUEST_ACTIVE in text.lower(): # if we have no active quest, start one
+            self.click(*coords.QUESTING_START_QUEST)
+            self.questing_consume_items(True) # we have to clean up the inventory from any old quest items
             time.sleep(userset.LONG_SLEEP)
             text = self.get_quest_text() # fetch new quest text
 
+        if subcontract:
+            if self.check_pixel_color(*coords.QUESTING_IDLE_INACTIVE):
+                self.click(*coords.QUESTING_SUBCONTRACT)
+            return
+
+        if major and coords.QUESTING_MINOR_QUEST in text.lower(): # check if current quest is minor
+            if self.check_pixel_color(*coords.QUESTING_IDLE_INACTIVE):
+                self.click(*coords.QUESTING_SUBCONTRACT)
+            return
+
         for count, zone in enumerate(coords.QUESTING_ZONES, start=0):
             if zone in text.lower():
-                print(zone, count)
                 while time.time() < end:
                     self.snipe(count, 2)
                     self.questing_consume_items()
                     text = self.get_quest_text()
                     if coords.QUESTING_QUEST_COMPLETE in text.lower():
-                        print("handing in quest")
-                        self.click(*coords.START_QUEST)
+                        self.click(*coords.QUESTING_START_QUEST)
                         return
-
-        #print(text)
