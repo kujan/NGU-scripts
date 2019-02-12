@@ -290,6 +290,7 @@ QUESTING_QUEST_COMPLETE = "this quest can be handed in"
 QUESTING_NO_QUEST_ACTIVE = "start quest"
 QUESTING_MINOR_QUEST = "this is a minor quest"
 
+OCR_QUESTING_QP = OCRBox(500, 60, 683, 84)
 OCR_QUESTING_LEFT_TEXT = OCRBox(301, 296, 617, 497)
 QUESTING_ZONES = ["safe zone", "tutorial zone", "sewers", "forest", "cave of many things", "the sky",
                   "high\nsecurity base", "grb", "clock dimension", "gct", "2d universe", "ancient battlefield",

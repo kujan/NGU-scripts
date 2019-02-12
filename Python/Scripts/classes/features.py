@@ -6,6 +6,7 @@ from collections import deque, namedtuple
 from decimal import Decimal
 from deprecated import deprecated
 import coordinates as coords
+import datetime
 import math
 import re
 import time
@@ -709,7 +710,6 @@ class Features(Navigation, Inputs):
             path = self.get_file_path("images", item)
             loc = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600, path, 0.91, bmp=bmp)
             if loc:
-                print(f"Found quest item at {loc}")
                 self.click(*loc, button="right")
                 if cleanup:
                     self.send_string("d")
@@ -795,5 +795,18 @@ class Features(Navigation, Inputs):
                     self.questing_consume_items()
                     text = self.get_quest_text()
                     if coords.QUESTING_QUEST_COMPLETE in text.lower():
+                        qp_gained = 0
+                        try:
+                            start_qp = int(self.remove_letters(self.ocr(*coords.OCR_QUESTING_QP)))
+                        except ValueError:
+                            print("Couldn't fetch current QP")
                         self.click(*coords.QUESTING_START_QUEST)
+                        self.click(605, 510) # move tooltip
+                        try:
+                            current_qp = int(self.remove_letters(self.ocr(*coords.OCR_QUESTING_QP)))
+                        except ValueError:
+                            print("Couldn't fetch current QP")                       
+                        gained_qp = current_qp - start_qp
+                        print(f"Completed quest in zone #{count} at {datetime.datetime.now().strftime('%H:%M:%S')} for {gained_qp} QP")
+
                         return
