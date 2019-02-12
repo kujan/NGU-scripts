@@ -16,7 +16,7 @@ The AHK script is unsupported and deleted, but I kept the functions here because
 * Tesseract OCR
 * Firefox Browser
 * Use scientific notation in game
-* The "simple inventory shortcuts" must be enabled
+* The "simple inventory shortcuts" setting must be enabled
 ## Installation
 Install Python dependencies using [pip](https://pip.pypa.io/en/stable/quickstart/):
 ```
