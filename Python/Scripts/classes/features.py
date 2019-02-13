@@ -788,6 +788,9 @@ class Features(Navigation, Inputs):
                 self.click(*coords.QUESTING_SUBCONTRACT)
             return
 
+        if not self.check_pixel_color(*coords.QUESTING_IDLE_INACTIVE): # turn off idle
+            self.click(*coords.QUESTING_SUBCONTRACT)
+
         for count, zone in enumerate(coords.QUESTING_ZONES, start=0):
             if zone in text.lower():
                 while time.time() < end:
