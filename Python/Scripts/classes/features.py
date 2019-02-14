@@ -761,10 +761,11 @@ class Features(Navigation, Inputs):
         space for the entire duration you will leave it running unattended. 
         
         """
+
         start = time.time()
         end = time.time() + duration * 60
         self.menu("questing")
-
+        self.click(605, 510) # move tooltip 
         text = self.get_quest_text()
 
         if coords.QUESTING_QUEST_COMPLETE in text.lower():
