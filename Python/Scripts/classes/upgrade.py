@@ -1,8 +1,9 @@
 """Buys things for exp."""
-from classes.stats import Stats, Tracker
-import ngucon as ncon
+from classes.stats import Stats
+import coordinates as coords
 import usersettings as userset
 import time
+# TODO replace ngucon with coordinates
 
 
 class Upgrade(Stats):
@@ -56,11 +57,11 @@ class Upgrade(Stats):
 
         current_exp = Stats.xp
 
-        e_cost = ncon.EPOWER_COST + ncon.ECAP_COST * self.ecap + (
-                 ncon.EBAR_COST * self.ebar)
+        e_cost = coords.EPOWER_COST + coords.ECAP_COST * self.ecap + (
+                 coords.EBAR_COST * self.ebar)
 
-        m_cost = ncon.MPOWER_COST + ncon.MCAP_COST * self.mcap + (
-                 ncon.MBAR_COST * self.mbar)
+        m_cost = coords.MPOWER_COST + coords.MCAP_COST * self.mcap + (
+                 coords.MBAR_COST * self.mbar)
 
         total_price = m_cost + self.e2m_ratio * e_cost
 
@@ -81,39 +82,39 @@ class Upgrade(Stats):
 
         self.exp()
 
-        self.click(ncon.EMPOWBOXX, ncon.EMBOXY)
+        self.click(*coords.EM_POW_BOX)
         self.send_string(str(e_power))
         time.sleep(userset.MEDIUM_SLEEP)
 
-        self.click(ncon.EMCAPBOXX, ncon.EMBOXY)
+        self.click(*coords.EM_CAP_BOX)
         self.send_string(str(e_cap))
         time.sleep(userset.MEDIUM_SLEEP)
 
-        self.click(ncon.EMBARBOXX, ncon.EMBOXY)
+        self.click(*coords.EM_BAR_BOX)
         self.send_string(str(e_bars))
         time.sleep(userset.MEDIUM_SLEEP)
 
-        self.click(ncon.EMPOWBUYX, ncon.EMBUYY)
-        self.click(ncon.EMCAPBUYX, ncon.EMBUYY)
-        self.click(ncon.EMBARBUYX, ncon.EMBUYY)
+        self.click(*coords.EM_POW_BUY)
+        self.click(*coords.EM_CAP_BUY)
+        self.click(*coords.EM_BAR_BUY)
 
         self.exp_magic()
 
-        self.click(ncon.EMPOWBOXX, ncon.EMBOXY)
+        self.click(*coords.EM_POW_BOX)
         self.send_string(str(m_power))
         time.sleep(userset.MEDIUM_SLEEP)
 
-        self.click(ncon.EMCAPBOXX, ncon.EMBOXY)
+        self.click(*coords.EM_CAP_BOX)
         self.send_string(str(m_cap))
         time.sleep(userset.MEDIUM_SLEEP)
 
-        self.click(ncon.EMBARBOXX, ncon.EMBOXY)
+        self.click(*coords.EM_BAR_BOX)
         self.send_string(str(m_bars))
         time.sleep(userset.MEDIUM_SLEEP)
-
-        self.click(ncon.EMPOWBUYX, ncon.EMBUYY)
-        self.click(ncon.EMCAPBUYX, ncon.EMBUYY)
-        self.click(ncon.EMBARBUYX, ncon.EMBUYY)
+        
+        self.click(*coords.EM_POW_BUY)
+        self.click(*coords.EM_CAP_BUY)
+        self.click(*coords.EM_BAR_BUY)
 
         self.set_value_with_ocr("XP")
 

@@ -1,6 +1,6 @@
 """Contains functions for running a 100 level challenge."""
 from classes.features import Features
-import ngucon as ncon
+import coordinates as ncon
 import time
 
 
@@ -46,8 +46,7 @@ class Level(Features):
         while not tm_unlocked:
             self.fight()
 
-            tm_color = self.get_pixel_color(ncon.TMLOCKEDX, ncon.TMLOCKEDY)
-            if tm_color != ncon.TMLOCKEDCOLOR:
+            if not self.check_pixel_color(*ncon.COLOR_TM_LOCKED):
                 self.time_machine(True)
                 tm_unlocked = True
 
@@ -95,8 +94,7 @@ class Level(Features):
         while not tm_unlocked:
             self.fight()
 
-            tm_color = self.get_pixel_color(ncon.TMLOCKEDX, ncon.TMLOCKEDY)
-            if tm_color != ncon.TMLOCKEDCOLOR:
+            if not self.check_pixel_color(*ncon.COLOR_TM_LOCKED):
                 self.time_machine(True)
                 tm_unlocked = True
 
@@ -120,7 +118,7 @@ class Level(Features):
 
         self.menu("bloodmagic")
         time.sleep(0.2)
-        self.click(ncon.BMX, ncon.BMY[3])
+        self.click(ncon.BMX, ncon.BMY[3]) # TODO: Make into Pixel
 
         while time.time() < end + 3:
             self.fight()
@@ -129,16 +127,6 @@ class Level(Features):
             time.sleep(5)
 
         return
-
-    def check_challenge(self):
-        """Check if a challenge is active."""
-        self.rebirth()
-        self.click(ncon.CHALLENGEBUTTONX, ncon.CHALLENGEBUTTONY)
-        time.sleep(ncon.LONG_SLEEP)
-        color = self.get_pixel_color(ncon.CHALLENGEACTIVEX,
-                                     ncon.CHALLENGEACTIVEY)
-
-        return True if color == ncon.CHALLENGEACTIVECOLOR else False
 
     def lc(self):
         """Handle LC run."""

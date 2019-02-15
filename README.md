@@ -15,11 +15,12 @@ The AHK script is unsupported and deleted, but I kept the functions here because
 * Python 3 (only tested on 3.7)
 * Tesseract OCR
 * Firefox Browser
-
+* Use scientific notation in game
+* The "simple inventory shortcuts" setting must be enabled
 ## Installation
 Install Python dependencies using [pip](https://pip.pypa.io/en/stable/quickstart/):
 ```
-pip -r install requirements.txt
+pip install -r requirements.txt
 ```
 Install [Tesseract](https://github.com/tesseract-ocr/tesseract/releases) and add it to your [PATH variable](https://helpdeskgeek.com/windows-10/add-windows-path-environment-variable/).
 
@@ -36,3 +37,21 @@ If you're using Firefox as your main browser, you will notice that the script wi
 4. Right click the shortcut and select properties.
 5. In the target field, enter ``-P YOURPROFILENAME -no-remote`` after the quotation mark. It should look like this: ``"C:\Program Files\Mozilla Firefox\firefox.exe" -P NGU -no-remote``
 6. Start firefox via the shortcut and load your NGU save.
+
+## FAQ
+
+* Q: I get a ``ValueError``.
+
+You're probably trying to cast a result from `ocr()`, that returns a string which might be empty or contain non-numeric characters. Use [try/except](https://docs.python.org/3/tutorial/errors.html#handling-exceptions) to handle this appropriately.
+
+* Q: I get a ``IndexError: image index out of range`` error from ``pixel_search()``.
+
+You're either sending invalid coordinates to the function, or the ``Window()`` class contains invalid offsets. You can debug this by printing ``Window.x`` and ``Window.y``, and you can also make the ``get_bitmap()`` function save the bitmap to disk in order to see what the script can see. This error usually occurs because the script has found the wrong window (it searches for `play ngu idle` in the window title) if you have multiple game sessions running it might not use the correct one. This error will also occur if you lock the computer screen, or if Windows put your monitors to sleep due to power settings. This can be changed in your power settings in Windows. However if you're using DisplayPort and you physically turn your monitors off, Windows might change the desktop resolution for some reason, causing the script to crash. If this is causing problems, there's a fix [here](https://answers.microsoft.com/en-us/windows/forum/windows_7-hardware/windows-7-movesresizes-windows-on-monitor-power/1653aafb-848b-464a-8c69-1a68fbd106aa).
+
+* Q: I get a ``TypeError: cannot unpack non-iterable NoneType object`` error from ``pixel_search()``.
+
+Make sure you have the game running in Firefox, and that the window is NOT minimized, you cannot minimize the window while running, but you can have other windows on top of the game window just fine. This error will also occur if you lock the computer screen, or if Windows put your monitors to sleep due to power settings. See answer above if you're using DisplayPort.
+
+* Q: I get a ``pywintypes.error: (0, 'GetPixel', 'No error message is available')`` error.
+
+This can happen for various reasons, see answers above because they all apply to this. Some full-screen games have been reportedly causing this, also video card driver crashes will cause this error as well.
