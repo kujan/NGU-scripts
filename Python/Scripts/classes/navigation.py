@@ -64,6 +64,24 @@ class Navigation(Inputs):
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = 'exp_magic'
 
+    def exp_adventure(self):
+        """Navigate to the adventure menu within the EXP menu."""
+        if Navigation.current_menu == "exp_adventure":
+            return
+        self.exp()
+        self.click(*coords.ADVENTURE_MENU)
+        time.sleep(userset.SHORT_SLEEP)
+        Navigation.current_menu = "exp_adventure"
+
+    def exp_rich(self):
+        """Navigate to the misc menu within the EXP menu."""
+        if Navigation.current_menu == "exp_rich":
+            return
+        self.exp()
+        self.click(*coords.RICH_MENU)
+        time.sleep(userset.SHORT_SLEEP)
+        Navigation.current_menu = "exp_rich"
+
     def info(self):
         """Click info 'n stuff."""
         if Navigation.current_menu == 'info':
