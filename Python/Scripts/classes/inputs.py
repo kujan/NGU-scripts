@@ -195,7 +195,7 @@ class Inputs():
         s = pytesseract.image_to_string(bmp)
         return s
 
-    def get_pixel_color(self, x, y):
+    def get_pixel_color(self, x, y, debug=False):
         """Get the color of selected pixel in HEX."""
         dc = win32gui.GetWindowDC(window.id)
         rgba = win32gui.GetPixel(dc, x + 8 + window.x, y + 8 + window.y)
@@ -203,6 +203,10 @@ class Inputs():
         r = rgba & 0xff
         g = rgba >> 8 & 0xff
         b = rgba >> 16 & 0xff
+        
+        if (debug == True):
+            print(self.rgb_to_hex((r, g, b)))
+        
         return self.rgb_to_hex((r, g, b))
 
     def check_pixel_color(self, x, y, check):
