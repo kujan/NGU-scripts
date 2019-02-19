@@ -1,15 +1,16 @@
 """Buys things for exp."""
-from classes.stats import Stats
+from classes.stats import Stats, Tracker
 import coordinates as coords
 import usersettings as userset
 import time
 # TODO replace ngucon with coordinates
+import math
 
 
-class Upgrade(Stats):
+class UpgradeEM(Stats):
     """Buys things for exp."""
 
-    def __init__(self, ecap, mcap, ebar, mbar, e2m_ratio):
+    def __init__(self, ecap, mcap, ebar, mbar, e2m_ratio, report=False):
         """Example: Upgrade(37500, 37500, 2, 1).
 
         This will result in a 1:37500:2 ratio for energy and 1:37500:1 for
@@ -32,8 +33,9 @@ class Upgrade(Stats):
         self.ebar = ebar
         self.mbar = mbar
         self.e2m_ratio = e2m_ratio
+        self.report = report
 
-    def em(self):
+    def buy(self):
         """Buy upgrades for both energy and magic.
 
         Requires the confirmation popup button for EXP purchases in settings
@@ -69,6 +71,8 @@ class Upgrade(Stats):
         complete set of upgrades, in order to maintain our perfect ratios :)"""
 
         if total_price > current_exp:
+            if self.report:
+                print("No XP Upgrade :{:^8} of {:^8}".format(self.human_format(current_exp),self.human_format(total_price)))
             return
 
         amount = int(current_exp // total_price)
@@ -111,10 +115,209 @@ class Upgrade(Stats):
         self.click(*coords.EM_BAR_BOX)
         self.send_string(str(m_bars))
         time.sleep(userset.MEDIUM_SLEEP)
-        
+
         self.click(*coords.EM_POW_BUY)
         self.click(*coords.EM_CAP_BUY)
         self.click(*coords.EM_BAR_BUY)
 
         self.set_value_with_ocr("XP")
+
+        total_spent = coords.EPOWER_COST * e_power + coords.ECAP_COST * e_cap + coords.EBAR_COST * e_bars
+        total_spent += coords.MPOWER_COST * m_power + coords.MCAP_COST * m_cap + coords.MBAR_COST * m_bars
+
+        if self.report:
+            print("Spent XP:{:^8}".format(self.human_format(total_spent)))
+            print("Energy | Pow:{:^8}{:^3}Cap:{:^8}{:^3}Bar:{:^8}{:^3}Magic | Pow:{:^8}{:^3}Cap:{:^8}{:^3}Bar:{:^8}".format(
+                self.human_format(e_power), "|",
+                self.human_format(e_cap), "|",
+                self.human_format(e_bars), "|",
+                self.human_format(m_power), "|",
+                self.human_format(m_cap), "|",
+                self.human_format(m_bars)))
+
+    def human_format(self, num):
+        num = float('{:.3g}'.format(num))
+        if num > 1e14:
+            return
+        magnitude = 0
+        while abs(num) >= 1000:
+            magnitude += 1
+            num /= 1000.0
+        return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
+
+
+class UpgradeAdventure(Stats):
+    """Buys things for exp."""
+
+    def __init__(self, power, toughness, health, regen, ratio, report=False):
+        self.power = power
+        self.toughness = toughness
+        self.health = health
+        self.regen = regen
+        self.ratio = ratio
+        self.report = report
+
+    def buy(self):
+        """Buy upgrades for power, toughness, health and regen
+
+        Requires the confirmation popup button for EXP purchases in settings
+        to be turned OFF.
+
+        This uses all available exp, so use with caution.
+        """
+        self.set_value_with_ocr("XP")
+
+        if Stats.OCR_failed:
+            print('OCR failed, exiting upgrade routine.')
+            return
+
+        current_exp = Stats.xp
+
+        total_price = (coords.APOWER_COST * self.power * self.ratio)
+        total_price += (coords.ATOUGHNESS_COST * self.toughness * self.ratio)
+        total_price += (coords.AHEALTH_COST * self.health * 10)
+        total_price += math.floor(coords.AREGEN_COST * self.regen / 10)
+
+        """Skip upgrading if we don't have enough exp to buy at least one
+        complete set of upgrades, in order to maintain our perfect ratios :)"""
+
+        if total_price > current_exp:
+            if self.report:
+                print("No XP Upgrade :{:^8} of {:^8}".format(self.human_format(current_exp), self.human_format(total_price)))
+            return
+
+        amount = int(current_exp // total_price)
+
+        a_power = amount * self.ratio
+        a_toughness = amount * self.ratio
+        a_health = amount * 10
+        a_regen = math.floor(amount / 10)
+        if a_regen < 1:
+            a_regen = 1.0
+
+        self.exp_adventure()
+
+        self.click(*coords.EM_ADV_BOX)
+        self.send_string(str(a_power))
+        time.sleep(userset.MEDIUM_SLEEP)
+
+        self.click(*coords.EM_POW_BOX)
+        self.send_string(str(a_toughness))
+        time.sleep(userset.MEDIUM_SLEEP)
+
+        self.click(*coords.EM_CAP_BOX)
+        self.send_string(str(a_health))
+        time.sleep(userset.MEDIUM_SLEEP)
+
+        self.click(*coords.EM_BAR_BOX)
+        self.send_string(str(a_regen))
+        time.sleep(userset.MEDIUM_SLEEP)
+
+        self.click(*coords.EM_ADV_BUT)
+        self.click(*coords.EM_POW_BUY)
+        self.click(*coords.EM_CAP_BUY)
+        self.click(*coords.EM_BAR_BUY)
+
+        self.set_value_with_ocr("XP")
+
+        total_spent = coords.APOWER_COST * a_power
+        total_spent += coords.ADEFENSE_COST * a_toughness
+        total_spent += coords.AHEALTH_COST * a_health
+        total_spent += coords.AREGEN_COST * a_regen
+
+        if self.report:
+            print("Spent XP:{:^8}".format(self.human_format(total_spent)))
+            print("Power:{:^8}{:^3} Defense:{:^8}{:^3} Health:{:^8}{:^3} Regen:{:^8}".format(
+                self.human_format(a_power), "|",
+                self.human_format(a_toughness), "|",
+                self.human_format(a_health), "|",
+                self.human_format(a_regen)))
+
+    def human_format(self, num):
+        num = float('{:.3g}'.format(num))
+        if num > 1e14:
+            return
+        magnitude = 0
+        while abs(num) >= 1000:
+            magnitude += 1
+            num /= 1000.0
+        return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
+
+
+class UpgradeRich(Stats):
+    """Buys things for exp."""
+
+    def __init__(self, attack, defense, report=False):
+        self.attack = attack
+        self.defense = defense
+        self.report = report
+
+    def buy(self):
+        """Buy upgrades for both attack and defense
+
+        Requires the confirmation popup button for EXP purchases in settings
+        to be turned OFF.
+
+        This uses all available exp, so use with caution.
+        """
+        self.set_value_with_ocr("XP")
+
+        if Stats.OCR_failed:
+            print('OCR failed, exiting upgrade routine.')
+            return
+
+        current_exp = Stats.xp
+
+        if current_exp < 1000:
+            return
+
+        total_price = (coords.RATTACK_COST * self.attack)
+        total_price += (coords.RDEFENSE_COST * self.defense)
+
+        """Skip upgrading if we don't have enough exp to buy at least one
+        complete set of upgrades, in order to maintain our perfect ratios :)"""
+
+        if total_price > current_exp:
+            if self.report:
+                print("No XP Upgrade :{:^8} of {:^8}".format(self.human_format(current_exp), self.human_format(total_price)))
+            return
+
+        amount = int(current_exp // total_price)
+
+        a_attack = amount * self.attack
+        a_defense = amount * self.defense
+
+        self.exp_rich()
+
+        self.click(*coords.EM_ADV_BOX)
+        self.send_string(str(a_attack))
+        time.sleep(userset.MEDIUM_SLEEP)
+
+        self.click(*coords.EM_ADV_BOX)
+        self.send_string(str(a_defense))
+        time.sleep(userset.MEDIUM_SLEEP)
+
+        self.click(*coords.EM_ADV_BOX)
+        self.click(*coords.EM_ADV_BOX)
+
+        self.set_value_with_ocr("XP")
+
+        total_spent = coords.RATTACK_COST * a_attack
+        total_spent += coords.RDEFENSE_COST * a_defense
+
+        if self.report:
+            print("Spent XP:{:^8}{:^3}Attack:{:^8}{:^3}Defense:{:^8}".format(
+                self.human_format(total_spent), "|",
+                self.human_format(a_attack), "|",
+                self.human_format(a_defense)))
+
+    def human_format(self, num):
+        num = float('{:.3g}'.format(num))
+        if num > 1e14:
+            return
+        magnitude = 0
+        while abs(num) >= 1000:
+            magnitude += 1
+            num /= 1000.0
+        return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
 
