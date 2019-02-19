@@ -7,7 +7,7 @@ import time
 import math
 
 
-class Upgrade(Stats):
+class UpgradeEM(Stats):
     """Buys things for exp."""
 
     def __init__(self, ecap, mcap, ebar, mbar, e2m_ratio, report=False):
@@ -35,7 +35,7 @@ class Upgrade(Stats):
         self.e2m_ratio = e2m_ratio
         self.report = report
 
-    def em(self):
+    def buy(self):
         """Buy upgrades for both energy and magic.
 
         Requires the confirmation popup button for EXP purchases in settings
@@ -149,16 +149,16 @@ class Upgrade(Stats):
 class UpgradeAdventure(Stats):
     """Buys things for exp."""
 
-    def __init__(self, power, defense, health, regen, ratio, report=False):
+    def __init__(self, power, toughness, health, regen, ratio, report=False):
         self.power = power
-        self.defense = defense
+        self.toughness = toughness
         self.health = health
         self.regen = regen
         self.ratio = ratio
         self.report = report
 
-    def em(self):
-        """Buy upgrades for power, defense, health and regen
+    def buy(self):
+        """Buy upgrades for power, toughness, health and regen
 
         Requires the confirmation popup button for EXP purchases in settings
         to be turned OFF.
@@ -174,7 +174,7 @@ class UpgradeAdventure(Stats):
         current_exp = Stats.xp
 
         total_price = (coords.APOWER_COST * self.power * self.ratio)
-        total_price += (coords.ADEFENSE_COST * self.defense * self.ratio)
+        total_price += (coords.ATOUGHNESS_COST * self.toughness * self.ratio)
         total_price += (coords.AHEALTH_COST * self.health * 10)
         total_price += math.floor(coords.AREGEN_COST * self.regen / 10)
 
@@ -189,7 +189,7 @@ class UpgradeAdventure(Stats):
         amount = int(current_exp // total_price)
 
         a_power = amount * self.ratio
-        a_defense = amount * self.ratio
+        a_toughness = amount * self.ratio
         a_health = amount * 10
         a_regen = math.floor(amount / 10)
         if a_regen < 1:
@@ -202,7 +202,7 @@ class UpgradeAdventure(Stats):
         time.sleep(userset.MEDIUM_SLEEP)
 
         self.click(*coords.EM_POW_BOX)
-        self.send_string(str(a_defense))
+        self.send_string(str(a_toughness))
         time.sleep(userset.MEDIUM_SLEEP)
 
         self.click(*coords.EM_CAP_BOX)
@@ -221,7 +221,7 @@ class UpgradeAdventure(Stats):
         self.set_value_with_ocr("XP")
 
         total_spent = coords.APOWER_COST * a_power
-        total_spent += coords.ADEFENSE_COST * a_defense
+        total_spent += coords.ADEFENSE_COST * a_toughness
         total_spent += coords.AHEALTH_COST * a_health
         total_spent += coords.AREGEN_COST * a_regen
 
@@ -229,7 +229,7 @@ class UpgradeAdventure(Stats):
             print("Spent XP:{:^8}".format(self.human_format(total_spent)))
             print("Power:{:^8}{:^3} Defense:{:^8}{:^3} Health:{:^8}{:^3} Regen:{:^8}".format(
                 self.human_format(a_power), "|",
-                self.human_format(a_defense), "|",
+                self.human_format(a_toughness), "|",
                 self.human_format(a_health), "|",
                 self.human_format(a_regen)))
 
@@ -252,7 +252,7 @@ class UpgradeRich(Stats):
         self.defense = defense
         self.report = report
 
-    def em(self):
+    def buy(self):
         """Buy upgrades for both attack and defense
 
         Requires the confirmation popup button for EXP purchases in settings
