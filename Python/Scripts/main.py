@@ -85,13 +85,15 @@ u = Upgrade(37500, 37500, 2, 2, 3)
 
 print(w.x, w.y)
 
-tracker = Tracker(3)
+tracker = Tracker(5)
 c = Challenge()
 
 while True:  # main loop
-    feature.questing()
-    #feature.boost_equipment()
-    #feature.ygg()
+    #feature.questing()
+    feature.itopod_snipe(300)
+    tracker.progress()
+    feature.boost_cube()
+    feature.ygg()
     #feature.snipe(13, 120)
 
     #time.sleep(120)

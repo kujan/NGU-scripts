@@ -37,6 +37,11 @@ class Features(Navigation, Inputs):
             self.click(*coords.EQUIPMENT_SLOTS[slot])
             self.send_string("a")
 
+    def boost_cube(self):
+        """Boost cube."""
+        self.menu("inventory")
+        self.click(*self.equipment["cube"], "right")
+
     def get_current_boss(self):
         """Go to fight and read current boss number."""
         self.menu("fight")
