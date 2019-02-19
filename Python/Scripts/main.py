@@ -65,7 +65,7 @@ def speedrun(duration, f):
     f.spin()
     f.save_check()
     tracker.progress()
-    u.em()
+    u.buy()
     tracker.adjustxp()
     while time.time() < end:
         time.sleep(0.1)
