@@ -815,6 +815,7 @@ class Features(Navigation, Inputs):
                     self.current_adventure_zone = count
                 while time.time() < end:
                     self.snipe(0, 2)
+                    self.boost_cube()
                     self.questing_consume_items()
                     text = self.get_quest_text()
                     if coords.QUESTING_QUEST_COMPLETE in text.lower():
@@ -843,6 +844,7 @@ class Features(Navigation, Inputs):
         """
         Rebirth_time = namedtuple('Rebirth_time', 'days timestamp')
         t = self.ocr(*coords.OCR_REBIRTH_TIME)
+        t = t.replace("§", "5") # if hour is 5 it reads as § instead.
         days = 0
         err = "Couldn't get a proper rebirth timestamp, saved screenshot for debugging"
         if "day" in t:
@@ -850,28 +852,28 @@ class Features(Navigation, Inputs):
                 days = int(t.split(" ")[0])
                 timestamp = time.strptime(t.split(" ")[2], "%H:%M:%S")
             except ValueError:
-                print(err)
+                print(err, t)
                 self.save_screenshot()
                 return None
         elif t.count(":") == 1:
             try:
                 timestamp = time.strptime(t, "%M:%S")
             except ValueError:
-                print(err)
+                print(err, t)
                 self.save_screenshot()
                 return None    
         elif t.count(":") == 0:
             try:
                 timestamp = time.strptime(t.split(".")[0], "%S")
             except ValueError:
-                print(err)
+                print(err, t)
                 self.save_screenshot()
                 return None    
         else:
             try:
                 timestamp = time.strptime(t, "%H:%M:%S")
             except ValueError:
-                print(err)
+                print(err, t)
                 self.save_screenshot()
                 return None    
 
