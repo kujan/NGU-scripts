@@ -18,6 +18,8 @@ import usersettings as userset
 class Features(Navigation, Inputs):
     """Handles the different features in the game."""
 
+    current_adventure_zone = 0
+
     def merge_equipment(self):
         """Navigate to inventory and merge equipment."""
         self.menu("inventory")
@@ -730,7 +732,7 @@ class Features(Navigation, Inputs):
                     self.ctrl_click(*loc)
                 time.sleep(3) # Need to wait for tooltip to disappear after consuming
 
-    def questing(self, duration=30, major=False, subcontract=False):
+    def questing(self, duration=40, major=False, subcontract=False):
         """Main procedure for questing
 
         Keyword arguments:
@@ -750,11 +752,11 @@ class Features(Navigation, Inputs):
         subcontracting takes very long to finish. Same obviously goes for subcontracting
         only.
 
-        Remember the default duration is 30, which is there to safeguard if something
+        Remember the default duration is 40, which is there to safeguard if something
         goes wrong to break out of the function. Set this higher/lower after your own
         preferences. 
 
-        questing(duration=30)
+        questing(duration=40)
 
         This will manually complete any quest you get for 30 minutes, then it returns,
         or it returns when the quest is completed.
@@ -808,8 +810,11 @@ class Features(Navigation, Inputs):
 
         for count, zone in enumerate(coords.QUESTING_ZONES, start=0):
             if zone in text.lower():
+                if self.current_adventure_zone != count:
+                    self.snipe(count, 0) # move to zone
+                    self.current_adventure_zone = count
                 while time.time() < end:
-                    self.snipe(count, 2)
+                    self.snipe(0, 2)
                     self.questing_consume_items()
                     text = self.get_quest_text()
                     if coords.QUESTING_QUEST_COMPLETE in text.lower():
@@ -830,37 +835,43 @@ class Features(Navigation, Inputs):
                         return
 
     def get_rebirth_time(self):
-        """Get the current rebirth time"""
+        """Get the current rebirth time
+
+        returns a namedtuple(days, timestamp) where days is the number
+        of days displayed in the rebirth time text and timestamp is a
+        time.time_struct object.
+        """
         Rebirth_time = namedtuple('Rebirth_time', 'days timestamp')
         t = self.ocr(*coords.OCR_REBIRTH_TIME)
         days = 0
+        err = "Couldn't get a proper rebirth timestamp, saved screenshot for debugging"
         if "day" in t:
             try:
                 days = int(t.split(" ")[0])
                 timestamp = time.strptime(t.split(" ")[2], "%H:%M:%S")
             except ValueError:
-                print("Couldn't get a proper rebirth timestamp, saved screenshot for debugging")
+                print(err)
                 self.save_screenshot()
                 return None
         elif t.count(":") == 1:
             try:
                 timestamp = time.strptime(t, "%M:%S")
             except ValueError:
-                print("Couldn't get a proper rebirth timestamp, saved screenshot for debugging")
+                print(err)
                 self.save_screenshot()
                 return None    
         elif t.count(":") == 0:
             try:
                 timestamp = time.strptime(t.split(".")[0], "%S")
             except ValueError:
-                print("Couldn't get a proper rebirth timestamp, saved screenshot for debugging")
+                print(err)
                 self.save_screenshot()
                 return None    
         else:
             try:
                 timestamp = time.strptime(t, "%H:%M:%S")
             except ValueError:
-                print("Couldn't get a proper rebirth timestamp, saved screenshot for debugging")
+                print(err)
                 self.save_screenshot()
                 return None    
 

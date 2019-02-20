@@ -30,7 +30,7 @@ def start_procedure(f, rt):
     f.blood_magic(8)
     f.gold_diggers([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
 
-    if rt.timestamp.tm_min >= 13:
+    if rt.timestamp.tm_hour > 0 or rt.timestamp.tm_min >= 13:
         print("assigning adv training")
     else:
         end = time.time() + (12.5 - rt.timestamp.tm_min) * 60
@@ -64,12 +64,14 @@ print(w.x, w.y)
 # 24 hour script
 
 rt = feature.get_rebirth_time()
-start_procedure(feature, rt)
+#start_procedure(feature, rt)
 
 while True:
     rt = feature.get_rebirth_time()
+    feature.gold_diggers([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
     if rt.days > 0:
-        print("rebirthing")
+        print(f"rebirthing at {rt}")
+        feature.save_screenshot()
         feature.spin()
         feature.ygg(equip=1)
         feature.do_rebirth()
@@ -79,7 +81,7 @@ while True:
         feature.ygg()
         feature.save_check()
         feature.pit()
-        if rt.timestamp.tm_hour <= 12:
+        if rt.timestamp.tm_hour <= 12: # quests for first 12 hours
             feature.boost_cube()
             feature.questing()
         else:
