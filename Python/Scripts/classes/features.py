@@ -81,7 +81,7 @@ class Features(Navigation, Inputs):
         self.menu("fight")
         self.click(*coords.FIGHT)
 
-    def ygg(self, rebirth=False):
+    def ygg(self, eat_all=False, equip=0):
         """Navigate to inventory and handle fruits.
 
         Keyword arguments:
@@ -89,11 +89,18 @@ class Features(Navigation, Inputs):
                    fruit.
         """
         self.menu("yggdrasil")
-        if rebirth:
-            for key in coords.FRUITS:
-                self.click(*coords.FRUITS[key])
+        if eat_all:
+            self.click(*coords.YGG_EAT_ALL)
+            return
+        if equip:
+            self.send_string("t")
+            self.send_string("r")
+            self.loadout(equip)
+            self.menu("yggdrasil")
+            self.click(*coords.HARVEST)
         else:
             self.click(*coords.HARVEST)
+
 
     def spin(self):
         """Spin the wheel."""
@@ -473,11 +480,13 @@ class Features(Navigation, Inputs):
     # TODO: make this actually useful for anything
     def advanced_training(self, value):
         self.menu("advtraining")
-        value = value // 2
+        value = value // 4
         self.input_box()
         self.send_string(value)
         self.click(*coords.ADV_TRAINING_POWER)
         self.click(*coords.ADV_TRAINING_TOUGHNESS)
+        self.click(*coords.ADV_TRAINING_WANDOOS_ENERGY)
+        self.click(*coords.ADV_TRAINING_WANDOOS_MAGIC)
 
     def titan_pt_check(self, target):
         """Check if we have the recommended p/t to defeat the target Titan.
@@ -819,3 +828,24 @@ class Features(Navigation, Inputs):
                         print(f"Completed quest in zone #{count} at {datetime.datetime.now().strftime('%H:%M:%S')} for {gained_qp} QP")
 
                         return
+
+    def get_rebirth_time(self):
+        """Get the current rebirth time"""
+        Rebirth_time = namedtuple('Rebirth_time', 'days timestamp')
+        t = self.ocr(*coords.OCR_REBIRTH_TIME)
+        days = 0
+        if "day" in t:
+            try:
+                days = int(t.split(" ")[0])
+                timestamp = time.strptime(t.split(" ")[2], "%H:%M:%S")
+            except ValueError:
+                print("Couldn't get a proper rebirth timestamp")
+                return None
+        elif t.count(":") == 1:
+            timestamp = time.strptime(t, "%M:%S")
+        elif t.count(":") == 0:
+            timestamp = time.strptime(t.split(".")[0], "%S")
+        else:
+            timestamp = time.strptime(t, "%H:%M:%S")
+
+        return Rebirth_time(days, timestamp)

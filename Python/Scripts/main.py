@@ -1,4 +1,4 @@
-"""3-minute rebirth script"""
+"""24-hour rebirth script"""
 
 # Challenges
 from challenges.basic import Basic
