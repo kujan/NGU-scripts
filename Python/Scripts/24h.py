@@ -20,7 +20,7 @@ import time
 def start_procedure(f, rt):
     f.send_string("r") # make sure we reset e/m if we run this mid-rebirth
     f.send_string("t")
-    f.nuke()
+    f.nuke(101)
     time.sleep(3)
     f.loadout(2) # respawn
     f.adventure(highest=True)
@@ -68,6 +68,7 @@ rt = feature.get_rebirth_time()
 
 while True:
     rt = feature.get_rebirth_time()
+    print(rt)
     feature.gold_diggers([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
     if rt.days > 0:
         print(f"rebirthing at {rt}")
