@@ -64,8 +64,7 @@ print(w.x, w.y)
 # 24 hour script
 
 rt = feature.get_rebirth_time()
-count = 1
-#start_procedure(feature, rt)
+start_procedure(feature, rt)
 
 while True:
     rt = feature.get_rebirth_time()

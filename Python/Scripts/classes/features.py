@@ -839,13 +839,29 @@ class Features(Navigation, Inputs):
                 days = int(t.split(" ")[0])
                 timestamp = time.strptime(t.split(" ")[2], "%H:%M:%S")
             except ValueError:
-                print("Couldn't get a proper rebirth timestamp")
+                print("Couldn't get a proper rebirth timestamp, saved screenshot for debugging")
+                self.save_screenshot()
                 return None
         elif t.count(":") == 1:
-            timestamp = time.strptime(t, "%M:%S")
+            try:
+                timestamp = time.strptime(t, "%M:%S")
+            except ValueError:
+                print("Couldn't get a proper rebirth timestamp, saved screenshot for debugging")
+                self.save_screenshot()
+                return None    
         elif t.count(":") == 0:
-            timestamp = time.strptime(t.split(".")[0], "%S")
+            try:
+                timestamp = time.strptime(t.split(".")[0], "%S")
+            except ValueError:
+                print("Couldn't get a proper rebirth timestamp, saved screenshot for debugging")
+                self.save_screenshot()
+                return None    
         else:
-            timestamp = time.strptime(t, "%H:%M:%S")
+            try:
+                timestamp = time.strptime(t, "%H:%M:%S")
+            except ValueError:
+                print("Couldn't get a proper rebirth timestamp, saved screenshot for debugging")
+                self.save_screenshot()
+                return None    
 
         return Rebirth_time(days, timestamp)
