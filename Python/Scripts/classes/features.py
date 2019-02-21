@@ -844,37 +844,30 @@ class Features(Navigation, Inputs):
         """
         Rebirth_time = namedtuple('Rebirth_time', 'days timestamp')
         t = self.ocr(*coords.OCR_REBIRTH_TIME)
-        t = t.replace("§", "5") # if hour is 5 it reads as § instead.
+        x = re.search("((?P<days>[0-9]) day )?((?P<hours>[0-9]+):)?(?P<minutes>[0-9]+):(?P<seconds>[0-9]+)", t)
+        print(t)
         days = 0
-        err = "Couldn't get a proper rebirth timestamp, saved screenshot for debugging"
-        if "day" in t:
-            try:
-                days = int(t.split(" ")[0])
-                timestamp = time.strptime(t.split(" ")[2], "%H:%M:%S")
-            except ValueError:
-                print(err, t)
-                self.save_screenshot()
-                return None
-        elif t.count(":") == 1:
-            try:
-                timestamp = time.strptime(t, "%M:%S")
-            except ValueError:
-                print(err, t)
-                self.save_screenshot()
-                return None    
-        elif t.count(":") == 0:
-            try:
-                timestamp = time.strptime(t.split(".")[0], "%S")
-            except ValueError:
-                print(err, t)
-                self.save_screenshot()
-                return None    
+        if x is None:
+            timestamp = time.strptime("0:0:0", "%H:%M:%S")
         else:
-            try:
-                timestamp = time.strptime(t, "%H:%M:%S")
-            except ValueError:
-                print(err, t)
-                self.save_screenshot()
-                return None    
+            if x.group('days') is None:
+                days = 0
+            else:
+                days = int(x.group('days'))
 
+            if x.group('hours') is None:
+                hours = "0"
+            else:
+                hours = x.group('hours')
+
+            if x.group('minutes') is None:
+                minutes = "0"
+            else:
+                minutes = x.group('minutes')
+
+            if x.group('seconds') is None:
+                seconds = "0"
+            else:
+                seconds = x.group('seconds')
+            timestamp = time.strptime(f"{hours}:{minutes}:{seconds}", "%H:%M:%S")
         return Rebirth_time(days, timestamp)
