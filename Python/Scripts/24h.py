@@ -73,9 +73,10 @@ while True:
     feature.merge_inventory(9)
     if rt.days > 0:
         print(f"rebirthing at {rt}")
-        feature.save_screenshot()
+        feature.nuke()
         feature.spin()
         feature.ygg(equip=1)
+        feature.save_screenshot()
         feature.do_rebirth()
         rt = feature.get_rebirth_time()
         start_procedure(feature, rt)
