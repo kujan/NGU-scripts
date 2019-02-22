@@ -18,6 +18,7 @@ import datetime
 import time
 
 def start_procedure(f, rt):
+    print(f"Start start_procedure {rt}")
     f.send_string("r") # make sure we reset e/m if we run this mid-rebirth
     f.send_string("t")
     f.nuke(101)
@@ -33,17 +34,17 @@ def start_procedure(f, rt):
     if rt.timestamp.tm_hour > 0 or rt.timestamp.tm_min >= 13:
         print("assigning adv training")
     else:
-        end = time.time() + (12.5 - rt.timestamp.tm_min) * 60
-        print("doing itopod while waiting for adv training to activate")
-        f.itopod_snipe(int(end - time.time()))
+        duration = (12.5 - rt.timestamp.tm_min) * 60
+        print(f"doing itopod for {duration} seconds while waiting for adv training to activate")
+        f.itopod_snipe(duration)
 
     f.advanced_training(2e12)
 
     if rt.timestamp.tm_hour < 1:
-        end = time.time() + (54 - rt.timestamp.tm_min) * 60
-        print("doing itopod while waiting for wandoos to boot")
-        f.itopod_snipe(int(end - time.time()))
-    f.gold_diggers([[x for x in range(1, 13)]])
+        duration = (54 - rt.timestamp.tm_min) * 60
+        print(f"doing itopod for {duration} seconds while waiting for wandoos to boot")
+        f.itopod_snipe(duration)
+    f.gold_diggers([x for x in range(1, 13)])
     f.send_string("t")
     f.menu("timemachine")
     f.click(*coords.TM_MULT)
@@ -64,13 +65,13 @@ print(w.x, w.y)
 # 24 hour script
 
 rt = feature.get_rebirth_time()
-#start_procedure(feature, rt)
+start_procedure(feature, rt)
 
 while True:
     rt = feature.get_rebirth_time()
     print(rt)
     feature.gold_diggers([x for x in range(1, 13)])
-    feature.merge_inventory(9)
+    feature.merge_inventory(9) # merge guffs
     if rt.days > 0:
         print(f"rebirthing at {rt}")
         feature.nuke()
@@ -78,6 +79,7 @@ while True:
         feature.ygg(equip=1)
         feature.save_screenshot()
         feature.do_rebirth()
+        time.sleep(3)
         rt = feature.get_rebirth_time()
         start_procedure(feature, rt)
     else:
@@ -90,4 +92,3 @@ while True:
         else:
             feature.itopod_snipe(300)
             feature.boost_cube()
-            feature.merge_inventory(9) # merge guffs
