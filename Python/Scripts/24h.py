@@ -28,7 +28,7 @@ def start_procedure(f, rt):
     f.time_machine(5e11, magic=True)
     f.augments({"CI": 0.7, "ML": 0.3}, 5e11)
     f.blood_magic(8)
-    f.gold_diggers([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+    f.gold_diggers([x for x in range(1, 13)])
 
     if rt.timestamp.tm_hour > 0 or rt.timestamp.tm_min >= 13:
         print("assigning adv training")
@@ -43,13 +43,13 @@ def start_procedure(f, rt):
         end = time.time() + (54 - rt.timestamp.tm_min) * 60
         print("doing itopod while waiting for wandoos to boot")
         f.itopod_snipe(int(end - time.time()))
-    f.gold_diggers([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+    f.gold_diggers([[x for x in range(1, 13)]])
     f.send_string("t")
     f.menu("timemachine")
     f.click(*coords.TM_MULT)
     f.wandoos(True)
-    f.assign_ngu(f.get_idle_cap(), [1, 2, 3, 4, 5, 6, 7, 8, 9])
-    f.assign_ngu(f.get_idle_cap(True), [1, 2, 3, 4, 5, 6, 7], True)
+    f.assign_ngu(f.get_idle_cap(), [x for x in range(1, 10)])
+    f.assign_ngu(f.get_idle_cap(True), [x for x in range(1, 8)], True)
 
 w = Window()
 i = Inputs()
@@ -69,7 +69,7 @@ rt = feature.get_rebirth_time()
 while True:
     rt = feature.get_rebirth_time()
     print(rt)
-    feature.gold_diggers([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+    feature.gold_diggers([x for x in range(1, 13)])
     feature.merge_inventory(9)
     if rt.days > 0:
         print(f"rebirthing at {rt}")
