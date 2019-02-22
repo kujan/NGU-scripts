@@ -1,5 +1,6 @@
 """Contains functions for running a no rebirth challenge."""
 from classes.features import Features
+import coordinates as coords
 import usersettings as userset
 import time
 
@@ -19,29 +20,26 @@ class Rebirth(Features):
         time.sleep(2)
         self.fight()
         self.adventure(highest=True)
-        while not tm_unlocked:
+        while self.check_pixel_color(*coords.COLOR_TM_LOCKED):
             if not ci_assigned:
                 time.sleep(1)
-                self.augments({"CI": 1}, 1e6)
+                self.augments({"CI": 1}, 1e9)
                 ci_assigned = True
             self.wandoos(True)
             self.nuke()
             time.sleep(2)
             self.fight()
 
-            tm_color = self.get_pixel_color(ncon.TMLOCKEDX, ncon.TMLOCKEDY)
-            if tm_color != ncon.TMLOCKEDCOLOR:
-                self.time_machine(1e9, magic=True)
-                self.loadout(2)
-                tm_unlocked = True
+        self.time_machine(1e9, magic=True)
+        self.loadout(2)
 
         time.sleep(15)
         self.augments({"CI": 1}, 1e8)
-        self.gold_diggers(diggers, True)
+        self.gold_diggers(diggers)
         self.adventure(highest=True)
         time.sleep(4)
         self.adventure(itopod=True, itopodauto=True)
-        while not bm_unlocked:
+        while self.check_pixel_color(*coords.COLOR_BM_LOCKED) or self.check_pixel_color(*coords.COLOR_BM_LOCKED_ALT):
             self.wandoos(True)
             self.nuke()
             time.sleep(2)
@@ -49,14 +47,13 @@ class Rebirth(Features):
             self.gold_diggers(diggers)
             time.sleep(5)
 
-            bm_color = self.get_pixel_color(ncon.BMLOCKEDX, ncon.BMLOCKEDY)
-            if bm_color != ncon.BMLOCKEDCOLOR:
-                self.menu("bloodmagic")
-                time.sleep(0.2)
-                self.blood_magic(8)
-                bm_unlocked = True
-                self.augments({"SS": 0.7, "DS": 0.3}, 5e8)
+        self.menu("bloodmagic")
+        time.sleep(0.2)
+        self.blood_magic(8)
+        bm_unlocked = True
+        self.augments({"SS": 0.7, "DS": 0.3}, 5e8)
         final_aug = False
+
         while True:
             self.wandoos(True)
             self.nuke()
@@ -78,12 +75,9 @@ class Rebirth(Features):
     def check_challenge(self):
         """Check if a challenge is active."""
         self.rebirth()
-        self.click(ncon.CHALLENGEBUTTONX, ncon.CHALLENGEBUTTONY)
+        self.click(*coords.CHALLENGE_BUTTON)
         time.sleep(userset.LONG_SLEEP)
-        color = self.get_pixel_color(ncon.CHALLENGEACTIVEX,
-                                     ncon.CHALLENGEACTIVEY)
-
-        return True if color == ncon.CHALLENGEACTIVECOLOR else False
+        return True if self.check_pixel_color(*coords.COLOR_CHALLENGE_ACTIVE) else False
 
     def rebirth_challenge(self):
         """Defeat target boss."""
