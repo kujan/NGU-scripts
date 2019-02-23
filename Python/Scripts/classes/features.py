@@ -380,7 +380,7 @@ class Features(Navigation, Inputs):
             self.click(*coords.BM_AUTO_GOLD)
 
     def check_spells_ready(self):
-        """Checks which spells are ready to cast.
+        """Check which spells are ready to cast.
 
         returns a list with integers corresponding to which spell is ready.
         1 - Iron pill
@@ -396,7 +396,7 @@ class Features(Navigation, Inputs):
                 spells.append(1)
 
             self.click(*coords.BM_GUFFIN_A, button="right")
-            res = self.ocr(*coords.OCR_BM_SPELL_TEXT) 
+            res = self.ocr(*coords.OCR_BM_SPELL_TEXT)
             if "cooldown: 0.0s" in res.lower():
                 spells.append(2)
 
