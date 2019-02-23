@@ -13,7 +13,7 @@ import time
 import win32con as wcon
 import win32gui
 import usersettings as userset
-# TODO: replace ngucon with coordinates
+
 
 class Features(Navigation, Inputs):
     """Handles the different features in the game."""
@@ -120,6 +120,9 @@ class Features(Navigation, Inputs):
         itopodauto -- If set to true it will click the "optimal" floor button.
         """
         self.menu("adventure")
+        self.click(625, 500)  # click somewhere to move tooltip
+        if not self.check_pixel_color(*coords.IS_IDLE):
+            self.click(*coords.ABILITY_IDLE_MODE)
         if itopod:
             self.click(*coords.ITOPOD)
             if itopodauto:
@@ -234,8 +237,6 @@ class Features(Navigation, Inputs):
 
         self.click(*coords.ABILITY_IDLE_MODE)
 
-
-
     def do_rebirth(self):
         """Start a rebirth or challenge."""
         self.rebirth()
@@ -244,6 +245,13 @@ class Features(Navigation, Inputs):
         self.click(*coords.REBIRTH_BUTTON)
         self.click(*coords.CONFIRM)
         return
+
+    def check_challenge(self):
+        """Check if a challenge is active."""
+        self.rebirth()
+        self.click(*coords.CHALLENGE_BUTTON)
+        time.sleep(userset.LONG_SLEEP)
+        return True if self.check_pixel_color(*coords.COLOR_CHALLENGE_ACTIVE) else False
 
     def pit(self, loadout=0):
         """Throws money into the pit.
@@ -326,7 +334,8 @@ class Features(Navigation, Inputs):
         e -- The amount of energy to put into TM.
         m -- The amount of magic to put into TM, if this is 0, it will use the
              energy value to save unnecessary clicks to the input box.
-        magic -- Set to true if you wish to add magic as well"""
+        magic -- Set to true if you wish to add magic as well
+        """
         self.menu("timemachine")
         self.input_box()
         self.send_string(e)
@@ -366,7 +375,7 @@ class Features(Navigation, Inputs):
     def toggle_auto_spells(self, number=True, drop=True, gold=True):
         """Check and toggle autospells according to booleans."""
         self.spells()
-        self.click(600, 600) # move tooltip
+        self.click(600, 600)  # move tooltip
         number_active = self.check_pixel_color(*coords.COLOR_BM_AUTO_NUMBER)
         drop_active = self.check_pixel_color(*coords.COLOR_BM_AUTO_DROP)
         gold_active = self.check_pixel_color(*coords.COLOR_BM_AUTO_GOLD)
@@ -564,13 +573,14 @@ class Features(Navigation, Inputs):
                 else:
                     print(f"Warning: You might be overcapping energy NGU #{target}")
                 continue
-                
+
             self.input_box()
             self.send_string(str(int(energy)))
             self.click(coords.NGU_PLUS.x, coords.NGU_PLUS.y + target * 35)
 
     # TODO: make this actually useful for anything
     def advanced_training(self, value):
+        """Assign energy to adventure power/thoughness and wandoos."""
         self.menu("advtraining")
         value = value // 4
         self.input_box()
@@ -682,8 +692,6 @@ class Features(Navigation, Inputs):
                 if color == coords.ABILITY_ROW3_READY_COLOR:
                     ready.append(i)
 
-        health = self.get_pixel_color(coords.PLAYER_HEAL_THRESHOLDX,
-                                      coords.PLAYER_HEAL_THRESHOLDY)
         # heal if we need to heal
         if self.check_pixel_color(*coords.PLAYER_HEAL_THRESHOLD):
             if 12 in ready:
@@ -781,13 +789,15 @@ class Features(Navigation, Inputs):
         time.sleep(userset.SHORT_SLEEP)
 
         if consume:
-            coords = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600, self.get_file_path("images", "consumable.png"), threshold)
+            coords = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600,
+                                       self.get_file_path("images", "consumable.png"), threshold)
         else:
-            coords = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600, self.get_file_path("images", "transformable.png"), threshold)
+            coords = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600,
+                                       self.get_file_path("images", "transformable.png"), threshold)
 
         if coords:
             self.ctrl_click(*slot)
-            
+
     def get_idle_cap(self, magic=False):
         """Get the available idle energy or magic."""
         try:
@@ -795,7 +805,7 @@ class Features(Navigation, Inputs):
                 res = self.ocr(*coords.OCR_MAGIC)
             else:
                 res = self.ocr(*coords.OCR_ENERGY)
-            match = re.search(".*(\d+\.\d+E\+\d+)", res)
+            match = re.search(r".*(\d+\.\d+E\+\d+)", res)
             if match is not None:
                 return int(float(match.group(1)))
             elif match is None:
@@ -804,12 +814,12 @@ class Features(Navigation, Inputs):
             print("Couldn't get idle e/m")
 
     def get_quest_text(self):
-        """Check if we have an active quest or not"""
+        """Check if we have an active quest or not."""
         self.menu("questing")
         return self.ocr(*coords.OCR_QUESTING_LEFT_TEXT)
 
     def questing_consume_items(self, cleanup=False):
-        """Check for items in inventory that can be turned in"""
+        """Check for items in inventory that can be turned in."""
         self.menu("inventory")
         bmp = self.get_bitmap()
         for item in coords.QUESTING_FILENAMES:
@@ -820,10 +830,10 @@ class Features(Navigation, Inputs):
                 if cleanup:
                     self.send_string("d")
                     self.ctrl_click(*loc)
-                time.sleep(3) # Need to wait for tooltip to disappear after consuming
+                time.sleep(3)  # Need to wait for tooltip to disappear after consuming
 
-    def questing(self, duration=40, major=False, subcontract=False):
-        """Main procedure for questing
+    def questing(self, duration=30, major=False, subcontract=False):
+        """Procedure for questing.
 
         Keyword arguments:
         duration -- The duration to run if manual mode is selected. If
@@ -844,7 +854,7 @@ class Features(Navigation, Inputs):
 
         Remember the default duration is 40, which is there to safeguard if something
         goes wrong to break out of the function. Set this higher/lower after your own
-        preferences. 
+        preferences.
 
         questing(duration=40)
 
@@ -864,38 +874,35 @@ class Features(Navigation, Inputs):
         so make sure it's set to page 1 and that your inventory has space.
         If your inventory fills with mcguffins/other drops while it runs, it
         will get stuck doing the same quest forever. Make sure you will have
-        space for the entire duration you will leave it running unattended. 
-        
+        space for the entire duration you will leave it running unattended.
         """
-
-        start = time.time()
         end = time.time() + duration * 60
         self.menu("questing")
-        self.click(605, 510) # move tooltip 
+        self.click(605, 510)  # move tooltip
         text = self.get_quest_text()
 
         if coords.QUESTING_QUEST_COMPLETE in text.lower():
             self.click(*coords.QUESTING_START_QUEST)
-            time.sleep(userset.LONG_SLEEP * 2) #
-            text = self.get_quest_text() # fetch new quest text
+            time.sleep(userset.LONG_SLEEP * 2)
+            text = self.get_quest_text()  # fetch new quest text
 
-        if coords.QUESTING_NO_QUEST_ACTIVE in text.lower(): # if we have no active quest, start one
+        if coords.QUESTING_NO_QUEST_ACTIVE in text.lower():  # if we have no active quest, start one
             self.click(*coords.QUESTING_START_QUEST)
-            self.questing_consume_items(True) # we have to clean up the inventory from any old quest items
+            self.questing_consume_items(True)  # we have to clean up the inventory from any old quest items
             time.sleep(userset.LONG_SLEEP)
-            text = self.get_quest_text() # fetch new quest text
+            text = self.get_quest_text()  # fetch new quest text
 
         if subcontract:
             if self.check_pixel_color(*coords.QUESTING_IDLE_INACTIVE):
                 self.click(*coords.QUESTING_SUBCONTRACT)
             return
 
-        if major and coords.QUESTING_MINOR_QUEST in text.lower(): # check if current quest is minor
+        if major and coords.QUESTING_MINOR_QUEST in text.lower():  # check if current quest is minor
             if self.check_pixel_color(*coords.QUESTING_IDLE_INACTIVE):
                 self.click(*coords.QUESTING_SUBCONTRACT)
             return
 
-        if not self.check_pixel_color(*coords.QUESTING_IDLE_INACTIVE): # turn off idle
+        if not self.check_pixel_color(*coords.QUESTING_IDLE_INACTIVE):  # turn off idle
             self.click(*coords.QUESTING_SUBCONTRACT)
 
         for count, zone in enumerate(coords.QUESTING_ZONES, start=0):
@@ -909,17 +916,16 @@ class Features(Navigation, Inputs):
                     self.questing_consume_items()
                     text = self.get_quest_text()
                     if coords.QUESTING_QUEST_COMPLETE in text.lower():
-                        qp_gained = 0
                         try:
                             start_qp = int(self.remove_letters(self.ocr(*coords.OCR_QUESTING_QP)))
                         except ValueError:
                             print("Couldn't fetch current QP")
                         self.click(*coords.QUESTING_START_QUEST)
-                        self.click(605, 510) # move tooltip
+                        self.click(605, 510)  # move tooltip
                         try:
                             current_qp = int(self.remove_letters(self.ocr(*coords.OCR_QUESTING_QP)))
                         except ValueError:
-                            print("Couldn't fetch current QP")                       
+                            print("Couldn't fetch current QP")
                         gained_qp = current_qp - start_qp
                         print(f"Completed quest in zone #{count} at {datetime.datetime.now().strftime('%H:%M:%S')} for {gained_qp} QP")
 
