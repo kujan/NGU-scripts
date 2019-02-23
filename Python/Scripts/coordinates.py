@@ -345,7 +345,7 @@ MISC = Pixel(355, 200)
 # PIXEL CHECKS
 # TODO: CONVERT to ColorPixel of COLOR_
 IS_BOSS_CROWN = ColorPixel(705, 275, 'F7EF29')
-IS_ENEMY_ALIVE = ColorPixel(*HEALTH, 'D93030') #D93030 
+IS_ENEMY_ALIVE = ColorPixel(*HEALTH, ['D93030', 'EB3434']) # If you reduce the enemy healthbar to 1px, the color changes for some reason
 IS_DEAD = ColorPixel(*HEALTH, 'EBEBEB')
 IS_ITOPOD_ACTIVE = ColorPixel(594, 277, '000000') # Checks color of pixel in "Floor x" text
 IS_IDLE = ColorPixel(*ABILITY_REGULAR_ATTACK, '7C4E4E')
