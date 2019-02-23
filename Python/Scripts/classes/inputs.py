@@ -211,7 +211,7 @@ class Inputs():
         return self.rgb_to_hex((r, g, b))
 
     def check_pixel_color(self, x, y, checks):
-        color = self.get_pixel_color(x, y, True)
+        color = self.get_pixel_color(x, y)
         if isinstance(checks, list):
             for check in checks:
                 if check == color:
