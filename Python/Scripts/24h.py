@@ -51,7 +51,6 @@ start_procedure(feature, rt)
 
 while True:
     rt = feature.get_rebirth_time()
-    print(rt)
     feature.gold_diggers([x for x in range(1, 13)])
     feature.merge_inventory(8)  # merge uneqipped guffs
     spells = feature.check_spells_ready()
