@@ -221,7 +221,7 @@ class UpgradeAdventure(Stats):
         self.set_value_with_ocr("XP")
 
         total_spent = coords.APOWER_COST * a_power
-        total_spent += coords.ADEFENSE_COST * a_toughness
+        total_spent += coords.ATOUGHNESS_COST * a_toughness
         total_spent += coords.AHEALTH_COST * a_health
         total_spent += coords.AREGEN_COST * a_regen
 

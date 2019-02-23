@@ -18,6 +18,8 @@ import usersettings as userset
 class Features(Navigation, Inputs):
     """Handles the different features in the game."""
 
+    current_adventure_zone = 0
+
     def merge_equipment(self):
         """Navigate to inventory and merge equipment."""
         self.menu("inventory")
@@ -81,7 +83,7 @@ class Features(Navigation, Inputs):
         self.menu("fight")
         self.click(*coords.FIGHT)
 
-    def ygg(self, rebirth=False):
+    def ygg(self, eat_all=False, equip=0):
         """Navigate to inventory and handle fruits.
 
         Keyword arguments:
@@ -89,9 +91,15 @@ class Features(Navigation, Inputs):
                    fruit.
         """
         self.menu("yggdrasil")
-        if rebirth:
-            for key in coords.FRUITS:
-                self.click(*coords.FRUITS[key])
+        if eat_all:
+            self.click(*coords.YGG_EAT_ALL)
+            return
+        if equip:
+            self.send_string("t")
+            self.send_string("r")
+            self.loadout(equip)
+            self.menu("yggdrasil")
+            self.click(*coords.HARVEST)
         else:
             self.click(*coords.HARVEST)
 
@@ -387,24 +395,27 @@ class Features(Navigation, Inputs):
         2 - MacGuffin alpha
         3 - MacGuffin beta
         """
-        self.spells()
-        self.click(*coords.BM_PILL, button="right")
-        spells = []
-        res = self.ocr(*coords.OCR_BM_SPELL_TEXT)
-        if "cooldown: 0.0s" in res.lower():
-            spells.append(1)
+        if self.check_pixel_color(*coords.COLOR_SPELL_READY):
+            self.spells()
+            self.click(*coords.BM_PILL, button="right")
+            spells = []
+            res = self.ocr(*coords.OCR_BM_SPELL_TEXT)
+            if "cooldown: 0.0s" in res.lower():
+                spells.append(1)
 
-        self.click(*coords.BM_GUFFIN_A, button="right")
-        res = self.ocr(*coords.OCR_BM_SPELL_TEXT)
-        if "cooldown: 0.0s" in res.lower():
-            spells.append(2)
+            self.click(*coords.BM_GUFFIN_A, button="right")
+            res = self.ocr(*coords.OCR_BM_SPELL_TEXT)
+            if "cooldown: 0.0s" in res.lower():
+                spells.append(2)
 
-        self.click(*coords.BM_GUFFIN_B, button="right")
-        res = self.ocr(*coords.OCR_BM_SPELL_TEXT)
-        if "cooldown: 0.0s" in res.lower():
-            spells.append(3)
+            self.click(*coords.BM_GUFFIN_B, button="right")
+            res = self.ocr(*coords.OCR_BM_SPELL_TEXT)
+            if "cooldown: 0.0s" in res.lower():
+                spells.append(3)
 
-        return spells
+            return spells
+        else:
+            return []
 
     def cast_spell(self, target):
         """Cast target spell.
@@ -509,6 +520,14 @@ class Features(Navigation, Inputs):
         self.menu("digger")
         self.click(*coords.DIG_DEACTIVATE_ALL)
 
+    def level_diggers(self):
+        """Level all diggers."""
+        self.menu("digger")
+        for page in coords.DIG_PAGE:
+            self.click(*page)
+            for digger in coords.DIG_LEVEL:
+                self.click(*digger, button="right")
+
     def bb_ngu(self, value, targets, overcap=1, magic=False):
         """Estimates the BB value of each supplied NGU.
 
@@ -563,11 +582,13 @@ class Features(Navigation, Inputs):
     def advanced_training(self, value):
         """Assign energy to adventure power/thoughness and wandoos."""
         self.menu("advtraining")
-        value = value // 2
+        value = value // 4
         self.input_box()
         self.send_string(value)
         self.click(*coords.ADV_TRAINING_POWER)
         self.click(*coords.ADV_TRAINING_TOUGHNESS)
+        self.click(*coords.ADV_TRAINING_WANDOOS_ENERGY)
+        self.click(*coords.ADV_TRAINING_WANDOOS_MAGIC)
 
     def titan_pt_check(self, target):
         """Check if we have the recommended p/t to defeat the target Titan.
@@ -831,11 +852,11 @@ class Features(Navigation, Inputs):
         subcontracting takes very long to finish. Same obviously goes for subcontracting
         only.
 
-        Remember the default duration is 30, which is there to safeguard if something
+        Remember the default duration is 40, which is there to safeguard if something
         goes wrong to break out of the function. Set this higher/lower after your own
         preferences.
 
-        questing(duration=30)
+        questing(duration=40)
 
         This will manually complete any quest you get for 30 minutes, then it returns,
         or it returns when the quest is completed.
@@ -886,8 +907,12 @@ class Features(Navigation, Inputs):
 
         for count, zone in enumerate(coords.QUESTING_ZONES, start=0):
             if zone in text.lower():
+                if self.current_adventure_zone != count:
+                    self.snipe(count, 0) # move to zone
+                    self.current_adventure_zone = count
                 while time.time() < end:
-                    self.snipe(count, 2)
+                    self.snipe(0, 2)
+                    self.boost_cube()
                     self.questing_consume_items()
                     text = self.get_quest_text()
                     if coords.QUESTING_QUEST_COMPLETE in text.lower():
@@ -905,3 +930,40 @@ class Features(Navigation, Inputs):
                         print(f"Completed quest in zone #{count} at {datetime.datetime.now().strftime('%H:%M:%S')} for {gained_qp} QP")
 
                         return
+
+    def get_rebirth_time(self):
+        """Get the current rebirth time
+
+        returns a namedtuple(days, timestamp) where days is the number
+        of days displayed in the rebirth time text and timestamp is a
+        time.time_struct object.
+        """
+        Rebirth_time = namedtuple('Rebirth_time', 'days timestamp')
+        t = self.ocr(*coords.OCR_REBIRTH_TIME)
+        x = re.search("((?P<days>[0-9]) day )?((?P<hours>[0-9]+):)?(?P<minutes>[0-9]+):(?P<seconds>[0-9]+)", t)
+        print(t)
+        days = 0
+        if x is None:
+            timestamp = time.strptime("0:0:0", "%H:%M:%S")
+        else:
+            if x.group('days') is None:
+                days = 0
+            else:
+                days = int(x.group('days'))
+
+            if x.group('hours') is None:
+                hours = "0"
+            else:
+                hours = x.group('hours')
+
+            if x.group('minutes') is None:
+                minutes = "0"
+            else:
+                minutes = x.group('minutes')
+
+            if x.group('seconds') is None:
+                seconds = "0"
+            else:
+                seconds = x.group('seconds')
+            timestamp = time.strptime(f"{hours}:{minutes}:{seconds}", "%H:%M:%S")
+        return Rebirth_time(days, timestamp)
