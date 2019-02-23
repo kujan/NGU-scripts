@@ -210,8 +210,14 @@ class Inputs():
         
         return self.rgb_to_hex((r, g, b))
 
-    def check_pixel_color(self, x, y, check):
-        return check == self.get_pixel_color(x, y)
+    def check_pixel_color(self, x, y, checks):
+        color = self.get_pixel_color(x, y, True)
+        if isinstance(checks, list):
+            for check in checks:
+                if check == color:
+                    return True
+        else:
+            return color == checks
 
     def remove_letters(self, s):
         """Remove all non digit characters from string."""

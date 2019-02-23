@@ -347,7 +347,7 @@ MISC = Pixel(355, 200)
 # PIXEL CHECKS
 # TODO: CONVERT to ColorPixel of COLOR_
 IS_BOSS_CROWN = ColorPixel(705, 275, 'F7EF29')
-IS_ENEMY_ALIVE = ColorPixel(*HEALTH, 'D93030') #D93030 
+IS_ENEMY_ALIVE = ColorPixel(*HEALTH, ['D93030', 'EB3434']) # If you reduce the enemy healthbar to 1px, the color changes for some reason
 IS_DEAD = ColorPixel(*HEALTH, 'EBEBEB')
 IS_ITOPOD_ACTIVE = ColorPixel(594, 277, '000000') # Checks color of pixel in "Floor x" text
 IS_IDLE = ColorPixel(*ABILITY_REGULAR_ATTACK, '7C4E4E')
@@ -355,8 +355,9 @@ IS_SAVE_READY = ColorPixel(*SAVE, '99FF99')
 IS_PIT_READY = ColorPixel(*PIT_CHECK, '7FD23B')
 IS_SPIN_READY = ColorPixel(*PIT_CHECK, 'FFD23B')
 COLOR_CHALLENGE_ACTIVE = ColorPixel(391, 111, '000000')
-COLOR_TM_LOCKED = ColorPixel(188, 257, '97A8B5')
-IS_BM_LOCKED = ColorPixel(*BM_LOCKED, '97A8B5')
+COLOR_TM_LOCKED = ColorPixel(188, 257, '96A7B7')
+COLOR_BM_LOCKED = ColorPixel(*BM_LOCKED, '96A7B7')
+COLOR_BM_LOCKED_ALT = ColorPixel(*BM_LOCKED, '7B4A94')
 IS_IRON_PILL_READY = ColorPixel(*BM_LOCKED, 'BA13A7')
 PLAYER_HEAL_THRESHOLD = ColorPixel(512, 392, 'FFFFFF')
 QUESTING_IDLE_INACTIVE = ColorPixel(386, 555, '111111') # Pixel in the subcontracting button
