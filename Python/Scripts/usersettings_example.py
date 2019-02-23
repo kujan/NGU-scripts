@@ -6,9 +6,9 @@ SHORT_SLEEP = 0.1
 MEDIUM_SLEEP = 0.2
 LONG_SLEEP = 0.3
 
-# How long to farm blood for iron pill (in seconds)
+# How long to farm blood for spell casting (in seconds)
 
-PILL = 300
+SPELL = 300
 
 # DISCORD WEBHOOK URLS
 
