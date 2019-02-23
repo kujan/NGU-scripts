@@ -358,32 +358,111 @@ class Features(Navigation, Inputs):
 
     @deprecated(version='0.1', reason="speedrun_bloodpill is deprecated, use iron_pill() instead")
     def speedrun_bloodpill(self):
-        self.iron_pill()
+        return
 
+    @deprecated(version='0.1', reason="iron_pill is deprecated, use cast_spell() instead")
     def iron_pill(self):
-        """Check if bloodpill is ready to cast."""
-        if self.check_pixel_color(*coords.IS_IRON_PILL_READY):
+        return
+
+    def toggle_auto_spells(self, number=True, drop=True, gold=True):
+        """Check and toggle autospells according to booleans."""
+        self.spells()
+        self.click(600, 600) # move tooltip
+        number_active = self.check_pixel_color(*coords.COLOR_BM_AUTO_NUMBER)
+        drop_active = self.check_pixel_color(*coords.COLOR_BM_AUTO_DROP)
+        gold_active = self.check_pixel_color(*coords.COLOR_BM_AUTO_GOLD)
+
+        if (number and not number_active) or (not number and number_active):
+            self.click(*coords.BM_AUTO_NUMBER)
+        if (drop and not drop_active) or (not drop and drop_active):
+            self.click(*coords.BM_AUTO_DROP)
+        if (gold and not gold_active) or (not gold and gold_active):
+            self.click(*coords.BM_AUTO_GOLD)
+
+    def check_spells_ready(self):
+        """Checks which spells are ready to cast.
+
+        returns a list with integers corresponding to which spell is ready.
+        1 - Iron pill
+        2 - MacGuffin alpha
+        3 - MacGuffin beta
+        """
+        self.spells()
+        self.click(*coords.BM_PILL, button="right")
+        spells = []
+        res = self.ocr(*coords.OCR_BM_SPELL_TEXT)
+        if "cooldown: 0.0s" in res.lower():
+            spells.append(1)
+
+        self.click(*coords.BM_GUFFIN_A, button="right")
+        res = self.ocr(*coords.OCR_BM_SPELL_TEXT) 
+        if "cooldown: 0.0s" in res.lower():
+            spells.append(2)
+
+        self.click(*coords.BM_GUFFIN_B, button="right")
+        res = self.ocr(*coords.OCR_BM_SPELL_TEXT)
+        if "cooldown: 0.0s" in res.lower():
+            spells.append(3)
+
+        return spells
+
+    def cast_spell(self, target):
+        """Cast target spell.
+
+        This method will allocate any idle magic into BM and wait for the
+        time set in usersettings.py. Remember to re-enable auto spells after
+        calling this method, using toggle_auto_spells().
+
+        1 - Iron pill
+        2 - MacGuffin alpha
+        3 - MacGuffin beta
+        """
+        if self.check_pixel_color(*coords.COLOR_SPELL_READY):
+            targets = [0, coords.BM_PILL, coords.BM_GUFFIN_A, coords.BM_GUFFIN_B]
             start = time.time()
             self.blood_magic(8)
-            self.spells()
-            self.click(*coords.BM_AUTO_GOLD)
-            self.click(*coords.BM_AUTO_NUMBER)
+            self.toggle_auto_spells(False, False, False)  # disable all auto spells
 
-            if userset.PILL == 0:  # Default to 5 mins if not set
+            if userset.SPELL == 0:  # Default to 5 mins if not set
                 duration = 300
             else:
-                duration = userset.PILL
+                duration = userset.SPELL
 
             while time.time() < start + duration:
-                self.gold_diggers([11])
-                time.sleep(5)
+                print(f"Sniping itopod for {duration} seconds while waiting to cast spell.")
+                self.itopod_snipe(duration)
             self.spells()
-            self.click(*coords.BM_PILL)
-            time.sleep(userset.LONG_SLEEP)
-            self.click(*coords.BM_AUTO_GOLD)
-            self.click(*coords.BM_AUTO_NUMBER)
-            self.nuke()
-            time.sleep(userset.LONG_SLEEP)
+            self.click(*targets[target])
+
+    def reclaim_bm(self):
+        """Remove all magic from BM."""
+        self.menu("bloodmagic")
+        self.input_box()
+        self.send_string(coords.INPUT_MAX)
+        for coord in coords.BM_RECLAIM:
+            self.click(*coord)
+
+    def reclaim_ngu(self, magic=False):
+        """Remove all e/m from NGUs."""
+        if magic:
+            self.ngu_magic()
+        else:
+            self.menu("ngu")
+        self.input_box()
+        self.send_string(coords.INPUT_MAX)
+        for i in range(1, 10):
+            NGU = coords.Pixel(coords.NGU_MINUS.x, coords.NGU_PLUS.y + i * 35)
+            self.click(*NGU)
+
+    def reclaim_tm(self, magic=False):
+        """Remove all e/m from TM."""
+        self.menu("timemachine")
+        self.input_box()
+        self.send_string(coords.INPUT_MAX)
+        if magic:
+            self.click(*coords.TM_MULT_MINUS)
+            return
+        self.click(*coords.TM_SPEED_MINUS)
 
     def assign_ngu(self, value, targets, magic=False):
         """Assign energy/magic to NGU's.
@@ -426,15 +505,16 @@ class Features(Navigation, Inputs):
                 self.click(*coords.DIG_CAP[item])
 
     def deactivate_all_diggers(self):
+        """Click deactivate all in digger menu."""
         self.menu("digger")
-        self.click(*coords.DIG_DEACTIVATE_ALL)    
+        self.click(*coords.DIG_DEACTIVATE_ALL)
 
     def bb_ngu(self, value, targets, overcap=1, magic=False):
         """Estimates the BB value of each supplied NGU.
 
         It will send value into the target NGU's, which will fill the progress bar. It's very
         important that you put enough e/m into the NGU's to trigger the "anti-flicker" (>10% of BB cost),
-        otherwise it will not function properly. 
+        otherwise it will not function properly.
 
         Keyword arguments:
         value -- The amount of energy used to determine the cost of BBing the target NGU's
@@ -462,7 +542,7 @@ class Features(Navigation, Inputs):
                 color = self.get_pixel_color(coords.NGU_BAR_MIN.x + x,
                                              coords.NGU_BAR_MIN.y +
                                              coords.NGU_BAR_OFFSET_Y * target,
-                                            )
+                                             )
                 if color == coords.NGU_BAR_WHITE:
                     pixel_coefficient = x / 198
                     value_coefficient = overcap / pixel_coefficient
