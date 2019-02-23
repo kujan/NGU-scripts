@@ -1,34 +1,27 @@
-"""3-minute rebirth script"""
-
-# Challenges
-from challenges.basic import Basic
-from challenges.level import Level
+"""24-hour rebirth script."""
 
 # Helper classes
-from classes.challenge import Challenge
 from classes.features import Features
 from classes.inputs import Inputs
 from classes.navigation import Navigation
-from classes.stats import Stats, EstimateRate, Tracker
-from classes.upgrade import UpgradeEM
 from classes.window import Window
 
 import coordinates as coords
-import datetime
 import time
 
+
 def start_procedure(f, rt):
+    """Procedure that handles start of rebirth."""
     print(f"Start start_procedure {rt}")
-    f.send_string("r") # make sure we reset e/m if we run this mid-rebirth
+    f.send_string("r")  # make sure we reset e/m if we run this mid-rebirth
     f.send_string("t")
-    f.nuke(101)
-    time.sleep(3)
-    f.loadout(2) # respawn
+    f.nuke(101)  # PPP
+    f.loadout(2)  # respawn
     f.adventure(highest=True)
-    time.sleep(4)
     f.time_machine(5e11, magic=True)
-    f.augments({"CI": 0.7, "ML": 0.3}, 5e11)
+    f.augments({"CI": 0.7, "ML": 0.3}, 1e12)
     f.blood_magic(8)
+    f.toggle_auto_spells()
     f.gold_diggers([x for x in range(1, 13)])
 
     if rt.timestamp.tm_hour > 0 or rt.timestamp.tm_min >= 13:
@@ -40,12 +33,11 @@ def start_procedure(f, rt):
 
     f.advanced_training(2e12)
     f.gold_diggers([x for x in range(1, 13)])
-    f.send_string("t")
-    f.menu("timemachine")
-    f.click(*coords.TM_MULT)
+    f.reclaim_bm()
     f.wandoos(True)
     f.assign_ngu(f.get_idle_cap(), [x for x in range(1, 10)])
     f.assign_ngu(f.get_idle_cap(True), [x for x in range(1, 8)], True)
+
 
 w = Window()
 i = Inputs()
@@ -54,11 +46,6 @@ feature = Features()
 
 Window.x, Window.y = i.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 400, 600)
 nav.menu("inventory")
-
-print(w.x, w.y)
-
-# 24 hour script
-
 rt = feature.get_rebirth_time()
 start_procedure(feature, rt)
 
@@ -66,13 +53,22 @@ while True:
     rt = feature.get_rebirth_time()
     print(rt)
     feature.gold_diggers([x for x in range(1, 13)])
-    feature.merge_inventory(9) # merge guffs
-    if rt.days > 0:
-        print(f"rebirthing at {rt}")
+    feature.merge_inventory(8)  # merge uneqipped guffs
+    spells = feature.check_spells_ready()
+
+    if spells:  # check if any spells are off CD
+        feature.reclaim_ngu(True)  # take all magic from magic NGUs
+        for spell in spells:
+            feature.cast_spell(spell)
+        feature.reclaim_bm()
+        feature.assign_ngu(feature.get_idle_cap(True), [x for x in range(1, 8)], True)
+        feature.toggle_auto_spells()  # retoggle autospells
+
+    if rt.days > 0:  # rebirth is at >24 hours
+        print(f"rebirthing at {rt}")  # debug
         feature.nuke()
         feature.spin()
-        feature.ygg(equip=1)
-        feature.save_screenshot()
+        feature.ygg(equip=1)  # harvest with equipment set 1
         feature.do_rebirth()
         time.sleep(3)
         rt = feature.get_rebirth_time()
@@ -81,9 +77,9 @@ while True:
         feature.ygg()
         feature.save_check()
         feature.pit()
-        if rt.timestamp.tm_hour <= 12: # quests for first 12 hours
+        if rt.timestamp.tm_hour <= 12:  # quests for first 12 hours
             feature.boost_cube()
             feature.questing()
-        else:
+        else:  # after hour 12, do itopod in 5-minute intervals
             feature.itopod_snipe(300)
             feature.boost_cube()
