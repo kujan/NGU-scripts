@@ -112,6 +112,9 @@ class Features(Navigation, Inputs):
         itopodauto -- If set to true it will click the "optimal" floor button.
         """
         self.menu("adventure")
+        self.click(625, 500)  # click somewhere to move tooltip
+        if not self.check_pixel_color(*coords.IS_IDLE):
+            self.click(*coords.ABILITY_IDLE_MODE)
         if itopod:
             self.click(*coords.ITOPOD)
             if itopodauto:
@@ -236,6 +239,13 @@ class Features(Navigation, Inputs):
         self.click(*coords.REBIRTH_BUTTON)
         self.click(*coords.CONFIRM)
         return
+        
+    def check_challenge(self):
+        """Check if a challenge is active."""
+        self.rebirth()
+        self.click(*coords.CHALLENGE_BUTTON)
+        time.sleep(userset.LONG_SLEEP)
+        return True if self.check_pixel_color(*coords.COLOR_CHALLENGE_ACTIVE) else False
 
     def pit(self, loadout=0):
         """Throws money into the pit.
