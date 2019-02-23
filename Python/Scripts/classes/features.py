@@ -941,7 +941,6 @@ class Features(Navigation, Inputs):
         Rebirth_time = namedtuple('Rebirth_time', 'days timestamp')
         t = self.ocr(*coords.OCR_REBIRTH_TIME)
         x = re.search("((?P<days>[0-9]) day )?((?P<hours>[0-9]+):)?(?P<minutes>[0-9]+):(?P<seconds>[0-9]+)", t)
-        print(t)
         days = 0
         if x is None:
             timestamp = time.strptime("0:0:0", "%H:%M:%S")
