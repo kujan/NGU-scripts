@@ -39,11 +39,6 @@ def start_procedure(f, rt):
         f.itopod_snipe(duration)
 
     f.advanced_training(2e12)
-
-    if rt.timestamp.tm_hour < 1:
-        duration = (54 - rt.timestamp.tm_min) * 60
-        print(f"doing itopod for {duration} seconds while waiting for wandoos to boot")
-        f.itopod_snipe(duration)
     f.gold_diggers([x for x in range(1, 13)])
     f.send_string("t")
     f.menu("timemachine")
