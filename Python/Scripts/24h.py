@@ -68,8 +68,10 @@ while True:
         print(f"rebirthing at {rt}")  # debug
         feature.nuke()
         feature.spin()
+        feature.deactivate_all_diggers()
         feature.ygg(equip=1)  # harvest with equipment set 1
         feature.ygg(eat_all=True)
+        feature.level_diggers()  # level all diggers
         feature.do_rebirth()
         time.sleep(3)
         rt = feature.get_rebirth_time()

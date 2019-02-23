@@ -103,7 +103,6 @@ class Features(Navigation, Inputs):
         else:
             self.click(*coords.HARVEST)
 
-
     def spin(self):
         """Spin the wheel."""
         self.menu("pit")
@@ -511,6 +510,14 @@ class Features(Navigation, Inputs):
         """Click deactivate all in digger menu."""
         self.menu("digger")
         self.click(*coords.DIG_DEACTIVATE_ALL)
+
+    def level_diggers(self):
+        """Level all diggers."""
+        self.menu("digger")
+        for page in coords.DIG_PAGE:
+            self.click(*page)
+            for digger in coords.DIG_LEVEL:
+                self.click(*digger, button="right")
 
     def bb_ngu(self, value, targets, overcap=1, magic=False):
         """Estimates the BB value of each supplied NGU.
