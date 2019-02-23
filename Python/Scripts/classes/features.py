@@ -387,24 +387,27 @@ class Features(Navigation, Inputs):
         2 - MacGuffin alpha
         3 - MacGuffin beta
         """
-        self.spells()
-        self.click(*coords.BM_PILL, button="right")
-        spells = []
-        res = self.ocr(*coords.OCR_BM_SPELL_TEXT)
-        if "cooldown: 0.0s" in res.lower():
-            spells.append(1)
+        if self.check_pixel_color(*coords.COLOR_SPELL_READY):
+            self.spells()
+            self.click(*coords.BM_PILL, button="right")
+            spells = []
+            res = self.ocr(*coords.OCR_BM_SPELL_TEXT)
+            if "cooldown: 0.0s" in res.lower():
+                spells.append(1)
 
-        self.click(*coords.BM_GUFFIN_A, button="right")
-        res = self.ocr(*coords.OCR_BM_SPELL_TEXT) 
-        if "cooldown: 0.0s" in res.lower():
-            spells.append(2)
+            self.click(*coords.BM_GUFFIN_A, button="right")
+            res = self.ocr(*coords.OCR_BM_SPELL_TEXT) 
+            if "cooldown: 0.0s" in res.lower():
+                spells.append(2)
 
-        self.click(*coords.BM_GUFFIN_B, button="right")
-        res = self.ocr(*coords.OCR_BM_SPELL_TEXT)
-        if "cooldown: 0.0s" in res.lower():
-            spells.append(3)
+            self.click(*coords.BM_GUFFIN_B, button="right")
+            res = self.ocr(*coords.OCR_BM_SPELL_TEXT)
+            if "cooldown: 0.0s" in res.lower():
+                spells.append(3)
 
-        return spells
+            return spells
+        else:
+            return []
 
     def cast_spell(self, target):
         """Cast target spell.

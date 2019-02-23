@@ -66,7 +66,16 @@ while True:
     rt = feature.get_rebirth_time()
     print(rt)
     feature.gold_diggers([x for x in range(1, 13)])
-    feature.merge_inventory(9) # merge guffs
+    feature.merge_inventory(8) # merge guffs
+    spells = feature.check_spells_ready()
+
+    if spells:
+        feature.reclaim_ngu(True)
+        for spell in spells:
+            feature.cast_spell(spell)
+        feature.assign_ngu(feature.get_idle_cap(True), [x for x in range(1, 8)], True)
+        feature.toggle_auto_spells()
+
     if rt.days > 0:
         print(f"rebirthing at {rt}")
         feature.nuke()
