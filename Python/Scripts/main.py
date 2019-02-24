@@ -1,4 +1,4 @@
-"""3-minute rebirth script"""
+"""24-hour rebirth script"""
 
 # Challenges
 from challenges.basic import Basic
@@ -10,7 +10,7 @@ from classes.features import Features
 from classes.inputs import Inputs
 from classes.navigation import Navigation
 from classes.stats import Stats, EstimateRate, Tracker
-from classes.upgrade import Upgrade
+from classes.upgrade import UpgradeEM
 from classes.window import Window
 
 import coordinates as coords
@@ -65,7 +65,7 @@ def speedrun(duration, f):
     f.spin()
     f.save_check()
     tracker.progress()
-    u.em()
+    u.buy()
     tracker.adjustxp()
     while time.time() < end:
         time.sleep(0.1)
@@ -81,17 +81,20 @@ feature = Features()
 Window.x, Window.y = i.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 400, 600)
 nav.menu("inventory")
 
-u = Upgrade(37500, 37500, 2, 2, 3)
+u = UpgradeEM(37500, 37500, 2, 2, 3)
 
 print(w.x, w.y)
 
-tracker = Tracker(3)
+tracker = Tracker(5)
 c = Challenge()
 
 while True:  # main loop
-    feature.questing()
-    #feature.boost_equipment()
-    #feature.ygg()
+    #feature.questing()
+    feature.itopod_snipe(300)
+    tracker.progress()
+    feature.boost_cube()
+    feature.ygg()
+    feature.gold_diggers([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
     #feature.snipe(13, 120)
 
     #time.sleep(120)

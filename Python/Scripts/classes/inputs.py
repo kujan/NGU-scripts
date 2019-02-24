@@ -4,6 +4,7 @@ from ctypes import windll
 from PIL import Image as image
 from PIL import ImageFilter
 import cv2
+import datetime
 import usersettings as userset
 import numpy
 import pytesseract
@@ -204,13 +205,19 @@ class Inputs():
         g = rgba >> 8 & 0xff
         b = rgba >> 16 & 0xff
         
-        if (debug == True):
+        if debug:
             print(self.rgb_to_hex((r, g, b)))
         
         return self.rgb_to_hex((r, g, b))
 
-    def check_pixel_color(self, x, y, check):
-        return check == self.get_pixel_color(x, y)
+    def check_pixel_color(self, x, y, checks):
+        color = self.get_pixel_color(x, y)
+        if isinstance(checks, list):
+            for check in checks:
+                if check == color:
+                    return True
+        else:
+            return color == checks
 
     def remove_letters(self, s):
         """Remove all non digit characters from string."""
@@ -233,3 +240,9 @@ class Inputs():
     def ocr_notation(self, x_1, y_1, x_2, y_2):
         """Convert scientific notation from string to int."""
         return int(float(self.ocr(x_1, y_1, x_2, y_2)))
+
+    def save_screenshot(self):
+        """Save a screenshot of the game.""" 
+        bmp = self.get_bitmap()
+        bmp = bmp.crop((window.x + 8, window.y + 8, window.x + 968, window.y + 608))
+        bmp.save(datetime.datetime.now().strftime('%d-%m-%y-%H-%M-%S') + '.png')
