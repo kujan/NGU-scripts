@@ -908,7 +908,7 @@ class Features(Navigation, Inputs):
         for count, zone in enumerate(coords.QUESTING_ZONES, start=0):
             if zone in text.lower():
                 if self.current_adventure_zone != count:
-                    self.snipe(count, 0) # move to zone
+                    self.snipe(count, 0)  # move to zone
                     self.current_adventure_zone = count
                 while time.time() < end:
                     self.snipe(0, 2)
