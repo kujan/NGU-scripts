@@ -475,6 +475,21 @@ class Features(Navigation, Inputs):
             return
         self.click(*coords.TM_SPEED_MINUS)
 
+    def reclaim_aug(self):
+        """Remove all energy from augs"""
+        self.menu("augmentations")
+        self.input_box()
+        self.send_string(coords.INPUT_MAX)
+        self.click(*coords.AUG_SCROLL_TOP)
+        scroll_down = False
+        for i, k in enumerate(coords.AUGMENT.keys()):
+            if i >= 10 and not scroll_down:
+                self.click(*coords.AUG_SCROLL_BOT)
+                self.click(*coords.AUG_SCROLL_BOT)
+                time.sleep(1)
+                scroll_down = True
+            self.click(coords.AUG_MINUS_X, coords.AUGMENT[k].y)
+
     def assign_ngu(self, value, targets, magic=False):
         """Assign energy/magic to NGU's.
 
@@ -940,7 +955,7 @@ class Features(Navigation, Inputs):
         """
         Rebirth_time = namedtuple('Rebirth_time', 'days timestamp')
         t = self.ocr(*coords.OCR_REBIRTH_TIME)
-        x = re.search("((?P<days>[0-9]) day )?((?P<hours>[0-9]+):)?(?P<minutes>[0-9]+):(?P<seconds>[0-9]+)", t)
+        x = re.search("((?P<days>[0-9]+) days? )?((?P<hours>[0-9]+):)?(?P<minutes>[0-9]+):(?P<seconds>[0-9]+)", t)
         days = 0
         if x is None:
             timestamp = time.strptime("0:0:0", "%H:%M:%S")
