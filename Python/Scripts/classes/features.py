@@ -832,7 +832,7 @@ class Features(Navigation, Inputs):
                     self.ctrl_click(*loc)
                 time.sleep(3)  # Need to wait for tooltip to disappear after consuming
 
-    def questing(self, duration=30, major=False, subcontract=False):
+    def questing(self, duration=30, major=False, subcontract=False, force=0):
         """Procedure for questing.
 
         Keyword arguments:
@@ -841,6 +841,9 @@ class Features(Navigation, Inputs):
         major -- Set to true if you only wish to manually do main quests,
                 if False it will manually do all quests.
         subcontract -- Set to True if you wish to subcontract all quests.
+        force -- Only quest in this zone. This will skip quests until you
+                 recieve one for the selected zone, so make sure you disable
+                 "Use major quests if available".
 
         Suggested usages:
 
@@ -891,6 +894,17 @@ class Features(Navigation, Inputs):
             self.questing_consume_items(True)  # we have to clean up the inventory from any old quest items
             time.sleep(userset.LONG_SLEEP)
             text = self.get_quest_text()  # fetch new quest text
+
+        if force:
+            if self.check_pixel_color(*coords.COLOR_QUESTING_USE_MAJOR):
+                self.click(*coords.QUESTING_USE_MAJOR)
+
+            while not coords.QUESTING_ZONES[force] in text.lower():
+                self.click(*coords.QUESTING_SKIP_QUEST)
+                self.click(*coords.CONFIRM)
+                self.click(*coords.QUESTING_START_QUEST)
+                text = self.get_quest_text()
+            return
 
         if subcontract:
             if self.check_pixel_color(*coords.QUESTING_IDLE_INACTIVE):
