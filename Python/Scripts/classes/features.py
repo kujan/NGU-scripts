@@ -904,7 +904,6 @@ class Features(Navigation, Inputs):
                 self.click(*coords.CONFIRM)
                 self.click(*coords.QUESTING_START_QUEST)
                 text = self.get_quest_text()
-            return
 
         if subcontract:
             if self.check_pixel_color(*coords.QUESTING_IDLE_INACTIVE):
@@ -946,7 +945,7 @@ class Features(Navigation, Inputs):
                         return
 
     def get_rebirth_time(self):
-        """Get the current rebirth time
+        """Get the current rebirth time.
 
         returns a namedtuple(days, timestamp) where days is the number
         of days displayed in the rebirth time text and timestamp is a
