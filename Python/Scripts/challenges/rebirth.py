@@ -7,12 +7,11 @@ import time
 
 class Rebirth(Features):
     """Contains functions for running a no rebirth challenge."""
-
+    final_aug = False
     def first_rebirth(self):
         """Procedure for first rebirth."""
         end = time.time() + 3 * 60
         ss_assigned = False
-        final_aug = False
         diggers = [x for x in range(1, 13)]
         self.nuke()
         time.sleep(2)
@@ -40,14 +39,15 @@ class Rebirth(Features):
             self.fight()
             self.gold_diggers(diggers)
         self.blood_magic(8)
-        while time.time() < end + 1:
+        self.toggle_auto_spells(drop=False, number=False)
+        while time.time() < end - 90:
             self.wandoos(True)
             self.nuke()
             time.sleep(2)
             try:
                 current_boss = int(self.get_current_boss())
                 if current_boss > 36:
-                    self.augments({"SS": 0.7, "DS": 0.3}, self.get_idle_cap())
+                    self.augments({"SS": 0.67, "DS": 0.33}, self.get_idle_cap())
             except ValueError:
                 print("couldn't get current boss")
             self.gold_diggers(diggers)
@@ -55,19 +55,20 @@ class Rebirth(Features):
         while True:
             self.wandoos(True)
             self.nuke()
-            time.sleep(2)
+            time.sleep(1)
             try:
                 current_boss = int(self.get_current_boss())
-                if current_boss > 56 and not final_aug:
-                    self.augments({"AE": 0.7, "ES": 0.3}, 1e11)
-                    final_aug = True
+                if current_boss > 45:
+                    if not self.final_aug:
+                        self.reclaim_aug()
+                        self.final_aug = True
+                    self.augments({"SM": 0.67, "AA": 0.33}, self.get_idle_cap())
             except ValueError:
                 print("couldn't get current boss")
             self.fight()
             self.gold_diggers(diggers)
-            time.sleep(10)
 
-            if not self.check_challenge() and time.time() > end:
+            if time.time() > end and not self.check_challenge():
                 return
 
     def check_challenge(self):
