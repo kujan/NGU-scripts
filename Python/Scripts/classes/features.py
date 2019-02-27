@@ -19,6 +19,7 @@ class Features(Navigation, Inputs):
     """Handles the different features in the game."""
 
     current_adventure_zone = 0
+    inventory_cleaned = False
 
     def merge_equipment(self):
         """Navigate to inventory and merge equipment."""
@@ -830,7 +831,7 @@ class Features(Navigation, Inputs):
                 if cleanup:
                     self.send_string("d")
                     self.ctrl_click(*loc)
-                time.sleep(3)  # Need to wait for tooltip to disappear after consuming
+                #time.sleep(2)  # Need to wait for tooltip to disappear after consuming
 
     def questing(self, duration=30, major=False, subcontract=False, force=0):
         """Procedure for questing.
@@ -881,7 +882,7 @@ class Features(Navigation, Inputs):
         """
         end = time.time() + duration * 60
         self.menu("questing")
-        self.click(605, 510)  # move tooltip
+        self.click(950, 590)  # move tooltip
         text = self.get_quest_text()
 
         if coords.QUESTING_QUEST_COMPLETE in text.lower():
@@ -891,7 +892,12 @@ class Features(Navigation, Inputs):
 
         if coords.QUESTING_NO_QUEST_ACTIVE in text.lower():  # if we have no active quest, start one
             self.click(*coords.QUESTING_START_QUEST)
-            self.questing_consume_items(True)  # we have to clean up the inventory from any old quest items
+            if force and not self.inventory_cleaned:
+                self.questing_consume_items(True)  # we have to clean up the inventory from any old quest items
+                self.inventory_cleaned = True
+            elif not force:
+                self.questing_consume_items(True)
+            self.click(960, 600)  # move tooltip
             time.sleep(userset.LONG_SLEEP)
             text = self.get_quest_text()  # fetch new quest text
 
