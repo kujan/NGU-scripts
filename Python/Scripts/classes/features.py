@@ -846,7 +846,7 @@ class Features(Navigation, Inputs):
                 if cleanup:
                     self.send_string("d")
                     self.ctrl_click(*loc)
-                #time.sleep(2)  # Need to wait for tooltip to disappear after consuming
+                time.sleep(3)  # Need to wait for tooltip to disappear after consuming
 
     def questing(self, duration=30, major=False, subcontract=False, force=0):
         """Procedure for questing.
