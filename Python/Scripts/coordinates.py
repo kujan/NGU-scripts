@@ -195,6 +195,9 @@ AUGMENT = {"SS": Pixel(AUGMENT_X, 263), "DS": Pixel(AUGMENT_X, 292), "MI": Pixel
             "CS": Pixel(AUGMENT_X, 552), "AE": Pixel(AUGMENT_X, 450), "ES": Pixel(AUGMENT_X, 478),
             "LS": Pixel(AUGMENT_X, 516), "QSL": Pixel(AUGMENT_X, 544)}
 
+AUG_MINUS_X = 575
+
+
 AUG_SCROLL_TOP = Pixel(945, 264)
 AUG_SCROLL_BOT = Pixel(945, 575)
 AUG_SCROLL_SANITY_TOP = Pixel(943, 261)

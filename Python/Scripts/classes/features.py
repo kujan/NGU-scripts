@@ -476,6 +476,21 @@ class Features(Navigation, Inputs):
             return
         self.click(*coords.TM_SPEED_MINUS)
 
+    def reclaim_aug(self):
+        """Remove all energy from augs"""
+        self.menu("augmentations")
+        self.input_box()
+        self.send_string(coords.INPUT_MAX)
+        self.click(*coords.AUG_SCROLL_TOP)
+        scroll_down = False
+        for i, k in enumerate(coords.AUGMENT.keys()):
+            if i >= 10 and not scroll_down:
+                self.click(*coords.AUG_SCROLL_BOT)
+                self.click(*coords.AUG_SCROLL_BOT)
+                time.sleep(1)
+                scroll_down = True
+            self.click(coords.AUG_MINUS_X, coords.AUGMENT[k].y)
+
     def assign_ngu(self, value, targets, magic=False):
         """Assign energy/magic to NGU's.
 
