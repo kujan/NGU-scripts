@@ -834,6 +834,8 @@ class Features(Navigation, Inputs):
     def get_quest_text(self):
         """Check if we have an active quest or not."""
         self.menu("questing")
+        self.click(950, 590)  # move tooltip
+        time.sleep(userset.SHORT_SLEEP)
         return self.ocr(*coords.OCR_QUESTING_LEFT_TEXT)
 
     def questing_consume_items(self, cleanup=False):
