@@ -125,6 +125,7 @@ class Features(Navigation, Inputs):
         if not self.check_pixel_color(*coords.IS_IDLE):
             self.click(*coords.ABILITY_IDLE_MODE)
         if itopod:
+            self.current_adventure_zone = 0
             self.click(*coords.ITOPOD)
             if itopodauto:
                 self.click(*coords.ITOPOD_END)
@@ -143,6 +144,7 @@ class Features(Navigation, Inputs):
             self.click(*coords.RIGHT_ARROW, button="right")
             return
         else:
+            self.current_adventure_zone = zone
             self.click(*coords.LEFT_ARROW, button="right")
             for i in range(zone):
                 self.click(*coords.RIGHT_ARROW)
@@ -164,7 +166,7 @@ class Features(Navigation, Inputs):
         self.menu("adventure")
         if highest:
             self.click(*coords.LEFT_ARROW, button="right")
-        elif zone > 0:
+        elif zone > 0 and zone != self.current_adventure_zone:
             self.click(*coords.LEFT_ARROW, button="right")
             for i in range(zone):
                 self.click(*coords.RIGHT_ARROW)

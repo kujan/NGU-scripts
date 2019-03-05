@@ -157,11 +157,10 @@ class Inputs():
         search_area = bmp.crop((x_start + 8, y_start + 8,
                                 x_end + 8, y_end + 8))
         search_area = numpy.asarray(search_area)
-        search_area = cv2.cvtColor(search_area, cv2.COLOR_BGR2GRAY)
+        search_area = cv2.cvtColor(search_area, cv2.COLOR_RGB2GRAY)
         template = cv2.imread(image, 0)
         res = cv2.matchTemplate(search_area, template, cv2.TM_CCOEFF_NORMED)
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-
         if max_val < threshold:
             return None
 
@@ -204,10 +203,10 @@ class Inputs():
         r = rgba & 0xff
         g = rgba >> 8 & 0xff
         b = rgba >> 16 & 0xff
-        
+
         if debug:
             print(self.rgb_to_hex((r, g, b)))
-        
+
         return self.rgb_to_hex((r, g, b))
 
     def check_pixel_color(self, x, y, checks):
@@ -242,7 +241,7 @@ class Inputs():
         return int(float(self.ocr(x_1, y_1, x_2, y_2)))
 
     def save_screenshot(self):
-        """Save a screenshot of the game.""" 
+        """Save a screenshot of the game."""
         bmp = self.get_bitmap()
         bmp = bmp.crop((window.x + 8, window.y + 8, window.x + 968, window.y + 608))
         bmp.save(datetime.datetime.now().strftime('%d-%m-%y-%H-%M-%S') + '.png')
