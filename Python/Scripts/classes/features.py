@@ -216,7 +216,7 @@ class Features(Navigation, Inputs):
                     back on and returning.
         """
         end = time.time() + duration
-
+        self.current_adventure_zone = 0
         self.menu("adventure")
         self.click(625, 500)  # click somewhere to move tooltip
 
