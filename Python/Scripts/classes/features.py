@@ -546,6 +546,7 @@ class Features(Navigation, Inputs):
             for digger in coords.DIG_LEVEL:
                 self.click(*digger, button="right")
 
+    @deprecated(version='0.1', reason="bb_ngu() is deprecated since .415 use cap_ngu() instead")
     def bb_ngu(self, value, targets, overcap=1, magic=False):
         """Estimates the BB value of each supplied NGU.
 
@@ -595,6 +596,27 @@ class Features(Navigation, Inputs):
             self.input_box()
             self.send_string(str(int(energy)))
             self.click(coords.NGU_PLUS.x, coords.NGU_PLUS.y + target * 35)
+
+    def cap_ngu(self, targets=[], magic=False, cap_all=True):
+        """Cap NGU's.
+
+        Keyword arguments
+        targets -- The NGU's you wish to cap
+        magic -- Set to true if these are magic NGU's
+        cap_all -- Set to true if you wish to cap all NGU's
+
+        """
+        if magic:
+            self.ngu_magic()
+        else:
+            self.menu("ngu")
+
+        for target in targets:
+            NGU = coords.Pixel(coords.NGU_CAP.x, coords.NGU_CAP.y + target * 35)
+            self.click(*NGU)
+
+        if cap_all:
+            self.click(*coords.NGU_CAP_ALL)
 
     # TODO: make this actually useful for anything
     def advanced_training(self, value):
