@@ -141,6 +141,7 @@ class Features(Navigation, Inputs):
             self.click(*coords.ITOPOD_ENTER)
             return
         if highest:
+            self.current_adventure_zone = 0
             self.click(*coords.RIGHT_ARROW, button="right")
             return
         else:
