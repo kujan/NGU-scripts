@@ -202,7 +202,6 @@ AUG_SCROLL_TOP = Pixel(945, 264)
 AUG_SCROLL_BOT = Pixel(945, 575)
 AUG_SCROLL_SANITY_TOP = Pixel(943, 261)
 AUG_SCROLL_SANITY_BOT = Pixel(943, 578)
-SANITY_AUG_SCROLL_COLORS
 
 #TODO: NGU OFFSETS
 NGU_TARGET = Pixel(635, 205)
@@ -211,6 +210,8 @@ NGU_MINUS = Pixel(551, 207)
 NGU_PLUS = Pixel(517, 207)
 NGU_CAP = Pixel(590, 207)
 NGU_CAP_ALL = Pixel(625, 160)
+NGU_OVERCAP = Pixel(430, 135)
+NGU_EVIL = ColorPixel(778, 146, "323232")
 
 NGU_BAR_MIN = Pixel(306, 215)
 NGU_BAR_MAX = Pixel(503, 215)
@@ -264,9 +265,11 @@ PIT_CONFIRM = Pixel(437, 317)
 SPIN_MENU = Pixel(350, 50)
 SPIN = Pixel(713, 562)
 
-#WANDOOS 626
+#WANDOOS
 WANDOOS_ENERGY = Pixel(626, 252)
 WANDOOS_MAGIC = Pixel(626, 350)
+WANDOOS_VERSION = [Pixel(325, 420), Pixel(325, 445), Pixel(325, 470)]
+
 
 #OCR OFFSETS
 OCR_BOSS = OCRBox(765, 125, 890, 140)
@@ -314,6 +317,7 @@ QUESTING_USE_MAJOR = Pixel(694, 209)
 
 OCR_QUESTING_QP = OCRBox(500, 60, 683, 84)
 OCR_QUESTING_LEFT_TEXT = OCRBox(301, 296, 617, 497)
+OCR_QUESTING_MAJORS = OCRBox(790, 300, 857, 317)
 QUESTING_ZONES = ["safe zone", "tutorial zone", "sewers", "forest", "cave of many things", "the sky",
                   "high\nsecurity base", "grb", "clock dimension", "gct", "2d universe", "ancient battlefield",
                   "jfa", "a very\nstrange place", "megalands", "uug", "the beardverse", "waldo", "badly drawn world",
@@ -321,6 +325,15 @@ QUESTING_ZONES = ["safe zone", "tutorial zone", "sewers", "forest", "cave of man
                   "interdimensional party", "thegodmom"]
 
 QUESTING_FILENAMES = ["q1.png", "q2.png", "q3.png", "q4.png", "q5.png", "q6.png", "q7.png", "q8.png", "q9.png", "q10.png"]
+
+#SELLOUT
+
+SELLOUT = Pixel(235, 550)
+SELLOUT_BOOST_2 = Pixel(520, 147)
+SELLOUT_MUFFIN_USE = Pixel(768, 256)
+SELLOUT_MUFFIN_BUY = Pixel(860, 255)
+OCR_MUFFIN = OCRBox(785, 204, 936, 240)
+OCR_AP = OCRBox(450, 73, 800, 100)
 
 #EXP COSTS PER UNIT
 EPOWER_COST = 150
@@ -366,7 +379,7 @@ MISC = Pixel(355, 200)
 
 # PIXEL CHECKS
 # TODO: CONVERT to ColorPixel of COLOR_
-IS_BOSS_CROWN = ColorPixel(705, 275, 'F7EF29')
+IS_BOSS_CROWN = ColorPixel(707, 277, 'F7EF29')
 IS_ENEMY_ALIVE = ColorPixel(*HEALTH, ['D93030', 'EB3434']) # If you reduce the enemy healthbar to 1px, the color changes for some reason
 IS_DEAD = ColorPixel(*HEALTH, 'EBEBEB')
 IS_ITOPOD_ACTIVE = ColorPixel(594, 277, '000000') # Checks color of pixel in "Floor x" text

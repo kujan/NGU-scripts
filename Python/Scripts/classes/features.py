@@ -166,6 +166,7 @@ class Features(Navigation, Inputs):
         self.menu("adventure")
         if highest:
             self.click(*coords.LEFT_ARROW, button="right")
+            self.click(*coords.RIGHT_ARROW, button="right")
         elif zone > 0 and zone != self.current_adventure_zone:
             self.click(*coords.LEFT_ARROW, button="right")
             for i in range(zone):
@@ -193,13 +194,13 @@ class Features(Navigation, Inputs):
                         # Send left arrow and right arrow to refresh monster.
                         win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN,
                                              wcon.VK_LEFT, 0)
-                        time.sleep(0.03)
+                        time.sleep(0.05)
                         win32gui.PostMessage(Window.id, wcon.WM_KEYUP,
                                              wcon.VK_LEFT, 0)
-                        time.sleep(0.03)
+                        time.sleep(0.05)
                         win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN,
                                              wcon.VK_RIGHT, 0)
-                        time.sleep(0.03)
+                        time.sleep(0.05)
                         win32gui.PostMessage(Window.id, wcon.WM_KEYUP,
                                              wcon.VK_RIGHT, 0)
                 else:
@@ -361,6 +362,15 @@ class Features(Navigation, Inputs):
         self.click(*coords.WANDOOS_ENERGY)
         if magic:
             self.click(*coords.WANDOOS_MAGIC)
+
+    def set_wandoos(self, version):
+        """Set wandoos version.
+
+        Keyword arguments:
+        version -- 0 = Wandoos, 1 = Meh, 2 = XL"""
+        self.menu("wandoos")
+        self.click(*coords.WANDOOS_VERSION[version])
+        self.confirm()
 
     def loadout(self, target):
         """Equip targeted loadout."""
@@ -618,6 +628,12 @@ class Features(Navigation, Inputs):
         if cap_all:
             self.click(*coords.NGU_CAP_ALL)
 
+    def set_ngu_overcap(self, value):
+        """Set the amount you wish to overcap your NGU's."""
+        self.menu("ngu")
+        self.click(*coords.NGU_OVERCAP)
+        self.send_string(value)
+
     # TODO: make this actually useful for anything
     def advanced_training(self, value):
         """Assign energy to adventure power/thoughness and wandoos."""
@@ -860,6 +876,17 @@ class Features(Navigation, Inputs):
         time.sleep(userset.SHORT_SLEEP)
         return self.ocr(*coords.OCR_QUESTING_LEFT_TEXT)
 
+    def get_available_majors(self):
+        self.menu("questing")
+        text = self.ocr(*coords.OCR_QUESTING_MAJORS)
+        print(text)
+        try:
+            match = re.search(r"(\d+)\/\d+", text)
+            if match:
+                return int(match.group(1))
+        except ValueError:
+            print("couldn't get current major quests available")
+
     def questing_consume_items(self, cleanup=False):
         """Check for items in inventory that can be turned in."""
         self.menu("inventory")
@@ -1000,7 +1027,7 @@ class Features(Navigation, Inputs):
         """
         Rebirth_time = namedtuple('Rebirth_time', 'days timestamp')
         t = self.ocr(*coords.OCR_REBIRTH_TIME)
-        x = re.search("((?P<days>[0-9]+) days? )?((?P<hours>[0-9]+):)?(?P<minutes>[0-9]+):(?P<seconds>[0-9]+)", t)
+        x = re.search(r"((?P<days>[0-9]+) days? )?((?P<hours>[0-9]+):)?(?P<minutes>[0-9]+):(?P<seconds>[0-9]+)", t)
         days = 0
         if x is None:
             timestamp = time.strptime("0:0:0", "%H:%M:%S")
@@ -1026,3 +1053,31 @@ class Features(Navigation, Inputs):
                 seconds = x.group('seconds')
             timestamp = time.strptime(f"{hours}:{minutes}:{seconds}", "%H:%M:%S")
         return Rebirth_time(days, timestamp)
+
+    def eat_muffin(self, buy=False):
+        """Eat a MacGuffin Muffin if it's not active.
+
+        Keyword arguments:
+        buy -- set to True if you wish to buy a muffin if you have enough
+        AP and you currently have 0 muffins.
+        """
+        self.sellout_boost_2()
+        muffin_status = self.ocr(*coords.OCR_MUFFIN).lower()
+        if "have: 0" in muffin_status and "inactive" in muffin_status:
+            print(muffin_status)
+            if buy:
+                try:
+                    ap = int(self.remove_letters(self.ocr(*coords.OCR_AP)))
+                except ValueError:
+                    print("Couldn't get current AP")
+                if ap >= 50000:
+                    print(f"Bought MacGuffin Muffin at: {datetime.datetime.now()}")
+                    self.click(*coords.SELLOUT_MUFFIN_BUY)
+                    self.confirm()
+            else:
+                return
+        else:
+            return
+        self.click(*coords.SELLOUT_MUFFIN_USE)
+        print(f"Used MacGuffin Muffin at: {datetime.datetime.now()}")
+
