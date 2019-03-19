@@ -172,7 +172,7 @@ class Features(Navigation, Inputs):
             self.click(*coords.LEFT_ARROW, button="right")
             for i in range(zone):
                 self.click(*coords.RIGHT_ARROW)
-
+        self.current_adventure_zone = zone
         self.click(625, 500)  # click somewhere to move tooltip
 
         if self.check_pixel_color(*coords.IS_IDLE):
