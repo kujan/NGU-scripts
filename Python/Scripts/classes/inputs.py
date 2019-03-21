@@ -244,4 +244,6 @@ class Inputs():
         """Save a screenshot of the game."""
         bmp = self.get_bitmap()
         bmp = bmp.crop((window.x + 8, window.y + 8, window.x + 968, window.y + 608))
-        bmp.save(datetime.datetime.now().strftime('%d-%m-%y-%H-%M-%S') + '.png')
+        if not os.path.exists("screenshots"):
+            os.mkdir("screenshots")
+        bmp.save('screenshots/' + datetime.datetime.now().strftime('%d-%m-%y-%H-%M-%S') + '.png')
