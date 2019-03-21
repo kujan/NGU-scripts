@@ -112,7 +112,7 @@ class Basic(Features):
     def basic(self, target):
         """Defeat target boss."""
         self.first_rebirth()
-        """
+
         for x in range(8):
             self.speedrun(3, target)
             if not self.check_challenge():
@@ -130,4 +130,3 @@ class Basic(Features):
             if not self.check_challenge():
                 return
         return
-        """

@@ -151,7 +151,7 @@ class Features(Navigation, Inputs):
                 self.click(*coords.RIGHT_ARROW)
             return
 
-    def snipe(self, zone, duration, once=False, highest=False, bosses=False):
+    def snipe(self, zone, duration, once=False, highest=False, bosses=False, manual=False):
         """Go to adventure and snipe bosses in specified zone.
 
         Keyword arguments
@@ -163,6 +163,8 @@ class Features(Navigation, Inputs):
         highest -- If set to true, it will go to your highest available
                    non-titan zone.
         bosses -- If set to true, it will only kill bosses
+        manual -- If set to true it will use all available abilities to kill the enemy.
+                  In addition it will return after killing one enemy.
         """
         self.menu("adventure")
         if highest:
@@ -181,14 +183,17 @@ class Features(Navigation, Inputs):
         end = time.time() + duration * 60
         while time.time() < end:
             self.click(625, 500)  # click somewhere to move tooltip
-            if self.check_pixel_color(*coords.IS_ENEMY_ALIVE):
+            if not self.check_pixel_color(*coords.IS_DEAD):
                 if bosses:
                     if self.check_pixel_color(*coords.IS_BOSS_CROWN):
                         enemy_alive = True
-                        while enemy_alive:
-                            enemy_alive = not self.check_pixel_color(*coords.IS_DEAD)
-                            self.click(*coords.ABILITY_REGULAR_ATTACK)
-                            time.sleep(0.1)
+                        if manual:
+                            self.kill_enemy()
+                        else:
+                            while enemy_alive:
+                                enemy_alive = not self.check_pixel_color(*coords.IS_DEAD)
+                                self.click(*coords.ABILITY_REGULAR_ATTACK)
+                                time.sleep(0.1)
                         if once:
                             break
                     else:
@@ -205,7 +210,11 @@ class Features(Navigation, Inputs):
                         win32gui.PostMessage(Window.id, wcon.WM_KEYUP,
                                              wcon.VK_RIGHT, 0)
                 else:
-                    self.click(*coords.ABILITY_REGULAR_ATTACK)
+                    if manual:
+                        self.kill_enemy()
+                        return
+                    else:
+                        self.click(*coords.ABILITY_REGULAR_ATTACK)
             time.sleep(0.01)
 
         self.click(*coords.ABILITY_IDLE_MODE)
@@ -241,6 +250,45 @@ class Features(Navigation, Inputs):
                 time.sleep(0.01)
 
         self.click(*coords.ABILITY_IDLE_MODE)
+
+    def kill_enemy(self):
+        """Attempt to kill enemy in adventure using abilities."""
+        start = time.time()
+        if self.check_pixel_color(*coords.IS_IDLE):
+            self.click(*coords.ABILITY_IDLE_MODE)
+        while self.check_pixel_color(*coords.IS_DEAD):
+            time.sleep(.1)
+            if time.time() > start + 5:
+                print("Couldn't detect enemy in kill_enemy()")
+                return
+        queue = deque(self.get_ability_queue())
+        while not self.check_pixel_color(*coords.IS_DEAD):
+            if len(queue) == 0:
+                queue = deque(self.get_ability_queue())
+            print(queue)
+            ability = queue.popleft()
+            print(f"using ability {ability}")
+            if ability <= 4:
+                x = coords.ABILITY_ROW1X + ability * coords.ABILITY_OFFSETX
+                y = coords.ABILITY_ROW1Y
+
+            if ability >= 5 and ability <= 10:
+                x = coords.ABILITY_ROW2X + (ability - 5) * coords.ABILITY_OFFSETX
+                y = coords.ABILITY_ROW2Y
+
+            if ability > 10:
+                x = coords.ABILITY_ROW3X + (ability - 11) * coords.ABILITY_OFFSETX
+                y = coords.ABILITY_ROW3Y
+
+            self.click(x, y)
+            time.sleep(userset.LONG_SLEEP)
+            color = self.get_pixel_color(coords.ABILITY_ROW1X,
+                                         coords.ABILITY_ROW1Y)
+
+            while color != coords.ABILITY_ROW1_READY_COLOR:
+                time.sleep(0.03)
+                color = self.get_pixel_color(coords.ABILITY_ROW1X,
+                                             coords.ABILITY_ROW1Y)
 
     def do_rebirth(self):
         """Start a rebirth or challenge."""
@@ -719,7 +767,7 @@ class Features(Navigation, Inputs):
                                              coords.ABILITY_ROW1Y)
 
                 while color != coords.ABILITY_ROW1_READY_COLOR:
-                    time.sleep(0.03)
+                    time.sleep(0.05)
                     color = self.get_pixel_color(coords.ABILITY_ROW1X,
                                                  coords.ABILITY_ROW1Y)
 
@@ -739,7 +787,7 @@ class Features(Navigation, Inputs):
             if i >= 5 and i <= 10:
                 x = coords.ABILITY_ROW2X + (i - 5) * coords.ABILITY_OFFSETX
                 y = coords.ABILITY_ROW2Y
-                color = self.get_pixel_color(x, y)
+                print(f"{i} _ {color} - {x},{y}")
                 if color == coords.ABILITY_ROW2_READY_COLOR:
                     ready.append(i)
             if i > 10:
@@ -752,8 +800,10 @@ class Features(Navigation, Inputs):
         # heal if we need to heal
         if self.check_pixel_color(*coords.PLAYER_HEAL_THRESHOLD):
             if 12 in ready:
+                print("_________HYPER REGEN__________")
                 queue.append(12)
             elif 7 in ready:
+                print("_________HEAL__________")
                 queue.append(7)
 
         # check if offensive buff and ultimate buff are both ready
@@ -770,7 +820,7 @@ class Features(Navigation, Inputs):
         # If nothing is ready, return a regular attack
         if len(queue) == 0:
             queue.append(0)
-
+        print(f"READY: {ready}")
         return queue
 
     def save_check(self):
