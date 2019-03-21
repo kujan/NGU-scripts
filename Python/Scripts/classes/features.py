@@ -265,9 +265,7 @@ class Features(Navigation, Inputs):
         while not self.check_pixel_color(*coords.IS_DEAD):
             if len(queue) == 0:
                 queue = deque(self.get_ability_queue())
-            print(queue)
             ability = queue.popleft()
-            print(f"using ability {ability}")
             if ability <= 4:
                 x = coords.ABILITY_ROW1X + ability * coords.ABILITY_OFFSETX
                 y = coords.ABILITY_ROW1Y
@@ -787,7 +785,6 @@ class Features(Navigation, Inputs):
             if i >= 5 and i <= 10:
                 x = coords.ABILITY_ROW2X + (i - 5) * coords.ABILITY_OFFSETX
                 y = coords.ABILITY_ROW2Y
-                print(f"{i} _ {color} - {x},{y}")
                 if color == coords.ABILITY_ROW2_READY_COLOR:
                     ready.append(i)
             if i > 10:
@@ -800,10 +797,8 @@ class Features(Navigation, Inputs):
         # heal if we need to heal
         if self.check_pixel_color(*coords.PLAYER_HEAL_THRESHOLD):
             if 12 in ready:
-                print("_________HYPER REGEN__________")
                 queue.append(12)
             elif 7 in ready:
-                print("_________HEAL__________")
                 queue.append(7)
 
         # check if offensive buff and ultimate buff are both ready
@@ -820,7 +815,6 @@ class Features(Navigation, Inputs):
         # If nothing is ready, return a regular attack
         if len(queue) == 0:
             queue.append(0)
-        print(f"READY: {ready}")
         return queue
 
     def save_check(self):
