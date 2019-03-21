@@ -186,7 +186,7 @@ class Features(Navigation, Inputs):
                     if self.check_pixel_color(*coords.IS_BOSS_CROWN):
                         enemy_alive = True
                         while enemy_alive:
-                            enemy_alive = self.check_pixel_color(*coords.IS_ENEMY_ALIVE)
+                            enemy_alive = not self.check_pixel_color(*coords.IS_DEAD)
                             self.click(*coords.ABILITY_REGULAR_ATTACK)
                             time.sleep(0.1)
                         if once:
