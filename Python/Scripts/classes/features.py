@@ -924,13 +924,13 @@ class Features(Navigation, Inputs):
     def get_available_majors(self):
         self.menu("questing")
         text = self.ocr(*coords.OCR_QUESTING_MAJORS)
-        print(text)
         try:
             match = re.search(r"(\d+)\/\d+", text)
             if match:
                 return int(match.group(1))
         except ValueError:
             print("couldn't get current major quests available")
+            return -1
 
     def questing_consume_items(self, cleanup=False):
         """Check for items in inventory that can be turned in."""
