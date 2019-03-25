@@ -1046,11 +1046,18 @@ class Features(Navigation, Inputs):
 
         for count, zone in enumerate(coords.QUESTING_ZONES, start=0):
             if zone in text.lower():
-                while time.time() < end:
+                current_time = time.time()
+                while current_time < end:
+                    if current_time + adv_duration * 60 > end:  # adjust adv_duration if it will cause duration to be exceeded
+                        adv_duration = (end - current_time) / 60
+                        if adv_duration < 0.5:
+                            adv_duration = 0
+                            return
                     self.snipe(count, adv_duration)
                     self.boost_cube()
                     self.questing_consume_items()
                     text = self.get_quest_text()
+                    current_time = time.time()
                     if coords.QUESTING_QUEST_COMPLETE in text.lower():
                         try:
                             start_qp = int(self.remove_letters(self.ocr(*coords.OCR_QUESTING_QP)))
