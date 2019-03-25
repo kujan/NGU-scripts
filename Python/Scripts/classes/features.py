@@ -291,7 +291,7 @@ class Features(Navigation, Inputs):
     def do_rebirth(self):
         """Start a rebirth or challenge."""
         self.rebirth()
-
+        self.current_adventure_zone = 0
         self.click(*coords.REBIRTH)
         self.click(*coords.REBIRTH_BUTTON)
         self.click(*coords.CONFIRM)
@@ -962,9 +962,7 @@ class Features(Navigation, Inputs):
                         A higher value is good when forcing, because you spend less time
                         scanning the inventory and you will not waste any extra quest items.
                         A value around 2 minutes is good when doing majors because it's very
-                        likely that the extra items are lost. Keep in mind when changing this value
-                        that you might spend more time than set by duration if the adv_duration is not
-                        divisible with duration.
+                        likely that the extra items are lost.
 
         Suggested usages:
 
