@@ -946,11 +946,11 @@ class Features(Navigation, Inputs):
                     self.ctrl_click(*loc)
                 time.sleep(3)  # Need to wait for tooltip to disappear after consuming
 
-    def questing(self, duration=30, major=False, subcontract=False, force=0):
+    def questing(self, duration=30, major=False, subcontract=False, force=0, adv_duration=2):
         """Procedure for questing.
 
         Keyword arguments:
-        duration -- The duration to run if manual mode is selected. If
+        duration -- The duration in minutes to run if manual mode is selected. If
                     quest gets completed, function will return prematurely.
         major -- Set to true if you only wish to manually do main quests,
                 if False it will manually do all quests.
@@ -958,6 +958,13 @@ class Features(Navigation, Inputs):
         force -- Only quest in this zone. This will skip quests until you
                  recieve one for the selected zone, so make sure you disable
                  "Use major quests if available".
+        adv_duration -- The time in minutes to spend sniping before checking inventory.
+                        A higher value is good when forcing, because you spend less time
+                        scanning the inventory and you will not waste any extra quest items.
+                        A value around 2 minutes is good when doing majors because it's very
+                        likely that the extra items are lost. Keep in mind when changing this value
+                        that you might spend more time than set by duration if the adv_duration is not
+                        divisible with duration.
 
         Suggested usages:
 
@@ -1039,11 +1046,8 @@ class Features(Navigation, Inputs):
 
         for count, zone in enumerate(coords.QUESTING_ZONES, start=0):
             if zone in text.lower():
-                if self.current_adventure_zone != count:
-                    self.snipe(count, 0)  # move to zone
-                    self.current_adventure_zone = count
                 while time.time() < end:
-                    self.snipe(0, 2)
+                    self.snipe(count, adv_duration)
                     self.boost_cube()
                     self.questing_consume_items()
                     text = self.get_quest_text()
