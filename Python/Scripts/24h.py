@@ -46,7 +46,7 @@ feature = Features()
 Window.x, Window.y = i.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 400, 600)
 nav.menu("inventory")
 rt = feature.get_rebirth_time()
-start_procedure(feature, rt)
+#start_procedure(feature, rt)
 
 while True:
     rt = feature.get_rebirth_time()
@@ -54,6 +54,7 @@ while True:
     feature.gold_diggers([x for x in range(1, 13)])
     feature.merge_inventory(8)  # merge uneqipped guffs
     spells = feature.check_spells_ready()
+    spells = []
     if spells:  # check if any spells are off CD
         feature.reclaim_ngu(True)  # take all magic from magic NGUs
         for spell in spells:
@@ -78,7 +79,7 @@ while True:
         feature.ygg()
         feature.save_check()
         feature.pit()
-        if rt.timestamp.tm_hour <= 12:  # quests for first 12 hours
+        if rt.timestamp.tm_hour <= 24:  # quests for first 12 hours
             feature.boost_cube()
             feature.questing()
         else:  # after hour 12, do itopod in 5-minute intervals
