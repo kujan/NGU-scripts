@@ -1,14 +1,6 @@
 __pycache__/
-gdip.ahk
-main.ahk
 debug.py
 debug_ocr.png
-local_env.py
 
-Python/Scripts/ngu_icon\.ico
-
-Python/Scripts/ngu_icon\.png
-Python/Scripts/custom3min.py
-Python/Scripts/usersettings.py
-Python/Scripts/customitopodsnipe.py
-Python/Scripts/Screenshots
+usersettings.py
+Screenshots
