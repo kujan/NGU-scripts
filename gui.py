@@ -10,9 +10,8 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(NguScriptApp, self).__init__(parent)
         self.setupUi(self)  # generate the UI
-        self.window_id = 0
         self.w = Window()
-        self.i = Inputs()
+        self.i = Inputs(self.w)
         self.setup()
 
     def setup(self):
@@ -46,9 +45,9 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         win32gui.EnumWindows(self.window_enumeration_handler, top_windows)
         for i in top_windows:
             if window_name in i[1].lower():
-                self.window_id = i[0]
+                self.w.id = i[0]
 
-        if self.window_id:
+        if self.w.id:
             self.window_retry.setText("Show Window")
             self.window_retry.clicked.connect(self.action_show_window)
             self.window_info_text.setText("Window detected!")
@@ -56,20 +55,23 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
             if Window.x and Window.y:
                 self.window_info_text.setStyleSheet("color: green")
                 self.window_info_text.setText(f"Window detected! Game detected at: {Window.x}, {Window.y}")
-            else:
-                self.window_info_text.setText(f"Window detected, but game not found!")
-                self.window_info_text.setStyleSheet("color: red")
         else:
             self.window_retry.clicked.connect(self.get_ngu_window)
 
     def get_top_left(self):
         """Get coordinates for top left of game."""
-        Window.x, Window.y = self.i.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 400, 600)
+        try:
+            Window.x, Window.y = self.i.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 400, 600)
+        except TypeError:
+            self.window_info_text.setText(f"Window detected, but game not found!")
+            self.window_info_text.setStyleSheet("color: red")
+            self.window_retry.setText("Retry")
+            self.window_retry.clicked.connect(self.get_ngu_window)
         print(Window.x, Window.y)
     def action_show_window(self):
         """Activate game window."""
-        win32gui.ShowWindow(self.window_id, 5)
-        win32gui.SetForegroundWindow(self.window_id)
+        win32gui.ShowWindow(self.w.id, 5)
+        win32gui.SetForegroundWindow(self.w.id)
 
     def action_exit(self):
         """Exit app."""

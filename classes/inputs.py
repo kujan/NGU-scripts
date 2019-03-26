@@ -1,5 +1,5 @@
 """Input class contains functions for mouse and keyboard input."""
-from classes.window import Window as window
+
 from ctypes import windll
 from PIL import Image as image
 from PIL import ImageFilter
@@ -21,26 +21,29 @@ import win32ui
 class Inputs():
     """This class handles inputs."""
 
+    def __init__(self, window):
+        self.window = window
+
     def click(self, x, y, button="left", fast=False):
         """Click at pixel xy."""
-        x += window.x
-        y += window.y
+        x += self.window.x
+        y += self.window.y
         lParam = win32api.MAKELONG(x, y)
         # MOUSEMOVE event is required for game to register clicks correctly
-        win32gui.PostMessage(window.id, wcon.WM_MOUSEMOVE, 0, lParam)
+        win32gui.PostMessage(self.window.id, wcon.WM_MOUSEMOVE, 0, lParam)
         while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
                win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
                win32api.GetKeyState(wcon.VK_MENU) < 0):
             time.sleep(0.005)
         if (button == "left"):
-            win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
+            win32gui.PostMessage(self.window.id, wcon.WM_LBUTTONDOWN,
                                  wcon.MK_LBUTTON, lParam)
-            win32gui.PostMessage(window.id, wcon.WM_LBUTTONUP,
+            win32gui.PostMessage(self.window.id, wcon.WM_LBUTTONUP,
                                  wcon.MK_LBUTTON, lParam)
         else:
-            win32gui.PostMessage(window.id, wcon.WM_RBUTTONDOWN,
+            win32gui.PostMessage(self.window.id, wcon.WM_RBUTTONDOWN,
                                  wcon.MK_RBUTTON, lParam)
-            win32gui.PostMessage(window.id, wcon.WM_RBUTTONUP,
+            win32gui.PostMessage(self.window.id, wcon.WM_RBUTTONUP,
                                  wcon.MK_RBUTTON, lParam)
         # Sleep lower than 0.1 might cause issues when clicking in succession
         if fast:
@@ -50,20 +53,20 @@ class Inputs():
 
     def ctrl_click(self, x, y):
         """Clicks at pixel x, y while simulating the CTRL button to be down."""
-        x += window.x
-        y += window.y
+        x += self.window.x
+        y += self.window.y
         lParam = win32api.MAKELONG(x, y)
         while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
                win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
                win32api.GetKeyState(wcon.VK_MENU) < 0):
             time.sleep(0.005)
 
-        win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, wcon.VK_CONTROL, 0)
-        win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
+        win32gui.PostMessage(self.window.id, wcon.WM_KEYDOWN, wcon.VK_CONTROL, 0)
+        win32gui.PostMessage(self.window.id, wcon.WM_LBUTTONDOWN,
                              wcon.MK_LBUTTON, lParam)
-        win32gui.PostMessage(window.id, wcon.WM_LBUTTONUP,
+        win32gui.PostMessage(self.window.id, wcon.WM_LBUTTONUP,
                              wcon.MK_LBUTTON, lParam)
-        win32gui.PostMessage(window.id, wcon.WM_KEYUP, wcon.VK_CONTROL, 0)
+        win32gui.PostMessage(self.window.id, wcon.WM_KEYUP, wcon.VK_CONTROL, 0)
         time.sleep(userset.MEDIUM_SLEEP)
 
     def send_string(self, string):
@@ -76,27 +79,27 @@ class Inputs():
                    win32api.GetKeyState(wcon.VK_MENU) < 0):
                 time.sleep(0.005)
             if c.isdigit():  # Digits only require KEY_UP event.
-                win32gui.PostMessage(window.id, wcon.WM_KEYUP, ord(c.upper()),
+                win32gui.PostMessage(self.window.id, wcon.WM_KEYUP, ord(c.upper()),
                                      0)
                 # time.sleep(0.03)  # This can probably be removed
                 continue
-            win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, ord(c.upper()), 0)
+            win32gui.PostMessage(self.window.id, wcon.WM_KEYDOWN, ord(c.upper()), 0)
             time.sleep(userset.SHORT_SLEEP)  # This can probably be removed
-            win32gui.PostMessage(window.id, wcon.WM_KEYUP, ord(c.upper()), 0)
+            win32gui.PostMessage(self.window.id, wcon.WM_KEYUP, ord(c.upper()), 0)
         time.sleep(userset.SHORT_SLEEP)
 
     def get_bitmap(self):
         """Get and return a bitmap of the window."""
-        left, top, right, bot = win32gui.GetWindowRect(window.id)
+        left, top, right, bot = win32gui.GetWindowRect(self.window.id)
         w = right - left
         h = bot - top
-        hwnd_dc = win32gui.GetWindowDC(window.id)
+        hwnd_dc = win32gui.GetWindowDC(self.window.id)
         mfc_dc = win32ui.CreateDCFromHandle(hwnd_dc)
         save_dc = mfc_dc.CreateCompatibleDC()
         save_bitmap = win32ui.CreateBitmap()
         save_bitmap.CreateCompatibleBitmap(mfc_dc, w, h)
         save_dc.SelectObject(save_bitmap)
-        windll.user32.PrintWindow(window.id, save_dc.GetSafeHdc(), 0)
+        windll.user32.PrintWindow(self.window.id, save_dc.GetSafeHdc(), 0)
         bmpinfo = save_bitmap.GetInfo()
         bmpstr = save_bitmap.GetBitmapBits(True)
 
@@ -109,7 +112,7 @@ class Inputs():
         win32gui.DeleteObject(save_bitmap.GetHandle())
         save_dc.DeleteDC()
         mfc_dc.DeleteDC()
-        win32gui.ReleaseDC(window.id, hwnd_dc)
+        win32gui.ReleaseDC(self.window.id, hwnd_dc)
         # bmp.save("asdf.png")
         return bmp
 
@@ -178,10 +181,10 @@ class Inputs():
                bitmap multiple times. If a bitmap is not passed, the function
                will get the bitmap itself. (default None)
         """
-        x_start += window.x
-        x_end += window.x
-        y_start += window.y
-        y_end += window.y
+        x_start += self.window.x
+        x_end += self.window.x
+        y_start += self.window.y
+        y_end += self.window.y
 
         if not bmp:
             bmp = self.get_bitmap()
@@ -197,9 +200,9 @@ class Inputs():
 
     def get_pixel_color(self, x, y, debug=False):
         """Get the color of selected pixel in HEX."""
-        dc = win32gui.GetWindowDC(window.id)
-        rgba = win32gui.GetPixel(dc, x + 8 + window.x, y + 8 + window.y)
-        win32gui.ReleaseDC(window.id, dc)
+        dc = win32gui.GetWindowDC(self.window.id)
+        rgba = win32gui.GetPixel(dc, x + 8 + self.window.x, y + 8 + self.window.y)
+        win32gui.ReleaseDC(self.window.id, dc)
         r = rgba & 0xff
         g = rgba >> 8 & 0xff
         b = rgba >> 16 & 0xff
@@ -243,7 +246,7 @@ class Inputs():
     def save_screenshot(self):
         """Save a screenshot of the game."""
         bmp = self.get_bitmap()
-        bmp = bmp.crop((window.x + 8, window.y + 8, window.x + 968, window.y + 608))
+        bmp = bmp.crop((self.window.x + 8, self.window.y + 8, self.window.x + 968, self.window.y + 608))
         if not os.path.exists("screenshots"):
             os.mkdir("screenshots")
         bmp.save('screenshots/' + datetime.datetime.now().strftime('%d-%m-%y-%H-%M-%S') + '.png')
