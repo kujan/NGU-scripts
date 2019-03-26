@@ -69,6 +69,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
             self.window_info_text.setText(f"Window detected, but game not found!")
             self.window_info_text.setStyleSheet("color: red")
             self.window_retry.setText("Retry")
+            self.window_retry.disconnect()
             self.window_retry.clicked.connect(self.get_ngu_window)
         print(Window.x, Window.y)
     def action_show_window(self):
@@ -79,8 +80,10 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
     def action_stop(self, thread):
         """Stop script thread."""
         self.run_thread.terminate()
-        self.run_button.show()
-        self.stop_button.hide()
+        self.run_button.setText("Run")
+        self.run_button.disconnect()
+        self.run_button.clicked.connect(self.action_run)
+
     def action_exit(self):
         """Exit app."""
         sys.exit(0)
@@ -127,9 +130,8 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
             self.w_pp.show()
             self.w_pph.show()
             self.w_exph.show()
-            self.stop_button.show()
-            self.run_button.hide()
-            self.stop_button.clicked.connect(self.action_stop)
+            self.run_button.disconnect()
+            self.run_button.clicked.connect(self.action_stop)
             self.current_task_text.setText("Sniping I.T.O.P.O.D")
             self.current_task_text.show()
             self.task_progress.show()

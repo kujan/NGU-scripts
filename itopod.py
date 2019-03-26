@@ -16,12 +16,12 @@ def run(window, signal, duration):
     i = Inputs(w)
     nav = Navigation(w)
     feature = Features(w)
-    tracker = Tracker(w, 3)
+    tracker = Tracker(w, duration / 60)
     nav.menu("inventory")
     while True:  # main loop
         #QtCore.QThread
         signal.emit(tracker.get_rates())
-        feature.itopod_snipe(duration / 60, signal)
+        feature.itopod_snipe(duration, signal)
         feature.boost_cube()
         feature.ygg()
         tracker.progress()
