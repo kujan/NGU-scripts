@@ -4,27 +4,25 @@
 from classes.features import Features
 from classes.inputs import Inputs
 from classes.navigation import Navigation
+from classes.stats import Stats, Tracker
 from classes.window import Window
-import coordinates as coords
-
-w = Window()
-i = Inputs()
-nav = Navigation()
-feature = Features()
-
-Window.x, Window.y = i.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 400, 600)
-feature.save_screenshot()
-nav.menu("inventory")
-
-def run(window):
+import time
+#from PyQt5.QtCore import SIGNAL
+def run(window, signal, duration):
     w = Window()
-    i = Inputs()
-    nav = Navigation()
-    feature = Features()
-    Window.x = window.x
-    Window.y = window.y
+    w.x = window.x
+    w.y = window.y
+    w.id = window.id
+    i = Inputs(w)
+    nav = Navigation(w)
+    feature = Features(w)
+    tracker = Tracker(w, 3)
     nav.menu("inventory")
     while True:  # main loop
-        feature.itopod_snipe(300)
+        #QtCore.QThread
+        signal.emit(tracker.get_rates())
+        feature.itopod_snipe(duration / 60, signal)
         feature.boost_cube()
         feature.ygg()
+        tracker.progress()
+

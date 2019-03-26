@@ -15,7 +15,9 @@ class Stats(Navigation):
     OCR_failed = False
     track_xp = True
     track_pp = True
-
+    def __init__(self, window):
+        self.window = window
+        print(self.window.x, self.window.y)
     def set_value_with_ocr(self, value):
         """Store start EXP via OCR."""
         try:
@@ -48,7 +50,8 @@ class Stats(Navigation):
 
 class EstimateRate(Stats):
 
-    def __init__(self, duration, mode='moving_average'):
+    def __init__(self, w, duration, mode='moving_average'):
+        super().__init__(w)
         self.mode = mode
         self.last_timestamp = time.time()
         if Stats.track_xp:
@@ -130,7 +133,7 @@ class EstimateRate(Stats):
         self.last_xp = Stats.xp
 
 
-class Tracker():
+class Tracker(Navigation):
     """
     The Tracker object collects time and value measurements for stats
 
@@ -138,12 +141,12 @@ class Tracker():
            then at the end of each run invoke tracker.progress() to update stats.
     """
 
-    def __init__(self, duration, track_xp=True, track_pp=True, mode='moving_average'):
+    def __init__(self, w, duration, track_xp=True, track_pp=True, mode='moving_average'):
         self.__start_time = time.time()
         self.__iteration = 1
         Stats.track_xp = track_xp
         Stats.track_pp = track_pp
-        self.__estimaterate = EstimateRate(duration, mode)
+        self.__estimaterate = EstimateRate(w, duration, mode)
         #print(f"{'-' * 15} Run # {self.__iteration} {'-' * 15}")
         print("{0:{fill}{align}40}".format(f" {self.__iteration} ", fill="-", align="^"))
         print("{:^18}{:^3}{:^18}".format("XP", "|", "PP"))
@@ -164,6 +167,10 @@ class Tracker():
             print('Current:  {:^8}{:^3}Current:  {:^8}'.format(self.human_format(Stats.xp), "|", self.human_format(Stats.pp)))
             print('Per hour: {:^8}{:^3}Per hour: {:^8}'.format(self.human_format(xph), "|", self.human_format(pph)))
             print(report_time)
+
+    def get_rates(self):
+        xph, pph = self.__estimaterate.rates()
+        return {"xph": xph, "pph": pph}
 
     def elapsed_time(self):
         """Print the total elapsed time."""

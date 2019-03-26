@@ -211,6 +211,10 @@ class Ui_MainWindow(object):
         self.run_button = QtWidgets.QPushButton(self.centralwidget)
         self.run_button.setObjectName("run_button")
         self.horizontalLayout.addWidget(self.run_button)
+        self.stop_button = QtWidgets.QPushButton(self.centralwidget)
+        self.stop_button.setEnabled(True)
+        self.stop_button.setObjectName("stop_button")
+        self.horizontalLayout.addWidget(self.stop_button)
         self.exit_button = QtWidgets.QPushButton(self.centralwidget)
         self.exit_button.setObjectName("exit_button")
         self.horizontalLayout.addWidget(self.exit_button)
@@ -242,5 +246,6 @@ class Ui_MainWindow(object):
         self.current_task_text.setText(_translate("MainWindow", "Current Task"))
         self.current_rb_text.setText(_translate("MainWindow", "Current Rebirth"))
         self.run_button.setText(_translate("MainWindow", "Run"))
+        self.stop_button.setText(_translate("MainWindow", "Stop"))
         self.exit_button.setText(_translate("MainWindow", "Exit"))
 

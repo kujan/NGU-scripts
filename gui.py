@@ -1,8 +1,10 @@
 import sys
-from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets
 from design.design import Ui_MainWindow
 from classes.inputs import Inputs
 from classes.window import Window
+import itopod
+import math
 import coordinates as coords
 import win32gui
 
@@ -30,6 +32,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.task_progress.hide()
         self.current_rb_text.hide()
         self.rebirth_progress.hide()
+        self.stop_button.hide()
         self.exit_button.clicked.connect(self.action_exit)
         self.run_button.clicked.connect(self.action_run)
         self.setFixedSize(self.sizeHint())  # shrink window
@@ -73,9 +76,42 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         win32gui.ShowWindow(self.w.id, 5)
         win32gui.SetForegroundWindow(self.w.id)
 
+    def action_stop(self, thread):
+        """Stop script thread."""
+        self.run_thread.terminate()
+        self.run_button.show()
+        self.stop_button.hide()
     def action_exit(self):
         """Exit app."""
         sys.exit(0)
+
+    def human_format(self, num):
+        num = float('{:.3g}'.format(num))
+        if num > 1e14:
+            return
+        magnitude = 0
+        while abs(num) >= 1000:
+            magnitude += 1
+            num /= 1000.0
+        return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
+
+    def update(self, result):
+        for k, v in result.items():
+            if k == "exp":
+                self.exp_data.setText(self.human_format(v))
+            elif k == "pp":
+                self.pp_data.setText(self.human_format(v))
+            elif k == "qp":
+                self.qp_data.setText(self.human_format(v))
+            elif k == "xph":
+                self.exph_data.setText(self.human_format(v))
+            elif k == "pph":
+                self.pph_data.setText(self.human_format(v))
+            elif k == "qph":
+                self.qph_data.setText(self.human_format(v))
+            elif k == "timer":
+                prog = (1 + ((result["current"] - result["end"]) / result["duration"])) * 100
+                self.task_progress.setValue(math.ceil(prog))
 
     def action_run(self):
         runs = ["Static Questing",
@@ -84,8 +120,40 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         run = runs.index(text)
         print(run)
         if run == 1:
-            #import 
+            self.run_thread = ScriptThread(1, self.w)
+            self.run_thread.signal.connect(self.update)
+            self.run_button.setText("Stop")
+            self.w_exp.show()
+            self.w_pp.show()
+            self.w_pph.show()
+            self.w_exph.show()
+            self.stop_button.show()
+            self.run_button.hide()
+            self.stop_button.clicked.connect(self.action_stop)
+            self.current_task_text.setText("Sniping I.T.O.P.O.D")
+            self.current_task_text.show()
+            self.task_progress.show()
+            self.task_progress.setValue(0)
+            self.setFixedSize(self.sizeHint())
+            #self.connect(self.run_thread, QtCore.SIGNAL("update_stats(QString)"), self.add_post)
+            self.run_thread.start()
+            
+
+
+class ScriptThread(QtCore.QThread):
+    """Thread class for script."""
+    signal = QtCore.pyqtSignal("PyQt_PyObject")
+
+    def __init__(self, run, w):
+        QtCore.QThread.__init__(self)
+        self.run = run
+        self.w = w
+
+    def run(self):
+        if self.run == 1:
+            itopod.run(self.w, self.signal, 600)
             print("value")
+
 
 def run():
     """Start GUI thread."""

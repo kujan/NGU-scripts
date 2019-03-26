@@ -219,7 +219,7 @@ class Features(Navigation, Inputs):
 
         self.click(*coords.ABILITY_IDLE_MODE)
 
-    def itopod_snipe(self, duration):
+    def itopod_snipe(self, duration, signal):
         """Manually snipes ITOPOD for increased speed PP/h.
 
         Keyword arguments:
@@ -244,6 +244,7 @@ class Features(Navigation, Inputs):
             self.click(*coords.ABILITY_IDLE_MODE)
 
         while time.time() < end:
+            signal.emit({"timer": True, "duration": duration, "current": time.time(), "end": end})
             if self.check_pixel_color(*coords.IS_ENEMY_ALIVE):
                 self.click(*coords.ABILITY_REGULAR_ATTACK)
             else:
