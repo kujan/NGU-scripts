@@ -230,7 +230,7 @@ class Features(Navigation, Inputs):
         self.current_adventure_zone = 0
         self.menu("adventure")
         self.click(625, 500)  # click somewhere to move tooltip
-
+        self.enemies_killed = 0
         # check if we're already in ITOPOD, otherwise enter
         if not self.check_pixel_color(*coords.IS_ITOPOD_ACTIVE):
             self.click(*coords.ITOPOD)
@@ -242,11 +242,13 @@ class Features(Navigation, Inputs):
 
         if self.check_pixel_color(*coords.IS_IDLE):
             self.click(*coords.ABILITY_IDLE_MODE)
-
+        time.sleep(.5)
         while time.time() < end:
             signal.emit({"timer": True, "duration": duration, "current": time.time(), "end": end})
             if self.check_pixel_color(*coords.IS_ENEMY_ALIVE):
                 self.click(*coords.ABILITY_REGULAR_ATTACK)
+                self.enemies_killed += 1
+                signal.emit({"itopod_snipes": self.enemies_killed})
             else:
                 time.sleep(0.01)
 

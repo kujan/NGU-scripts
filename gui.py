@@ -3,6 +3,7 @@ from PyQt5 import QtCore, QtWidgets
 from design.design import Ui_MainWindow
 from classes.inputs import Inputs
 from classes.window import Window
+import json
 import itopod
 import math
 import coordinates as coords
@@ -33,10 +34,34 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.current_rb_text.hide()
         self.rebirth_progress.hide()
         self.stop_button.hide()
-        self.exit_button.clicked.connect(self.action_exit)
+        self.exit_button.clicked.connect(self.close)
         self.run_button.clicked.connect(self.action_run)
-        self.setFixedSize(self.sizeHint())  # shrink window
 
+        try:
+            with open("stats.txt", "r") as f:
+                data = json.loads(f.read())
+                self.lifetime_itopod_kills = int(data["itopod_snipes"])
+                self.lifetime_itopod_kills_data.setText(str(self.human_format(self.lifetime_itopod_kills)))
+                self.lifetime_itopod_time_saved_data.setText(data["itopod_time_saved"])
+        except FileNotFoundError:
+            self.lifetime_itopod_kills_data.setText("0")
+            self.lifetime_itopod_time_saved_data.setText("0")
+        #self.tabWidget.setFixedSize(self.sizeHint())  # shrink window
+    def closeEvent(self, event):
+
+        quit_msg = "Are you sure you want to exit?"
+        reply = QtWidgets.QMessageBox.question(self, 'Message',
+                                               quit_msg, QtWidgets.QMessageBox.Yes,
+                                               QtWidgets.QMessageBox.No)
+
+        if reply == QtWidgets.QMessageBox.Yes:
+            with open("stats.txt", "w") as f:
+                data = {"itopod_snipes": self.lifetime_itopod_kills,
+                        "itopod_time_saved": self.lifetime_itopod_time_saved_data.text()}
+                f.write(json.dumps(data))
+            event.accept()
+        else:
+            event.ignore()
     def window_enumeration_handler(self, hwnd, top_windows):
         """Add window title and ID to array."""
         top_windows.append((hwnd, win32gui.GetWindowText(hwnd)))
@@ -84,10 +109,6 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.run_button.disconnect()
         self.run_button.clicked.connect(self.action_run)
 
-    def action_exit(self):
-        """Exit app."""
-        sys.exit(0)
-
     def human_format(self, num):
         num = float('{:.3g}'.format(num))
         if num > 1e14:
@@ -115,6 +136,20 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
             elif k == "timer":
                 prog = (1 + ((result["current"] - result["end"]) / result["duration"])) * 100
                 self.task_progress.setValue(math.ceil(prog))
+            elif k == "itopod_snipes":
+                self.lifetime_itopod_kills += 1
+                self.lifetime_itopod_kills_data.setText(str(self.human_format(self.lifetime_itopod_kills)))
+
+                n = self.lifetime_itopod_kills * 0.8
+                days = math.floor(n // (24 * 3600))
+                n = n % (24 * 3600)
+                hours = math.floor(n // 3600)
+                n %= 3600
+                minutes = math.floor(n // 60)
+                n %= 60
+                seconds = math.floor(n)
+
+                self.lifetime_itopod_time_saved_data.setText(f"{days} days, {hours} hours, {minutes} minutes, {seconds} seconds")
 
     def action_run(self):
         runs = ["Static Questing",
@@ -136,11 +171,8 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
             self.current_task_text.show()
             self.task_progress.show()
             self.task_progress.setValue(0)
-            self.setFixedSize(self.sizeHint())
-            #self.connect(self.run_thread, QtCore.SIGNAL("update_stats(QString)"), self.add_post)
+            #self.setFixedSize(self.sizeHint())
             self.run_thread.start()
-            
-
 
 class ScriptThread(QtCore.QThread):
     """Thread class for script."""
@@ -153,7 +185,7 @@ class ScriptThread(QtCore.QThread):
 
     def run(self):
         if self.run == 1:
-            itopod.run(self.w, self.signal, 600)
+            itopod.run(self.w, self.signal, 60)
             print("value")
 
 
@@ -175,5 +207,5 @@ Progressbars tracking current long running task (sniping, questing)
 Progressbar tracking run progression (if applicable)
 Tools for annoying actions while playing manually (cap all diggers)
 Quickstart for infinite questing/itopod sniping
-
+Track minor/major quests done
 """

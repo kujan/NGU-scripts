@@ -147,7 +147,6 @@ class Tracker(Navigation):
         Stats.track_xp = track_xp
         Stats.track_pp = track_pp
         self.__estimaterate = EstimateRate(w, duration, mode)
-        #print(f"{'-' * 15} Run # {self.__iteration} {'-' * 15}")
         print("{0:{fill}{align}40}".format(f" {self.__iteration} ", fill="-", align="^"))
         print("{:^18}{:^3}{:^18}".format("XP", "|", "PP"))
         print("-" * 40)
