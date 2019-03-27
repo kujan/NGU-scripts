@@ -1,6 +1,7 @@
 import sys
 from PyQt5 import QtCore, QtWidgets
 from design.design import Ui_MainWindow
+from design.options import Ui_OptionsWindow
 from classes.inputs import Inputs
 from classes.window import Window
 import json
@@ -38,6 +39,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.stop_button.setEnabled(False)
         self.stop_button.clicked.connect(self.action_stop)
         self.run_button.clicked.connect(self.action_run)
+        self.run_options.clicked.connect(self.action_options)
 
         try:
             with open("stats.txt", "r") as f:
@@ -48,6 +50,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         except FileNotFoundError:
             self.lifetime_itopod_kills_data.setText("0")
             self.lifetime_itopod_time_saved_data.setText("0")
+            self.lifetime_itopod_kills = 0
         #self.tabWidget.setFixedSize(self.sizeHint())  # shrink window
     def closeEvent(self, event):
 
@@ -135,6 +138,12 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.run_button.setEnabled(True)
         self.run_button.clicked.connect(self.action_pause)
 
+    def action_options(self):
+        self.options = OptionsWindow()
+        self.options.setFixedSize(self.sizeHint())
+        self.options.show()
+
+
     def human_format(self, num):
         num = float('{:.3g}'.format(num))
         if num > 1e14:
@@ -199,6 +208,11 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
             self.task_progress.setValue(0)
             self.stop_button.setEnabled(True)
             self.run_thread.start()
+
+class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
+    def __init__(self, parent=None):
+        super(OptionsWindow, self).__init__(parent)
+        self.setupUi(self)
 
 class ScriptThread(QtCore.QThread):
     """Thread class for script."""
