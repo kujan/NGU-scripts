@@ -21,8 +21,9 @@ import win32ui
 class Inputs():
     """This class handles inputs."""
 
-    def __init__(self, window):
+    def __init__(self, window, mutex):
         self.window = window
+        self.mutex = mutex
 
     def click(self, x, y, button="left", fast=False):
         """Click at pixel xy."""
@@ -30,6 +31,7 @@ class Inputs():
         y += self.window.y
         lParam = win32api.MAKELONG(x, y)
         # MOUSEMOVE event is required for game to register clicks correctly
+        self.mutex.lock()
         win32gui.PostMessage(self.window.id, wcon.WM_MOUSEMOVE, 0, lParam)
         while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
                win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
@@ -50,6 +52,7 @@ class Inputs():
             time.sleep(userset.FAST_SLEEP)
         else:
             time.sleep(userset.MEDIUM_SLEEP)
+        self.mutex.unlock()
 
     def ctrl_click(self, x, y):
         """Clicks at pixel x, y while simulating the CTRL button to be down."""

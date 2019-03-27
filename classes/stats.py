@@ -15,9 +15,9 @@ class Stats(Navigation):
     OCR_failed = False
     track_xp = True
     track_pp = True
-    def __init__(self, window):
+    def __init__(self, window, mutex):
         self.window = window
-        print(self.window.x, self.window.y)
+        self.mutex = mutex
     def set_value_with_ocr(self, value):
         """Store start EXP via OCR."""
         try:
@@ -50,8 +50,8 @@ class Stats(Navigation):
 
 class EstimateRate(Stats):
 
-    def __init__(self, w, duration, mode='moving_average'):
-        super().__init__(w)
+    def __init__(self, w, mutex, duration, mode='moving_average'):
+        super().__init__(w, mutex)
         self.mode = mode
         self.last_timestamp = time.time()
         if Stats.track_xp:
@@ -141,12 +141,12 @@ class Tracker(Navigation):
            then at the end of each run invoke tracker.progress() to update stats.
     """
 
-    def __init__(self, w, duration, track_xp=True, track_pp=True, mode='moving_average'):
+    def __init__(self, w, mutex, duration, track_xp=True, track_pp=True, mode='moving_average'):
         self.__start_time = time.time()
         self.__iteration = 1
         Stats.track_xp = track_xp
         Stats.track_pp = track_pp
-        self.__estimaterate = EstimateRate(w, duration, mode)
+        self.__estimaterate = EstimateRate(w, mutex, duration, mode)
         print("{0:{fill}{align}40}".format(f" {self.__iteration} ", fill="-", align="^"))
         print("{:^18}{:^3}{:^18}".format("XP", "|", "PP"))
         print("-" * 40)

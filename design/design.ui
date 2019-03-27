@@ -30,7 +30,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_1">
        <attribute name="title">
@@ -670,13 +670,6 @@
         </property>
         <property name="text">
          <string>Stop</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="exit_button">
-        <property name="text">
-         <string>Exit</string>
         </property>
        </widget>
       </item>

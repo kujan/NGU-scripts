@@ -255,14 +255,11 @@ class Ui_MainWindow(object):
         self.stop_button.setEnabled(True)
         self.stop_button.setObjectName("stop_button")
         self.horizontalLayout.addWidget(self.stop_button)
-        self.exit_button = QtWidgets.QPushButton(self.centralwidget)
-        self.exit_button.setObjectName("exit_button")
-        self.horizontalLayout.addWidget(self.exit_button)
         self.verticalLayout.addLayout(self.horizontalLayout)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -294,5 +291,4 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Statistics"))
         self.run_button.setText(_translate("MainWindow", "Run"))
         self.stop_button.setText(_translate("MainWindow", "Stop"))
-        self.exit_button.setText(_translate("MainWindow", "Exit"))
 

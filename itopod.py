@@ -8,15 +8,15 @@ from classes.stats import Stats, Tracker
 from classes.window import Window
 import time
 #from PyQt5.QtCore import SIGNAL
-def run(window, signal, duration):
+def run(window, mutex, signal, duration):
     w = Window()
     w.x = window.x
     w.y = window.y
     w.id = window.id
-    i = Inputs(w)
-    nav = Navigation(w)
-    feature = Features(w)
-    tracker = Tracker(w, duration / 60)
+    i = Inputs(w, mutex)
+    nav = Navigation(w, mutex)
+    feature = Features(w, mutex)
+    tracker = Tracker(w, mutex, duration / 60)
     start_exp = Stats.xp
     start_pp = Stats.pp
     nav.menu("inventory")

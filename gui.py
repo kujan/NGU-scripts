@@ -13,8 +13,10 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(NguScriptApp, self).__init__(parent)
         self.setupUi(self)  # generate the UI
+        self.mutex = QtCore.QMutex()  # lock for script thread to enable pausing
         self.w = Window()
-        self.i = Inputs(self.w)
+        self.i = Inputs(self.w, self.mutex)
+
         self.setup()
 
     def setup(self):
@@ -33,8 +35,8 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.task_progress.hide()
         self.current_rb_text.hide()
         self.rebirth_progress.hide()
-        self.stop_button.hide()
-        self.exit_button.clicked.connect(self.close)
+        self.stop_button.setEnabled(False)
+        self.stop_button.clicked.connect(self.action_stop)
         self.run_button.clicked.connect(self.action_run)
 
         try:
@@ -104,10 +106,34 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def action_stop(self, thread):
         """Stop script thread."""
-        self.run_thread.terminate()
-        self.run_button.setText("Run")
+        if self.mutex.tryLock(1000):
+            self.run_thread.terminate()
+            self.run_button.setText("Run")
+            self.run_button.disconnect()
+            self.run_button.clicked.connect(self.action_run)
+            self.stop_button.setEnabled(False)
+            self.mutex.unlock()
+        else:
+            QtWidgets.QMessageBox.information(self, "Error", "Couldn't acquire lock of script thread.")
+
+    def action_pause(self, thread):
+        self.run_button.setEnabled(False)
+        self.stop_button.setEnabled(False)
+        self.run_button.setText("Pausing...")
+        self.mutex.lock()
         self.run_button.disconnect()
-        self.run_button.clicked.connect(self.action_run)
+        self.run_button.clicked.connect(self.action_resume)
+        self.run_button.setText("Resume")
+        self.run_button.setEnabled(True)
+
+    def action_resume(self, thread):
+        self.run_button.setEnabled(False)
+        self.stop_button.setEnabled(True)
+        self.run_button.setText("Pause")
+        self.run_button.disconnect()
+        self.mutex.unlock()
+        self.run_button.setEnabled(True)
+        self.run_button.clicked.connect(self.action_pause)
 
     def human_format(self, num):
         num = float('{:.3g}'.format(num))
@@ -158,34 +184,35 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         run = runs.index(text)
         print(run)
         if run == 1:
-            self.run_thread = ScriptThread(1, self.w)
+            self.run_thread = ScriptThread(1, self.w, self.mutex)
             self.run_thread.signal.connect(self.update)
-            self.run_button.setText("Stop")
+            self.run_button.setText("Pause")
+            self.run_button.disconnect()
+            self.run_button.clicked.connect(self.action_pause)
             self.w_exp.show()
             self.w_pp.show()
             self.w_pph.show()
             self.w_exph.show()
-            self.run_button.disconnect()
-            self.run_button.clicked.connect(self.action_stop)
             self.current_task_text.setText("Sniping I.T.O.P.O.D")
             self.current_task_text.show()
             self.task_progress.show()
             self.task_progress.setValue(0)
-            #self.setFixedSize(self.sizeHint())
+            self.stop_button.setEnabled(True)
             self.run_thread.start()
 
 class ScriptThread(QtCore.QThread):
     """Thread class for script."""
     signal = QtCore.pyqtSignal("PyQt_PyObject")
 
-    def __init__(self, run, w):
+    def __init__(self, run, w, mutex):
         QtCore.QThread.__init__(self)
         self.run = run
         self.w = w
+        self.mutex = mutex
 
     def run(self):
         if self.run == 1:
-            itopod.run(self.w, self.signal, 60)
+            itopod.run(self.w, self.mutex, self.signal, 60)
             print("value")
 
 
