@@ -126,7 +126,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_2">
+         <widget class="QLineEdit" name="line_boost_inventory">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -203,7 +203,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="check_merge_equipment">
+         <widget class="QCheckBox" name="check_fruits">
           <property name="toolTip">
            <string>This will click &quot;harvest all max tier fruits&quot;</string>
           </property>
@@ -244,7 +244,7 @@
        </spacer>
       </item>
       <item alignment="Qt::AlignHCenter">
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="button_ok">
         <property name="text">
          <string>Ok</string>
         </property>

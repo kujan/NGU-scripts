@@ -4,8 +4,10 @@ from design.design import Ui_MainWindow
 from design.options import Ui_OptionsWindow
 from classes.inputs import Inputs
 from classes.window import Window
+from distutils.util import strtobool
 import json
 import itopod
+import inspect
 import math
 import coordinates as coords
 import win32gui
@@ -42,7 +44,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.run_options.clicked.connect(self.action_options)
 
         try:
-            with open("stats.txt", "r") as f:
+            with open("stats.txt", "r") as f:  # load stats from file if it exists
                 data = json.loads(f.read())
                 self.lifetime_itopod_kills = int(data["itopod_snipes"])
                 self.lifetime_itopod_kills_data.setText(str(self.human_format(self.lifetime_itopod_kills)))
@@ -53,7 +55,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
             self.lifetime_itopod_kills = 0
         #self.tabWidget.setFixedSize(self.sizeHint())  # shrink window
     def closeEvent(self, event):
-
+        """Event fired when exiting the application. This will save the current stats to file."""
         quit_msg = "Are you sure you want to exit?"
         reply = QtWidgets.QMessageBox.question(self, 'Message',
                                                quit_msg, QtWidgets.QMessageBox.Yes,
@@ -109,7 +111,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def action_stop(self, thread):
         """Stop script thread."""
-        if self.mutex.tryLock(1000):
+        if self.mutex.tryLock(1000):  # only way to check if we have the lock without crashing?
             self.run_thread.terminate()
             self.run_button.setText("Run")
             self.run_button.disconnect()
@@ -121,7 +123,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def action_pause(self, thread):
         self.run_button.setEnabled(False)
-        self.stop_button.setEnabled(False)
+        self.stop_button.setEnabled(False)  # stopping while paused causes a deadlock
         self.run_button.setText("Pausing...")
         self.mutex.lock()
         self.run_button.disconnect()
@@ -209,10 +211,80 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
             self.stop_button.setEnabled(True)
             self.run_thread.start()
 
+
 class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
     def __init__(self, parent=None):
         super(OptionsWindow, self).__init__(parent)
         self.setupUi(self)
+        self.settings = QtCore.QSettings("Kujan", "NGU-Scripts")
+        self.button_ok.clicked.connect(self.action_ok)
+        self.gui_load()
+
+    def gui_load(self):
+        """Load settings from registry."""
+        for name, obj in inspect.getmembers(self):
+            if isinstance(obj, QtWidgets.QComboBox):
+                index = obj.currentIndex()
+                text = obj.itemText(index)
+                name = obj.objectName()
+                value = (self.settings.value(name))
+
+                if value == "":
+                    continue
+
+                index = obj.findText(value)
+
+                if index == -1:
+                    obj.insertItems(0, [value])
+                    index = obj.findText(value)
+                    obj.setCurrentIndex(index)
+                else:
+                    obj.setCurrentIndex(index)
+
+            if isinstance(obj, QtWidgets.QLineEdit):
+                name = obj.objectName()
+                value = (self.settings.value(name))
+                obj.setText(value)
+
+            if isinstance(obj, QtWidgets.QCheckBox):
+                name = obj.objectName()
+                value = self.settings.value(name)
+                if value is not None:
+                    obj.setChecked(strtobool(value))
+            if isinstance(obj, QtWidgets.QRadioButton):
+                name = obj.objectName()
+                value = self.settings.value(name)
+                if value is not None:
+                    obj.setChecked(strtobool(value))
+
+    def action_ok(self):
+        """Save settings and close window."""
+        print("value")
+        self.settings.setValue('size', self.size())
+        self.settings.setValue('pos', self.pos())
+
+        for name, obj in inspect.getmembers(self):
+            if isinstance(obj, QtWidgets.QComboBox):
+                name = obj.objectName()
+                index = obj.currentIndex()
+                text = obj.itemText(index)
+                self.settings.setValue(name, text)
+
+            if isinstance(obj, QtWidgets.QLineEdit):
+                name = obj.objectName()
+                value = obj.text()
+                self.settings.setValue(name, value)
+
+            if isinstance(obj, QtWidgets.QCheckBox):
+                name = obj.objectName()
+                state = obj.isChecked()
+                self.settings.setValue(name, state)
+
+            if isinstance(obj, QtWidgets.QRadioButton):
+                name = obj.objectName()
+                value = obj.isChecked()
+                self.settings.setValue(name, value)
+        self.close()
 
 class ScriptThread(QtCore.QThread):
     """Thread class for script."""
@@ -249,4 +321,5 @@ Progressbar tracking run progression (if applicable)
 Tools for annoying actions while playing manually (cap all diggers)
 Quickstart for infinite questing/itopod sniping
 Track minor/major quests done
+Track current function (via object?)
 """
