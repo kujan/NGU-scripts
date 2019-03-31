@@ -113,7 +113,7 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
-         <widget class="QCheckBox" name="check_inventory">
+         <widget class="QCheckBox" name="check_boost_inventory">
           <property name="toolTip">
            <string>Put the gear you wish to boost starting in the first slot on inventory page 1. A value of 4 will boost the first 4 slots in the inventory. This overrides the Boost cube setting!</string>
           </property>
@@ -195,13 +195,6 @@
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_5">
-        <item>
-         <widget class="QCheckBox" name="checkBox">
-          <property name="text">
-           <string>CheckBox</string>
-          </property>
-         </widget>
-        </item>
         <item>
          <widget class="QCheckBox" name="check_fruits">
           <property name="toolTip">

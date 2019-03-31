@@ -21,8 +21,10 @@ def run(window, mutex, signal, duration):
     check_fruits = strtobool(settings.value("check_fruits"))
     boost_equipment = strtobool(settings.value("radio_equipment"))
     boost_cube = strtobool(settings.value("radio_cube"))
-    boost_inventory = int(settings.value("line_boost_inventory"))
-    merge_inventory = int(settings.value("line_merge_inventory"))
+    boost_inventory = strtobool(settings.value("check_boost_inventory"))
+    boost_slots = int(settings.value("line_boost_inventory"))
+    merge_inventory = strtobool(settings.value("check_merge_inventory"))
+    merge_slots = int(settings.value("line_merge_inventory"))
 
     i = Inputs(w, mutex)
     nav = Navigation(w, mutex)
@@ -39,7 +41,13 @@ def run(window, mutex, signal, duration):
         if use_boosts:
             if boost_equipment:
                 feature.boost_equipment(signal)
-        feature.boost_cube(signal)
-        feature.ygg(signal)
+            if boost_cube:
+                feature.boost_cube(signal)
+            if boost_inventory:
+                feature.boost_inventory(boost_slots, signal)
+            if merge_inventory:
+                feature.merge_inventory(merge_slots, signal)
+            if check_fruits:
+                feature.ygg(signal)
         tracker.progress()
 

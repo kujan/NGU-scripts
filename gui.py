@@ -10,6 +10,7 @@ import json
 import itopod
 import inspect
 import math
+import time
 import coordinates as coords
 import pytesseract
 import win32gui
@@ -174,6 +175,18 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
             num /= 1000.0
         return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
 
+    def timestamp(self):
+        """Update timestamp for elapsed time."""
+        n = time.time() - self.start_time
+        days = math.floor(n // (24 * 3600))
+        n = n % (24 * 3600)
+
+        if days > 0:
+            result = f"{days} days, {time.strftime('%H:%M:%S', time.gmtime(n))}"
+        else:
+            result = f"{time.strftime('%H:%M:%S', time.gmtime(n))}"
+        self.elapsed_data.setText(result)
+
     def update(self, result):
         """Update data in UI upon event."""
         for k, v in result.items():
@@ -213,13 +226,18 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
             elif k == "task":
                 self.current_task_text.setText(v)
+
     def action_run(self):
         """Start the selected script."""
         runs = ["Static Questing",
                 "Static ITOPOD"]
         text = str(self.combo_run.currentText())
         run = runs.index(text)
-        print(run)
+        self.start_time = time.time()
+        self.timer = QtCore.QTimer()
+        self.timer.setInterval(1010)
+        self.timer.timeout.connect(self.timestamp)
+        self.timer.start()
         if run == 1:
             self.run_thread = ScriptThread(1, self.w, self.mutex)
             self.run_thread.signal.connect(self.update)
@@ -230,6 +248,11 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
             self.w_pp.show()
             self.w_pph.show()
             self.w_exph.show()
+            self.w_qp.hide()
+            self.w_qph.hide()
+            self.current_rb_text.hide()
+            self.rebirth_progress.hide()
+            self.setFixedSize(300, 320)
             self.current_task_text.setText("Sniping I.T.O.P.O.D")
             self.current_task_text.show()
             self.task_progress.show()
@@ -248,7 +271,7 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
         self.settings = QtCore.QSettings("Kujan", "NGU-Scripts")
         self.button_ok.clicked.connect(self.action_ok)
         self.check_gear.stateChanged.connect(self.state_changed_gear)
-        self.check_inventory.stateChanged.connect(self.state_changed_boost_inventory)
+        self.check_boost_inventory.stateChanged.connect(self.state_changed_boost_inventory)
         self.check_merge_inventory.stateChanged.connect(self.state_changed_merge_inventory)
         self.radio_group_gear = QtWidgets.QButtonGroup(self)
         self.radio_group_gear.addButton(self.radio_equipment)
@@ -268,7 +291,7 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
 
     def state_changed_boost_inventory(self, int):
         """Update UI."""
-        if self.check_inventory.isChecked():
+        if self.check_boost_inventory.isChecked():
             self.line_boost_inventory.setEnabled(True)
         else:
             self.line_boost_inventory.setEnabled(False)
@@ -345,6 +368,7 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
                 value = obj.isChecked()
                 self.settings.setValue(name, value)
         self.close()
+
 
 class ScriptThread(QtCore.QThread):
     """Thread class for script."""

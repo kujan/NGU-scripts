@@ -857,7 +857,7 @@ class Features(Navigation, Inputs):
             i += 1
         return res
 
-    def merge_inventory(self, slots):
+    def merge_inventory(self, slots, signal):
         """Merge all inventory slots starting from 1 to slots.
 
         Keyword arguments:
@@ -865,11 +865,13 @@ class Features(Navigation, Inputs):
         """
         self.menu("inventory")
         coords = self.get_inventory_slots(slots)
-        for slot in coords:
+        for index, slot in enumerate(coords):
+            progress = (index / len(coords)) * 100
+            signal.emit({"task": "Merging inventory", "task_progress": progress})
             self.click(*slot)
             self.send_string("d")
 
-    def boost_inventory(self, slots):
+    def boost_inventory(self, slots, signal):
         """Merge all inventory slots starting from 1 to slots.
 
         Keyword arguments:
@@ -877,7 +879,9 @@ class Features(Navigation, Inputs):
         """
         self.menu("inventory")
         coords = self.get_inventory_slots(slots)
-        for slot in coords:
+        for index, slot in enumerate(coords):
+            progress = (index / len(coords)) * 100
+            signal.emit({"task": "Boosting inventory", "task_progress": progress})
             self.click(*slot)
             self.send_string("a")
 
