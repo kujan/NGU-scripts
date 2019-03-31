@@ -30,18 +30,21 @@ class Features(Navigation, Inputs):
             self.click(*coords.EQUIPMENT_SLOTS[slot])
             self.send_string("d")
 
-    def boost_equipment(self):
+    def boost_equipment(self, signal):
         """Boost all equipment."""
         self.menu("inventory")
-        for slot in coords.EQUIPMENT_SLOTS:
+        for index, slot in enumerate(coords.EQUIPMENT_SLOTS):
+            progress = (index / len(coords.EQUIPMENT_SLOTS)) * 100
+            signal.emit({"task": "Boosting equipment", "task_progress": progress})
             if (slot == "cube"):
                 self.click(*coords.EQUIPMENT_SLOTS[slot], "right")
                 return
             self.click(*coords.EQUIPMENT_SLOTS[slot])
             self.send_string("a")
 
-    def boost_cube(self):
+    def boost_cube(self, signal):
         """Boost cube."""
+        signal.emit({"task": "Boosting cube", "task_progress": 0})
         self.menu("inventory")
         self.click(*self.equipment["cube"], "right")
 
@@ -84,7 +87,7 @@ class Features(Navigation, Inputs):
         self.menu("fight")
         self.click(*coords.FIGHT)
 
-    def ygg(self, eat_all=False, equip=0):
+    def ygg(self, signal, eat_all=False, equip=0):
         """Navigate to inventory and handle fruits.
 
         Keyword arguments:
@@ -92,8 +95,10 @@ class Features(Navigation, Inputs):
                    fruit.
         """
         self.menu("yggdrasil")
+        signal.emit({"task": "Harvesting Yggdrasil", "task_progress": 0})
         if eat_all:
             self.click(*coords.YGG_EAT_ALL)
+            signal.emit({"task": "Harvesting Yggdrasil", "task_progress": 100})
             return
         if equip:
             self.send_string("t")
@@ -103,6 +108,7 @@ class Features(Navigation, Inputs):
             self.click(*coords.HARVEST)
         else:
             self.click(*coords.HARVEST)
+        signal.emit({"task": "Harvesting Yggdrasil", "task_progress": 100})
 
     def spin(self):
         """Spin the wheel."""
@@ -243,8 +249,12 @@ class Features(Navigation, Inputs):
         if self.check_pixel_color(*coords.IS_IDLE):
             self.click(*coords.ABILITY_IDLE_MODE)
         time.sleep(.5)
+        emit_timer = time.time()
         while time.time() < end:
-            signal.emit({"timer": True, "duration": duration, "current": time.time(), "end": end})
+            if emit_timer + 1 < time.time():
+                prog = ((1 + (time.time() - end) / duration)) * 100
+                signal.emit({"task_progress": prog})
+                emit_timer = time.time()
             if self.check_pixel_color(*coords.IS_ENEMY_ALIVE):
                 self.click(*coords.ABILITY_REGULAR_ATTACK)
                 self.enemies_killed += 1

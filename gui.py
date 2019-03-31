@@ -14,8 +14,12 @@ import coordinates as coords
 import pytesseract
 import win32gui
 
+
 class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
+    """Main window."""
+
     def __init__(self, parent=None):
+        """Generate UI."""
         super(NguScriptApp, self).__init__(parent)
         self.setupUi(self)  # generate the UI
         self.mutex = QtCore.QMutex()  # lock for script thread to enable pausing
@@ -30,17 +34,9 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.task_progress.setAlignment(QtCore.Qt.AlignCenter)
         self.get_ngu_window()
         self.test_tesseract()
-        self.w_elapsed.hide()
-        self.w_exp.hide()
-        self.w_pp.hide()
-        self.w_qp.hide()
-        self.w_exph.hide()
-        self.w_pph.hide()
-        self.w_qph.hide()
-        self.current_task_text.hide()
-        self.task_progress.hide()
-        self.current_rb_text.hide()
-        self.rebirth_progress.hide()
+        self.task_progress.setValue(0)
+        self.rebirth_progress.setValue(0)
+        self.task_progress_animation = QtCore.QPropertyAnimation(self.task_progress, b"value")
         self.stop_button.setEnabled(False)
         self.stop_button.clicked.connect(self.action_stop)
         self.run_button.clicked.connect(self.action_run)
@@ -56,7 +52,8 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
             self.lifetime_itopod_kills_data.setText("0")
             self.lifetime_itopod_time_saved_data.setText("0")
             self.lifetime_itopod_kills = 0
-        #self.tabWidget.setFixedSize(self.sizeHint())  # shrink window
+        # self.tabWidget.setFixedSize(self.sizeHint())  # shrink window
+
     def closeEvent(self, event):
         """Event fired when exiting the application. This will save the current stats to file."""
         quit_msg = "Are you sure you want to exit?"
@@ -99,6 +96,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
             self.run_button.setEnabled(False)
 
     def test_tesseract(self):
+        """Check if tesseract is installed."""
         try:
             pytesseract.image_to_string(Image.open("images/consumable.png"))
             self.get_ngu_window()
@@ -139,6 +137,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
             QtWidgets.QMessageBox.information(self, "Error", "Couldn't acquire lock of script thread.")
 
     def action_pause(self, thread):
+        """Attempt to block script thread by acquiring lock."""
         self.run_button.setEnabled(False)
         self.stop_button.setEnabled(False)  # stopping while paused causes a deadlock
         self.run_button.setText("Pausing...")
@@ -149,6 +148,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.run_button.setEnabled(True)
 
     def action_resume(self, thread):
+        """Attempt to release lock to un-block script thread."""
         self.run_button.setEnabled(False)
         self.stop_button.setEnabled(True)
         self.run_button.setText("Pause")
@@ -158,11 +158,13 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.run_button.clicked.connect(self.action_pause)
 
     def action_options(self):
+        """Display option window."""
         self.options = OptionsWindow()
         self.options.setFixedSize(290, 190)
         self.options.show()
 
     def human_format(self, num):
+        """Convert large integer to readable format."""
         num = float('{:.3g}'.format(num))
         if num > 1e14:
             return
@@ -173,6 +175,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
 
     def update(self, result):
+        """Update data in UI upon event."""
         for k, v in result.items():
             if k == "exp":
                 self.exp_data.setText(self.human_format(v))
@@ -186,9 +189,13 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.pph_data.setText(self.human_format(v))
             elif k == "qph":
                 self.qph_data.setText(self.human_format(v))
-            elif k == "timer":
-                prog = (1 + ((result["current"] - result["end"]) / result["duration"])) * 100
-                self.task_progress.setValue(math.ceil(prog))
+            elif k == "task_progress":
+                self.task_progress_animation.setDuration(200)
+                self.task_progress_animation.setStartValue(self.task_progress.value())
+                self.task_progress_animation.setEndValue(v)
+                print(f"start: {self.task_progress.value()}, end: {v}")
+                self.task_progress_animation.start()
+                #self.task_progress.setValue(math.ceil(v))
             elif k == "itopod_snipes":
                 self.lifetime_itopod_kills += 1
                 self.lifetime_itopod_kills_data.setText(str(self.human_format(self.lifetime_itopod_kills)))
@@ -204,7 +211,10 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
                 self.lifetime_itopod_time_saved_data.setText(f"{days} days, {hours} hours, {minutes} minutes, {seconds} seconds")
 
+            elif k == "task":
+                self.current_task_text.setText(v)
     def action_run(self):
+        """Start the selected script."""
         runs = ["Static Questing",
                 "Static ITOPOD"]
         text = str(self.combo_run.currentText())
@@ -229,7 +239,10 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
 class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
-    def __init__(self, script, parent=None):
+    """Option window."""
+
+    def __init__(self, parent=None):
+        """Setup UI."""
         super(OptionsWindow, self).__init__(parent)
         self.setupUi(self)
         self.settings = QtCore.QSettings("Kujan", "NGU-Scripts")
@@ -243,20 +256,25 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
         self.gui_load()
 
     def state_changed_gear(self, int):
+        """Update UI."""
         if self.check_gear.isChecked():
             self.radio_equipment.setEnabled(True)
             self.radio_cube.setEnabled(True)
         else:
             self.radio_equipment.setEnabled(False)
+            self.radio_equipment.setChecked(False)
             self.radio_cube.setEnabled(False)
+            self.radio_cube.setChecked(False)
 
     def state_changed_boost_inventory(self, int):
+        """Update UI."""
         if self.check_inventory.isChecked():
             self.line_boost_inventory.setEnabled(True)
         else:
             self.line_boost_inventory.setEnabled(False)
 
     def state_changed_merge_inventory(self, int):
+        """Update UI."""
         if self.check_merge_inventory.isChecked():
             self.line_merge_inventory.setEnabled(True)
         else:
@@ -330,18 +348,20 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
 
 class ScriptThread(QtCore.QThread):
     """Thread class for script."""
+
     signal = QtCore.pyqtSignal("PyQt_PyObject")
 
     def __init__(self, run, w, mutex):
+        """Init thread variables."""
         QtCore.QThread.__init__(self)
         self.run = run
         self.w = w
         self.mutex = mutex
 
     def run(self):
+        """Check which script to run."""
         if self.run == 1:
             itopod.run(self.w, self.mutex, self.signal, 60)
-            print("value")
 
 
 def run():

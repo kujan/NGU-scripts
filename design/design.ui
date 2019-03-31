@@ -255,7 +255,7 @@
              <item>
               <widget class="QLabel" name="elapsed_data">
                <property name="text">
-                <string>asdf</string>
+                <string/>
                </property>
               </widget>
              </item>

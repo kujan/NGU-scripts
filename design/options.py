@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_OptionsWindow(object):
     def setupUi(self, OptionsWindow):
         OptionsWindow.setObjectName("OptionsWindow")
-        OptionsWindow.resize(334, 283)
+        OptionsWindow.resize(301, 283)
         self.centralwidget = QtWidgets.QWidget(OptionsWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -105,7 +105,7 @@ class Ui_OptionsWindow(object):
 
     def retranslateUi(self, OptionsWindow):
         _translate = QtCore.QCoreApplication.translate
-        OptionsWindow.setWindowTitle(_translate("OptionsWindow", "MainWindow"))
+        OptionsWindow.setWindowTitle(_translate("OptionsWindow", "NGU Script by Satyric - Options"))
         self.label_2.setText(_translate("OptionsWindow", "Duration in seconds to run:"))
         self.line_duration.setText(_translate("OptionsWindow", "300"))
         self.check_gear.setText(_translate("OptionsWindow", "Boost gear"))
