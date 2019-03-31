@@ -5,11 +5,13 @@ from design.options import Ui_OptionsWindow
 from classes.inputs import Inputs
 from classes.window import Window
 from distutils.util import strtobool
+from PIL import Image
 import json
 import itopod
 import inspect
 import math
 import coordinates as coords
+import pytesseract
 import win32gui
 
 class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -27,6 +29,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.rebirth_progress.setAlignment(QtCore.Qt.AlignCenter)
         self.task_progress.setAlignment(QtCore.Qt.AlignCenter)
         self.get_ngu_window()
+        self.test_tesseract()
         self.w_elapsed.hide()
         self.w_exp.hide()
         self.w_pp.hide()
@@ -81,7 +84,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in top_windows:
             if window_name in i[1].lower():
                 self.w.id = i[0]
-
+        self.window_retry.disconnect()
         if self.w.id:
             self.window_retry.setText("Show Window")
             self.window_retry.clicked.connect(self.action_show_window)
@@ -90,8 +93,22 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
             if Window.x and Window.y:
                 self.window_info_text.setStyleSheet("color: green")
                 self.window_info_text.setText(f"Window detected! Game detected at: {Window.x}, {Window.y}")
+                self.run_button.setEnabled(True)
         else:
             self.window_retry.clicked.connect(self.get_ngu_window)
+            self.run_button.setEnabled(False)
+
+    def test_tesseract(self):
+        try:
+            pytesseract.image_to_string(Image.open("images/consumable.png"))
+            self.get_ngu_window()
+        except pytesseract.pytesseract.TesseractNotFoundError:
+            self.window_info_text.setStyleSheet("color: red")
+            self.window_info_text.setText("Tesseract not found")
+            self.window_retry.setText("Try again")
+            self.window_retry.disconnect()
+            self.window_retry.clicked.connect(self.test_tesseract)
+            self.run_button.setEnabled(False)
 
     def get_top_left(self):
         """Get coordinates for top left of game."""
@@ -103,7 +120,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
             self.window_retry.setText("Retry")
             self.window_retry.disconnect()
             self.window_retry.clicked.connect(self.get_ngu_window)
-        print(Window.x, Window.y)
+
     def action_show_window(self):
         """Activate game window."""
         win32gui.ShowWindow(self.w.id, 5)
@@ -142,9 +159,8 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def action_options(self):
         self.options = OptionsWindow()
-        self.options.setFixedSize(self.sizeHint())
+        self.options.setFixedSize(290, 190)
         self.options.show()
-
 
     def human_format(self, num):
         num = float('{:.3g}'.format(num))
@@ -213,12 +229,38 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
 class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
-    def __init__(self, parent=None):
+    def __init__(self, script, parent=None):
         super(OptionsWindow, self).__init__(parent)
         self.setupUi(self)
         self.settings = QtCore.QSettings("Kujan", "NGU-Scripts")
         self.button_ok.clicked.connect(self.action_ok)
+        self.check_gear.stateChanged.connect(self.state_changed_gear)
+        self.check_inventory.stateChanged.connect(self.state_changed_boost_inventory)
+        self.check_merge_inventory.stateChanged.connect(self.state_changed_merge_inventory)
+        self.radio_group_gear = QtWidgets.QButtonGroup(self)
+        self.radio_group_gear.addButton(self.radio_equipment)
+        self.radio_group_gear.addButton(self.radio_cube)
         self.gui_load()
+
+    def state_changed_gear(self, int):
+        if self.check_gear.isChecked():
+            self.radio_equipment.setEnabled(True)
+            self.radio_cube.setEnabled(True)
+        else:
+            self.radio_equipment.setEnabled(False)
+            self.radio_cube.setEnabled(False)
+
+    def state_changed_boost_inventory(self, int):
+        if self.check_inventory.isChecked():
+            self.line_boost_inventory.setEnabled(True)
+        else:
+            self.line_boost_inventory.setEnabled(False)
+
+    def state_changed_merge_inventory(self, int):
+        if self.check_merge_inventory.isChecked():
+            self.line_merge_inventory.setEnabled(True)
+        else:
+            self.line_merge_inventory.setEnabled(False)
 
     def gui_load(self):
         """Load settings from registry."""
