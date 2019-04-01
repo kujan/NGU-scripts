@@ -169,19 +169,6 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="line_boost_inventory">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>27</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item>
          <spacer name="horizontalSpacer_3">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -205,19 +192,6 @@
           </property>
           <property name="text">
            <string>Merge inventory</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="line_merge_inventory">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>27</width>
-            <height>16777215</height>
-           </size>
           </property>
          </widget>
         </item>
@@ -342,7 +316,7 @@
            <string>Does major quests as they become available, this will override the force zone option if you have any majors banked.</string>
           </property>
           <property name="text">
-           <string>Do major quests</string>
+           <string>PH - Do major quests</string>
           </property>
          </widget>
         </item>
@@ -353,7 +327,7 @@
         <item>
          <widget class="QCheckBox" name="check_subcontract">
           <property name="text">
-           <string>Subcontract</string>
+           <string>PH - Subcontract</string>
           </property>
          </widget>
         </item>

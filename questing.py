@@ -18,14 +18,15 @@ def run(window, mutex, signal):
     w.id = window.id
     settings = QtCore.QSettings("Kujan", "NGU-Scripts")
     duration = int(settings.value("line_duration"))
+    adv_duration = int(settings.value("line_adv_duration"))
     use_boosts = strtobool(settings.value("check_gear"))
     check_fruits = strtobool(settings.value("check_fruits"))
     boost_equipment = strtobool(settings.value("radio_equipment"))
     boost_cube = strtobool(settings.value("radio_cube"))
     boost_inventory = strtobool(settings.value("check_boost_inventory"))
-    boost_slots = int(settings.value("line_boost_inventory"))
+    boost_slots = settings.value("arr_boost_inventory")
     merge_inventory = strtobool(settings.value("check_merge_inventory"))
-    merge_slots = int(settings.value("line_merge_inventory"))
+    merge_slots = settings.value("arr_merge_inventory")
     force = strtobool(settings.value("check_force"))
     force_zone = int(settings.value("combo_force_index"))
     do_major = strtobool(settings.value("check_major"))
@@ -42,13 +43,13 @@ def run(window, mutex, signal):
         signal.emit(tracker.get_rates())
         signal.emit({"exp": Stats.xp - start_exp, "pp": Stats.pp - start_pp})
 
-        if do_major:
-            text = feature.get_quest_text().lower()
-            majors = feature.get_available_majors()
-            if majors == 0 and force and (coords.QUESTING_MINOR_QUEST in text or coords.QUESTING_NO_QUEST_ACTIVE in text):
-                feature.questing(signal, force=zone_map[force_zone], adv_duration=duration / 60)
-            else:
-                feature.questing(signal)
+
+        text = feature.get_quest_text().lower()
+        majors = feature.get_available_majors()
+        if majors == 0 and force and (coords.QUESTING_MINOR_QUEST in text or coords.QUESTING_NO_QUEST_ACTIVE in text):
+            feature.questing(signal, duration=duration, force=zone_map[force_zone], adv_duration=adv_duration)
+        else:
+            feature.questing(signal, duration=duration, adv_duration=adv_duration)
         if use_boosts:
             if boost_equipment:
                 feature.boost_equipment(signal)

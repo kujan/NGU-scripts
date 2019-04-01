@@ -16,6 +16,7 @@ import questing
 import inspect
 import math
 import time
+import re
 import coordinates as coords
 import pytesseract
 import win32gui
@@ -81,7 +82,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def get_ngu_window(self):
         """Get window ID for NGU IDLE."""
-        window_name = "debugg"
+        window_name = "play ngu idle"
         top_windows = []
         win32gui.EnumWindows(self.window_enumeration_handler, top_windows)
         for i in top_windows:
@@ -97,9 +98,11 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.window_info_text.setStyleSheet("color: green")
                 self.window_info_text.setText(f"Window detected! Game detected at: {Window.x}, {Window.y}")
                 self.run_button.setEnabled(True)
+                self.run_options.setEnabled(True)
         else:
             self.window_retry.clicked.connect(self.get_ngu_window)
             self.run_button.setEnabled(False)
+            self.run_options.setEnabled(False)
 
     def test_tesseract(self):
         """Check if tesseract is installed."""
@@ -146,6 +149,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         """Attempt to block script thread by acquiring lock."""
         self.run_button.setEnabled(False)
         self.stop_button.setEnabled(False)  # stopping while paused causes a deadlock
+        self.run_options.setEnabled(False)  # trying to open inventory viewer causes deadlock
         self.run_button.setText("Pausing...")
         self.mutex.lock()
         self.run_button.disconnect()
@@ -213,7 +217,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.task_progress_animation.setEndValue(v)
                 print(f"start: {self.task_progress.value()}, end: {v}")
                 self.task_progress_animation.start()
-                #self.task_progress.setValue(math.ceil(v))
+                # self.task_progress.setValue(math.ceil(v))
             elif k == "itopod_snipes":
                 self.lifetime_itopod_kills += 1
                 self.lifetime_itopod_kills_data.setText(str(self.human_format(self.lifetime_itopod_kills)))
@@ -294,14 +298,11 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
         self.i = inputs
         self.settings = QtCore.QSettings("Kujan", "NGU-Scripts")
         self.button_ok.clicked.connect(self.action_ok)
-        self.check_gear.stateChanged.connect(self.state_changed_gear)
-        self.check_boost_inventory.stateChanged.connect(self.state_changed_boost_inventory)
-        self.check_merge_inventory.stateChanged.connect(self.state_changed_merge_inventory)
-        self.check_force.stateChanged.connect(self.state_changed_force_zone)
-        self.check_subcontract.stateChanged.connect(self.state_changed_subcontract)
         self.radio_group_gear = QtWidgets.QButtonGroup(self)
         self.radio_group_gear.addButton(self.radio_equipment)
         self.radio_group_gear.addButton(self.radio_cube)
+        self.check_gear.stateChanged.connect(self.state_changed_gear)
+        self.check_force.stateChanged.connect(self.state_changed_force_zone)
         self.gui_load()
 
     def state_changed_gear(self, int):
@@ -318,18 +319,14 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
     def state_changed_boost_inventory(self, int):
         """Update UI."""
         if self.check_boost_inventory.isChecked():
-            self.line_boost_inventory.setEnabled(True)
-            self.inventory_selecter = InventorySelecter(self.i)
+            self.inventory_selecter = InventorySelecter("arr_boost_inventory", self.i)
             self.inventory_selecter.show()
-        else:
-            self.line_boost_inventory.setEnabled(False)
 
     def state_changed_merge_inventory(self, int):
         """Update UI."""
         if self.check_merge_inventory.isChecked():
-            self.line_merge_inventory.setEnabled(True)
-        else:
-            self.line_merge_inventory.setEnabled(False)
+            self.inventory_selecter = InventorySelecter("arr_merge_inventory", self.i)
+            self.inventory_selecter.show()
 
     def state_changed_force_zone(self, int):
         """Update UI."""
@@ -399,6 +396,10 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
                 if value is not None:
                     obj.setChecked(strtobool(value))
 
+        self.check_boost_inventory.stateChanged.connect(self.state_changed_boost_inventory)
+        self.check_merge_inventory.stateChanged.connect(self.state_changed_merge_inventory)
+        self.check_subcontract.stateChanged.connect(self.state_changed_subcontract)
+
     def action_ok(self):
         """Save settings and close window."""
         for name, obj in inspect.getmembers(self):
@@ -429,14 +430,34 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
 class InventorySelecter(QtWidgets.QMainWindow, Ui_InventorySelecter):
     """Option window."""
 
-    def __init__(self, inputs, parent=None):
+    def __init__(self, mode, inputs, parent=None):
         """Setup UI."""
         super(InventorySelecter, self).__init__(parent)
         self.setupUi(self)
+        self.mode = mode
         self.i = inputs
+        self.settings = QtCore.QSettings("Kujan", "NGU-Scripts")
+        self.slots = []
+        self.button_ok.clicked.connect(self.action_ok)
         self.generate_inventory()
+        self.setFixedSize(761, 350)
+
+    def action_ok(self):
+        """Save settings and close window."""
+        for name, obj in inspect.getmembers(self):
+            if isinstance(obj, QtWidgets.QPushButton):
+                if obj.toggled:
+                    name = obj.objectName()
+                    if name == "button_ok":
+                        continue
+                    print(name)
+                    self.slots.append(re.sub(r"[^0-9]", "", name))
+        print(self.slots)
+        self.settings.setValue(self.mode, self.slots)
+        self.close()
 
     def pil2pixmap(self, im):
+        """Convert PIL Image object to QPixmap"""
         with io.BytesIO() as output:
             im.save(output, format="png")
             output.seek(0)
@@ -444,6 +465,18 @@ class InventorySelecter(QtWidgets.QMainWindow, Ui_InventorySelecter):
             qim = QtGui.QImage.fromData(data)
             pixmap = QtGui.QPixmap.fromImage(qim)
         return pixmap
+
+    def action_button_clicked(self):
+        button = getattr(self, self.sender().objectName())
+
+        if not button.toggled:
+            button.toggled = True
+            print("toggling on")
+            button.setStyleSheet("border:3px solid rgb(0, 0, 0)")
+        else:
+            button.toggled = False
+            print("toggling off")
+            button.setStyleSheet("")
 
     def generate_inventory(self, depth=0):
         """Get image from inventory and create clickable grid."""
@@ -464,7 +497,7 @@ class InventorySelecter(QtWidgets.QMainWindow, Ui_InventorySelecter):
         bmp = self.i.get_bitmap()
         bmp = bmp.crop((self.i.window.x + 8, self.i.window.y + 8, self.i.window.x + 968, self.i.window.y + 608))
         bmp = bmp.crop((coords.INVENTORY_AREA.x1, coords.INVENTORY_AREA.y1, coords.INVENTORY_AREA.x2, coords.INVENTORY_AREA.y2))
-        frame_count = 1
+        button_count = 1
         for y in range(5):
             for x in range(12):
                 x1 = x * coords.INVENTORY_SLOT_WIDTH
@@ -472,17 +505,21 @@ class InventorySelecter(QtWidgets.QMainWindow, Ui_InventorySelecter):
                 x2 = x1 + coords.INVENTORY_SLOT_WIDTH
                 y2 = y1 + coords.INVENTORY_SLOT_WIDTH
                 slot = bmp.crop((x1, y1, x2, y2))
-                print(x1, y1, x2, y2)
-                print(slot.format)
-                print(slot.mode)
-                #lot.save(f"{x1}{y1}.png")
-                frame = getattr(self, f"label_{frame_count}")
-                #pixmap = QtGui.QPixmap.loadFromData(slot.tobytes())
-                frame.setPixmap(self.pil2pixmap(slot))
-                frame_count += 1
-                #frame.setStyleSheet("border:1px solid rgb(0, 255, 0)")
+                button = getattr(self, f"pushButton_{button_count}")
+                pixmap = self.pil2pixmap(slot)
+                icon = QtGui.QIcon(pixmap)
+                button.setIcon(icon)
+                button.setIconSize(pixmap.rect().size())
+                button.toggled = False
+                button.clicked.connect(self.action_button_clicked)
+                button_count += 1
 
-
+        toggles = self.settings.value(self.mode)
+        if toggles is not None:
+            for toggle in toggles:
+                button = getattr(self, "pushButton_" + toggle)
+                button.toggled = True
+                button.setStyleSheet("border:3px solid rgb(0, 0, 0)")
 
 class ScriptThread(QtCore.QThread):
     """Thread class for script."""

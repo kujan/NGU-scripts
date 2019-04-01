@@ -851,17 +851,17 @@ class Features(Navigation, Inputs):
         point = namedtuple("p", ("x", "y"))
         i = 1
         row = 1
-        x_pos, y_pos = coords.INVENTORY_SLOTS
-        res = []
+        x_pos, y_pos = (300, 330)
+        inventory = []
 
-        while i <= slots:
+        while i <= 60:
             x = x_pos + (i - (12 * (row - 1))) * 50
             y = y_pos + ((row - 1) * 50)
-            res.append(point(x, y))
+            inventory.append(point(x, y))
             if i % 12 == 0:
                 row += 1
             i += 1
-        return res
+        return [inventory[int(slot) - 1] for slot in slots]
 
     def merge_inventory(self, slots, signal):
         """Merge all inventory slots starting from 1 to slots.
@@ -1063,11 +1063,6 @@ class Features(Navigation, Inputs):
                 self.click(*coords.QUESTING_SUBCONTRACT)
             return
 
-        if major and coords.QUESTING_MINOR_QUEST in text.lower():  # check if current quest is minor
-            if self.check_pixel_color(*coords.QUESTING_IDLE_INACTIVE):
-                self.click(*coords.QUESTING_SUBCONTRACT)
-            return
-
         if not self.check_pixel_color(*coords.QUESTING_IDLE_INACTIVE):  # turn off idle
             self.click(*coords.QUESTING_SUBCONTRACT)
         for count, zone in enumerate(coords.QUESTING_ZONES, start=0):
@@ -1081,7 +1076,7 @@ class Features(Navigation, Inputs):
                             adv_duration = 0
                             return
                     self.snipe(signal, count, adv_duration)
-                    self.boost_cube(signal)
+                    #self.boost_cube(signal)
                     self.questing_consume_items()
                     text = self.get_quest_text()
                     current_time = time.time()
@@ -1101,6 +1096,7 @@ class Features(Navigation, Inputs):
                         print(f"Completed quest in zone #{count} at {datetime.datetime.now().strftime('%H:%M:%S')} for {gained_qp} QP")
 
                         return
+                    return
 
     def get_rebirth_time(self):
         """Get the current rebirth time.

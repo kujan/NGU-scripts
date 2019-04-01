@@ -22,9 +22,9 @@ def run(window, mutex, signal):
     boost_equipment = strtobool(settings.value("radio_equipment"))
     boost_cube = strtobool(settings.value("radio_cube"))
     boost_inventory = strtobool(settings.value("check_boost_inventory"))
-    boost_slots = int(settings.value("line_boost_inventory"))
+    boost_slots = settings.value("arr_boost_inventory")
     merge_inventory = strtobool(settings.value("check_merge_inventory"))
-    merge_slots = int(settings.value("line_merge_inventory"))
+    merge_slots = settings.value("arr_merge_inventory")
 
     i = Inputs(w, mutex)
     nav = Navigation(w, mutex)
