@@ -157,7 +157,7 @@ class Features(Navigation, Inputs):
                 self.click(*coords.RIGHT_ARROW)
             return
 
-    def snipe(self, zone, duration, once=False, highest=False, bosses=False, manual=False):
+    def snipe(self, signal, zone, duration, once=False, highest=False, bosses=False, manual=False):
         """Go to adventure and snipe bosses in specified zone.
 
         Keyword arguments
@@ -187,7 +187,12 @@ class Features(Navigation, Inputs):
             self.click(*coords.ABILITY_IDLE_MODE)
 
         end = time.time() + duration * 60
+        emit_timer = time.time()
         while time.time() < end:
+            if emit_timer + 1 < time.time():
+                progress = (1 + (time.time() - end) / (duration * 60)) * 100
+                signal.emit({"task_progress": progress})
+                emit_timer = time.time()
             self.click(625, 500)  # click somewhere to move tooltip
             if not self.check_pixel_color(*coords.IS_DEAD):
                 if bosses:
@@ -237,6 +242,7 @@ class Features(Navigation, Inputs):
         self.menu("adventure")
         self.click(625, 500)  # click somewhere to move tooltip
         self.enemies_killed = 0
+        signal.emit({"task": "Sniping I.T.O.P.O.D"})
         # check if we're already in ITOPOD, otherwise enter
         if not self.check_pixel_color(*coords.IS_ITOPOD_ACTIVE):
             self.click(*coords.ITOPOD)
@@ -252,8 +258,8 @@ class Features(Navigation, Inputs):
         emit_timer = time.time()
         while time.time() < end:
             if emit_timer + 1 < time.time():
-                prog = ((1 + (time.time() - end) / duration)) * 100
-                signal.emit({"task_progress": prog})
+                progress = ((1 + (time.time() - end) / duration)) * 100
+                signal.emit({"task_progress": progress})
                 emit_timer = time.time()
             if self.check_pixel_color(*coords.IS_ENEMY_ALIVE):
                 self.click(*coords.ABILITY_REGULAR_ATTACK)
@@ -963,7 +969,7 @@ class Features(Navigation, Inputs):
                     self.ctrl_click(*loc)
                 time.sleep(3)  # Need to wait for tooltip to disappear after consuming
 
-    def questing(self, duration=30, major=False, subcontract=False, force=0, adv_duration=2):
+    def questing(self, signal, duration=30, major=False, subcontract=False, force=0, adv_duration=2):
         """Procedure for questing.
 
         Keyword arguments:
@@ -1015,11 +1021,14 @@ class Features(Navigation, Inputs):
         will get stuck doing the same quest forever. Make sure you will have
         space for the entire duration you will leave it running unattended.
         """
+        zone_map = {2: "Sewers", 3: "Forest", 6: "High Security Base", 10: "The 2D Universe",
+                    13: "A Very Strange Place", 14: "Mega Lands", 16: "The Beardverse",
+                    21: "Chocolate World", 22: "The Evilverse", 23: "Pretty Pink Princess Land"}
+        signal.emit({"task": "Checking quest status"})
         end = time.time() + duration * 60
         self.menu("questing")
         self.click(950, 590)  # move tooltip
         text = self.get_quest_text()
-
         if coords.QUESTING_QUEST_COMPLETE in text.lower():
             self.click(*coords.QUESTING_START_QUEST)
             time.sleep(userset.LONG_SLEEP * 2)
@@ -1028,6 +1037,7 @@ class Features(Navigation, Inputs):
         if coords.QUESTING_NO_QUEST_ACTIVE in text.lower():  # if we have no active quest, start one
             self.click(*coords.QUESTING_START_QUEST)
             if force and not self.inventory_cleaned:
+                signal.emit({"task": "Cleaning inventory"})
                 self.questing_consume_items(True)  # we have to clean up the inventory from any old quest items
                 self.inventory_cleaned = True
             elif not force:
@@ -1039,6 +1049,8 @@ class Features(Navigation, Inputs):
         if force:
             if self.check_pixel_color(*coords.COLOR_QUESTING_USE_MAJOR):
                 self.click(*coords.QUESTING_USE_MAJOR)
+
+            signal.emit({"task": "Getting the correct quest"})
 
             while not coords.QUESTING_ZONES[force] in text.lower():
                 self.click(*coords.QUESTING_SKIP_QUEST)
@@ -1058,9 +1070,9 @@ class Features(Navigation, Inputs):
 
         if not self.check_pixel_color(*coords.QUESTING_IDLE_INACTIVE):  # turn off idle
             self.click(*coords.QUESTING_SUBCONTRACT)
-
         for count, zone in enumerate(coords.QUESTING_ZONES, start=0):
             if zone in text.lower():
+                signal.emit({"task": f"Questing in {zone_map[count]}"})
                 current_time = time.time()
                 while current_time < end:
                     if current_time + adv_duration * 60 > end:  # adjust adv_duration if it will cause duration to be exceeded
@@ -1068,8 +1080,8 @@ class Features(Navigation, Inputs):
                         if adv_duration < 0.5:
                             adv_duration = 0
                             return
-                    self.snipe(count, adv_duration)
-                    self.boost_cube()
+                    self.snipe(signal, count, adv_duration)
+                    self.boost_cube(signal)
                     self.questing_consume_items()
                     text = self.get_quest_text()
                     current_time = time.time()
@@ -1085,6 +1097,7 @@ class Features(Navigation, Inputs):
                         except ValueError:
                             print("Couldn't fetch current QP")
                         gained_qp = current_qp - start_qp
+                        signal.emit({"qp": gained_qp})
                         print(f"Completed quest in zone #{count} at {datetime.datetime.now().strftime('%H:%M:%S')} for {gained_qp} QP")
 
                         return

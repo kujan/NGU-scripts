@@ -8,6 +8,7 @@ from distutils.util import strtobool
 from PIL import Image
 import json
 import itopod
+import questing
 import inspect
 import math
 import time
@@ -160,8 +161,9 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def action_options(self):
         """Display option window."""
-        self.options = OptionsWindow()
-        self.options.setFixedSize(290, 190)
+        index = self.combo_run.currentIndex()
+        self.options = OptionsWindow(index)
+        self.options.setFixedSize(300, 240)
         self.options.show()
 
     def human_format(self, num):
@@ -229,16 +231,34 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def action_run(self):
         """Start the selected script."""
-        runs = ["Static Questing",
-                "Static ITOPOD"]
-        text = str(self.combo_run.currentText())
-        run = runs.index(text)
+        run = self.combo_run.currentIndex()
         self.start_time = time.time()
         self.timer = QtCore.QTimer()
         self.timer.setInterval(1010)
         self.timer.timeout.connect(self.timestamp)
         self.timer.start()
-        if run == 1:
+        if run == 0:
+            self.run_thread = ScriptThread(0, self.w, self.mutex)
+            self.run_thread.signal.connect(self.update)
+            self.run_button.setText("Pause")
+            self.run_button.disconnect()
+            self.run_button.clicked.connect(self.action_pause)
+            self.w_exp.show()
+            self.w_pp.hide()
+            self.w_pph.hide()
+            self.w_exph.show()
+            self.w_qp.show()
+            self.w_qph.show()
+            self.current_rb_text.hide()
+            self.rebirth_progress.hide()
+            self.setFixedSize(300, 320)
+            self.current_task_text.show()
+            self.task_progress.show()
+            self.task_progress.setValue(0)
+            self.stop_button.setEnabled(True)
+            self.run_thread.start()
+
+        elif run == 1:
             self.run_thread = ScriptThread(1, self.w, self.mutex)
             self.run_thread.signal.connect(self.update)
             self.run_button.setText("Pause")
@@ -253,7 +273,6 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
             self.current_rb_text.hide()
             self.rebirth_progress.hide()
             self.setFixedSize(300, 320)
-            self.current_task_text.setText("Sniping I.T.O.P.O.D")
             self.current_task_text.show()
             self.task_progress.show()
             self.task_progress.setValue(0)
@@ -264,10 +283,11 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
 class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
     """Option window."""
 
-    def __init__(self, parent=None):
+    def __init__(self, index, parent=None):
         """Setup UI."""
         super(OptionsWindow, self).__init__(parent)
         self.setupUi(self)
+        self.index = index
         self.settings = QtCore.QSettings("Kujan", "NGU-Scripts")
         self.button_ok.clicked.connect(self.action_ok)
         self.check_gear.stateChanged.connect(self.state_changed_gear)
@@ -352,6 +372,7 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
                 index = obj.currentIndex()
                 text = obj.itemText(index)
                 self.settings.setValue(name, text)
+                self.settings.setValue(name + "_index", index)
 
             if isinstance(obj, QtWidgets.QLineEdit):
                 name = obj.objectName()
@@ -384,8 +405,10 @@ class ScriptThread(QtCore.QThread):
 
     def run(self):
         """Check which script to run."""
+        if self.run == 0:
+            questing.run(self.w, self.mutex, self.signal)
         if self.run == 1:
-            itopod.run(self.w, self.mutex, self.signal, 60)
+            itopod.run(self.w, self.mutex, self.signal)
 
 
 def run():

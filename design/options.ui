@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>301</width>
-    <height>283</height>
+    <width>294</width>
+    <height>323</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <layout class="QHBoxLayout" name="w_duration">
         <item>
          <widget class="QLabel" name="label_2">
           <property name="whatsThis">
@@ -61,7 +61,7 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
+       <layout class="QHBoxLayout" name="w_boost_equipment">
         <item>
          <widget class="QCheckBox" name="check_gear">
           <property name="text">
@@ -111,7 +111,7 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <layout class="QHBoxLayout" name="w_boost_inventory">
         <item>
          <widget class="QCheckBox" name="check_boost_inventory">
           <property name="toolTip">
@@ -154,7 +154,7 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <layout class="QHBoxLayout" name="w_merge_inventory">
         <item>
          <widget class="QCheckBox" name="check_merge_inventory">
           <property name="toolTip">
@@ -194,7 +194,7 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <layout class="QHBoxLayout" name="w_fruits">
         <item>
          <widget class="QCheckBox" name="check_fruits">
           <property name="toolTip">
@@ -220,6 +220,99 @@
            </size>
           </property>
          </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="w_force">
+        <item>
+         <widget class="QCheckBox" name="check_force">
+          <property name="toolTip">
+           <string>Abandon quests until you get the selected zone.</string>
+          </property>
+          <property name="text">
+           <string>Force Zone</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="combo_force">
+          <item>
+           <property name="text">
+            <string>Sewers (e-pow)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Forest (m-pow)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>High Security Base (e-NGU)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>The 2D Universe (e-bar)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>A Very Strange Place (e-beard)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Mega Lands (m-beard)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>The Beardverse (drop chance)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Chocolate World (stats)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>The Evilverse (e-wandoos)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Pretty Pink Princess Land (m-wandoos)</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="w_major">
+        <item>
+         <widget class="QCheckBox" name="check_major">
+          <property name="toolTip">
+           <string>Does major quests as they become available, this will override the force zone option if you have any majors banked.</string>
+          </property>
+          <property name="text">
+           <string>Do major quests</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="w_subcontract">
+        <item>
+         <widget class="QCheckBox" name="check_subcontract">
+          <property name="text">
+           <string>Subcontract</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>

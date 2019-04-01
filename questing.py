@@ -25,7 +25,11 @@ def run(window, mutex, signal):
     boost_slots = int(settings.value("line_boost_inventory"))
     merge_inventory = strtobool(settings.value("check_merge_inventory"))
     merge_slots = int(settings.value("line_merge_inventory"))
-
+    force = strtobool(settings.value("check_force"))
+    force_zone = int(settings.value("combo_force_index"))
+    do_major = strtobool(settings.value("check_major"))
+    subcontract = strtobool(settings.value("check_subcontract"))
+    zone_map = {0: 2, 1: 3, 2: 6, 3: 10, 4: 13, 5: 14, 6: 16, 7: 21, 8: 22, 9: 23}
     i = Inputs(w, mutex)
     nav = Navigation(w, mutex)
     feature = Features(w, mutex)
@@ -36,7 +40,8 @@ def run(window, mutex, signal):
     while True:  # main loop
         signal.emit(tracker.get_rates())
         signal.emit({"exp": Stats.xp - start_exp, "pp": Stats.pp - start_pp})
-        feature.itopod_snipe(duration, signal)
+        if force:
+            feature.questing(signal, force=zone_map[force_zone], adv_duration=duration / 60)
         if use_boosts:
             if boost_equipment:
                 feature.boost_equipment(signal)
