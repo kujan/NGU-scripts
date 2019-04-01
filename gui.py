@@ -1,11 +1,15 @@
 import sys
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtCore import QBuffer
 from design.design import Ui_MainWindow
 from design.options import Ui_OptionsWindow
+from design.inventory import Ui_InventorySelecter
 from classes.inputs import Inputs
 from classes.window import Window
 from distutils.util import strtobool
 from PIL import Image
+from PIL.ImageQt import ImageQt
+import io
 import json
 import itopod
 import questing
@@ -162,8 +166,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
     def action_options(self):
         """Display option window."""
         index = self.combo_run.currentIndex()
-        self.options = OptionsWindow(index)
-        self.options.setFixedSize(300, 240)
+        self.options = OptionsWindow(index, self.i)
         self.options.show()
 
     def human_format(self, num):
@@ -283,16 +286,19 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
 class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
     """Option window."""
 
-    def __init__(self, index, parent=None):
+    def __init__(self, index, inputs, parent=None):
         """Setup UI."""
         super(OptionsWindow, self).__init__(parent)
         self.setupUi(self)
         self.index = index
+        self.i = inputs
         self.settings = QtCore.QSettings("Kujan", "NGU-Scripts")
         self.button_ok.clicked.connect(self.action_ok)
         self.check_gear.stateChanged.connect(self.state_changed_gear)
         self.check_boost_inventory.stateChanged.connect(self.state_changed_boost_inventory)
         self.check_merge_inventory.stateChanged.connect(self.state_changed_merge_inventory)
+        self.check_force.stateChanged.connect(self.state_changed_force_zone)
+        self.check_subcontract.stateChanged.connect(self.state_changed_subcontract)
         self.radio_group_gear = QtWidgets.QButtonGroup(self)
         self.radio_group_gear.addButton(self.radio_equipment)
         self.radio_group_gear.addButton(self.radio_cube)
@@ -313,6 +319,8 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
         """Update UI."""
         if self.check_boost_inventory.isChecked():
             self.line_boost_inventory.setEnabled(True)
+            self.inventory_selecter = InventorySelecter(self.i)
+            self.inventory_selecter.show()
         else:
             self.line_boost_inventory.setEnabled(False)
 
@@ -323,8 +331,39 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
         else:
             self.line_merge_inventory.setEnabled(False)
 
+    def state_changed_force_zone(self, int):
+        """Update UI."""
+        if self.check_force.isChecked():
+            self.combo_force.setEnabled(True)
+        else:
+            self.combo_force.setEnabled(False)
+
+    def state_changed_subcontract(self, int):
+        """Show warning."""
+        if self.check_subcontract.isChecked():
+            msg = QtWidgets.QMessageBox(self)
+            msg.setIcon(QtWidgets.QMessageBox.Warning)
+            msg.setText("Are you sure you wish to subcontract your quests?")
+            msg.setWindowTitle("Subcontract warning")
+            msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+            msg.exec()
     def gui_load(self):
         """Load settings from registry."""
+        if self.index == 0:
+            self.label_duration.setText("Duration in minutes to run:")
+            self.check_force.show()
+            self.check_major.show()
+            self.check_subcontract.show()
+            self.combo_force.show()
+            self.setFixedSize(300, 300)
+
+        elif self.index == 1:
+            self.label_duration.setText("Duration in seconds to run:")
+            self.check_force.hide()
+            self.check_major.hide()
+            self.check_subcontract.hide()
+            self.combo_force.hide()
+            self.setFixedSize(300, 200)
         for name, obj in inspect.getmembers(self):
             if isinstance(obj, QtWidgets.QComboBox):
                 index = obj.currentIndex()
@@ -362,10 +401,6 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
 
     def action_ok(self):
         """Save settings and close window."""
-        print("value")
-        self.settings.setValue('size', self.size())
-        self.settings.setValue('pos', self.pos())
-
         for name, obj in inspect.getmembers(self):
             if isinstance(obj, QtWidgets.QComboBox):
                 name = obj.objectName()
@@ -389,6 +424,64 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
                 value = obj.isChecked()
                 self.settings.setValue(name, value)
         self.close()
+
+
+class InventorySelecter(QtWidgets.QMainWindow, Ui_InventorySelecter):
+    """Option window."""
+
+    def __init__(self, inputs, parent=None):
+        """Setup UI."""
+        super(InventorySelecter, self).__init__(parent)
+        self.setupUi(self)
+        self.i = inputs
+        self.generate_inventory()
+
+    def pil2pixmap(self, im):
+        with io.BytesIO() as output:
+            im.save(output, format="png")
+            output.seek(0)
+            data = output.read()
+            qim = QtGui.QImage.fromData(data)
+            pixmap = QtGui.QPixmap.fromImage(qim)
+        return pixmap
+
+    def generate_inventory(self, depth=0):
+        """Get image from inventory and create clickable grid."""
+        if depth > 4:  # infinite recursion guard
+            msg = QtWidgets.QMessageBox(self)
+            msg.setIcon(QtWidgets.QMessageBox.Critical)
+            msg.setText("Couldn't find inventory, is the game running?")
+            msg.setWindowTitle("Inventory error")
+            msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+            msg.exec()
+
+        self.i.click(*coords.MENU_ITEMS["inventory"])
+        if self.i.check_pixel_color(*coords.INVENTORY_SANITY):
+            print("in inventory")
+        else:
+            self.generate_inventory(depth=depth + 1)
+        self.i.click(*coords.INVENTORY_PAGE_1)
+        bmp = self.i.get_bitmap()
+        bmp = bmp.crop((self.i.window.x + 8, self.i.window.y + 8, self.i.window.x + 968, self.i.window.y + 608))
+        bmp = bmp.crop((coords.INVENTORY_AREA.x1, coords.INVENTORY_AREA.y1, coords.INVENTORY_AREA.x2, coords.INVENTORY_AREA.y2))
+        frame_count = 1
+        for y in range(5):
+            for x in range(12):
+                x1 = x * coords.INVENTORY_SLOT_WIDTH
+                y1 = y * coords.INVENTORY_SLOT_HEIGHT
+                x2 = x1 + coords.INVENTORY_SLOT_WIDTH
+                y2 = y1 + coords.INVENTORY_SLOT_WIDTH
+                slot = bmp.crop((x1, y1, x2, y2))
+                print(x1, y1, x2, y2)
+                print(slot.format)
+                print(slot.mode)
+                #lot.save(f"{x1}{y1}.png")
+                frame = getattr(self, f"label_{frame_count}")
+                #pixmap = QtGui.QPixmap.loadFromData(slot.tobytes())
+                frame.setPixmap(self.pil2pixmap(slot))
+                frame_count += 1
+                #frame.setStyleSheet("border:1px solid rgb(0, 255, 0)")
+
 
 
 class ScriptThread(QtCore.QThread):

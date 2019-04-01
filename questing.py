@@ -6,6 +6,7 @@ from classes.inputs import Inputs
 from classes.navigation import Navigation
 from classes.stats import Stats, Tracker
 from classes.window import Window
+import coordinates as coords
 from distutils.util import strtobool
 from PyQt5 import QtCore
 import time
@@ -40,18 +41,24 @@ def run(window, mutex, signal):
     while True:  # main loop
         signal.emit(tracker.get_rates())
         signal.emit({"exp": Stats.xp - start_exp, "pp": Stats.pp - start_pp})
-        if force:
-            feature.questing(signal, force=zone_map[force_zone], adv_duration=duration / 60)
+
+        if do_major:
+            text = feature.get_quest_text().lower()
+            majors = feature.get_available_majors()
+            if majors == 0 and force and (coords.QUESTING_MINOR_QUEST in text or coords.QUESTING_NO_QUEST_ACTIVE in text):
+                feature.questing(signal, force=zone_map[force_zone], adv_duration=duration / 60)
+            else:
+                feature.questing(signal)
         if use_boosts:
             if boost_equipment:
                 feature.boost_equipment(signal)
             if boost_cube:
                 feature.boost_cube(signal)
-            if boost_inventory:
-                feature.boost_inventory(boost_slots, signal)
-            if merge_inventory:
-                feature.merge_inventory(merge_slots, signal)
-            if check_fruits:
-                feature.ygg(signal)
+        if boost_inventory:
+            feature.boost_inventory(boost_slots, signal)
+        if merge_inventory:
+            feature.merge_inventory(merge_slots, signal)
+        if check_fruits:
+            feature.ygg(signal)
         tracker.progress()
 

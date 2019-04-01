@@ -20,7 +20,7 @@
       <item>
        <layout class="QHBoxLayout" name="w_duration">
         <item>
-         <widget class="QLabel" name="label_2">
+         <widget class="QLabel" name="label_duration">
           <property name="whatsThis">
            <string extracomment="Duration in seconds to snipe in itopod before going to inventory/ygg etc"/>
           </property>
@@ -47,6 +47,49 @@
         </item>
         <item>
          <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="w_adv_duration">
+        <item>
+         <widget class="QLabel" name="label_adv_duration">
+          <property name="text">
+           <string>Duration to spend in adventure:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="line_adv_duration">
+          <property name="maximumSize">
+           <size>
+            <width>39</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Duration in minutes that the questing method will run until returning to boost/merge/etc</string>
+          </property>
+          <property name="text">
+           <string>30</string>
+          </property>
+          <property name="placeholderText">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_6">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
