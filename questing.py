@@ -39,21 +39,26 @@ def run(window, mutex, signal):
     majors = feature.get_available_majors()
 
     if do_major:
-        if majors == 0:
-            itopod.run(w, mutex, signal, once=True)
+        if majors == 0 and (coords.QUESTING_MINOR_QUEST in text or coords.QUESTING_NO_QUEST_ACTIVE in text):
+            itopod.run(w, mutex, signal, once=True, duration=adv_duration * 60)
         else:
-            feature.questing(signal, duration=duration, adv_duration=adv_duration)
+            if not feature.check_pixel_color(*coords.COLOR_QUESTING_USE_MAJOR):
+                feature.click(*coords.QUESTING_USE_MAJOR)
+            feature.questing(signal, adv_duration=adv_duration)
     elif subcontract:
         feature.questing(signal, subcontract=True)
+        itopod.run(w, mutex, signal, duration=adv_duration * 60)
     else:
         if majors == 0 and force and (coords.QUESTING_MINOR_QUEST in text or coords.QUESTING_NO_QUEST_ACTIVE in text):
-            feature.questing(signal, duration=duration, force=zone_map[force_zone], adv_duration=adv_duration)
+            feature.questing(signal, force=zone_map[force_zone], adv_duration=adv_duration)
         else:
-            feature.questing(signal, duration=duration, adv_duration=adv_duration)
+            if not feature.check_pixel_color(*coords.COLOR_QUESTING_USE_MAJOR):
+                feature.click(*coords.QUESTING_USE_MAJOR)
+            feature.questing(signal, adv_duration=adv_duration)
     if use_boosts:
         if boost_equipment:
             feature.boost_equipment(signal)
-        if boost_cube:
+        else:
             feature.boost_cube(signal)
     if boost_inventory:
         feature.boost_inventory(boost_slots, signal)

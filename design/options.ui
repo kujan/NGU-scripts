@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>318</width>
-    <height>346</height>
+    <width>330</width>
+    <height>288</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -37,51 +37,6 @@
     </property>
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
-       <widget class="QWidget" name="w_duration_2" native="true">
-        <layout class="QHBoxLayout" name="w_duration">
-         <item>
-          <widget class="QLabel" name="label_duration">
-           <property name="whatsThis">
-            <string extracomment="Duration in seconds to snipe in itopod before going to inventory/ygg etc"/>
-           </property>
-           <property name="text">
-            <string>Duration in seconds to run:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="line_duration">
-           <property name="maximumSize">
-            <size>
-             <width>39</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>300</string>
-           </property>
-           <property name="placeholderText">
-            <string extracomment="Duration in seconds to run before going to inventory"/>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </widget>
-      </item>
       <item>
        <layout class="QHBoxLayout" name="w_adv_duration">
         <item>
@@ -296,6 +251,9 @@
         </item>
         <item>
          <widget class="QComboBox" name="combo_force">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <item>
            <property name="text">
             <string>Sewers (e-pow)</string>
@@ -368,10 +326,10 @@
         <item>
          <widget class="QCheckBox" name="check_major">
           <property name="toolTip">
-           <string>Does major quests as they become available, this will override the force zone option if you have any majors banked.</string>
+           <string>Does major quests as they become available, this will override the force zone option if you have any majors banked. If you don't have any majors available, it will go into itopod.</string>
           </property>
           <property name="text">
-           <string>PH - Do major quests</string>
+           <string>Only do major quests</string>
           </property>
          </widget>
         </item>
@@ -381,8 +339,11 @@
        <layout class="QHBoxLayout" name="w_subcontract">
         <item>
          <widget class="QCheckBox" name="check_subcontract">
+          <property name="toolTip">
+           <string>This will subcontract all quests, make sure &quot;use major quest&quot; is unticked in game if you only wish to subcontract minor. Does ITOPOD in between.</string>
+          </property>
           <property name="text">
-           <string>PH - Subcontract</string>
+           <string>Subcontract</string>
           </property>
          </widget>
         </item>

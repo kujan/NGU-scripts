@@ -221,7 +221,6 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.task_progress_animation.setDuration(200)
                 self.task_progress_animation.setStartValue(self.task_progress.value())
                 self.task_progress_animation.setEndValue(v)
-                print(f"start: {self.task_progress.value()}, end: {v}")
                 self.task_progress_animation.start()
                 # self.task_progress.setValue(math.ceil(v))
             elif k == "itopod_snipes":
@@ -383,15 +382,13 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
     def gui_load(self):
         """Load settings from registry."""
         if self.index == 0:
-            self.w_duration_2.hide()
             self.check_force.show()
             self.check_major.show()
             self.check_subcontract.show()
             self.combo_force.show()
-            self.setFixedSize(300, 300)
+            self.setFixedSize(315, 250)
 
         elif self.index == 1:
-            self.label_duration.setText("Duration in seconds to run:")
             self.check_force.hide()
             self.check_major.hide()
             self.check_subcontract.hide()
@@ -565,20 +562,24 @@ class ScriptThread(QtCore.QThread):
         self.w = w
         self.mutex = mutex
         self.settings = QtCore.QSettings("Kujan", "NGU-Scripts")
-        self.duration = int(self.settings.value("line_duration"))
-        self.tracker = Tracker(self.w, self.mutex, self.duration / 60)
+        self.duration = int(self.settings.value("line_adv_duration"))
+        self.tracker = Tracker(self.w, self.mutex, self.duration)
         self.start_exp = Stats.xp
         self.start_pp = Stats.pp
+        self.start_qp = Stats.qp
         self.iteration = 1
 
     def run(self):
         """Check which script to run."""
         while True:
+            print(self.tracker.get_rates())
             self.signal.emit(self.tracker.get_rates())
-            self.signal.emit({"exp": Stats.xp - self.start_exp, "pp": Stats.pp - self.start_pp})
+            self.signal.emit({"exp": Stats.xp - self.start_exp, "pp": Stats.pp - self.start_pp, "qp": Stats.qp - self.start_qp})
             if self.run == 0:
+                Stats.track_pp = False
                 questing.run(self.w, self.mutex, self.signal)
             if self.run == 1:
+                Stats.track_qp = False
                 itopod.run(self.w, self.mutex, self.signal)
             self.signal.emit({"iteration": self.iteration})
             self.iteration += 1
