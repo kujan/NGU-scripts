@@ -1,6 +1,6 @@
 import sys
 from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtCore import QBuffer
+from classes.stats import Stats, Tracker
 from design.design import Ui_MainWindow
 from design.options import Ui_OptionsWindow
 from design.inventory import Ui_InventorySelecter
@@ -8,7 +8,6 @@ from classes.inputs import Inputs
 from classes.window import Window
 from distutils.util import strtobool
 from PIL import Image
-from PIL.ImageQt import ImageQt
 import io
 import json
 import itopod
@@ -48,6 +47,8 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.stop_button.clicked.connect(self.action_stop)
         self.run_button.clicked.connect(self.action_run)
         self.run_options.clicked.connect(self.action_options)
+        self.run_thread = None
+        self.options = None
 
         try:
             with open("stats.txt", "r") as f:  # load stats from file if it exists
@@ -69,6 +70,10 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
                                                QtWidgets.QMessageBox.No)
 
         if reply == QtWidgets.QMessageBox.Yes:
+            if self.options is not None:
+                if self.options.inventory_selecter is not None:
+                    self.options.inventory_selecter.close()
+                self.options.close()
             with open("stats.txt", "w") as f:
                 data = {"itopod_snipes": self.lifetime_itopod_kills,
                         "itopod_time_saved": self.lifetime_itopod_time_saved_data.text()}
@@ -76,13 +81,14 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
             event.accept()
         else:
             event.ignore()
+
     def window_enumeration_handler(self, hwnd, top_windows):
         """Add window title and ID to array."""
         top_windows.append((hwnd, win32gui.GetWindowText(hwnd)))
 
     def get_ngu_window(self):
         """Get window ID for NGU IDLE."""
-        window_name = "play ngu idle"
+        window_name = "debugg"
         top_windows = []
         win32gui.EnumWindows(self.window_enumeration_handler, top_windows)
         for i in top_windows:
@@ -170,7 +176,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
     def action_options(self):
         """Display option window."""
         index = self.combo_run.currentIndex()
-        self.options = OptionsWindow(index, self.i)
+        self.options = OptionsWindow(index, self.i, self.run_thread, self)
         self.options.show()
 
     def human_format(self, num):
@@ -290,7 +296,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
 class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
     """Option window."""
 
-    def __init__(self, index, inputs, parent=None):
+    def __init__(self, index, inputs, thread, parent=None):
         """Setup UI."""
         super(OptionsWindow, self).__init__(parent)
         self.setupUi(self)
@@ -303,6 +309,13 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
         self.radio_group_gear.addButton(self.radio_cube)
         self.check_gear.stateChanged.connect(self.state_changed_gear)
         self.check_force.stateChanged.connect(self.state_changed_force_zone)
+        self.check_boost_inventory.stateChanged.connect(self.state_changed_boost_inventory)
+        self.check_merge_inventory.stateChanged.connect(self.state_changed_merge_inventory)
+        self.check_subcontract.stateChanged.connect(self.state_changed_subcontract)
+        self.button_boost_inventory.clicked.connect(self.action_boost_inventory)
+        self.button_merge_inventory.clicked.connect(self.action_merge_inventory)
+        self.inventory_selecter = None
+        self.script_thread = thread
         self.gui_load()
 
     def state_changed_gear(self, int):
@@ -318,14 +331,37 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
 
     def state_changed_boost_inventory(self, int):
         """Update UI."""
+        if self.script_thread is not None:
+            if self.script_thread.isRunning():
+                self.button_boost_inventory.setText("Stop current script")
+                return
+        self.button_boost_inventory.setText("Setup")
         if self.check_boost_inventory.isChecked():
-            self.inventory_selecter = InventorySelecter("arr_boost_inventory", self.i)
-            self.inventory_selecter.show()
+            self.button_boost_inventory.setEnabled(True)
+        else:
+            self.button_boost_inventory.setEnabled(False)
 
     def state_changed_merge_inventory(self, int):
         """Update UI."""
+        if self.script_thread is not None:
+            if self.script_thread.isRunning():
+                self.button_boost_inventory.setText("Stop current script")
+                return
         if self.check_merge_inventory.isChecked():
-            self.inventory_selecter = InventorySelecter("arr_merge_inventory", self.i)
+            self.button_merge_inventory.setEnabled(True)
+        else:
+            self.button_merge_inventory.setEnabled(False)
+
+    def action_boost_inventory(self, int):
+        """Update UI."""
+        if self.check_boost_inventory.isChecked():
+            self.inventory_selecter = InventorySelecter("arr_boost_inventory", self.i, self)
+            self.inventory_selecter.show()
+
+    def action_merge_inventory(self, int):
+        """Update UI."""
+        if self.check_merge_inventory.isChecked():
+            self.inventory_selecter = InventorySelecter("arr_merge_inventory", self.i, self)
             self.inventory_selecter.show()
 
     def state_changed_force_zone(self, int):
@@ -347,7 +383,7 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
     def gui_load(self):
         """Load settings from registry."""
         if self.index == 0:
-            self.label_duration.setText("Duration in minutes to run:")
+            self.w_duration_2.hide()
             self.check_force.show()
             self.check_major.show()
             self.check_subcontract.show()
@@ -395,10 +431,6 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
                 value = self.settings.value(name)
                 if value is not None:
                     obj.setChecked(strtobool(value))
-
-        self.check_boost_inventory.stateChanged.connect(self.state_changed_boost_inventory)
-        self.check_merge_inventory.stateChanged.connect(self.state_changed_merge_inventory)
-        self.check_subcontract.stateChanged.connect(self.state_changed_subcontract)
 
     def action_ok(self):
         """Save settings and close window."""
@@ -471,11 +503,9 @@ class InventorySelecter(QtWidgets.QMainWindow, Ui_InventorySelecter):
 
         if not button.toggled:
             button.toggled = True
-            print("toggling on")
             button.setStyleSheet("border:3px solid rgb(0, 0, 0)")
         else:
             button.toggled = False
-            print("toggling off")
             button.setStyleSheet("")
 
     def generate_inventory(self, depth=0):
@@ -487,6 +517,7 @@ class InventorySelecter(QtWidgets.QMainWindow, Ui_InventorySelecter):
             msg.setWindowTitle("Inventory error")
             msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
             msg.exec()
+            return
 
         self.i.click(*coords.MENU_ITEMS["inventory"])
         if self.i.check_pixel_color(*coords.INVENTORY_SANITY):
@@ -521,6 +552,7 @@ class InventorySelecter(QtWidgets.QMainWindow, Ui_InventorySelecter):
                 button.toggled = True
                 button.setStyleSheet("border:3px solid rgb(0, 0, 0)")
 
+
 class ScriptThread(QtCore.QThread):
     """Thread class for script."""
 
@@ -532,13 +564,25 @@ class ScriptThread(QtCore.QThread):
         self.run = run
         self.w = w
         self.mutex = mutex
+        self.settings = QtCore.QSettings("Kujan", "NGU-Scripts")
+        self.duration = int(self.settings.value("line_duration"))
+        self.tracker = Tracker(self.w, self.mutex, self.duration / 60)
+        self.start_exp = Stats.xp
+        self.start_pp = Stats.pp
+        self.iteration = 1
 
     def run(self):
         """Check which script to run."""
-        if self.run == 0:
-            questing.run(self.w, self.mutex, self.signal)
-        if self.run == 1:
-            itopod.run(self.w, self.mutex, self.signal)
+        while True:
+            self.signal.emit(self.tracker.get_rates())
+            self.signal.emit({"exp": Stats.xp - self.start_exp, "pp": Stats.pp - self.start_pp})
+            if self.run == 0:
+                questing.run(self.w, self.mutex, self.signal)
+            if self.run == 1:
+                itopod.run(self.w, self.mutex, self.signal)
+            self.signal.emit({"iteration": self.iteration})
+            self.iteration += 1
+            self.tracker.progress()
 
 
 def run():

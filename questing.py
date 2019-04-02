@@ -4,9 +4,9 @@
 from classes.features import Features
 from classes.inputs import Inputs
 from classes.navigation import Navigation
-from classes.stats import Stats, Tracker
 from classes.window import Window
 import coordinates as coords
+import itopod
 from distutils.util import strtobool
 from PyQt5 import QtCore
 import time
@@ -32,34 +32,32 @@ def run(window, mutex, signal):
     do_major = strtobool(settings.value("check_major"))
     subcontract = strtobool(settings.value("check_subcontract"))
     zone_map = {0: 2, 1: 3, 2: 6, 3: 10, 4: 13, 5: 14, 6: 16, 7: 21, 8: 22, 9: 23}
-    i = Inputs(w, mutex)
-    nav = Navigation(w, mutex)
     feature = Features(w, mutex)
-    tracker = Tracker(w, mutex, duration / 60)
-    start_exp = Stats.xp
-    start_pp = Stats.pp
-    nav.menu("inventory")
-    while True:  # main loop
-        signal.emit(tracker.get_rates())
-        signal.emit({"exp": Stats.xp - start_exp, "pp": Stats.pp - start_pp})
+    feature.menu("inventory")
 
+    text = feature.get_quest_text().lower()
+    majors = feature.get_available_majors()
 
-        text = feature.get_quest_text().lower()
-        majors = feature.get_available_majors()
+    if do_major:
+        if majors == 0:
+            itopod.run(w, mutex, signal, once=True)
+        else:
+            feature.questing(signal, duration=duration, adv_duration=adv_duration)
+    elif subcontract:
+        feature.questing(signal, subcontract=True)
+    else:
         if majors == 0 and force and (coords.QUESTING_MINOR_QUEST in text or coords.QUESTING_NO_QUEST_ACTIVE in text):
             feature.questing(signal, duration=duration, force=zone_map[force_zone], adv_duration=adv_duration)
         else:
             feature.questing(signal, duration=duration, adv_duration=adv_duration)
-        if use_boosts:
-            if boost_equipment:
-                feature.boost_equipment(signal)
-            if boost_cube:
-                feature.boost_cube(signal)
-        if boost_inventory:
-            feature.boost_inventory(boost_slots, signal)
-        if merge_inventory:
-            feature.merge_inventory(merge_slots, signal)
-        if check_fruits:
-            feature.ygg(signal)
-        tracker.progress()
-
+    if use_boosts:
+        if boost_equipment:
+            feature.boost_equipment(signal)
+        if boost_cube:
+            feature.boost_cube(signal)
+    if boost_inventory:
+        feature.boost_inventory(boost_slots, signal)
+    if merge_inventory:
+        feature.merge_inventory(merge_slots, signal)
+    if check_fruits:
+        feature.ygg(signal)

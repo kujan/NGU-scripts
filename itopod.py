@@ -10,7 +10,7 @@ from distutils.util import strtobool
 from PyQt5 import QtCore
 import time
 
-def run(window, mutex, signal):
+def run(window, mutex, signal, tracker, once=False):
     w = Window()
     w.x = window.x
     w.y = window.y
@@ -49,4 +49,5 @@ def run(window, mutex, signal):
             if check_fruits:
                 feature.ygg(signal)
         tracker.progress()
-
+        if once:
+            return

@@ -1,64 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>OptionsWindow</class>
- <widget class="QMainWindow" name="OptionsWindow">
+ <widget class="QDialog" name="OptionsWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>294</width>
-    <height>323</height>
+    <width>318</width>
+    <height>346</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>NGU Script by Satyric - Options</string>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>318</width>
+     <height>373</height>
+    </rect>
+   </property>
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="leftMargin">
+     <number>6</number>
+    </property>
+    <property name="topMargin">
+     <number>6</number>
+    </property>
+    <property name="rightMargin">
+     <number>6</number>
+    </property>
+    <property name="bottomMargin">
+     <number>6</number>
+    </property>
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <layout class="QHBoxLayout" name="w_duration">
-        <item>
-         <widget class="QLabel" name="label_duration">
-          <property name="whatsThis">
-           <string extracomment="Duration in seconds to snipe in itopod before going to inventory/ygg etc"/>
-          </property>
-          <property name="text">
-           <string>Duration in seconds to run:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="line_duration">
-          <property name="maximumSize">
-           <size>
-            <width>39</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>300</string>
-          </property>
-          <property name="placeholderText">
-           <string extracomment="Duration in seconds to run before going to inventory"/>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
+       <widget class="QWidget" name="w_duration_2" native="true">
+        <layout class="QHBoxLayout" name="w_duration">
+         <item>
+          <widget class="QLabel" name="label_duration">
+           <property name="whatsThis">
+            <string extracomment="Duration in seconds to snipe in itopod before going to inventory/ygg etc"/>
+           </property>
+           <property name="text">
+            <string>Duration in seconds to run:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="line_duration">
+           <property name="maximumSize">
+            <size>
+             <width>39</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>300</string>
+           </property>
+           <property name="placeholderText">
+            <string extracomment="Duration in seconds to run before going to inventory"/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
       </item>
       <item>
        <layout class="QHBoxLayout" name="w_adv_duration">
@@ -81,7 +103,7 @@
            <string>Duration in minutes that the questing method will run until returning to boost/merge/etc</string>
           </property>
           <property name="text">
-           <string>30</string>
+           <string>2</string>
           </property>
           <property name="placeholderText">
            <string/>
@@ -169,6 +191,16 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="button_boost_inventory">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Setup</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer_3">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -192,6 +224,16 @@
           </property>
           <property name="text">
            <string>Merge inventory</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="button_merge_inventory">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Setup</string>
           </property>
          </widget>
         </item>
@@ -306,6 +348,19 @@
           </item>
          </widget>
         </item>
+        <item>
+         <spacer name="horizontalSpacer_7">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
        </layout>
       </item>
       <item>
@@ -332,19 +387,6 @@
          </widget>
         </item>
        </layout>
-      </item>
-      <item>
-       <spacer name="verticalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
       </item>
       <item alignment="Qt::AlignHCenter">
        <widget class="QPushButton" name="button_ok">
