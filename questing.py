@@ -40,7 +40,7 @@ def run(window, mutex, signal):
 
     if do_major:
         if majors == 0 and (coords.QUESTING_MINOR_QUEST in text or coords.QUESTING_NO_QUEST_ACTIVE in text):
-            itopod.run(w, mutex, signal, once=True, duration=adv_duration * 60)
+            itopod.run(w, mutex, signal, duration=adv_duration * 60)
         else:
             if not feature.check_pixel_color(*coords.COLOR_QUESTING_USE_MAJOR):
                 feature.click(*coords.QUESTING_USE_MAJOR)

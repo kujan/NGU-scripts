@@ -40,6 +40,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.task_progress.setAlignment(QtCore.Qt.AlignCenter)
         self.get_ngu_window()
         self.test_tesseract()
+        self.load_stats()
         self.task_progress.setValue(0)
         self.rebirth_progress.setValue(0)
         self.task_progress_animation = QtCore.QPropertyAnimation(self.task_progress, b"value")
@@ -49,18 +50,27 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.run_options.clicked.connect(self.action_options)
         self.run_thread = None
         self.options = None
-
-        try:
-            with open("stats.txt", "r") as f:  # load stats from file if it exists
-                data = json.loads(f.read())
-                self.lifetime_itopod_kills = int(data["itopod_snipes"])
-                self.lifetime_itopod_kills_data.setText(str(self.human_format(self.lifetime_itopod_kills)))
-                self.lifetime_itopod_time_saved_data.setText(data["itopod_time_saved"])
-        except FileNotFoundError:
-            self.lifetime_itopod_kills_data.setText("0")
-            self.lifetime_itopod_time_saved_data.setText("0")
-            self.lifetime_itopod_kills = 0
         # self.tabWidget.setFixedSize(self.sizeHint())  # shrink window
+
+    def load_stats(self):
+        self.settings = QtCore.QSettings("Kujan", "NGU-Scripts")
+        self.total_itopod_kills = int(self.settings.value("total_itopod_kills", "0"))
+        self.total_minor_quests = int(self.settings.value("total_minor_quests", "0"))
+        self.total_major_quests = int(self.settings.value("total_major_quests", "0"))
+        self.lifetime_itopod_kills_data.setText(str(self.total_itopod_kills))
+        self.label_total_major_quests.setText(str(self.total_major_quests))
+        self.label_total_minor_quests.setText(str(self.total_minor_quests))
+        n = self.total_itopod_kills * 0.8
+        days = math.floor(n // (24 * 3600))
+        n = n % (24 * 3600)
+        hours = math.floor(n // 3600)
+        n %= 3600
+        minutes = math.floor(n // 60)
+        n %= 60
+        seconds = math.floor(n)
+
+        self.lifetime_itopod_time_saved_data.setText(f"{days} days, {hours} hours, {minutes} minutes, {seconds} seconds")
+
 
     def closeEvent(self, event):
         """Event fired when exiting the application. This will save the current stats to file."""
@@ -74,10 +84,6 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
                 if self.options.inventory_selecter is not None:
                     self.options.inventory_selecter.close()
                 self.options.close()
-            with open("stats.txt", "w") as f:
-                data = {"itopod_snipes": self.lifetime_itopod_kills,
-                        "itopod_time_saved": self.lifetime_itopod_time_saved_data.text()}
-                f.write(json.dumps(data))
             event.accept()
         else:
             event.ignore()
@@ -147,6 +153,9 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
             self.run_button.disconnect()
             self.run_button.clicked.connect(self.action_run)
             self.stop_button.setEnabled(False)
+            self.settings.setValue("total_itopod_kills", self.total_itopod_kills)
+            self.settings.setValue("total_major_quests", self.total_major_quests)
+            self.settings.setValue("total_minor_quests", self.total_minor_quests)
             self.mutex.unlock()
         else:
             QtWidgets.QMessageBox.information(self, "Error", "Couldn't acquire lock of script thread.")
@@ -223,11 +232,10 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.task_progress_animation.setEndValue(v)
                 self.task_progress_animation.start()
                 # self.task_progress.setValue(math.ceil(v))
-            elif k == "itopod_snipes":
-                self.lifetime_itopod_kills += 1
-                self.lifetime_itopod_kills_data.setText(str(self.human_format(self.lifetime_itopod_kills)))
-
-                n = self.lifetime_itopod_kills * 0.8
+            elif k == "itopod_kill":
+                self.total_itopod_kills += 1
+                self.lifetime_itopod_kills_data.setText(str(self.human_format(self.total_itopod_kills)))
+                n = self.total_itopod_kills * 0.8
                 days = math.floor(n // (24 * 3600))
                 n = n % (24 * 3600)
                 hours = math.floor(n // 3600)
@@ -240,6 +248,13 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
             elif k == "task":
                 self.current_task_text.setText(v)
+            elif k == "quest_complete":
+                if v == "minor":
+                    self.total_minor_quests += 1
+                    self.label_total_minor_quests.setText(str(self.human_format(self.total_minor_quests)))
+                else:
+                    self.total_major_quests += 1
+                    self.label_total_major_quests.setText(str(self.human_format(self.total_major_quests)))
 
     def action_run(self):
         """Start the selected script."""

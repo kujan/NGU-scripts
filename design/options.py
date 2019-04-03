@@ -149,7 +149,7 @@ class Ui_OptionsWindow(object):
         self.button_merge_inventory.setText(_translate("OptionsWindow", "Setup"))
         self.check_fruits.setToolTip(_translate("OptionsWindow", "This will click \"harvest all max tier fruits\""))
         self.check_fruits.setText(_translate("OptionsWindow", "Eat fruits"))
-        self.check_force.setToolTip(_translate("OptionsWindow", "Abandon quests until you get the selected zone."))
+        self.check_force.setToolTip(_translate("OptionsWindow", "Abandon quests until you get the selected zone. If you have major quests available, those will get done first."))
         self.check_force.setText(_translate("OptionsWindow", "Force Zone"))
         self.combo_force.setItemText(0, _translate("OptionsWindow", "Sewers (e-pow)"))
         self.combo_force.setItemText(1, _translate("OptionsWindow", "Forest (m-pow)"))

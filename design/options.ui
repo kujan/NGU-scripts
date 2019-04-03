@@ -242,7 +242,7 @@
         <item>
          <widget class="QCheckBox" name="check_force">
           <property name="toolTip">
-           <string>Abandon quests until you get the selected zone.</string>
+           <string>Abandon quests until you get the selected zone. If you have major quests available, those will get done first.</string>
           </property>
           <property name="text">
            <string>Force Zone</string>

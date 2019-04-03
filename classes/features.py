@@ -263,8 +263,7 @@ class Features(Navigation, Inputs):
                 emit_timer = time.time()
             if self.check_pixel_color(*coords.IS_ENEMY_ALIVE):
                 self.click(*coords.ABILITY_REGULAR_ATTACK)
-                self.enemies_killed += 1
-                signal.emit({"itopod_snipes": self.enemies_killed})
+                signal.emit({"itopod_kill": 1})
             else:
                 time.sleep(0.01)
 
@@ -1030,6 +1029,7 @@ class Features(Navigation, Inputs):
         self.click(950, 590)  # move tooltip
         text = self.get_quest_text()
         if coords.QUESTING_QUEST_COMPLETE in text.lower():
+            signal.emit({"quest_complete": 1})
             self.click(*coords.QUESTING_START_QUEST)
             time.sleep(userset.LONG_SLEEP * 2)
             text = self.get_quest_text()  # fetch new quest text
@@ -1078,23 +1078,15 @@ class Features(Navigation, Inputs):
                     self.snipe(signal, count, adv_duration)
                     #self.boost_cube(signal)
                     self.questing_consume_items()
-                    text = self.get_quest_text()
+                    text = self.get_quest_text().lower()
                     current_time = time.time()
-                    if coords.QUESTING_QUEST_COMPLETE in text.lower():
-                        try:
-                            start_qp = int(self.remove_letters(self.ocr(*coords.OCR_QUESTING_QP)))
-                        except ValueError:
-                            print("Couldn't fetch current QP")
+                    if coords.QUESTING_QUEST_COMPLETE in text:
+                        if coords.QUESTING_MINOR_QUEST in text:
+                            signal.emit({"quest_complete": "minor"})
+                        else:
+                            signal.emit({"quest_complete": "major"})
                         self.click(*coords.QUESTING_START_QUEST)
                         self.click(605, 510)  # move tooltip
-                        try:
-                            current_qp = int(self.remove_letters(self.ocr(*coords.OCR_QUESTING_QP)))
-                        except ValueError:
-                            print("Couldn't fetch current QP")
-                        gained_qp = current_qp - start_qp
-                        signal.emit({"qp": gained_qp})
-                        print(f"Completed quest in zone #{count} at {datetime.datetime.now().strftime('%H:%M:%S')} for {gained_qp} QP")
-
                         return
                     return
 
