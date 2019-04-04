@@ -94,7 +94,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def get_ngu_window(self):
         """Get window ID for NGU IDLE."""
-        window_name = "debugg"
+        window_name = "play ngu idle"
         top_windows = []
         win32gui.EnumWindows(self.window_enumeration_handler, top_windows)
         for i in top_windows:
@@ -577,7 +577,7 @@ class ScriptThread(QtCore.QThread):
         self.w = w
         self.mutex = mutex
         self.settings = QtCore.QSettings("Kujan", "NGU-Scripts")
-        self.duration = int(self.settings.value("line_adv_duration"))
+        self.duration = int(self.settings.value("line_adv_duration", "2"))
         self.tracker = Tracker(self.w, self.mutex, self.duration)
         self.start_exp = Stats.xp
         self.start_pp = Stats.pp
@@ -614,11 +614,9 @@ if __name__ == '__main__':
 
 """
 Ideas
-
-Progressbars tracking current long running task (sniping, questing)
-Progressbar tracking run progression (if applicable)
 Tools for annoying actions while playing manually (cap all diggers)
-Quickstart for infinite questing/itopod sniping
-Track minor/major quests done
-Track current function (via object?)
+
+TODO:
+pass feature object to scripts instead of creating new ones each run and losing members
+make equipment merge use the same system as the new inventory merge
 """
