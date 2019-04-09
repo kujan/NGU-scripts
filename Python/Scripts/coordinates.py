@@ -130,7 +130,7 @@ MENU_ITEMS = {
     'yggdrasil': MENU_YGGDRASIL, 'digger': MENU_DIGGERS, 'beard': MENU_BEARD,
     'questing': MENU_QUESTING,
 }
-NUMBER_INPUT_BOX = Pixel(375, 65)
+NUMBER_INPUT_BOX = Pixel(440, 20)
 EXP = Pixel(90, 450)
 SAVE = Pixel(23, 483)
 
