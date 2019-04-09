@@ -4,6 +4,7 @@ from classes.stats import Stats, Tracker
 from design.design import Ui_MainWindow
 from design.options import Ui_OptionsWindow
 from design.inventory import Ui_InventorySelecter
+from classes.features import Features
 from classes.inputs import Inputs
 from classes.window import Window
 from distutils.util import strtobool
@@ -31,7 +32,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.mutex = QtCore.QMutex()  # lock for script thread to enable pausing
         self.w = Window()
         self.i = Inputs(self.w, self.mutex)
-
+        self.f = Features(self.w, self.mutex)
         self.setup()
 
     def setup(self):
@@ -108,7 +109,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
             self.get_top_left()
             if Window.x and Window.y:
                 self.window_info_text.setStyleSheet("color: green")
-                self.window_info_text.setText(f"Window detected! Game detected at: {Window.x}, {Window.y}")
+                self.window_info_text.setText(f"Game detected at: {Window.x}, {Window.y}")
                 self.run_button.setEnabled(True)
                 self.run_options.setEnabled(True)
         else:
@@ -306,6 +307,26 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
             self.stop_button.setEnabled(True)
             self.run_thread.start()
 
+        elif run == 2:
+            self.run_thread = ScriptThread(2, self.w, self.mutex)
+            self.run_thread.signal.connect(self.update)
+            self.run_button.setText("Pause")
+            self.run_button.disconnect()
+            self.run_button.clicked.connect(self.action_pause)
+            self.w_exp.show()
+            self.w_pp.show()
+            self.w_pph.show()
+            self.w_exph.show()
+            self.w_qp.show()
+            self.w_qph.show()
+            self.current_rb_text.hide()
+            self.rebirth_progress.hide()
+            self.setFixedSize(300, 320)
+            self.current_task_text.show()
+            self.task_progress.show()
+            self.task_progress.setValue(0)
+            self.stop_button.setEnabled(True)
+            self.run_thread.start()
 
 class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
     """Option window."""
@@ -596,6 +617,8 @@ class ScriptThread(QtCore.QThread):
             if self.run == 1:
                 Stats.track_qp = False
                 itopod.run(self.w, self.mutex, self.signal)
+            if self.run == 2:
+                Stats.track_qp = False
             self.signal.emit({"iteration": self.iteration})
             self.iteration += 1
             self.tracker.progress()
