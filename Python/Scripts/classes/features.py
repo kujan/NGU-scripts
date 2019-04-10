@@ -19,6 +19,7 @@ class Features(Navigation, Inputs):
     """Handles the different features in the game."""
 
     current_adventure_zone = 0
+    inventory_cleaned = False
 
     def merge_equipment(self):
         """Navigate to inventory and merge equipment."""
@@ -124,6 +125,7 @@ class Features(Navigation, Inputs):
         if not self.check_pixel_color(*coords.IS_IDLE):
             self.click(*coords.ABILITY_IDLE_MODE)
         if itopod:
+            self.current_adventure_zone = 0
             self.click(*coords.ITOPOD)
             if itopodauto:
                 self.click(*coords.ITOPOD_END)
@@ -139,15 +141,17 @@ class Features(Navigation, Inputs):
             self.click(*coords.ITOPOD_ENTER)
             return
         if highest:
+            self.current_adventure_zone = 0
             self.click(*coords.RIGHT_ARROW, button="right")
             return
         else:
+            self.current_adventure_zone = zone
             self.click(*coords.LEFT_ARROW, button="right")
             for i in range(zone):
                 self.click(*coords.RIGHT_ARROW)
             return
 
-    def snipe(self, zone, duration, once=False, highest=False, bosses=False):
+    def snipe(self, zone, duration, once=False, highest=False, bosses=False, manual=False):
         """Go to adventure and snipe bosses in specified zone.
 
         Keyword arguments
@@ -159,15 +163,18 @@ class Features(Navigation, Inputs):
         highest -- If set to true, it will go to your highest available
                    non-titan zone.
         bosses -- If set to true, it will only kill bosses
+        manual -- If set to true it will use all available abilities to kill the enemy.
+                  In addition it will return after killing one enemy.
         """
         self.menu("adventure")
         if highest:
             self.click(*coords.LEFT_ARROW, button="right")
-        elif zone > 0:
+            self.click(*coords.RIGHT_ARROW, button="right")
+        elif zone > 0 and zone != self.current_adventure_zone:
             self.click(*coords.LEFT_ARROW, button="right")
             for i in range(zone):
                 self.click(*coords.RIGHT_ARROW)
-
+        self.current_adventure_zone = zone
         self.click(625, 500)  # click somewhere to move tooltip
 
         if self.check_pixel_color(*coords.IS_IDLE):
@@ -176,31 +183,38 @@ class Features(Navigation, Inputs):
         end = time.time() + duration * 60
         while time.time() < end:
             self.click(625, 500)  # click somewhere to move tooltip
-            if self.check_pixel_color(*coords.IS_ENEMY_ALIVE):
+            if not self.check_pixel_color(*coords.IS_DEAD):
                 if bosses:
                     if self.check_pixel_color(*coords.IS_BOSS_CROWN):
                         enemy_alive = True
-                        while enemy_alive:
-                            enemy_alive = self.check_pixel_color(*coords.IS_ENEMY_ALIVE)
-                            self.click(*coords.ABILITY_REGULAR_ATTACK)
-                            time.sleep(0.1)
+                        if manual:
+                            self.kill_enemy()
+                        else:
+                            while enemy_alive:
+                                enemy_alive = not self.check_pixel_color(*coords.IS_DEAD)
+                                self.click(*coords.ABILITY_REGULAR_ATTACK)
+                                time.sleep(0.1)
                         if once:
                             break
                     else:
                         # Send left arrow and right arrow to refresh monster.
                         win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN,
                                              wcon.VK_LEFT, 0)
-                        time.sleep(0.03)
+                        time.sleep(0.05)
                         win32gui.PostMessage(Window.id, wcon.WM_KEYUP,
                                              wcon.VK_LEFT, 0)
-                        time.sleep(0.03)
+                        time.sleep(0.05)
                         win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN,
                                              wcon.VK_RIGHT, 0)
-                        time.sleep(0.03)
+                        time.sleep(0.05)
                         win32gui.PostMessage(Window.id, wcon.WM_KEYUP,
                                              wcon.VK_RIGHT, 0)
                 else:
-                    self.click(*coords.ABILITY_REGULAR_ATTACK)
+                    if manual:
+                        self.kill_enemy()
+                        return
+                    else:
+                        self.click(*coords.ABILITY_REGULAR_ATTACK)
             time.sleep(0.01)
 
         self.click(*coords.ABILITY_IDLE_MODE)
@@ -213,7 +227,7 @@ class Features(Navigation, Inputs):
                     back on and returning.
         """
         end = time.time() + duration
-
+        self.current_adventure_zone = 0
         self.menu("adventure")
         self.click(625, 500)  # click somewhere to move tooltip
 
@@ -237,10 +251,47 @@ class Features(Navigation, Inputs):
 
         self.click(*coords.ABILITY_IDLE_MODE)
 
+    def kill_enemy(self):
+        """Attempt to kill enemy in adventure using abilities."""
+        start = time.time()
+        if self.check_pixel_color(*coords.IS_IDLE):
+            self.click(*coords.ABILITY_IDLE_MODE)
+        while self.check_pixel_color(*coords.IS_DEAD):
+            time.sleep(.1)
+            if time.time() > start + 5:
+                print("Couldn't detect enemy in kill_enemy()")
+                return
+        queue = deque(self.get_ability_queue())
+        while not self.check_pixel_color(*coords.IS_DEAD):
+            if len(queue) == 0:
+                queue = deque(self.get_ability_queue())
+            ability = queue.popleft()
+            if ability <= 4:
+                x = coords.ABILITY_ROW1X + ability * coords.ABILITY_OFFSETX
+                y = coords.ABILITY_ROW1Y
+
+            if ability >= 5 and ability <= 10:
+                x = coords.ABILITY_ROW2X + (ability - 5) * coords.ABILITY_OFFSETX
+                y = coords.ABILITY_ROW2Y
+
+            if ability > 10:
+                x = coords.ABILITY_ROW3X + (ability - 11) * coords.ABILITY_OFFSETX
+                y = coords.ABILITY_ROW3Y
+
+            self.click(x, y)
+            time.sleep(userset.LONG_SLEEP)
+            color = self.get_pixel_color(coords.ABILITY_ROW1X,
+                                         coords.ABILITY_ROW1Y)
+
+            while color != coords.ABILITY_ROW1_READY_COLOR:
+                time.sleep(0.03)
+                color = self.get_pixel_color(coords.ABILITY_ROW1X,
+                                             coords.ABILITY_ROW1Y)
+
     def do_rebirth(self):
         """Start a rebirth or challenge."""
         self.rebirth()
-
+        self.current_adventure_zone = 0
         self.click(*coords.REBIRTH)
         self.click(*coords.REBIRTH_BUTTON)
         self.click(*coords.CONFIRM)
@@ -359,6 +410,15 @@ class Features(Navigation, Inputs):
         if magic:
             self.click(*coords.WANDOOS_MAGIC)
 
+    def set_wandoos(self, version):
+        """Set wandoos version.
+
+        Keyword arguments:
+        version -- 0 = Wandoos, 1 = Meh, 2 = XL"""
+        self.menu("wandoos")
+        self.click(*coords.WANDOOS_VERSION[version])
+        self.confirm()
+
     def loadout(self, target):
         """Equip targeted loadout."""
         self.menu("inventory")
@@ -475,6 +535,21 @@ class Features(Navigation, Inputs):
             return
         self.click(*coords.TM_SPEED_MINUS)
 
+    def reclaim_aug(self):
+        """Remove all energy from augs"""
+        self.menu("augmentations")
+        self.input_box()
+        self.send_string(coords.INPUT_MAX)
+        self.click(*coords.AUG_SCROLL_TOP)
+        scroll_down = False
+        for i, k in enumerate(coords.AUGMENT.keys()):
+            if i >= 10 and not scroll_down:
+                self.click(*coords.AUG_SCROLL_BOT)
+                self.click(*coords.AUG_SCROLL_BOT)
+                time.sleep(1)
+                scroll_down = True
+            self.click(coords.AUG_MINUS_X, coords.AUGMENT[k].y)
+
     def assign_ngu(self, value, targets, magic=False):
         """Assign energy/magic to NGU's.
 
@@ -528,6 +603,7 @@ class Features(Navigation, Inputs):
             for digger in coords.DIG_LEVEL:
                 self.click(*digger, button="right")
 
+    @deprecated(version='0.1', reason="bb_ngu() is deprecated since .415 use cap_ngu() instead")
     def bb_ngu(self, value, targets, overcap=1, magic=False):
         """Estimates the BB value of each supplied NGU.
 
@@ -577,6 +653,33 @@ class Features(Navigation, Inputs):
             self.input_box()
             self.send_string(str(int(energy)))
             self.click(coords.NGU_PLUS.x, coords.NGU_PLUS.y + target * 35)
+
+    def cap_ngu(self, targets=[], magic=False, cap_all=True):
+        """Cap NGU's.
+
+        Keyword arguments
+        targets -- The NGU's you wish to cap
+        magic -- Set to true if these are magic NGU's
+        cap_all -- Set to true if you wish to cap all NGU's
+
+        """
+        if magic:
+            self.ngu_magic()
+        else:
+            self.menu("ngu")
+
+        for target in targets:
+            NGU = coords.Pixel(coords.NGU_CAP.x, coords.NGU_CAP.y + target * 35)
+            self.click(*NGU)
+
+        if cap_all:
+            self.click(*coords.NGU_CAP_ALL)
+
+    def set_ngu_overcap(self, value):
+        """Set the amount you wish to overcap your NGU's."""
+        self.menu("ngu")
+        self.click(*coords.NGU_OVERCAP)
+        self.send_string(value)
 
     # TODO: make this actually useful for anything
     def advanced_training(self, value):
@@ -662,7 +765,7 @@ class Features(Navigation, Inputs):
                                              coords.ABILITY_ROW1Y)
 
                 while color != coords.ABILITY_ROW1_READY_COLOR:
-                    time.sleep(0.03)
+                    time.sleep(0.05)
                     color = self.get_pixel_color(coords.ABILITY_ROW1X,
                                                  coords.ABILITY_ROW1Y)
 
@@ -682,7 +785,6 @@ class Features(Navigation, Inputs):
             if i >= 5 and i <= 10:
                 x = coords.ABILITY_ROW2X + (i - 5) * coords.ABILITY_OFFSETX
                 y = coords.ABILITY_ROW2Y
-                color = self.get_pixel_color(x, y)
                 if color == coords.ABILITY_ROW2_READY_COLOR:
                     ready.append(i)
             if i > 10:
@@ -713,7 +815,6 @@ class Features(Navigation, Inputs):
         # If nothing is ready, return a regular attack
         if len(queue) == 0:
             queue.append(0)
-
         return queue
 
     def save_check(self):
@@ -816,7 +917,20 @@ class Features(Navigation, Inputs):
     def get_quest_text(self):
         """Check if we have an active quest or not."""
         self.menu("questing")
+        self.click(950, 590)  # move tooltip
+        time.sleep(userset.SHORT_SLEEP)
         return self.ocr(*coords.OCR_QUESTING_LEFT_TEXT)
+
+    def get_available_majors(self):
+        self.menu("questing")
+        text = self.ocr(*coords.OCR_QUESTING_MAJORS)
+        try:
+            match = re.search(r"(\d+)\/\d+", text)
+            if match:
+                return int(match.group(1))
+        except ValueError:
+            print("couldn't get current major quests available")
+            return -1
 
     def questing_consume_items(self, cleanup=False):
         """Check for items in inventory that can be turned in."""
@@ -832,15 +946,23 @@ class Features(Navigation, Inputs):
                     self.ctrl_click(*loc)
                 time.sleep(3)  # Need to wait for tooltip to disappear after consuming
 
-    def questing(self, duration=30, major=False, subcontract=False):
+    def questing(self, duration=30, major=False, subcontract=False, force=0, adv_duration=2):
         """Procedure for questing.
 
         Keyword arguments:
-        duration -- The duration to run if manual mode is selected. If
+        duration -- The duration in minutes to run if manual mode is selected. If
                     quest gets completed, function will return prematurely.
         major -- Set to true if you only wish to manually do main quests,
                 if False it will manually do all quests.
         subcontract -- Set to True if you wish to subcontract all quests.
+        force -- Only quest in this zone. This will skip quests until you
+                 recieve one for the selected zone, so make sure you disable
+                 "Use major quests if available".
+        adv_duration -- The time in minutes to spend sniping before checking inventory.
+                        A higher value is good when forcing, because you spend less time
+                        scanning the inventory and you will not waste any extra quest items.
+                        A value around 2 minutes is good when doing majors because it's very
+                        likely that the extra items are lost.
 
         Suggested usages:
 
@@ -878,7 +1000,7 @@ class Features(Navigation, Inputs):
         """
         end = time.time() + duration * 60
         self.menu("questing")
-        self.click(605, 510)  # move tooltip
+        self.click(950, 590)  # move tooltip
         text = self.get_quest_text()
 
         if coords.QUESTING_QUEST_COMPLETE in text.lower():
@@ -888,9 +1010,24 @@ class Features(Navigation, Inputs):
 
         if coords.QUESTING_NO_QUEST_ACTIVE in text.lower():  # if we have no active quest, start one
             self.click(*coords.QUESTING_START_QUEST)
-            self.questing_consume_items(True)  # we have to clean up the inventory from any old quest items
+            if force and not self.inventory_cleaned:
+                self.questing_consume_items(True)  # we have to clean up the inventory from any old quest items
+                self.inventory_cleaned = True
+            elif not force:
+                self.questing_consume_items(True)
+            self.click(960, 600)  # move tooltip
             time.sleep(userset.LONG_SLEEP)
             text = self.get_quest_text()  # fetch new quest text
+
+        if force:
+            if self.check_pixel_color(*coords.COLOR_QUESTING_USE_MAJOR):
+                self.click(*coords.QUESTING_USE_MAJOR)
+
+            while not coords.QUESTING_ZONES[force] in text.lower():
+                self.click(*coords.QUESTING_SKIP_QUEST)
+                self.click(*coords.CONFIRM)
+                self.click(*coords.QUESTING_START_QUEST)
+                text = self.get_quest_text()
 
         if subcontract:
             if self.check_pixel_color(*coords.QUESTING_IDLE_INACTIVE):
@@ -907,14 +1044,18 @@ class Features(Navigation, Inputs):
 
         for count, zone in enumerate(coords.QUESTING_ZONES, start=0):
             if zone in text.lower():
-                if self.current_adventure_zone != count:
-                    self.snipe(count, 0) # move to zone
-                    self.current_adventure_zone = count
-                while time.time() < end:
-                    self.snipe(0, 2)
+                current_time = time.time()
+                while current_time < end:
+                    if current_time + adv_duration * 60 > end:  # adjust adv_duration if it will cause duration to be exceeded
+                        adv_duration = (end - current_time) / 60
+                        if adv_duration < 0.5:
+                            adv_duration = 0
+                            return
+                    self.snipe(count, adv_duration)
                     self.boost_cube()
                     self.questing_consume_items()
                     text = self.get_quest_text()
+                    current_time = time.time()
                     if coords.QUESTING_QUEST_COMPLETE in text.lower():
                         try:
                             start_qp = int(self.remove_letters(self.ocr(*coords.OCR_QUESTING_QP)))
@@ -932,7 +1073,7 @@ class Features(Navigation, Inputs):
                         return
 
     def get_rebirth_time(self):
-        """Get the current rebirth time
+        """Get the current rebirth time.
 
         returns a namedtuple(days, timestamp) where days is the number
         of days displayed in the rebirth time text and timestamp is a
@@ -940,7 +1081,7 @@ class Features(Navigation, Inputs):
         """
         Rebirth_time = namedtuple('Rebirth_time', 'days timestamp')
         t = self.ocr(*coords.OCR_REBIRTH_TIME)
-        x = re.search("((?P<days>[0-9]) day )?((?P<hours>[0-9]+):)?(?P<minutes>[0-9]+):(?P<seconds>[0-9]+)", t)
+        x = re.search(r"((?P<days>[0-9]+) days? )?((?P<hours>[0-9]+):)?(?P<minutes>[0-9]+):(?P<seconds>[0-9]+)", t)
         days = 0
         if x is None:
             timestamp = time.strptime("0:0:0", "%H:%M:%S")
@@ -966,3 +1107,31 @@ class Features(Navigation, Inputs):
                 seconds = x.group('seconds')
             timestamp = time.strptime(f"{hours}:{minutes}:{seconds}", "%H:%M:%S")
         return Rebirth_time(days, timestamp)
+
+    def eat_muffin(self, buy=False):
+        """Eat a MacGuffin Muffin if it's not active.
+
+        Keyword arguments:
+        buy -- set to True if you wish to buy a muffin if you have enough
+        AP and you currently have 0 muffins.
+        """
+        self.sellout_boost_2()
+        muffin_status = self.ocr(*coords.OCR_MUFFIN).lower()
+        if "have: 0" in muffin_status and "inactive" in muffin_status:
+            print(muffin_status)
+            if buy:
+                try:
+                    ap = int(self.remove_letters(self.ocr(*coords.OCR_AP)))
+                except ValueError:
+                    print("Couldn't get current AP")
+                if ap >= 50000:
+                    print(f"Bought MacGuffin Muffin at: {datetime.datetime.now()}")
+                    self.click(*coords.SELLOUT_MUFFIN_BUY)
+                    self.confirm()
+            else:
+                return
+        else:
+            return
+        self.click(*coords.SELLOUT_MUFFIN_USE)
+        print(f"Used MacGuffin Muffin at: {datetime.datetime.now()}")
+

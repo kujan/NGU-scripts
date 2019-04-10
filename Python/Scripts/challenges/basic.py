@@ -6,15 +6,12 @@ import time
 
 class Basic(Features):
     """Contains functions for running a basic challenge."""
-
+    final_aug = False
     def first_rebirth(self):
         """Procedure for first rebirth."""
         end = time.time() + 3 * 60
-        tm_unlocked = False
-        bm_unlocked = False
         ss_assigned = False
         diggers = [x for x in range(1, 13)]
-        #self.loadout(1)
         self.nuke()
         time.sleep(2)
         self.fight()
@@ -41,14 +38,21 @@ class Basic(Features):
             self.fight()
             self.gold_diggers(diggers)
         self.blood_magic(8)
-        while time.time() < end + 1:
+        while self.check_challenge():
             self.wandoos(True)
             self.nuke()
+            self.fight()
             time.sleep(2)
             try:
                 current_boss = int(self.get_current_boss())
-                if current_boss > 36:
-                    self.augments({"SS": 0.7, "DS": 0.3}, self.get_idle_cap())
+                if current_boss > 36 and current_boss <= 45:
+                    self.augments({"SS": 0.66, "DS": 0.33}, self.get_idle_cap())
+                elif current_boss > 45:
+                    if not self.final_aug:
+                        self.reclaim_aug()
+                        self.final_aug = True
+                        time.sleep(1)
+                    self.augments({"SM": 0.66, "AA": 0.33}, self.get_idle_cap())
             except ValueError:
                 print("couldn't get current boss")
             self.gold_diggers(diggers)
@@ -82,7 +86,9 @@ class Basic(Features):
         self.pit()
         self.spin()
         #tracker.adjustxp()
-        while time.time() < end + 1:
+        while self.check_challenge():
+            self.nuke()
+            self.fight()
             try:
                 """If current rebirth is scheduled for more than 3 minutes and
                 we already finished the rebirth, we will return here, instead

@@ -50,10 +50,10 @@ start_procedure(feature, rt)
 
 while True:
     rt = feature.get_rebirth_time()
+    feature.nuke()
     feature.gold_diggers([x for x in range(1, 13)])
     feature.merge_inventory(8)  # merge uneqipped guffs
     spells = feature.check_spells_ready()
-
     if spells:  # check if any spells are off CD
         feature.reclaim_ngu(True)  # take all magic from magic NGUs
         for spell in spells:

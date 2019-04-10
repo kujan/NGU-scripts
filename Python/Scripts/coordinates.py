@@ -46,7 +46,6 @@ HEALTH = Pixel(706, 411)
 ABILITY_ROW1X = 426
 ABILITY_ROW2X = 321
 ABILITY_ROW3X = 321
-ABILITY_OFFSETX = 105
 ABILITY_ROW1Y = 113
 ABILITY_ROW2Y = 150
 ABILITY_ROW3Y = 186
@@ -57,7 +56,7 @@ ABILITY_REGULAR_ATTACK = Pixel(430, 105)
 
 # TODO: FIX TITAN SNIPE
 ABILITY_ANCHOR_PIXEL = Pixel(321, 113)
-ABILITY_OFFSETX = 105
+ABILITY_OFFSETX = 106
 ABILITY_OFFSETY = 37
 
 # ROW 1 ABILITIES
@@ -73,7 +72,7 @@ ABILITY_HEAL = Pixel(531, 150)
 ABILITY_OFFENSIVE_BUFF = Pixel(636, 150)
 ABILITY_CHARGE = Pixel(741, 150)
 ABILITY_ULTIMATE_BUFF = Pixel(846, 150)
-ABILITY_ROW2_READY_COLOR = "6687A3"
+ABILITY_ROW2_READY_COLOR = "F89B9B"
 # ROW 3 ABILITIES
 ABILITY_PARALYZE_GAZE = Pixel(321, 186)
 ABILITY_HYPER_REGEN = Pixel(426, 186)
@@ -131,7 +130,7 @@ MENU_ITEMS = {
     'yggdrasil': MENU_YGGDRASIL, 'digger': MENU_DIGGERS, 'beard': MENU_BEARD,
     'questing': MENU_QUESTING,
 }
-NUMBER_INPUT_BOX = Pixel(375, 65)
+NUMBER_INPUT_BOX = Pixel(440, 20)
 EXP = Pixel(90, 450)
 SAVE = Pixel(23, 483)
 
@@ -195,17 +194,23 @@ AUGMENT = {"SS": Pixel(AUGMENT_X, 263), "DS": Pixel(AUGMENT_X, 292), "MI": Pixel
             "CS": Pixel(AUGMENT_X, 552), "AE": Pixel(AUGMENT_X, 450), "ES": Pixel(AUGMENT_X, 478),
             "LS": Pixel(AUGMENT_X, 516), "QSL": Pixel(AUGMENT_X, 544)}
 
+AUG_MINUS_X = 575
+
+
 AUG_SCROLL_TOP = Pixel(945, 264)
 AUG_SCROLL_BOT = Pixel(945, 575)
 AUG_SCROLL_SANITY_TOP = Pixel(943, 261)
 AUG_SCROLL_SANITY_BOT = Pixel(943, 578)
-SANITY_AUG_SCROLL_COLORS
 
 #TODO: NGU OFFSETS
 NGU_TARGET = Pixel(635, 205)
 NGU_MAGIC = Pixel(380, 120)
-NGU_MINUS = Pixel(565, 207)
-NGU_PLUS = Pixel(529, 207)
+NGU_MINUS = Pixel(551, 207)
+NGU_PLUS = Pixel(517, 207)
+NGU_CAP = Pixel(590, 207)
+NGU_CAP_ALL = Pixel(625, 160)
+NGU_OVERCAP = Pixel(430, 135)
+NGU_EVIL = ColorPixel(778, 146, "323232")
 
 NGU_BAR_MIN = Pixel(306, 215)
 NGU_BAR_MAX = Pixel(503, 215)
@@ -259,9 +264,11 @@ PIT_CONFIRM = Pixel(437, 317)
 SPIN_MENU = Pixel(350, 50)
 SPIN = Pixel(713, 562)
 
-#WANDOOS 626
+#WANDOOS
 WANDOOS_ENERGY = Pixel(626, 252)
 WANDOOS_MAGIC = Pixel(626, 350)
+WANDOOS_VERSION = [Pixel(325, 420), Pixel(325, 445), Pixel(325, 470)]
+
 
 #OCR OFFSETS
 OCR_BOSS = OCRBox(765, 125, 890, 140)
@@ -300,13 +307,16 @@ DIG_DEACTIVATE_ALL = Pixel(850, 110)
 #QUESTING OFFSETS
 
 QUESTING_START_QUEST = Pixel(700, 165)
+QUESTING_SKIP_QUEST = Pixel(855, 165)
 QUESTING_SUBCONTRACT = Pixel(470, 560)
 QUESTING_QUEST_COMPLETE = "this quest can be handed in"
 QUESTING_NO_QUEST_ACTIVE = "start quest"
 QUESTING_MINOR_QUEST = "this is a minor quest"
+QUESTING_USE_MAJOR = Pixel(694, 209)
 
 OCR_QUESTING_QP = OCRBox(500, 60, 683, 84)
 OCR_QUESTING_LEFT_TEXT = OCRBox(301, 296, 617, 497)
+OCR_QUESTING_MAJORS = OCRBox(790, 300, 857, 317)
 QUESTING_ZONES = ["safe zone", "tutorial zone", "sewers", "forest", "cave of many things", "the sky",
                   "high\nsecurity base", "grb", "clock dimension", "gct", "2d universe", "ancient battlefield",
                   "jfa", "a very\nstrange place", "megalands", "uug", "the beardverse", "waldo", "badly drawn world",
@@ -314,6 +324,15 @@ QUESTING_ZONES = ["safe zone", "tutorial zone", "sewers", "forest", "cave of man
                   "interdimensional party", "thegodmom"]
 
 QUESTING_FILENAMES = ["q1.png", "q2.png", "q3.png", "q4.png", "q5.png", "q6.png", "q7.png", "q8.png", "q9.png", "q10.png"]
+
+#SELLOUT
+
+SELLOUT = Pixel(235, 550)
+SELLOUT_BOOST_2 = Pixel(520, 147)
+SELLOUT_MUFFIN_USE = Pixel(768, 256)
+SELLOUT_MUFFIN_BUY = Pixel(860, 255)
+OCR_MUFFIN = OCRBox(785, 204, 936, 240)
+OCR_AP = OCRBox(450, 73, 800, 100)
 
 #EXP COSTS PER UNIT
 EPOWER_COST = 150
@@ -359,8 +378,8 @@ MISC = Pixel(355, 200)
 
 # PIXEL CHECKS
 # TODO: CONVERT to ColorPixel of COLOR_
-IS_BOSS_CROWN = ColorPixel(705, 275, 'F7EF29')
-IS_ENEMY_ALIVE = ColorPixel(*HEALTH, ['D93030', 'EB3434']) # If you reduce the enemy healthbar to 1px, the color changes for some reason
+IS_BOSS_CROWN = ColorPixel(715, 277, 'F7EF29')
+IS_ENEMY_ALIVE = ColorPixel(*HEALTH, ['D93030', 'EB3434', 'DB3131']) # If you reduce the enemy healthbar to 1px, the color changes for some reason
 IS_DEAD = ColorPixel(*HEALTH, 'EBEBEB')
 IS_ITOPOD_ACTIVE = ColorPixel(594, 277, '000000') # Checks color of pixel in "Floor x" text
 IS_IDLE = ColorPixel(416, 86, 'FFEB04') # top right yellow pixel
@@ -372,8 +391,9 @@ COLOR_TM_LOCKED = ColorPixel(188, 257, '96A7B7')
 COLOR_BM_LOCKED = ColorPixel(*BM_LOCKED, '96A7B7')
 COLOR_BM_LOCKED_ALT = ColorPixel(*BM_LOCKED, '7B4A94')
 COLOR_SPELL_READY = ColorPixel(*BM_LOCKED, 'BA13A7')
-PLAYER_HEAL_THRESHOLD = ColorPixel(512, 392, 'FFFFFF')
+PLAYER_HEAL_THRESHOLD = ColorPixel(500, 410, 'FFFFFF')
 QUESTING_IDLE_INACTIVE = ColorPixel(386, 555, '111111') # Pixel in the subcontracting button
 COLOR_BM_AUTO_NUMBER = ColorPixel(*BM_AUTO_NUMBER, '323232')
 COLOR_BM_AUTO_DROP = ColorPixel(*BM_AUTO_DROP, '323232')
 COLOR_BM_AUTO_GOLD = ColorPixel(*BM_AUTO_GOLD, '323232')
+COLOR_QUESTING_USE_MAJOR = ColorPixel(*QUESTING_USE_MAJOR, '323232')

@@ -116,3 +116,20 @@ class Navigation(Inputs):
         self.click(*coords.BM_SPELL)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = 'spells'
+
+    def sellout(self):
+        """Navigate to sellout shop."""
+        if Navigation.current_menu == 'sellout':
+            return
+        self.click(*coords.SELLOUT)
+        time.sleep(userset.SHORT_SLEEP)
+        Navigation.current_menu = "sellout"
+
+    def sellout_boost_2(self):
+        """Navigate to Boost 2 menu within the sellout shop."""
+        if Navigation.current_menu == 'boost_2':
+            return
+        self.sellout()
+        self.click(*coords.SELLOUT_BOOST_2)
+        time.sleep(userset.SHORT_SLEEP)
+        Navigation.current_menu = "boost_2"
