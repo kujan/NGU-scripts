@@ -672,7 +672,7 @@ class Features(Navigation, Inputs):
             NGU = coords.Pixel(coords.NGU_CAP.x, coords.NGU_CAP.y + target * 35)
             self.click(*NGU)
 
-        if cap_all:
+        if cap_all and not targets:
             self.click(*coords.NGU_CAP_ALL)
 
     def set_ngu_overcap(self, value):
