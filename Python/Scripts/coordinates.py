@@ -5,7 +5,7 @@ ColorPixel = namedtuple('ColorPixel', Pixel._fields + ('color',))
 OCRBox = namedtuple('OCRBox', 'x1 y1 x2 y2')
 
 # COLORS
-TOP_LEFT_COLOR = '000408'
+TOP_LEFT_COLOR = '060708'
 SANITY_AUG_SCROLL_COLORS = ["497C9F", "4C81A5", "4C80A4", "497B9E", "457596"]
 NGU_BAR_WHITE = "FFFFFF"
 NGU_BAR_GRAY = "FAFAFA"
