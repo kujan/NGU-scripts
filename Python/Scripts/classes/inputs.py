@@ -7,6 +7,7 @@ import cv2
 import datetime
 import usersettings as userset
 import numpy
+import pyautogui
 import pytesseract
 import re
 import time
@@ -23,35 +24,29 @@ class Inputs():
 
     def click(self, x, y, button="left", fast=False):
         """Click at pixel xy."""
-        x += window.x
-        y += window.y
-        lParam = win32api.MAKELONG(x, y)
         # MOUSEMOVE event is required for game to register clicks correctly
-        win32gui.PostMessage(window.id, wcon.WM_MOUSEMOVE, 0, lParam)
-        while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
-               win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
-               win32api.GetKeyState(wcon.VK_MENU) < 0):
-            time.sleep(0.005)
+        #win32gui.PostMessage(window.id, wcon.WM_MOUSEHOVER, 0, lParam)
+
+        #win32gui.PostMessage(window.id, wcon.WM_MOUSEMOVE, 0, lParam)
+        #time.sleep(0.1)
+        win32gui.ShowWindow(window.id, 5)
+        win32gui.SetForegroundWindow(window.id)
         if (button == "left"):
-            win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
-                                 wcon.MK_LBUTTON, lParam)
-            win32gui.PostMessage(window.id, wcon.WM_LBUTTONUP,
-                                 wcon.MK_LBUTTON, lParam)
+            pyautogui.click(*win32gui.ClientToScreen(window.id, (x, y)))
+        
         else:
-            win32gui.PostMessage(window.id, wcon.WM_RBUTTONDOWN,
-                                 wcon.MK_RBUTTON, lParam)
-            win32gui.PostMessage(window.id, wcon.WM_RBUTTONUP,
-                                 wcon.MK_RBUTTON, lParam)
+            pyautogui.click(*win32gui.ClientToScreen(window.id, (x, y)), button="right")
         # Sleep lower than 0.1 might cause issues when clicking in succession
         if fast:
             time.sleep(userset.FAST_SLEEP)
         else:
             time.sleep(userset.MEDIUM_SLEEP)
-
+        
     def ctrl_click(self, x, y):
         """Clicks at pixel x, y while simulating the CTRL button to be down."""
-        x += window.x
-        y += window.y
+        win32gui.ShowWindow(window.id, 5)
+        win32gui.SetForegroundWindow(window.id)
+
         lParam = win32api.MAKELONG(x, y)
         while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
                win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
@@ -59,15 +54,14 @@ class Inputs():
             time.sleep(0.005)
 
         win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, wcon.VK_CONTROL, 0)
-        win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
-                             wcon.MK_LBUTTON, lParam)
-        win32gui.PostMessage(window.id, wcon.WM_LBUTTONUP,
-                             wcon.MK_LBUTTON, lParam)
+        pyautogui.click(*win32gui.ClientToScreen(window.id, (x, y)))
         win32gui.PostMessage(window.id, wcon.WM_KEYUP, wcon.VK_CONTROL, 0)
         time.sleep(userset.MEDIUM_SLEEP)
 
     def send_string(self, string):
         """Send one or multiple characters to the window."""
+        win32gui.ShowWindow(window.id, 5)
+        win32gui.SetForegroundWindow(window.id)
         if type(string) == float:  # Remove decimal
             string = str(int(string))
         for c in str(string):
@@ -129,7 +123,7 @@ class Inputs():
                     continue
                 t = bmp.getpixel((x, y))
                 if (self.rgb_to_hex(t) == color):
-                    return x - 8, y - 8
+                    return x, y
 
         return None
 
@@ -154,8 +148,8 @@ class Inputs():
         if not bmp:
             bmp = self.get_bitmap()
         # Bitmaps are created with a 8px border
-        search_area = bmp.crop((x_start + 8, y_start + 8,
-                                x_end + 8, y_end + 8))
+        search_area = bmp.crop((x_start + window.x, y_start + window.y,
+                                x_end + window.x, y_end + window.y))
         search_area = numpy.asarray(search_area)
         search_area = cv2.cvtColor(search_area, cv2.COLOR_RGB2GRAY)
         template = cv2.imread(image, 0)
@@ -186,7 +180,7 @@ class Inputs():
         if not bmp:
             bmp = self.get_bitmap()
         # Bitmaps are created with a 8px border
-        bmp = bmp.crop((x_start + 8, y_start + 8, x_end + 8, y_end + 8))
+        bmp = bmp.crop((x_start, y_start, x_end, y_end))
         *_, right, lower = bmp.getbbox()
         bmp = bmp.resize((right*3, lower*3), image.BICUBIC)  # Resize image
         bmp = bmp.filter(ImageFilter.SHARPEN)  # Sharpen image for better OCR
@@ -198,14 +192,13 @@ class Inputs():
     def get_pixel_color(self, x, y, debug=False):
         """Get the color of selected pixel in HEX."""
         dc = win32gui.GetWindowDC(window.id)
-        rgba = win32gui.GetPixel(dc, x + 8 + window.x, y + 8 + window.y)
+        rgba = win32gui.GetPixel(dc, x + window.x, y + window.y)
         win32gui.ReleaseDC(window.id, dc)
         r = rgba & 0xff
         g = rgba >> 8 & 0xff
         b = rgba >> 16 & 0xff
-
         if debug:
-            print(self.rgb_to_hex((r, g, b)))
+            print(x + window.x, y + window.y, self.rgb_to_hex((r, g, b)))
 
         return self.rgb_to_hex((r, g, b))
 
@@ -243,7 +236,7 @@ class Inputs():
     def save_screenshot(self):
         """Save a screenshot of the game."""
         bmp = self.get_bitmap()
-        bmp = bmp.crop((window.x + 8, window.y + 8, window.x + 968, window.y + 608))
+        bmp = bmp.crop((3, 26, 963, 626))
         if not os.path.exists("screenshots"):
             os.mkdir("screenshots")
         bmp.save('screenshots/' + datetime.datetime.now().strftime('%d-%m-%y-%H-%M-%S') + '.png')
