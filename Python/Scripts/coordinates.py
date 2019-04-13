@@ -319,7 +319,7 @@ OCR_QUESTING_LEFT_TEXT = OCRBox(301, 296, 617, 497)
 OCR_QUESTING_MAJORS = OCRBox(790, 300, 857, 317)
 QUESTING_ZONES = ["safe zone", "tutorial zone", "sewers", "forest", "cave of many things", "the sky",
                   "high\nsecurity base", "grb", "clock dimension", "gct", "2d universe", "ancient battlefield",
-                  "jfa", "a very\nstrange place", "megalands", "uug", "the beardverse", "waldo", "badly drawn world",
+                  "jfa", "a very\nstrange place", "mega\nlands", "uug", "the beardverse", "waldo", "badly drawn world",
                   "boring-ass earth", "thebeasto", "chocolate world", "the evilverse", "pretty pink princess", "greasynerdman", "meta land",
                   "interdimensional party", "thegodmom"]
 
