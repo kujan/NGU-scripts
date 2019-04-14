@@ -46,16 +46,9 @@ class Inputs():
         """Clicks at pixel x, y while simulating the CTRL button to be down."""
         win32gui.ShowWindow(window.id, 5)
         win32gui.SetForegroundWindow(window.id)
-
-        lParam = win32api.MAKELONG(x, y)
-        while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
-               win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
-               win32api.GetKeyState(wcon.VK_MENU) < 0):
-            time.sleep(0.005)
-
-        win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, wcon.VK_CONTROL, 0)
+        pyautogui.keyDown('ctrl')
         pyautogui.click(*win32gui.ClientToScreen(window.id, (x, y)))
-        win32gui.PostMessage(window.id, wcon.WM_KEYUP, wcon.VK_CONTROL, 0)
+        pyautogui.keyUp('ctrl')
         time.sleep(userset.MEDIUM_SLEEP)
 
     def send_string(self, string):
