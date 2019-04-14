@@ -312,14 +312,14 @@ QUESTING_SUBCONTRACT = Pixel(470, 560)
 QUESTING_QUEST_COMPLETE = "this quest can be handed in"
 QUESTING_NO_QUEST_ACTIVE = "start quest"
 QUESTING_MINOR_QUEST = "this is a minor quest"
-QUESTING_USE_MAJOR = Pixel(694, 209)
+QUESTING_USE_MAJOR = Pixel(694, 207)
 
 OCR_QUESTING_QP = OCRBox(500, 60, 683, 84)
 OCR_QUESTING_LEFT_TEXT = OCRBox(301, 296, 617, 497)
 OCR_QUESTING_MAJORS = OCRBox(790, 300, 857, 317)
 QUESTING_ZONES = ["safe zone", "tutorial zone", "sewers", "forest", "cave of many things", "the sky",
                   "high\nsecurity base", "grb", "clock dimension", "gct", "2d universe", "ancient battlefield",
-                  "jfa", "a very\nstrange place", "megalands", "uug", "the beardverse", "waldo", "badly drawn world",
+                  "jfa", "a very\nstrange place", "mega\nlands", "uug", "the beardverse", "waldo", "badly drawn world",
                   "boring-ass earth", "thebeasto", "chocolate world", "the evilverse", "pretty pink princess", "greasynerdman", "meta land",
                   "interdimensional party", "thegodmom"]
 
@@ -380,7 +380,7 @@ MISC = Pixel(355, 200)
 # TODO: CONVERT to ColorPixel of COLOR_
 IS_BOSS_CROWN = ColorPixel(715, 277, 'F7EF29')
 IS_ENEMY_ALIVE = ColorPixel(*HEALTH, ['D93030', 'EB3434', 'DB3131', 'DA3030']) # If you reduce the enemy healthbar to 1px, the color changes for some reason
-IS_DEAD = ColorPixel(*HEALTH, 'EBEBEB')
+IS_DEAD = ColorPixel(*HEALTH, ['EBEBEB', 'ECECEC'])
 IS_ITOPOD_ACTIVE = ColorPixel(594, 277, '000000') # Checks color of pixel in "Floor x" text
 IS_IDLE = ColorPixel(416, 86, 'FFEB04') # top right yellow pixel
 IS_SAVE_READY = ColorPixel(*SAVE, '99FF99')
@@ -393,7 +393,7 @@ COLOR_BM_LOCKED_ALT = ColorPixel(*BM_LOCKED, '7B4A94')
 COLOR_SPELL_READY = ColorPixel(*BM_LOCKED, 'BA13A7')
 PLAYER_HEAL_THRESHOLD = ColorPixel(500, 410, 'FFFFFF')
 QUESTING_IDLE_INACTIVE = ColorPixel(386, 555, '111111') # Pixel in the subcontracting button
-COLOR_BM_AUTO_NUMBER = ColorPixel(*BM_AUTO_NUMBER, '323232')
-COLOR_BM_AUTO_DROP = ColorPixel(*BM_AUTO_DROP, '323232')
-COLOR_BM_AUTO_GOLD = ColorPixel(*BM_AUTO_GOLD, '323232')
-COLOR_QUESTING_USE_MAJOR = ColorPixel(*QUESTING_USE_MAJOR, '323232')
+COLOR_BM_AUTO_NUMBER = ColorPixel(*BM_AUTO_NUMBER, '000000')
+COLOR_BM_AUTO_DROP = ColorPixel(*BM_AUTO_DROP, '000000')
+COLOR_BM_AUTO_GOLD = ColorPixel(*BM_AUTO_GOLD, '000000')
+COLOR_QUESTING_USE_MAJOR = ColorPixel(*QUESTING_USE_MAJOR, '000000')
