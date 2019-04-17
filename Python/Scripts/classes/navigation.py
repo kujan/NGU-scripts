@@ -82,6 +82,15 @@ class Navigation(Inputs):
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = "exp_rich"
 
+    def exp_hack(self):
+        """Navigate to the misc menu within the EXP menu."""
+        if Navigation.current_menu == "exp_hack":
+            return
+        self.exp()
+        self.click(*coords.EXP_HACK_MENU)
+        time.sleep(userset.SHORT_SLEEP)
+        Navigation.current_menu = "exp_hack"
+
     def info(self):
         """Click info 'n stuff."""
         if Navigation.current_menu == 'info':
