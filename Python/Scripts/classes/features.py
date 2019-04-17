@@ -1136,7 +1136,7 @@ class Features(Navigation, Inputs):
         print(f"Used MacGuffin Muffin at: {datetime.datetime.now()}")
 
     def hacks(self, targets=[1, 2, 3, 4, 5, 6, 7, 8], value=1e12):
-        """Activate hackss."""
+        """Activate hacks."""
         self.input_box()
         self.send_string(value // len(targets))
         self.menu("hacks")

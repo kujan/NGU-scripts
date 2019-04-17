@@ -326,7 +326,7 @@ class UpgradeHackPower(Stats):
     """Buys things for exp."""
 
     def __init__(self, hcap, hbar, hpower, report=False):
-        """Example: Upgrade(10000, 1, 1).
+        """Example: UpgradeHackPower(10000, 1, 1).
 
         Keyword arguments:
 

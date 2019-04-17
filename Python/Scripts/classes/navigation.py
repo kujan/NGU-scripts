@@ -83,7 +83,7 @@ class Navigation(Inputs):
         Navigation.current_menu = "exp_rich"
 
     def exp_hack(self):
-        """Navigate to the misc menu within the EXP menu."""
+        """Navigate to the hacks menu within the EXP menu."""
         if Navigation.current_menu == "exp_hack":
             return
         self.exp()
