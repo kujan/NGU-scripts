@@ -1134,3 +1134,13 @@ class Features(Navigation, Inputs):
         self.click(*coords.SELLOUT_MUFFIN_USE)
         print(f"Used MacGuffin Muffin at: {datetime.datetime.now()}")
 
+    def hacks(self, targets=[1, 2, 3, 4, 5, 6, 7, 8], value=1e12):
+        """Activate hacks."""
+        self.input_box()
+        self.send_string(value // len(targets))
+        self.menu("hacks")
+        for i in targets:
+            page = ((i-1)//8)
+            item = i - (page * 8)
+            self.click(*coords.HACK_PAGE[page])
+            self.click(*coords.HACKS[item])

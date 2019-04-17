@@ -321,3 +321,100 @@ class UpgradeRich(Stats):
             num /= 1000.0
         return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
 
+
+class UpgradeHackPower(Stats):
+    """Buys things for exp."""
+
+    def __init__(self, hcap, hbar, hpower, report=False):
+        """Example: UpgradeHackPower(10000, 1, 1).
+
+        Keyword arguments:
+
+        hcap -- The amount of hack energy in the ratio. Must be over 1000 and divisible by 250 or 0.
+        hbar -- The amount of bars
+        hpower -- the amount of new power
+
+        """
+        self.hcap = hcap
+        self.hbar = hbar
+        self.hpower = hpower
+        self.report = report
+
+    def buy(self):
+        """Buy upgrades for hack energy
+
+        Requires the confirmation popup button for EXP purchases in settings
+        to be turned OFF.
+
+        This uses all available exp, so use with caution.
+        """
+        if (self.hcap < 10000 or self.hcap % 250 != 0) and self.hcap != 0:
+            print("Ecap value not divisible by 250 or lower than 10000, not" +
+                  " spending exp.")
+            return
+
+        self.set_value_with_ocr("XP")
+        if Stats.OCR_failed:
+            print('OCR failed, exiting upgrade routine.')
+            return
+
+        current_exp = Stats.xp
+
+        total_price = coords.HPOWER_COST * self.hpower + coords.HCAP_COST * self.hcap + coords.HBAR_COST * self.hbar
+
+        """Skip upgrading if we don't have enough exp to buy at least one
+        complete set of upgrades, in order to maintain our perfect ratios :)"""
+
+        if total_price > current_exp:
+            if self.report:
+                print("No XP Upgrade :{:^8} of {:^8}".format(self.human_format(current_exp),
+                                                             self.human_format(total_price)))
+            return
+
+        amount = int(current_exp // total_price)
+
+        h_power = amount * self.hpower
+        h_cap = amount * self.hcap
+        h_bars = amount * self.hbar
+
+        self.exp_hack()
+
+        self.click(*coords.EM_POW_BOX)
+        self.send_string(str(h_power))
+        time.sleep(userset.MEDIUM_SLEEP)
+
+        self.click(*coords.EM_CAP_BOX)
+        self.send_string(str(h_cap))
+        time.sleep(userset.MEDIUM_SLEEP)
+
+        self.click(*coords.EM_BAR_BOX)
+        self.send_string(str(h_bars))
+        time.sleep(userset.MEDIUM_SLEEP)
+
+        if h_power > 0:
+            self.click(*coords.EM_POW_BUY)
+        if h_cap > 0:
+            self.click(*coords.EM_CAP_BUY)
+        if h_bars > 0:
+            self.click(*coords.EM_BAR_BUY)
+
+        self.set_value_with_ocr("XP")
+
+        total_spent = coords.HPOWER_COST * h_power + coords.HCAP_COST * h_cap + coords.HBAR_COST * h_bars
+
+        if self.report:
+            print("Spent XP:{:^8}".format(self.human_format(total_spent)))
+            print("New | Pow:{:^8}{:^3}Cap:{:^8}{:^3}Bar:{:^8}".format(
+                self.human_format(h_power), "|",
+                self.human_format(h_cap), "|",
+                self.human_format(h_bars)))
+
+    def human_format(self, num):
+        num = float('{:.3g}'.format(num))
+        if num > 1e14:
+            return
+        magnitude = 0
+        while abs(num) >= 1000:
+            magnitude += 1
+            num /= 1000.0
+        return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
