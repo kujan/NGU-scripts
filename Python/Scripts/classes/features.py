@@ -182,7 +182,6 @@ class Features(Navigation, Inputs):
 
         end = time.time() + duration * 60
         while time.time() < end:
-            self.click(625, 500)  # click somewhere to move tooltip
             if not self.check_pixel_color(*coords.IS_DEAD):
                 if bosses:
                     if self.check_pixel_color(*coords.IS_BOSS_CROWN):
@@ -672,7 +671,7 @@ class Features(Navigation, Inputs):
             NGU = coords.Pixel(coords.NGU_CAP.x, coords.NGU_CAP.y + target * 35)
             self.click(*NGU)
 
-        if cap_all:
+        if cap_all and not targets:
             self.click(*coords.NGU_CAP_ALL)
 
     def set_ngu_overcap(self, value):
