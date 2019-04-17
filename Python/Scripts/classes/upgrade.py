@@ -400,7 +400,7 @@ class UpgradeHackPower(Stats):
 
         self.set_value_with_ocr("XP")
 
-        total_spent = coords.NPOWER_COST * h_power + coords.NCAP_COST * h_cap + coords.NBAR_COST * h_bars
+        total_spent = coords.HPOWER_COST * h_power + coords.HCAP_COST * h_cap + coords.HBAR_COST * h_bars
 
         if self.report:
             print("Spent XP:{:^8}".format(self.human_format(total_spent)))
