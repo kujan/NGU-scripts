@@ -1,6 +1,7 @@
 """Window class contains the coordinate for the top left of the game window."""
 import win32gui
 import ctypes
+import platform
 
 class Window():
     """This class contains game window coordinates."""
@@ -17,7 +18,11 @@ class Window():
         x -- The x-coordinate for the top left corner of the game window.
         y -- The y-coordinate for the top left corner of the game window.
         """
-        ctypes.windll.shcore.SetProcessDpiAwareness(2)
+        if platform.release() == "10":
+            ctypes.windll.shcore.SetProcessDpiAwareness(2)
+        else:
+            ctypes.windll.user32.SetProcessDPIAware()
+
         def window_enumeration_handler(hwnd, top_windows):
             """Add window title and ID to array."""
             top_windows.append((hwnd, win32gui.GetWindowText(hwnd)))
