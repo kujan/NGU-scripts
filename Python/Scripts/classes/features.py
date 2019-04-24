@@ -182,6 +182,7 @@ class Features(Navigation, Inputs):
 
         end = time.time() + duration * 60
         while time.time() < end:
+            self.click(625, 500)  # click somewhere to move tooltip
             if not self.check_pixel_color(*coords.IS_DEAD):
                 if bosses:
                     if self.check_pixel_color(*coords.IS_BOSS_CROWN):
