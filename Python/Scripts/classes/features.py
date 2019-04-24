@@ -937,7 +937,7 @@ class Features(Navigation, Inputs):
         bmp = self.get_bitmap()
         for item in coords.QUESTING_FILENAMES:
             path = self.get_file_path("images", item)
-            loc = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600, path, 0.91, bmp=bmp)
+            loc = self.image_search(0, 0, 960, 600, path, 0.91, bmp=bmp)
             if loc:
                 self.click(*loc, button="right")
                 if cleanup:
