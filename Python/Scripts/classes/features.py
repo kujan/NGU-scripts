@@ -290,6 +290,8 @@ class Features(Navigation, Inputs):
 
     def do_rebirth(self):
         """Start a rebirth or challenge."""
+        self.menu("fight")
+        self.click(*coords.FIGHT_STOP)
         self.rebirth()
         self.current_adventure_zone = 0
         self.click(*coords.REBIRTH)

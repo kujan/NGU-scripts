@@ -63,6 +63,9 @@ class Challenge(Features):
             elif "rebirth" in text.lower():
                 print("starting no rebirth challenge script")
                 rebirth.rebirth_challenge()
+            elif "augs" in text.lower():
+                print("starting no augs challenge script")
+                augment.start()
             else:
                 print("Couldn't determine which script to start from the OCR",
                       "input")

@@ -1,7 +1,6 @@
 """Contains functions for running a no augments challenge."""
 from classes.features import Features
 import coordinates as coords
-import usersettings as userset
 import time
 
 
@@ -23,7 +22,7 @@ class Augment(Features):
             time.sleep(2)
             self.fight()
 
-        self.time_machine(1e13, magic=True)
+        self.time_machine(self.get_idle_cap() * 0.1, magic=True)
         self.adventure(itopod=True, itopodauto=True)
 
         while self.check_pixel_color(*coords.COLOR_BM_LOCKED):
@@ -41,6 +40,11 @@ class Augment(Features):
             time.sleep(2)
             self.gold_diggers(diggers)
             rb_time = self.get_rebirth_time()
+            # return if challenge is completed and rebirth time is above 3 minutes
+            if int(rb_time.timestamp.tm_min) >= 3 and not self.check_challenge():
+                return
+
+        self.do_rebirth()
 
     def start(self):
         """Challenge rebirth sequence.
