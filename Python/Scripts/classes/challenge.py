@@ -1,6 +1,7 @@
 """Handles different challenges"""
 from classes.features import Features
 from classes.discord import Discord
+from challenges.augment import Augment
 from challenges.basic import Basic
 from challenges.level import Level
 from challenges.laser import Laser
@@ -22,6 +23,7 @@ class Challenge(Features):
         level = Level()
         laser = Laser()
         rebirth = Rebirth()
+        augment = Augment()
 
         if self.check_pixel_color(*coords.COLOR_CHALLENGE_ACTIVE):
             text = self.ocr(*coords.OCR_CHALLENGE_NAME)
@@ -75,6 +77,12 @@ class Challenge(Features):
                 time.sleep(userset.LONG_SLEEP)
                 self.confirm()
                 b.basic(58)
+
+            elif challenge == 2:
+                self.click(x, y)
+                time.sleep(userset.LONG_SLEEP)
+                self.confirm()
+                augment.start()
 
             elif challenge == 3:
                 try:
