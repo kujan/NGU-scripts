@@ -16,6 +16,8 @@ class Challenge(Features):
 
     def start_challenge(self, challenge):
         """Start the selected challenge."""
+        
+        self.toggle_auto_spells(drop=False)
         self.rebirth()
         self.click(*coords.CHALLENGE_BUTTON)
 
@@ -79,7 +81,7 @@ class Challenge(Features):
                 self.click(x, y)
                 time.sleep(userset.LONG_SLEEP)
                 self.confirm()
-                b.basic(58)
+                b.basic()
 
             elif challenge == 2:
                 self.click(x, y)
