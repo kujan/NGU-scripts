@@ -8,7 +8,7 @@ class Level(Features):
 
     IMPORTANT
 
-    set target level for energy buster to 67 and charge shot to 33.
+    Set target level for energy buster to 67 and charge shot to 33.
     Disable "Advance Energy" in augments
     Disable beards if you cap ultra fast.
 
@@ -22,19 +22,21 @@ class Level(Features):
         self.adventure(highest=True)
         current_boss = int(self.get_current_boss())
         if current_boss > 48:
-            self.augments({"EB": 0.66, "CS": 0.34}, coords.INPUT_MAX)
+            self.augments({"EB": 0.66, "CS": 0.34}, self.get_idle_cap())
         else:
             self.augments({"EB": 1}, coords.INPUT_MAX)
         self.gold_diggers(diggers)
         rb_time = self.get_rebirth_time()
         while int(rb_time.timestamp.tm_min) < duration:
-            self.augments({"EB": 0.66, "CS": 0.34}, coords.INPUT_MAX)
+            self.augments({"EB": 0.66, "CS": 0.34}, self.get_idle_cap())
             self.nuke()
             self.fight()
             self.gold_diggers(diggers)
+            rb_time = self.get_rebirth_time()
+        self.do_rebirth()
         return
 
-    def lc(self):
+    def start(self):
         """Handle LC run."""
         for x in range(8):
             self.speedrun(3)

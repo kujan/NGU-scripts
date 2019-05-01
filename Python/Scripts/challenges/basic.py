@@ -132,7 +132,7 @@ class Basic(Features):
         self.spin()
         return
 
-    def basic(self):
+    def start(self):
         """Defeat target boss."""
         self.set_wandoos(0)  # wandoos 98, use 1 for meh
         self.first_rebirth(3)
