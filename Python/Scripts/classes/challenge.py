@@ -153,6 +153,7 @@ class Challenge(Features):
                 rebirth.rebirth_challenge()
 
             elif challenge == 8:
+                print("LSC doesn't reset your number, make sure your number is high enough to make laser swords.")
                 self.click(x, y)
                 time.sleep(userset.LONG_SLEEP)
                 self.confirm()
