@@ -37,6 +37,6 @@ class Laser(Features, Inputs):
             rb_time = self.get_rebirth_time()
             time.sleep(1)
 
-    def laser(self):
+    def start(self):
         """Defeat target boss."""
         self.speedrun()

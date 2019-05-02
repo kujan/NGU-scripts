@@ -7,7 +7,9 @@ from challenges.basic import Basic
 from challenges.equipment import Equipment
 from challenges.level import Level
 from challenges.laser import Laser
+from challenges.ngu import Ngu
 from challenges.rebirth import Rebirth
+from challenges.timemachine import Timemachine
 import coordinates as coords
 import usersettings as userset
 import time
@@ -31,7 +33,8 @@ class Challenge(Features):
         rebirth = Rebirth()
         augment = Augment()
         equipment = Equipment()
-
+        timemachine = Timemachine()
+        ngu = Ngu()
         if self.check_pixel_color(*coords.COLOR_CHALLENGE_ACTIVE):
             text = self.ocr(*coords.OCR_CHALLENGE_NAME)
             print("A challenge is already active: " + text)
@@ -61,15 +64,14 @@ class Challenge(Features):
                 print("Set target level for energy buster to 67 and charge shot to 33.")
                 print("Disable 'Advance Energy'' in augments")
                 print("Disable beards if you cap ultra fast.")
-                level.lc()
+                level.start()
 
             elif "blind" in text.lower():
-                print("starting blind challenge script")
-                level.blind()
+                print("blind challenge is not supported")
 
             elif "laser" in text.lower():
                 print("starting laser sword challenge script")
-                laser.laser()
+                laser.start()
 
             elif "rebirth" in text.lower():
                 print("starting no rebirth challenge script")
@@ -80,6 +82,12 @@ class Challenge(Features):
             elif "equipment" in text.lower():
                 print("starting no equipment challenge script")
                 equipment.start()
+            elif "time machine" in text.lower():
+                print("starting no time machine challenge script")
+                timemachine.start()
+            elif "ngu" in text.lower():
+                print("starting no NGU challenge script")
+                ngu.start()
             else:
                 print("Couldn't determine which script to start from the OCR",
                       "input")
@@ -138,13 +146,13 @@ class Challenge(Features):
                 print("Nah fam. Do it yourself")
                 while True:
                     for x in range(1000):
-                        win32gui.MoveWindow(Window.id, x, 0, 1000, 800, True)
+                        win32gui.MoveWindow(Window.id, x, 0, 1000, 800, False)
                     for y in range(1000):
-                        win32gui.MoveWindow(Window.id, 1000, y, 1000, 800, True)
+                        win32gui.MoveWindow(Window.id, 1000, y, 1000, 800, False)
                     for x in reversed(range(1000)):
-                        win32gui.MoveWindow(Window.id, x, 1000, 1000, 800, True)
+                        win32gui.MoveWindow(Window.id, x, 1000, 1000, 800, False)
                     for y in reversed(range(1000)):
-                        win32gui.MoveWindow(Window.id, 0, y, 1000, 800, True)
+                        win32gui.MoveWindow(Window.id, 0, y, 1000, 800, False)
 
             elif challenge == 7:
                 self.click(x, y)
@@ -157,4 +165,22 @@ class Challenge(Features):
                 self.click(x, y)
                 time.sleep(userset.LONG_SLEEP)
                 self.confirm()
-                laser.laser()
+                laser.start()
+
+            elif challenge == 9:
+                print("Blind challenge is not supported")
+
+            elif challenge == 10:
+                self.click(x, y)
+                time.sleep(userset.LONG_SLEEP)
+                self.confirm()
+                ngu.start()
+
+            elif challenge == 11:
+                self.click(x, y)
+                time.sleep(userset.LONG_SLEEP)
+                self.confirm()
+                timemachine.start()
+
+            else:
+                print(f"invalid challenge: {challenge}")
