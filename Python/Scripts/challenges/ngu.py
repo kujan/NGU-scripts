@@ -22,6 +22,7 @@ class Ngu(Features, Inputs):
             if not self.advanced_training_locked and not adv_training_assigned:
                 print("assigning adv")
                 self.advanced_training(4e11)
+        self.adventure(highest=True)
         while self.minutes_elapsed < duration:
             self.wandoos(True)
             self.augments({"SS": 1}, self.get_idle_cap())
