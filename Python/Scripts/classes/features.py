@@ -731,7 +731,7 @@ class Features(Navigation, Inputs):
         self.click(*coords.LEFT_ARROW, button="right")
         for i in range(coords.TITAN_ZONE[target]):
             self.click(*coords.RIGHT_ARROW)
-
+        self.current_adventure_zone = coords.TITAN_ZONE[target]
         time.sleep(userset.LONG_SLEEP)
 
         available = self.ocr(*coords.OCR_ADV_TITAN)
