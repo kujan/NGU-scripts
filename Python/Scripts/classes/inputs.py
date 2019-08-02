@@ -188,7 +188,7 @@ class Inputs():
         # Bitmaps are created with a 8px border
         bmp = bmp.crop((x_start + 8, y_start + 8, x_end + 8, y_end + 8))
         *_, right, lower = bmp.getbbox()
-        bmp = bmp.resize((right*3, lower*3), image.BICUBIC)  # Resize image
+        bmp = bmp.resize((right*4, lower*4), image.BICUBIC)  # Resize image
         bmp = bmp.filter(ImageFilter.SHARPEN)  # Sharpen image for better OCR
         if debug:
             bmp.save("debug_ocr.png")
