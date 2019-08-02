@@ -899,20 +899,22 @@ class Features(Navigation, Inputs):
         if coords:
             self.ctrl_click(*slot)
 
-    def get_idle_cap(self, magic=False):
-        """Get the available idle energy or magic."""
+    def get_idle_cap(self, resource):
+        """Get the available idle energy, magic, or resource 3."""
         try:
-            if magic:
+            if resource == 1:
                 res = self.ocr(*coords.OCR_MAGIC)
-            else:
+            elif resource == 2:
                 res = self.ocr(*coords.OCR_ENERGY)
+            else:
+                res = self.ocr(*coords.OCR_HACK)
             match = re.search(r".*(\d+\.\d+E\+\d+)", res)
             if match is not None:
                 return int(float(match.group(1)))
             elif match is None:
                 return 0
         except ValueError:
-            print("Couldn't get idle e/m")
+            print("Couldn't get idle e/m/r3")
 
     def get_quest_text(self):
         """Check if we have an active quest or not."""
