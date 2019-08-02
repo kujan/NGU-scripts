@@ -1194,9 +1194,7 @@ class Features(Navigation, Inputs):
                 self.click(*coords.ITOPOD)
                 self.click(*coords.ITOPOD_START)
                 self.send_string(floor)
-                self.click(*coords.ITOPOD_END)
                 # set end to 0 in case it's higher than start
-                self.send_string("0")
                 self.click(*coords.ITOPOD_ENTER)
                 self.click(*coords.ADVENTURE_TOOLTIP)
                 count = self.remove_letters(self.ocr(*coords.OCR_AP_KILL_COUNT))
@@ -1213,15 +1211,14 @@ class Features(Navigation, Inputs):
             self.click(*coords.ITOPOD)
             self.click(*coords.ITOPOD_START)
             self.send_string(self.itopod_tier_map[next_tier])
-            self.click(*coords.ITOPOD_END)
             # set end to 0 in case it's higher than start
-            self.send_string("0")
             self.click(*coords.ITOPOD_ENTER)
+            time.sleep(userset.LONG_SLEEP)
             kc = self.itopod_tier_counts[next_tier]
             while kc > 0:
                 if self.check_pixel_color(*coords.IS_ENEMY_ALIVE):
                     self.click(*coords.ABILITY_REGULAR_ATTACK)
-                    time.sleep(userset.MEDIUM_SLEEP)
+                    time.sleep(userset.LONG_SLEEP)
                     self.itopod_kills += 1
                     kc -= 1
                     for tier, count in self.itopod_tier_counts.items():
