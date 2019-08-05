@@ -22,10 +22,11 @@ class Ngu(Features, Inputs):
             if not self.advanced_training_locked and not adv_training_assigned:
                 print("assigning adv")
                 self.advanced_training(4e11)
+                adv_training_assigned = True
         self.adventure(highest=True)
         while self.minutes_elapsed < duration:
             self.wandoos(True)
-            self.augments({"SS": 1}, self.get_idle_cap())
+            self.augments({"SS": 1}, self.get_idle_cap(1))
             self.update_gamestate()
 
 
@@ -53,14 +54,14 @@ class Ngu(Features, Inputs):
 
         while self.current_boss < 18 and self.minutes_elapsed < duration:  # augs unlocks after 17
             self.wandoos(True)
-            self.augments({"SS": 1}, self.get_idle_cap())
+            self.augments({"SS": 1}, self.get_idle_cap(1))
             self.nuke()
             self.fight()
             if not self.advanced_training_locked and not adv_training_assigned:
                 print("assigning adv")
                 self.reclaim_aug()
                 self.advanced_training(4e11)
-                self.augments({"SS": 1}, self.get_idle_cap())
+                self.augments({"SS": 1}, self.get_idle_cap(1))
                 adv_training_assigned = True
             self.update_gamestate()
         self.adventure(highest=True)
@@ -73,7 +74,7 @@ class Ngu(Features, Inputs):
                 print("assigning adv")
                 self.reclaim_aug()
                 self.advanced_training(4e11)
-                self.augments({"SS": 1}, self.get_idle_cap())
+                self.augments({"SS": 1}, self.get_idle_cap(1))
                 adv_training_assigned = True
             self.update_gamestate()
 
@@ -81,7 +82,7 @@ class Ngu(Features, Inputs):
             self.reclaim_aug()
 
         while self.current_boss < 31 and self.minutes_elapsed < duration:  # TM unlocks after 31
-            self.augments({"EB": 1}, self.get_idle_cap())
+            self.augments({"EB": 1}, self.get_idle_cap(1))
             self.wandoos(True)
             self.nuke()
             self.fight()
@@ -89,18 +90,18 @@ class Ngu(Features, Inputs):
                 print("assigning adv")
                 self.reclaim_aug()
                 self.advanced_training(4e11)
-                self.augments({"EB": 1}, self.get_idle_cap())
+                self.augments({"EB": 1}, self.get_idle_cap(1))
                 adv_training_assigned = True
             self.update_gamestate()
 
         if self.minutes_elapsed < duration:  # only reclaim if we're not out of time
             self.reclaim_aug()  # get some energy back for TM
             self.send_string("t")  # get all magic back from wandoos
-            self.time_machine(self.get_idle_cap() * 0.05, m=self.get_idle_cap(True) * 0.05)
+            self.time_machine(self.get_idle_cap(1) * 0.05, m=self.get_idle_cap(2) * 0.05)
 
         while self.current_boss < 38 and self.minutes_elapsed < duration:  # BM unlocks after 37
             self.gold_diggers(diggers)
-            self.augments({"EB": 1}, self.get_idle_cap())
+            self.augments({"EB": 1}, self.get_idle_cap(1))
             self.wandoos(True)
             self.nuke()
             self.fight()
@@ -108,7 +109,7 @@ class Ngu(Features, Inputs):
                 print("assigning adv")
                 self.reclaim_aug()
                 self.advanced_training(4e11)
-                self.augments({"EB": 1}, self.get_idle_cap())
+                self.augments({"EB": 1}, self.get_idle_cap(1))
                 adv_training_assigned = True
             self.update_gamestate()
 
@@ -122,21 +123,21 @@ class Ngu(Features, Inputs):
         while self.current_boss < 49 and self.minutes_elapsed < duration:
             self.gold_diggers(diggers)
             self.wandoos(True)
-            self.augments({"EB": 1}, self.get_idle_cap())
+            self.augments({"EB": 1}, self.get_idle_cap(1))
             self.nuke()
             self.fight()
             if not self.advanced_training_locked and not adv_training_assigned:
                 print("assigning adv")
                 self.reclaim_aug()
                 self.advanced_training(4e11)
-                self.augments({"EB": 1}, self.get_idle_cap())
+                self.augments({"EB": 1}, self.get_idle_cap(1))
                 adv_training_assigned = True
             self.update_gamestate()
         if self.minutes_elapsed < duration:  # only reclaim if we're not out of time
             self.reclaim_aug()
 
         while self.minutes_elapsed < duration:
-            self.augments({"EB": 0.66, "CS": 0.34}, self.get_idle_cap())
+            self.augments({"EB": 0.66, "CS": 0.34}, self.get_idle_cap(1))
             self.gold_diggers(diggers)
             self.wandoos(True)
             self.nuke()
@@ -145,7 +146,7 @@ class Ngu(Features, Inputs):
                 print("assigning adv")
                 self.reclaim_aug()
                 self.advanced_training(4e11)
-                self.augments({"EB": 0.66, "CS": 0.34}, self.get_idle_cap())
+                self.augments({"EB": 0.66, "CS": 0.34}, self.get_idle_cap(1))
                 adv_training_assigned = True
             self.update_gamestate()
             if not self.check_challenge() and self.minutes_elapsed >= 3:

@@ -23,22 +23,22 @@ class Timemachine(Features, Inputs):
         while self.check_pixel_color(*coords.COLOR_TM_LOCKED):
             if not ss_assigned:
                 time.sleep(1)
-                self.augments({"SS": 1}, self.get_idle_cap())
+                self.augments({"SS": 1}, self.get_idle_cap(1))
                 ss_assigned = True
             self.wandoos(True)
             if self.check_wandoos_bb_status():
-                self.augments({"SS": 1}, self.get_idle_cap())
+                self.augments({"SS": 1}, self.get_idle_cap(1))
             self.nuke()
             time.sleep(2)
             self.fight()
         if ss_assigned:
             self.reclaim_aug()
-        self.augments({"EB": 1}, self.get_idle_cap())
+        self.augments({"EB": 1}, self.get_idle_cap(1))
 
         while self.check_pixel_color(*coords.COLOR_BM_LOCKED):
             self.wandoos(True)
             if self.check_wandoos_bb_status():
-                self.augments({"EB": 1}, self.get_idle_cap())
+                self.augments({"EB": 1}, self.get_idle_cap(1))
             self.nuke()
             self.fight()
         self.toggle_auto_spells(drop=False, gold=False)
@@ -55,14 +55,14 @@ class Timemachine(Features, Inputs):
                     if not self.buster_assigned:
                         self.reclaim_aug()
                         self.buster_assigned = True
-                    self.augments({"EB": 1}, self.get_idle_cap())
+                    self.augments({"EB": 1}, self.get_idle_cap(1))
 
                 elif current_boss >= 49:
                     if not self.final_aug:
                         self.reclaim_aug()
                         self.final_aug = True
                         time.sleep(1)
-                    self.augments({"EB": 0.66, "CS": 0.34}, self.get_idle_cap())
+                    self.augments({"EB": 0.66, "CS": 0.34}, self.get_idle_cap(1))
                 if current_boss > 58 and not adventure_pushed:
                     self.adventure(highest=True)
                     adventure_pushed = True
@@ -85,9 +85,9 @@ class Timemachine(Features, Inputs):
         try:
             current_boss = int(self.get_current_boss())
             if current_boss > 28 and current_boss < 49:
-                self.augments({"EB": 1}, self.get_idle_cap())
+                self.augments({"EB": 1}, self.get_idle_cap(1))
             elif current_boss >= 49:
-                self.augments({"EB": 0.66, "CS": 0.34}, self.get_idle_cap())
+                self.augments({"EB": 0.66, "CS": 0.34}, self.get_idle_cap(1))
         except ValueError:
             print("couldn't get current boss")
 
@@ -111,7 +111,7 @@ class Timemachine(Features, Inputs):
             self.adventure(highest=True)
             self.wandoos(True)
             if self.check_wandoos_bb_status():
-                self.augments({"EB": 0.66, "CS": 0.34}, self.get_idle_cap())
+                self.augments({"EB": 0.66, "CS": 0.34}, self.get_idle_cap(1))
             """If current rebirth is scheduled for more than 3 minutes and
             we already finished the rebirth, we will return here, instead
             of waiting for the duration. Since we cannot start a new
