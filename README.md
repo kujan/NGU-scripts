@@ -18,6 +18,7 @@ The AHK script is unsupported and deleted, but I kept the functions here because
 * Use scientific notation in game
 * The "simple inventory shortcuts" setting must be enabled
 * The normal theme must be enabled
+* Fancy titan HP bars must be disabled if using the ``kill_titan()`` method
 ## Installation
 Install Python dependencies using [pip](https://pip.pypa.io/en/stable/quickstart/):
 ```
