@@ -907,14 +907,17 @@ class Features(Navigation, Inputs):
             elif resource == 2:
                 res = self.ocr(*coords.OCR_ENERGY)
             else:
-                res = self.ocr(*coords.OCR_HACK)
+                res = self.ocr(*coords.OCR_R3)
             match = re.search(r".*(\d+\.\d+E\+\d+)", res)
+            
             if match is not None:
                 return int(float(match.group(1)))
             elif match is None:
-                return 0
-        except ValueError:
-            print("Couldn't get idle e/m/r3")
+                match = re.sub("[^\d\,]", "", res)
+                if match is not None:
+                    return int(match)
+                if match is None:
+                    return 0
 
     def get_quest_text(self):
         """Check if we have an active quest or not."""
