@@ -945,7 +945,9 @@ class Features(Navigation, Inputs):
                     return int(match)
                 if match is None:
                     return 0
-
+        except ValueError:
+            print("couldn't get idle cap")
+            return 0
     def get_quest_text(self):
         """Check if we have an active quest or not."""
         self.menu("questing")
