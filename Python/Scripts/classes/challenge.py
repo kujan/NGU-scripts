@@ -10,11 +10,10 @@ from challenges.laser import Laser
 from challenges.ngu import Ngu
 from challenges.rebirth import Rebirth
 from challenges.timemachine import Timemachine
+from challenges.blind import Blind
 import coordinates as coords
 import usersettings as userset
 import time
-import win32api
-import win32con as wcon
 import win32gui
 
 class Challenge(Features):
@@ -35,6 +34,8 @@ class Challenge(Features):
         equipment = Equipment()
         timemachine = Timemachine()
         ngu = Ngu()
+        blind = Blind()
+
         if self.check_pixel_color(*coords.COLOR_CHALLENGE_ACTIVE):
             text = self.ocr(*coords.OCR_CHALLENGE_NAME)
             print("A challenge is already active: " + text)
@@ -67,7 +68,8 @@ class Challenge(Features):
                 level.start()
 
             elif "blind" in text.lower():
-                print("blind challenge is not supported")
+                print("starting blind challenge script")
+                blind.start()
 
             elif "laser" in text.lower():
                 print("starting laser sword challenge script")
@@ -134,7 +136,7 @@ class Challenge(Features):
                 self.click(x, y)
                 time.sleep(userset.LONG_SLEEP)
                 self.confirm()
-                level.lc()
+                level.start()
 
             elif challenge == 5:
                 self.click(x, y)
@@ -168,7 +170,11 @@ class Challenge(Features):
                 laser.start()
 
             elif challenge == 9:
-                print("Blind challenge is not supported")
+                print("Starting blind challenge")
+                self.click(x, y)
+                time.sleep(userset.LONG_SLEEP)
+                self.confirm()
+                blind.start()
 
             elif challenge == 10:
                 self.click(x, y)

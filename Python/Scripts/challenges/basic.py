@@ -1,72 +1,34 @@
-"""Contains functions for running a basic challenge."""
+"""Contains functions for running a no time machine challenge."""
 from classes.features import Features
+from classes.inputs import Inputs
 import coordinates as coords
-import usersettings as userset
 import time
 
-class Basic(Features):
-    """Contains functions for running a basic challenge."""
-    buster_assigned = False
-    final_aug = False
+
+class Basic(Features, Inputs):
+    """Contains functions for running a no NGU challenge."""
     def first_rebirth(self, duration):
         """Procedure for first rebirth."""
-        ss_assigned = False
-        diggers = [2, 3, 11, 12]
-        self.nuke()
-        time.sleep(2)
-        self.fight()
+        adv_training_assigned = False
+        self.current_boss = 1
+        self.minutes_elapsed = 0
+        self.advanced_training_locked = True
+        self.bm_locked = True
+        self.tm_locked = True
+        while self.current_boss < 18 and self.minutes_elapsed < duration:
+            self.wandoos(True)
+            self.fight()
+            self.update_gamestate()
+            if not self.advanced_training_locked and not adv_training_assigned:
+                print("assigning adv")
+                self.advanced_training(4e11)
+                adv_training_assigned = True
         self.adventure(highest=True)
-        while self.check_pixel_color(*coords.COLOR_TM_LOCKED):
-            if not ss_assigned:
-                time.sleep(1)
-                self.augments({"SS": 1}, self.get_idle_cap())
-                ss_assigned = True
+        while self.minutes_elapsed < duration:
             self.wandoos(True)
-            if self.check_wandoos_bb_status():
-                self.augments({"SS": 1}, self.get_idle_cap())
-            self.nuke()
-            time.sleep(2)
-            self.fight()
+            self.augments({"SS": 1}, self.get_idle_cap(1))
+            self.update_gamestate()
 
-        self.time_machine(self.get_idle_cap() * 0.5, magic=True)
-        self.reclaim_aug()
-        self.augments({"EB": 1}, self.get_idle_cap())
-        self.gold_diggers(diggers)
-        self.adventure(itopod=True, itopodauto=True)
-
-        while self.check_pixel_color(*coords.COLOR_BM_LOCKED):
-            self.wandoos(True)
-            if self.check_wandoos_bb_status():
-                self.augments({"EB": 1}, self.get_idle_cap())
-            self.nuke()
-            time.sleep(2)
-            self.fight()
-            self.gold_diggers(diggers)
-        self.blood_magic(8)
-        rb_time = self.get_rebirth_time()
-        while int(rb_time.timestamp.tm_min) < duration:
-            self.wandoos(True)
-            self.nuke()
-            self.fight()
-            time.sleep(2)
-            try:
-                current_boss = int(self.get_current_boss())
-                if current_boss > 28 and current_boss < 49:
-                    if not self.buster_assigned:
-                        self.reclaim_aug()
-                        self.buster_assigned = True
-                    self.augments({"EB": 1}, self.get_idle_cap())
-
-                elif current_boss >= 49:
-                    if not self.final_aug:
-                        self.reclaim_aug()
-                        self.final_aug = True
-                        time.sleep(1)
-                    self.augments({"EB": 0.66, "CS": 0.34}, self.get_idle_cap())
-            except ValueError:
-                print("couldn't get current boss")
-            self.gold_diggers(diggers)
-            rb_time = self.get_rebirth_time()
 
     def speedrun(self, duration):
         """Start a speedrun.
@@ -75,81 +37,162 @@ class Basic(Features):
         duration -- duration in minutes to run
         f -- feature object
         """
-        self.do_rebirth()
         diggers = [2, 3, 11, 12]
+        adv_training_assigned = False
+        self.do_rebirth()
+        self.wandoos(True)
         self.nuke()
         time.sleep(2)
+        self.fight()
+        self.adventure(highest=True)
+        self.current_boss = 1
+        self.minutes_elapsed = 0
+        self.advanced_training_locked = True
+        self.bm_locked = True
+        self.tm_locked = True
+        self.update_gamestate()
+
+        while self.current_boss < 18 and self.minutes_elapsed < duration:  # augs unlocks after 17
+            self.wandoos(True)
+            self.augments({"SS": 1}, self.get_idle_cap(1))
+            self.nuke()
+            self.fight()
+            if not self.advanced_training_locked and not adv_training_assigned:
+                print("assigning adv")
+                self.reclaim_aug()
+                self.advanced_training(4e11)
+                self.augments({"SS": 1}, self.get_idle_cap(1))
+                adv_training_assigned = True
+            self.update_gamestate()
         self.adventure(highest=True)
 
+        while self.current_boss < 29 and self.minutes_elapsed < duration:  # buster unlocks after 28
+            self.wandoos(True)
+            self.nuke()
+            self.fight()
+            if not self.advanced_training_locked and not adv_training_assigned:
+                print("assigning adv")
+                self.reclaim_aug()
+                self.advanced_training(4e11)
+                self.augments({"SS": 1}, self.get_idle_cap(1))
+                adv_training_assigned = True
+            self.update_gamestate()
+
+        if self.minutes_elapsed < duration:  # only reclaim if we're not out of time
+            self.reclaim_aug()
+
+        while self.current_boss < 31 and self.minutes_elapsed < duration:  # TM unlocks after 31
+            self.augments({"EB": 1}, self.get_idle_cap(1))
+            self.wandoos(True)
+            self.nuke()
+            self.fight()
+            if not self.advanced_training_locked and not adv_training_assigned:
+                print("assigning adv")
+                self.reclaim_aug()
+                self.advanced_training(4e11)
+                self.augments({"EB": 1}, self.get_idle_cap(1))
+                adv_training_assigned = True
+            self.update_gamestate()
+
+        if self.minutes_elapsed < duration:  # only reclaim if we're not out of time
+            self.reclaim_aug()  # get some energy back for TM
+            self.send_string("t")  # get all magic back from wandoos
+            self.time_machine(self.get_idle_cap(1) * 0.05, m=self.get_idle_cap(2) * 0.05)
+
+        while self.current_boss < 38 and self.minutes_elapsed < duration:  # BM unlocks after 37
+            self.gold_diggers(diggers)
+            self.augments({"EB": 1}, self.get_idle_cap(1))
+            self.wandoos(True)
+            self.nuke()
+            self.fight()
+            if not self.advanced_training_locked and not adv_training_assigned:
+                print("assigning adv")
+                self.reclaim_aug()
+                self.advanced_training(4e11)
+                self.augments({"EB": 1}, self.get_idle_cap(1))
+                adv_training_assigned = True
+            self.update_gamestate()
+
+        if self.minutes_elapsed < duration:
+            self.blood_magic(8)
+            self.toggle_auto_spells(drop=False)
+            time.sleep(10)
+            print("waiting 10 seconds for gold ritual")
+            self.toggle_auto_spells(drop=False, gold=False)
+
+        while self.current_boss < 49 and self.minutes_elapsed < duration:
+            self.gold_diggers(diggers)
+            self.wandoos(True)
+            self.augments({"EB": 1}, self.get_idle_cap(1))
+            self.nuke()
+            self.fight()
+            if not self.advanced_training_locked and not adv_training_assigned:
+                print("assigning adv")
+                self.reclaim_aug()
+                self.advanced_training(4e11)
+                self.augments({"EB": 1}, self.get_idle_cap(1))
+                adv_training_assigned = True
+            self.update_gamestate()
+        if self.minutes_elapsed < duration:  # only reclaim if we're not out of time
+            self.reclaim_aug()
+
+        while self.minutes_elapsed < duration:
+            self.augments({"EB": 0.66, "CS": 0.34}, self.get_idle_cap(1))
+            self.gold_diggers(diggers)
+            self.wandoos(True)
+            self.nuke()
+            self.fight()
+            if not self.advanced_training_locked and not adv_training_assigned:
+                print("assigning adv")
+                self.reclaim_aug()
+                self.advanced_training(4e11)
+                self.augments({"EB": 0.66, "CS": 0.34}, self.get_idle_cap(1))
+                adv_training_assigned = True
+            self.update_gamestate()
+            if not self.check_challenge() and self.minutes_elapsed >= 3:
+                return
+ 
+        return
+
+    def update_gamestate(self):
+        """Update relevant state information."""
+        rb_time = self.get_rebirth_time()
+        self.minutes_elapsed = int(rb_time.timestamp.tm_min)
         try:
-            current_boss = int(self.get_current_boss())
-            if current_boss > 28 and current_boss < 49:
-                self.augments({"EB": 1}, self.get_idle_cap())
-            elif current_boss >= 49:
-                self.augments({"EB": 0.66, "CS": 0.34}, self.get_idle_cap())
+            self.current_boss = int(self.get_current_boss())
         except ValueError:
+            self.current_boss = 1
             print("couldn't get current boss")
 
-        while self.check_pixel_color(*coords.COLOR_TM_LOCKED):
-            self.nuke()
-            self.fight()
-            self.wandoos(True)
-
-        while self.check_pixel_color(*coords.COLOR_BM_LOCKED):
-            self.wandoos(True)
-            self.nuke()
-            time.sleep(2)
-            self.fight()
-            self.gold_diggers(diggers)
-        self.blood_magic(8)
-        self.wandoos(True)
-        self.gold_diggers(diggers)
-        self.adventure(itopod=True, itopodauto=True)
-        rb_time = self.get_rebirth_time()
-        while int(rb_time.timestamp.tm_min) < duration:
-            self.nuke()
-            self.fight()
-            self.gold_diggers(diggers)
-            self.wandoos(True)
-            if self.check_wandoos_bb_status():
-                self.augments({"EB": 0.66, "CS": 0.34}, self.get_idle_cap())
-            """If current rebirth is scheduled for more than 3 minutes and
-            we already finished the rebirth, we will return here, instead
-            of waiting for the duration. Since we cannot start a new
-            challenge if less than 3 minutes have passed, we must always
-            wait at least 3 minutes."""
-            rb_time = self.get_rebirth_time()
-            if duration > 3:
-                if not self.check_challenge():
-                    while int(rb_time.timestamp.tm_min) < 3:
-                        rb_time = self.get_rebirth_time()
-                        time.sleep(1)
-                    self.pit()
-                    self.spin()
-                    return
-
-        self.pit()
-        self.spin()
-        return
+        if self.advanced_training_locked:
+            self.advanced_training_locked = self.check_pixel_color(*coords.COLOR_ADV_TRAINING_LOCKED)
+        if self.bm_locked:
+            self.bm_locked = self.check_pixel_color(*coords.COLOR_BM_LOCKED)
+        if self.tm_locked:
+            self.tm_locked = self.check_pixel_color(*coords.COLOR_TM_LOCKED)
 
     def start(self):
         """Defeat target boss."""
-        self.set_wandoos(0)  # wandoos 98, use 1 for meh
-        self.first_rebirth(3)
-
-        for x in range(8):
+        self.set_wandoos(0)
+        for x in range(6):
             self.speedrun(3)
             if not self.check_challenge():
                 return
-        for x in range(5):
+        for x in range(4):
             self.speedrun(7)
             if not self.check_challenge():
                 return
-        for x in range(5):
+        self.set_wandoos(1)
+        for x in range(4):
             self.speedrun(12)
             if not self.check_challenge():
                 return
-        for x in range(5):
+        self.set_wandoos(2)
+        for x in range(4):
+            self.speedrun(30)
+            if not self.check_challenge():
+                return
+        while True:
             self.speedrun(60)
             if not self.check_challenge():
                 return
