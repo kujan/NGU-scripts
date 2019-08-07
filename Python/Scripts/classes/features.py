@@ -1218,7 +1218,7 @@ class Features(Navigation, Inputs):
                 print(f"Tier {tier}: {count}")
                 try:
                     count = int(count)
-                except:
+                except ValueError:
                     print(f"couldn't convert '{count}' to int")
                 self.itopod_tier_counts[tier] = count
         print(self.itopod_tier_counts)
