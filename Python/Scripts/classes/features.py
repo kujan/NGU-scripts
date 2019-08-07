@@ -290,6 +290,8 @@ class Features(Navigation, Inputs):
 
     def do_rebirth(self):
         """Start a rebirth or challenge."""
+        self.menu("fight")
+        self.click(*coords.FIGHT_STOP)
         self.rebirth()
         self.current_adventure_zone = 0
         self.click(*coords.REBIRTH)
@@ -1150,3 +1152,10 @@ class Features(Navigation, Inputs):
             item = i - (page * 8)
             self.click(*coords.HACK_PAGE[page])
             self.click(*coords.HACKS[item])
+
+    def check_wandoos_bb_status(self, magic=False):
+        """Check if wandoos is currently fully BB'd."""
+        self.menu("wandoos")
+        if magic:
+            return self.check_pixel_color(*coords.COLOR_WANDOOS_MAGIC_BB)
+        return self.check_pixel_color(*coords.COLOR_WANDOOS_ENERGY_BB)

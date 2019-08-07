@@ -87,7 +87,11 @@ print(w.x, w.y)
 
 tracker = Tracker(5)
 c = Challenge()
-
+for x in range(10):
+    c.start_challenge(10)
+for x in range(10):
+    c.start_challenge(11)
+"""
 while True:  # main loop
     #feature.questing()
     feature.itopod_snipe(300)
@@ -100,3 +104,4 @@ while True:  # main loop
     #time.sleep(120)
     #c.start_challenge(9)
     #speedrun(3, feature)
+"""
