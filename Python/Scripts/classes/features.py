@@ -1198,6 +1198,7 @@ class Features(Navigation, Inputs):
         duration -- Duration in seconds to run, before toggling idle mode
                     back on and returning.
         """
+        print("WARNING: itopod_ap() is largely untested")
         end = time.time() + duration * 60
         self.current_adventure_zone = 0
         self.menu("adventure")
