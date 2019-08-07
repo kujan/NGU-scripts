@@ -79,26 +79,23 @@ nav = Navigation()
 feature = Features()
 
 Window.x, Window.y = i.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 400, 600)
-nav.menu("inventory")
+#nav.menu("inventory")
 
 u = UpgradeEM(37500, 37500, 2, 2, 3)
 
 print(w.x, w.y)
 
-tracker = Tracker(5)
 c = Challenge()
-for x in range(10):
-    c.start_challenge(10)
-for x in range(10):
-    c.start_challenge(11)
-"""
-while True:  # main loop
-    #feature.questing()
-    feature.itopod_snipe(300)
-    tracker.progress()
-    feature.boost_cube()
-    feature.ygg()
-    feature.gold_diggers([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+feature.itopod_ap(30)
+#feature.click(*coords.ADVENTURE_TOOLTIP)
+#feature.save_screenshot()
+#while True:  # main loop
+    #feature.questing(butter=True)
+    #feature.itopod_snipe(300)
+    #tracker.progress()
+    #feature.boost_cube()
+    #feature.ygg()
+    #feature.gold_diggers([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
     #feature.snipe(13, 120)
 
     #time.sleep(120)

@@ -20,6 +20,31 @@ class Features(Navigation, Inputs):
 
     current_adventure_zone = 0
     inventory_cleaned = False
+    itopod_tier_counts = {}
+    itopod_tier_map = {
+                       1: 0,
+                       2: 50,
+                       3: 100,
+                       4: 150,
+                       5: 200,
+                       6: 250,
+                       7: 300,
+                       8: 350,
+                       9: 400,
+                       10: 450,
+                       11: 500,
+                       12: 550,
+                       13: 600,
+                       14: 650,
+                       15: 700,
+                       16: 750,
+                       17: 800,
+                       18: 850,
+                       19: 900,
+                       20: 950,
+                       }
+    itopod_ap_gained = 0
+    itopod_kills = 0
 
     def merge_equipment(self):
         """Navigate to inventory and merge equipment."""
@@ -953,7 +978,7 @@ class Features(Navigation, Inputs):
                     self.ctrl_click(*loc)
                 time.sleep(3)  # Need to wait for tooltip to disappear after consuming
 
-    def questing(self, duration=30, major=False, subcontract=False, force=0, adv_duration=2):
+    def questing(self, duration=30, major=False, subcontract=False, force=0, adv_duration=2, butter=False):
         """Procedure for questing.
 
         Keyword arguments:
@@ -1048,7 +1073,8 @@ class Features(Navigation, Inputs):
 
         if not self.check_pixel_color(*coords.QUESTING_IDLE_INACTIVE):  # turn off idle
             self.click(*coords.QUESTING_SUBCONTRACT)
-
+        if butter:
+            self.click(*coords.QUESTING_BUTTER)
         for count, zone in enumerate(coords.QUESTING_ZONES, start=0):
             if zone in text.lower():
                 current_time = time.time()
@@ -1159,3 +1185,62 @@ class Features(Navigation, Inputs):
         if magic:
             return self.check_pixel_color(*coords.COLOR_WANDOOS_MAGIC_BB)
         return self.check_pixel_color(*coords.COLOR_WANDOOS_ENERGY_BB)
+    
+    def itopod_ap(self, duration):
+        """Abuse an oversight in the kill counter for AP rewards for mucher higher AP/h in ITOPOD.
+        If you use this method, make sure you do not retoggle idle mode in adventure in other parts
+        of your script. If you have to, make sure to empty itopod_tier_counts with:
+        itopod_tier_counts = {}
+
+        Keyword arguments:
+        duration -- Duration in seconds to run, before toggling idle mode
+                    back on and returning.
+        """
+        end = time.time() + duration * 60
+        self.current_adventure_zone = 0
+        self.menu("adventure")
+        self.click(625, 500)  # click somewhere to move tooltip
+        if self.check_pixel_color(*coords.IS_IDLE):
+            self.click(*coords.ABILITY_IDLE_MODE)
+        # check if we're already in ITOPOD, otherwise enter
+        if not self.itopod_tier_counts:
+            for tier, floor in self.itopod_tier_map.items():
+                self.click(*coords.ITOPOD)
+                self.click(*coords.ITOPOD_START)
+                self.send_string(floor)
+                # set end to 0 in case it's higher than start
+                self.click(*coords.ITOPOD_ENTER)
+                self.click(*coords.ADVENTURE_TOOLTIP)
+                count = self.remove_letters(self.ocr(*coords.OCR_AP_KILL_COUNT))
+                print(f"Tier {tier}: {count}")
+                try:
+                    count = int(count)
+                except:
+                    print(f"couldn't convert '{count}' to int")
+                self.itopod_tier_counts[tier] = count
+        print(self.itopod_tier_counts)
+        while time.time() < end:
+            next_tier = min(self.itopod_tier_counts, key=self.itopod_tier_counts.get)
+            print(f"going to itopod tier {next_tier}")
+            self.click(*coords.ITOPOD)
+            self.click(*coords.ITOPOD_START)
+            self.send_string(self.itopod_tier_map[next_tier])
+            # set end to 0 in case it's higher than start
+            self.click(*coords.ITOPOD_ENTER)
+            time.sleep(userset.LONG_SLEEP)
+            kc = self.itopod_tier_counts[next_tier]
+            while kc > 0:
+                if self.check_pixel_color(*coords.IS_ENEMY_ALIVE):
+                    self.click(*coords.ABILITY_REGULAR_ATTACK)
+                    time.sleep(userset.LONG_SLEEP)
+                    self.itopod_kills += 1
+                    kc -= 1
+                    for tier, count in self.itopod_tier_counts.items():
+                        self.itopod_tier_counts[tier] -= 1
+                        if self.itopod_tier_counts[tier] < 1:
+                            self.itopod_tier_counts[tier] = 40 - tier
+                else:
+                    time.sleep(0.06)
+            self.itopod_ap_gained += 1
+            print(f"Kills: {self.itopod_kills}\nAP gained: {self.itopod_ap_gained}")
+        return
