@@ -22,17 +22,19 @@ class Level(Features):
         self.adventure(highest=True)
         current_boss = int(self.get_current_boss())
         if current_boss > 48:
-            self.augments({"EB": 0.66, "CS": 0.34}, self.get_idle_cap())
+            self.augments({"EB": 0.66, "CS": 0.34}, self.get_idle_cap(1))
         else:
             self.augments({"EB": 1}, coords.INPUT_MAX)
         self.gold_diggers(diggers)
         rb_time = self.get_rebirth_time()
         while int(rb_time.timestamp.tm_min) < duration:
-            self.augments({"EB": 0.66, "CS": 0.34}, self.get_idle_cap())
+            self.augments({"EB": 0.66, "CS": 0.34}, self.get_idle_cap(1))
             self.nuke()
             self.fight()
             self.gold_diggers(diggers)
             rb_time = self.get_rebirth_time()
+        if not self.check_challenge() and rb_time.timestamp.tm_min >= 3:
+            return
         self.do_rebirth()
         return
 

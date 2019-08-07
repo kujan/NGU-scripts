@@ -22,7 +22,7 @@ class Augment(Features):
             time.sleep(2)
             self.fight()
 
-        self.time_machine(self.get_idle_cap() * 0.1, magic=True)
+        self.time_machine(self.get_idle_cap(1) * 0.1, magic=True)
         self.adventure(itopod=True, itopodauto=True)
 
         while self.check_pixel_color(*coords.COLOR_BM_LOCKED):

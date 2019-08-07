@@ -23,13 +23,13 @@ class Laser(Features, Inputs):
         self.nuke()
         self.set_wandoos(0)
         self.adventure(highest=True)
-        self.time_machine(self.get_idle_cap() * 0.01, magic=True)
+        self.time_machine(self.get_idle_cap(1) * 0.01, magic=True)
         self.gold_diggers(diggers)
         self.wandoos(True)
         self.blood_magic(8)
         while self.check_challenge():
             self.nuke()
-            self.augments({"LS": 0.92, "QSL": 0.08}, self.get_idle_cap())
+            self.augments({"LS": 0.92, "QSL": 0.08}, self.get_idle_cap(1))
             self.gold_diggers(diggers)
 
         rb_time = self.get_rebirth_time()
