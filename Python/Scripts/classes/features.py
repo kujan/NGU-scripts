@@ -936,11 +936,11 @@ class Features(Navigation, Inputs):
             else:
                 res = self.ocr(*coords.OCR_R3)
             match = re.search(r".*(\d+\.\d+E\+\d+)", res)
-            
+
             if match is not None:
                 return int(float(match.group(1)))
             elif match is None:
-                match = re.sub("[^\d\,]", "", res)
+                match = self.remove_letters(res)
                 if match is not None:
                     return int(match)
                 if match is None:
