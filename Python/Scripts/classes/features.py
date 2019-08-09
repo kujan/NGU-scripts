@@ -1235,9 +1235,11 @@ class Features(Navigation, Inputs):
             while kc > 0:
                 if self.check_pixel_color(*coords.IS_ENEMY_ALIVE):
                     self.click(*coords.ABILITY_REGULAR_ATTACK)
-                    time.sleep(userset.LONG_SLEEP)
+                    
                     self.itopod_kills += 1
                     kc -= 1
+                    if kc > 0:
+                        time.sleep(.7 - userset.MEDIUM_SLEEP)  # Make sure we wait long enough
                     for tier, count in self.itopod_tier_counts.items():
                         self.itopod_tier_counts[tier] -= 1
                         if self.itopod_tier_counts[tier] < 1:
