@@ -15,7 +15,7 @@ w = Window(True)
 feature = Features()
 
 Window.x, Window.y = feature.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 400, 600)
-#feature.menu("inventory")
+feature.menu("inventory")
 
 print(f"Top left found at: {w.x}, {w.y}")
 
