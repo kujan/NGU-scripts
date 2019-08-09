@@ -1,4 +1,4 @@
-"""24-hour rebirth script"""
+"""Questing Script."""
 
 # Helper classes
 from classes.features import Features

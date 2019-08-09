@@ -1,8 +1,7 @@
-"""ITOPOD Sniping script."""
+"""AP farming script."""
 
 # Helper classes
 from classes.features import Features
-from classes.stats import Tracker
 from classes.window import Window
 
 import coordinates as coords
@@ -15,10 +14,6 @@ feature.menu("inventory")
 
 print(f"Top left found at: {w.x}, {w.y}")
 
-tracker = Tracker(5)
-
 while True:  # main loop
-    feature.itopod_snipe(300)
+    feature.itopod_ap(600)
     feature.pit()
-    tracker.progress()
-    feature.gold_diggers([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
