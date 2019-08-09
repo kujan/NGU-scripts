@@ -11,7 +11,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-c", "--challenge", required=True, type=int, help="select which challenge you wish to run (1-11")
 parser.add_argument("-t", "--times", required=True, type=int, help="number of times to run challenge")
 args = parser.parse_args()
-w = Window(True)
+w = Window()
 feature = Features()
 
 Window.x, Window.y = feature.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 400, 600)
