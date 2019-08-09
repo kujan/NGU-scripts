@@ -84,19 +84,10 @@ nav.menu("inventory")
 
 u = UpgradeEM(37500, 37500, 2, 2, 3)
 
-print(w.x, w.y)
+print(f"Top left found at: {w.x}, {w.y}")
 
-c = Challenge()
-tracker = Tracker(5)
+tracker = Tracker(3)
+
 while True:  # main loop
-    #feature.questing(butter=True)
-    feature.itopod_snipe(300)
-    #tracker.progress()
-    #feature.boost_cube()
-    #feature.ygg()
-    feature.gold_diggers([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
-    #feature.snipe(13, 120)
-
-    #time.sleep(120)
-    #c.start_challenge(9)
-    #speedrun(3, feature)
+    speedrun(3, feature)
+    tracker.progress()
