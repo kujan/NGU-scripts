@@ -5,7 +5,6 @@ from classes.window import Window
 from collections import deque, namedtuple
 from decimal import Decimal
 from deprecated import deprecated
-import constants as const
 import coordinates as coords
 import datetime
 import math
@@ -1252,19 +1251,7 @@ class Features(Navigation, Inputs):
             print(f"Kills: {self.itopod_kills}\nAP gained: {self.itopod_ap_gained}")
         return
 
-    def assign_wishes(self):
-        """Will assign any idle resources to wishes in the order as defined in constants.py."""
-        self.menu("wishes")
-        for y in range(3):
-            for x in range(7):
-                complete = self.check_pixel_color(coords.WISH_BORDER.x + x * 92,
-                                                  coords.WISH_BORDER.y + y * 106,
-                                                  coords.COLOR_WISH_COMPLETED)
-                if complete:
-                    self.completed_wishes.append(1 + x + y + y * 6)
-        print(self.completed_wishes)
-
-        """epow = 13544420000000
+"""epow = 13544420000000
 ecap = 1.9e16
 mpow = 7269913000000
 mcap = 4.4e15

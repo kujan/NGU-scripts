@@ -11,7 +11,6 @@ import pytesseract
 import re
 import time
 import os
-import sys
 import win32api
 import win32con as wcon
 import win32gui
