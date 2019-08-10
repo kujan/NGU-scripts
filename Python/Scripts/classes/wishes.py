@@ -8,13 +8,14 @@ import re
 import time
 import usersettings as userset
 
+
 class Wishes(Navigation, Inputs):
     """Class that handles wishes."""
 
-
-
-    def __init__(self):
+    def __init__(self, wish_slots):
         """Fetch initial breakdown values."""
+        self.wish_slots = wish_slots
+        self.wish_speed = 0
         self.epow = 0
         self.ecap = 0
 
@@ -24,12 +25,15 @@ class Wishes(Navigation, Inputs):
         self.rpow = 0
         self.rcap = 0
 
-        self.wishes_completed = []
-        self.wishes_in_progress = []
+        self.wishes_completed = []  # completed wishes
+        self.wishes_in_progress = []  # wishes above level 0
+        self.wishes_active = []  # wishes that currently are progressing
+        self.wishes_inactive = []  # wishes that have resources but are not progressing
         #self.get_breakdowns()
         self.get_wish_status()
         print(self.wishes_completed)
         print(self.wishes_in_progress)
+        print(self.wishes_active)
 
     def get_breakdowns(self):
         """Go to stat breakdowns and fetch the necessary stats."""
@@ -100,12 +104,34 @@ class Wishes(Navigation, Inputs):
             self.click(*page)
             for y in range(3):
                 for x in range(7):
-                    color = self.get_pixel_color(coords.WISH_BORDER.x + x * 92,
-                                                 coords.WISH_BORDER.y + y * 106)
-                    if color == coords.COLOR_WISH_COMPLETED:
+                    border_color = self.get_pixel_color(coords.WISH_BORDER.x + x * 92,
+                                                        coords.WISH_BORDER.y + y * 106)
+                    if border_color == coords.COLOR_WISH_COMPLETED:
                         self.wishes_completed.append(1 + x + y + y * 6 + i * 21)
-                    if color == coords.COLOR_WISH_STARTED:
+
+                    if border_color == coords.COLOR_WISH_STARTED:
                         self.wishes_in_progress.append(1 + x + y + y * 6 + i * 21)
+
+                    active_color = self.get_pixel_color(coords.WISH_SELECTION.x + x * 92,
+                                                        coords.WISH_SELECTION.y + y * 106)
+                    if active_color == coords.COLOR_WISH_ACTIVE:
+                        self.wishes_active.append(1 + x + y + y * 6 + i * 21)
+                    if active_color == coords.COLOR_WISH_INACTIVE:
+                        self.click(coords.WISH_SELECTION.x + x * 92,
+                                   coords.WISH_SELECTION.y + y * 106)
+                        self.click(*coords.WISH_CLEAR_WISH)
+                        self.wishes_in_progress.append(1 + x + y + y * 6 + i * 21)
+
             if i == 0:  # after page 1 is scanned, select first wish
                 self.click(*coords.WISH_SELECTION)
 
+        used_slots = len(self.wishes_active)
+        if used_slots > 0:
+            self.wish_slots -= used_slots
+            print(f"{used_slots} wish slots are already in use and will be ignored.")
+
+
+    def allocate_wishes(self):
+        """Use the order defined in constants.py to determine which wish to run."""
+        for _ in range(self.wish_slots):
+            print("")

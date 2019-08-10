@@ -7,7 +7,9 @@ import time
 
 class Rebirth(Features):
     """Contains functions for running a no rebirth challenge."""
+
     final_aug = False
+
     def first_rebirth(self):
         """Procedure for first rebirth."""
         end = time.time() + 3 * 60

@@ -6,6 +6,7 @@ import time
 
 class Augment(Features):
     """Contains functions for running a no augments challenge."""
+
     def normal_rebirth(self, duration):
         """Procedure for first rebirth."""
         diggers = [2, 3, 11, 12]  # Wandoos, stat, blood, exp

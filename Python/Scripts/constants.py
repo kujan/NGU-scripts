@@ -28,11 +28,11 @@ WISH_ORDER = [
               Wish(74, "I wish the Beast would drop some QP", 1, 2e16),
               Wish(75, "I wish the Greasy Nerd would drop some QP", 1, 5e17),
               Wish(47, "I wish enemies spawned faster", 10, 6e18),
+              Wish(4, "I wish V2/3/4 Titans had better rewards", 3, 8e15),
               Wish(2, "I wish that wishes weren't so slow :c", 10, 1e15),
               Wish(22, "I wish Wishes weren't so slow :c II", 10, 5e16),
               Wish(44, "I wish Wishes weren't so slow :c III", 10, 2e18),
               Wish(3, "I wish MacGuffin drops mattered", 5, 2e15),
-              
 
               Wish(10, "I wish I had more Energy Power I", 10, 5e15),
               Wish(32, "I wish I had more Energy Power II", 10, 1e17),
@@ -50,15 +50,13 @@ WISH_ORDER = [
               Wish(36, "I wish I had more Magic Cap II", 10, 1e17),
               Wish(53, "I wish I had more Magic Cap III", 10, 5e18),
               Wish(69, "I wish I had more Magic Cap IV", 10, 3e20),
-              
-              Wish(4, "I wish V2/3/4 Titans had better rewards", 3, 8e15),
-              
+
               Wish(5, "I wish money pit didn't suck", 10, 6e15),
               Wish(9, "I wish I had a cool new move for Adventure I", 1, 6e15),
               Wish(78, "I wish the Number Hack had more milestones I", 5, 1e19),
               Wish(6, " I wish I could beat up more bosses I", 10, 3e15),
               Wish(31, "I wish I could beat up more bosses II", 10, 2e17),
-              
+
               Wish(28, "I wish the Daycare Kitty was even happier", 10, 5e16),
               Wish(26, "I wish Fruit of MacGuffin α wasn't so random", 1, 6e16),
               Wish(25, "I wish Blood MacGuffin α wasn't so random", 1, 6e16),
