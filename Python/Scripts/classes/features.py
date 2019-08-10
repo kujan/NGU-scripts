@@ -5,6 +5,7 @@ from classes.window import Window
 from collections import deque, namedtuple
 from decimal import Decimal
 from deprecated import deprecated
+import constants as const
 import coordinates as coords
 import datetime
 import math
@@ -45,6 +46,7 @@ class Features(Navigation, Inputs):
                        }
     itopod_ap_gained = 0
     itopod_kills = 0
+    completed_wishes = []
 
     def merge_equipment(self):
         """Navigate to inventory and merge equipment."""
@@ -1235,7 +1237,7 @@ class Features(Navigation, Inputs):
             while kc > 0:
                 if self.check_pixel_color(*coords.IS_ENEMY_ALIVE):
                     self.click(*coords.ABILITY_REGULAR_ATTACK)
-                    
+
                     self.itopod_kills += 1
                     kc -= 1
                     if kc > 0:
@@ -1249,3 +1251,42 @@ class Features(Navigation, Inputs):
             self.itopod_ap_gained += 1
             print(f"Kills: {self.itopod_kills}\nAP gained: {self.itopod_ap_gained}")
         return
+
+    def assign_wishes(self):
+        """Will assign any idle resources to wishes in the order as defined in constants.py."""
+        self.menu("wishes")
+        for y in range(3):
+            for x in range(7):
+                complete = self.check_pixel_color(coords.WISH_BORDER.x + x * 92,
+                                                  coords.WISH_BORDER.y + y * 106,
+                                                  coords.COLOR_WISH_COMPLETED)
+                if complete:
+                    self.completed_wishes.append(1 + x + y + y * 6)
+        print(self.completed_wishes)
+
+        """epow = 13544420000000
+ecap = 1.9e16
+mpow = 7269913000000
+mcap = 4.4e15
+rpow = 494335
+rcap = 533784265
+wish_speed = 2.34
+
+powproduct = (epow * mpow * rpow) ** 0.17
+wish_cap_ticks = 218 * 60 * 50
+capreq = 5e15 * 9 / wish_cap_ticks / wish_speed / powproduct
+
+ratio = [ecap / rcap, mcap / rcap, 1]
+capproduct = reduce((lambda x, y: x * y), ratio)
+factor = (capreq / capproduct ** 0.17) ** (1 / .17 / 3)
+vals = []
+for x in ratio:
+    vals.append(ceil((x * factor)))
+
+coord = [(590, 220), (720, 220), (860, 220)]
+
+for index, x in enumerate(vals):
+    print('%.2E' % Decimal(x))
+    feature.input_box()
+    feature.send_string(x)
+    feature.click(*coord[index])"""

@@ -2,7 +2,7 @@
 from classes.window import Window as window
 from ctypes import windll
 from PIL import Image as image
-from PIL import ImageFilter
+from PIL import ImageFilter, ImageEnhance
 import cv2
 import datetime
 import usersettings as userset
@@ -189,7 +189,10 @@ class Inputs():
         bmp = bmp.crop((x_start + 8, y_start + 8, x_end + 8, y_end + 8))
         *_, right, lower = bmp.getbbox()
         bmp = bmp.resize((right*4, lower*4), image.BICUBIC)  # Resize image
+        enhancer = ImageEnhance.Sharpness(bmp)
+        bmp = enhancer.enhance(0)
         bmp = bmp.filter(ImageFilter.SHARPEN)  # Sharpen image for better OCR
+
         if debug:
             bmp.save("debug_ocr.png")
         s = pytesseract.image_to_string(bmp)
