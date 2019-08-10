@@ -5,14 +5,15 @@ from functools import reduce
 import math
 import re
 import pprint
-
+import time
 
 class Wishes(Features):
     """Class that handles wishes."""
 
-    def __init__(self, wish_slots):
+    def __init__(self, wish_slots, wish_min_time):
         """Fetch initial breakdown values."""
         self.wish_slots = wish_slots
+        self.wish_min_time = wish_min_time
         self.wish_speed = 0
         self.epow = 0
         self.ecap = 0
@@ -27,8 +28,9 @@ class Wishes(Features):
         self.wishes_in_progress = []  # wishes above level 0
         self.wishes_active = []  # wishes that currently are progressing
         self.get_breakdowns()
+        self.get_wish_status()
         self.allocate_wishes()
-        #self.get_wish_status()
+        
         #self.allocate_wishes()
         #print(self.wish_speed)
 
@@ -160,9 +162,10 @@ class Wishes(Features):
             if wish.id in self.wishes_completed:
                 available_wishes.remove(wish)
         # TODO: check wish level
+        t = time.time()
         for wish in available_wishes:
             powproduct = (self.epow * self.mpow * self.rpow) ** 0.17
-            wish_cap_ticks = 218 * 60 * 50
+            wish_cap_ticks = self.wish_min_time * 60 * 50
             capreq = wish.divider * 2 / wish_cap_ticks / self.wish_speed / powproduct
 
             ratio = [self.ecap / self.rcap, self.mcap / self.rcap, 1]
@@ -172,4 +175,5 @@ class Wishes(Features):
             for x in ratio:
                 vals.append(math.ceil((x * factor)))
             costs[wish.id] = vals
+        print(t - time.time())
         self.pp.pprint(costs)
