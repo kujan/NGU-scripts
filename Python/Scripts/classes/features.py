@@ -931,11 +931,12 @@ class Features(Navigation, Inputs):
         """Get the available idle energy, magic, or resource 3."""
         try:
             if resource == 1:
-                res = self.ocr(*coords.OCR_MAGIC)
-            elif resource == 2:
                 res = self.ocr(*coords.OCR_ENERGY)
+            elif resource == 2:
+                res = self.ocr(*coords.OCR_MAGIC)
             else:
                 res = self.ocr(*coords.OCR_R3)
+
             match = re.search(r".*(\d+\.\d+E\+\d+)", res)
 
             if match is not None:

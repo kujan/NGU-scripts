@@ -1,6 +1,7 @@
 from classes.features import Features
 import constants as const
 import coordinates as coords
+import usersettings as userset
 from functools import reduce
 import math
 import re
@@ -13,6 +14,7 @@ class Wishes(Features):
     def __init__(self, wish_slots, wish_min_time):
         """Fetch initial breakdown values."""
         self.wish_slots = wish_slots
+        self.available_slots = 0
         self.wish_min_time = wish_min_time
         self.wish_speed = 0
         self.epow = 0
@@ -78,6 +80,10 @@ class Wishes(Features):
             print("Couldn't fetch wish speed, defaulting to 100%")
             self.wish_speed = 1
 
+        self.get_caps()
+
+    def get_caps(self):
+        """Get all available idle resources."""
         self.ecap = self.get_idle_cap(1)
         self.mcap = self.get_idle_cap(2)
         self.rcap = self.get_idle_cap(3)
@@ -120,7 +126,9 @@ class Wishes(Features):
         """Check which wishes are done and which are level 1 or higher."""
         self.menu("wishes")
         self.click(*coords.WISH_PAGE[1])  # go to page 2 and select the first wish to get rid of the green border
+        time.sleep(userset.MEDIUM_SLEEP)
         self.click(*coords.WISH_SELECTION)
+        time.sleep(userset.MEDIUM_SLEEP)
         self.click(*coords.WISH_PAGE[0])
 
         for i, page in enumerate(coords.WISH_PAGE):
@@ -149,8 +157,8 @@ class Wishes(Features):
                 self.click(*coords.WISH_SELECTION)
 
         used_slots = len(self.wishes_active)
+        self.available_slots = self.wish_slots - used_slots
         if used_slots > 0:
-            self.wish_slots -= used_slots
             print(f"{used_slots} wish slots are already in use and will be ignored.")
 
 
@@ -161,19 +169,51 @@ class Wishes(Features):
         for wish in available_wishes:
             if wish.id in self.wishes_completed:
                 available_wishes.remove(wish)
-        # TODO: check wish level
-        t = time.time()
+
         for wish in available_wishes:
             powproduct = (self.epow * self.mpow * self.rpow) ** 0.17
             wish_cap_ticks = self.wish_min_time * 60 * 50
-            capreq = wish.divider * 2 / wish_cap_ticks / self.wish_speed / powproduct
+            # TODO: fetch current wish level instead of using max(?).
+            capreq = wish.divider * wish.levels / wish_cap_ticks / self.wish_speed / powproduct
 
             ratio = [self.ecap / self.rcap, self.mcap / self.rcap, 1]
-            capproduct = reduce((lambda x, y: x * y), ratio)
+            capproduct = reduce((lambda x, y: x * y), ratio, 1)
             factor = (capreq / capproduct ** 0.17) ** (1 / .17 / 3)
             vals = []
             for x in ratio:
                 vals.append(math.ceil((x * factor)))
             costs[wish.id] = vals
-        print(t - time.time())
-        self.pp.pprint(costs)
+
+        
+        best = {}
+        best_cost = math.inf
+        while len(available_wishes) > self.available_slots:
+            candidates = {}
+            for slot in range(self.available_slots):
+                for wish in available_wishes:
+                    if wish.id not in candidates:
+                        candidates[wish.id] = costs[wish.id]
+                        break
+            rcap_cost = 0
+            for wish in candidates:
+                rcap_cost += candidates[wish][2]
+            if rcap_cost < self.rcap:
+                best = candidates
+                break
+            else:
+                if rcap_cost < best_cost:
+                    best = candidates
+                    best_cost = rcap_cost
+
+                for wish in available_wishes:
+                    if wish.id == max(candidates.items(), key=lambda x: x[1][2])[0]:
+                        available_wishes.remove(wish)
+
+        print(f"Best allocation suggestion:\n{best}")
+        alloc_coords = [coords.WISH_E_ADD, coords.WISH_M_ADD, coords.WISH_R_ADD]
+        for i in range(self.available_slots):
+            self.input_box()
+            self.send_string(best[i])
+            self.click(*alloc_coords[i])
+
+        
