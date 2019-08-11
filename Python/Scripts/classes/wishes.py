@@ -5,7 +5,6 @@ import usersettings as userset
 from functools import reduce
 import math
 import re
-import pprint
 import time
 
 class Wishes(Features):
@@ -13,6 +12,7 @@ class Wishes(Features):
 
     def __init__(self, wish_slots, wish_min_time):
         """Fetch initial breakdown values."""
+        print(const.WISH_DISCLAIMER)
         self.wish_slots = wish_slots
         self.available_slots = 0
         self.wish_min_time = wish_min_time
@@ -25,16 +25,13 @@ class Wishes(Features):
 
         self.rpow = 0
         self.rcap = 0
-        self.pp = pprint.PrettyPrinter(indent=4)
         self.wishes_completed = []  # completed wishes
         self.wishes_in_progress = []  # wishes above level 0
         self.wishes_active = []  # wishes that currently are progressing
         self.get_breakdowns()
         self.get_wish_status()
         self.allocate_wishes()
-        
-        #self.allocate_wishes()
-        #print(self.wish_speed)
+
 
     def get_breakdowns(self):
         """Go to stat breakdowns and fetch the necessary stats."""
@@ -120,7 +117,6 @@ class Wishes(Features):
                                                   coords.COLOR_WISH_COMPLETED)
                 if complete:
                     self.completed_wishes.append(1 + x + y + y * 6)
-        print(self.completed_wishes)
 
     def get_wish_status(self):
         """Check which wishes are done and which are level 1 or higher."""
@@ -155,7 +151,6 @@ class Wishes(Features):
 
             if i == 0:  # after page 1 is scanned, select first wish
                 self.click(*coords.WISH_SELECTION)
-
         used_slots = len(self.wishes_active)
         self.available_slots = self.wish_slots - used_slots
         if used_slots > 0:
@@ -166,9 +161,12 @@ class Wishes(Features):
         """Use the order defined in constants.py to determine which wish to run."""
         available_wishes = const.WISH_ORDER
         costs = {}
+        tmp = []
         for wish in available_wishes:
             if wish.id in self.wishes_completed:
-                available_wishes.remove(wish)
+                tmp.append(wish)
+        for t in tmp:
+            available_wishes.remove(t)
 
         for wish in available_wishes:
             powproduct = (self.epow * self.mpow * self.rpow) ** 0.17
@@ -184,7 +182,6 @@ class Wishes(Features):
                 vals.append(math.ceil((x * factor)))
             costs[wish.id] = vals
 
-        
         best = {}
         best_cost = math.inf
         while len(available_wishes) > self.available_slots:
@@ -210,10 +207,23 @@ class Wishes(Features):
                         available_wishes.remove(wish)
 
         print(f"Best allocation suggestion:\n{best}")
-        alloc_coords = [coords.WISH_E_ADD, coords.WISH_M_ADD, coords.WISH_R_ADD]
-        for i in range(self.available_slots):
-            self.input_box()
-            self.send_string(best[i])
-            self.click(*alloc_coords[i])
 
-        
+        for i, k in enumerate(best):
+            for w in const.WISH_ORDER:
+                if w.id == k:
+                    print(f"Allocating {best[k][0]} E{best[k][1]} M {best[k][2]} R to {w.name}")
+                    self.add_emr(w, best[k])
+
+    def add_emr(self, wish, emr):
+        """Add EMR to wish."""
+        alloc_coords = [coords.WISH_E_ADD, coords.WISH_M_ADD, coords.WISH_R_ADD]
+        self.menu("wishes")
+        page = ((wish.id - 1) // 21)
+        self.click(*coords.WISH_PAGE[page])
+        x = coords.WISH_SELECTION.x + ((wish.id - 1) % 21 % 7) * coords.WISH_SELECTION_OFFSET.x
+        y = coords.WISH_SELECTION.y + ((wish.id - 1) % 21 // 7) * coords.WISH_SELECTION_OFFSET.y
+        self.click(x + 20, y + 20)  # have to add to add some offset here, otherwise the clicks don't register for some reason.
+        for i, e in enumerate(emr):
+            self.input_box()
+            self.send_string(e)
+            self.click(*alloc_coords[i])
