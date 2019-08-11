@@ -1,4 +1,5 @@
 from classes.features import Features
+from decimal import Decimal
 import constants as const
 import coordinates as coords
 import usersettings as userset
@@ -19,10 +20,8 @@ class Wishes(Features):
         self.wish_speed = 0
         self.epow = 0
         self.ecap = 0
-
         self.mpow = 0
         self.mcap = 0
-
         self.rpow = 0
         self.rcap = 0
         self.wishes_completed = []  # completed wishes
@@ -30,13 +29,13 @@ class Wishes(Features):
         self.wishes_active = []  # wishes that currently are progressing
         self.get_breakdowns()
         self.get_wish_status()
-        self.allocate_wishes()
-
+        # self.allocate_wishes()
 
     def get_breakdowns(self):
         """Go to stat breakdowns and fetch the necessary stats."""
         self.stat_breakdown()
         self.click(*coords.BREAKDOWN_E)
+        print("OCR is scanning a large area, this might take a few seconds")
         e_list = self.fix_text(self.ocr(*coords.OCR_BREAKDOWN_E))
         self.click(*coords.BREAKDOWN_M)
         m_list = self.fix_text(self.ocr(*coords.OCR_BREAKDOWN_E))
@@ -211,7 +210,10 @@ class Wishes(Features):
         for i, k in enumerate(best):
             for w in const.WISH_ORDER:
                 if w.id == k:
-                    print(f"Allocating {best[k][0]} E{best[k][1]} M {best[k][2]} R to {w.name}")
+                    e = '%.2E' % Decimal(best[k][0])
+                    m = '%.2E' % Decimal(best[k][1])
+                    r = '%.2E' % Decimal(best[k][2])
+                    print(f"Allocating {e} E | {m} M | {r} R to {w.name}")
                     self.add_emr(w, best[k])
 
     def add_emr(self, wish, emr):
