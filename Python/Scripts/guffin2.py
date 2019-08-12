@@ -42,7 +42,7 @@ class Guffin(Features):
 
         self.runs = 0
         self.do_rebirth()
-        self.__run()
+        self.run()
 
     def __update_gamestate(self):
         """Update relevant state information."""
@@ -68,7 +68,7 @@ class Guffin(Features):
                 self.click(*coords.QUESTING_USE_MAJOR)
             self.questing(duration=2, butter=self._butter)
 
-    def __run(self):
+    def run(self):
         """Rebirth procedure"""
         self.__update_gamestate()
         self.nuke()
@@ -110,7 +110,6 @@ class Guffin(Features):
         self.augments({self._aug[0]: 0.66, self._aug[1]: 0.34}, self.get_idle_cap(1) * 0.5)
 
         while self._rb_time < self._max_rb_duration - 140:
-            print(self._rb_time, self._max_rb_duration)
             self.gold_diggers(self._diggers)
             self.nuke()
             self.hacks(self._hacks, self.get_idle_cap(3))
