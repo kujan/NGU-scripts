@@ -35,13 +35,17 @@ class Wishes(Features):
         """Go to stat breakdowns and fetch the necessary stats."""
         self.stat_breakdown()
         self.click(*coords.BREAKDOWN_E)
+        time.sleep(userset.MEDIUM_SLEEP)
         print("OCR is scanning a large area, this might take a few seconds")
         e_list = self.fix_text(self.ocr(*coords.OCR_BREAKDOWN_E))
         self.click(*coords.BREAKDOWN_M)
+        time.sleep(userset.MEDIUM_SLEEP)
         m_list = self.fix_text(self.ocr(*coords.OCR_BREAKDOWN_E))
         self.click(*coords.BREAKDOWN_R)
+        time.sleep(userset.MEDIUM_SLEEP)
         r_list = self.fix_text(self.ocr(*coords.OCR_BREAKDOWN_E))
         self.click(*coords.BREAKDOWN_MISC)
+        time.sleep(userset.MEDIUM_SLEEP)
         self.click_drag(*coords.BREAKDOWN_MISC_SCROLL_DRAG_START, *coords.BREAKDOWN_MISC_SCROLL_DRAG_END)
         misc_list = self.fix_text(self.ocr(*coords.OCR_BREAKDOWN_E))
 
@@ -53,14 +57,14 @@ class Wishes(Features):
                     self.epow = float(e[1])
         except ValueError:
             print("couldn't fetch energy power")
-            self.epow = 0
+            self.epow = 1
         try:
             for e in m_list:
                 if e[0].lower() in fields:
                     self.mpow = float(e[1])
         except ValueError:
             print("couldn't fetch magic power")
-            self.mpow = 0
+            self.mpow = 1
 
         try:
             for e in r_list:
@@ -68,7 +72,7 @@ class Wishes(Features):
                     self.rpow = float(e[1])
         except ValueError:
             print("couldn't fetch R3 power")
-            self.rpow = 0
+            self.rpow = 1
         try:
             for e in misc_list:
                 if e[0].lower() in fields:
@@ -179,12 +183,15 @@ class Wishes(Features):
         available_wishes = const.WISH_ORDER
         costs = {}
         tmp = []
+
+        # Find and remove wishes that are completed or are currently active.
         for wish in available_wishes:
             if wish.id in self.wishes_completed or wish.id in self.wishes_active:
                 tmp.append(wish)
         for t in tmp:
             available_wishes.remove(t)
 
+        # Calculate the required EMR to run the wishes at full speed at the last level.
         for wish in available_wishes:
             powproduct = (self.epow * self.mpow * self.rpow) ** 0.17
             wish_cap_ticks = self.wish_min_time * 60 * 50
@@ -201,6 +208,7 @@ class Wishes(Features):
 
         best = {}
         best_cost = math.inf
+        # Iterate through all available wishes to find the combination with highest priority and lowest cost to cap.
         while len(available_wishes) > self.available_slots:
             candidates = {}
             for slot in range(self.available_slots):
