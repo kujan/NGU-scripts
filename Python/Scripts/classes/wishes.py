@@ -42,6 +42,7 @@ class Wishes(Features):
         self.click(*coords.BREAKDOWN_R)
         r_list = self.fix_text(self.ocr(*coords.OCR_BREAKDOWN_E))
         self.click(*coords.BREAKDOWN_MISC)
+        self.click_drag(*coords.BREAKDOWN_MISC_SCROLL_DRAG_START, *coords.BREAKDOWN_MISC_SCROLL_DRAG_END)
         misc_list = self.fix_text(self.ocr(*coords.OCR_BREAKDOWN_E))
 
         fields = ["total energy power:", "total magic power:", "total r power:", "total wish speed:"]
@@ -90,13 +91,30 @@ class Wishes(Features):
             fields = []
             values = []
             res = []
+            method = 0
             for line in text.splitlines():
-                if line == "" or line[0].lower() == "x":
-                    continue
-                if line[0].isdigit():
-                    values.append(re.sub(r'[^0-9E+\.]', '', line))
-                else:
-                    fields.append(line)
+                match = re.search(r"[a-zA-Z\s]+:\s*[xX]\s*\d+\%?", line)
+                if match is not None:
+                    method = 1
+                    break
+            if method == 1:
+                for line in text.splitlines():
+                    if line == "":
+                        continue
+                    else:
+                        match = re.match(r"(^[a-zA-Z\s]+:?)", line)
+                        if match is not None:
+                            fields.append(match.group(1))
+                            values.append(self.remove_letters(line))
+            else:
+                for line in text.splitlines():
+
+                    if line == "" or line[0].lower() == "x":
+                        continue
+                    if line[0].isdigit():
+                        values.append(re.sub(r'[^0-9E+\.]', '', line))
+                    else:
+                        fields.append(line)
             assert(len(fields) == len(values))
 
             for index, field in enumerate(fields):
@@ -162,7 +180,7 @@ class Wishes(Features):
         costs = {}
         tmp = []
         for wish in available_wishes:
-            if wish.id in self.wishes_completed:
+            if wish.id in self.wishes_completed or wish.id in self.wishes_active:
                 tmp.append(wish)
         for t in tmp:
             available_wishes.remove(t)
