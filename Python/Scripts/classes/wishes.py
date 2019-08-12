@@ -77,9 +77,23 @@ class Wishes(Features):
             for e in misc_list:
                 if e[0].lower() in fields:
                     self.wish_speed = int(e[1]) / 100
+
         except ValueError:
             print("Couldn't fetch wish speed, defaulting to 100%")
             self.wish_speed = 1
+
+        if not self.wish_speed:
+            print("Couldn't get wish speed")
+            self.wish_speed = 1
+        if not self.epow:
+            print("Couldn't get epow")
+            self.epow = 1
+        if not self.mpow:
+            print("Couldn't get mpow")
+            self.mpow = 1
+        if not self.rpow:
+            print("Couldn't get rpow")
+            self.rpow = 1
 
         self.get_caps()
 
@@ -126,6 +140,7 @@ class Wishes(Features):
             return res
 
         except AssertionError:
+            return []
             print("OCR couldn't determine breakdown values")
 
     def assign_wishes(self):

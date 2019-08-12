@@ -61,7 +61,6 @@ class Inputs():
                win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
                win32api.GetKeyState(wcon.VK_MENU) < 0):
             time.sleep(0.005)
-        print("clicking")
         win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
                              wcon.MK_LBUTTON, lParam)
         time.sleep(userset.LONG_SLEEP * 2)

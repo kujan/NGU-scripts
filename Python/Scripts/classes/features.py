@@ -971,6 +971,7 @@ class Features(Navigation, Inputs):
     def questing_consume_items(self, cleanup=False):
         """Check for items in inventory that can be turned in."""
         self.menu("inventory")
+        self.click(*coords.INVENTORY_PAGE[0])
         bmp = self.get_bitmap()
         for item in coords.QUESTING_FILENAMES:
             path = self.get_file_path("images", item)
@@ -1144,6 +1145,12 @@ class Features(Navigation, Inputs):
                 seconds = x.group('seconds')
             timestamp = time.strptime(f"{hours}:{minutes}:{seconds}", "%H:%M:%S")
         return Rebirth_time(days, timestamp)
+
+    def rt_to_seconds(self):
+        """Convert rebirth_time object to seconds"""
+        rt = self.get_rebirth_time()
+        seconds = ((rt.days * 24 + rt.timestamp.tm_hour) * 60 + rt.timestamp.tm_min) * 60 + rt.timestamp.tm_sec
+        return seconds
 
     def eat_muffin(self, buy=False):
         """Eat a MacGuffin Muffin if it's not active.
