@@ -2,8 +2,6 @@
 
 # Helper classes
 from classes.features import Features
-from classes.inputs import Inputs
-from classes.navigation import Navigation
 from classes.window import Window
 
 import coordinates as coords

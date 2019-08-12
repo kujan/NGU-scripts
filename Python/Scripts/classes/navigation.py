@@ -142,3 +142,12 @@ class Navigation(Inputs):
         self.click(*coords.SELLOUT_BOOST_2)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = "boost_2"
+
+    def stat_breakdown(self):
+        """Navigate to stat breakdown."""
+        if Navigation.current_menu == 'stat_breakdown':
+            return
+        self.misc()
+        self.click(*coords.STAT_BREAKDOWN)
+        time.sleep(userset.SHORT_SLEEP)
+        Navigation.current_menu = 'stat_breakdown'

@@ -2,7 +2,7 @@
 from classes.window import Window as window
 from ctypes import windll
 from PIL import Image as image
-from PIL import ImageFilter
+from PIL import ImageFilter, ImageEnhance
 import cv2
 import datetime
 import usersettings as userset
@@ -11,7 +11,6 @@ import pytesseract
 import re
 import time
 import os
-import sys
 import win32api
 import win32con as wcon
 import win32gui
@@ -47,6 +46,30 @@ class Inputs():
             time.sleep(userset.FAST_SLEEP)
         else:
             time.sleep(userset.MEDIUM_SLEEP)
+
+    def click_drag(self, x, y, x2, y2):
+        """Click at pixel xy."""
+        x += window.x
+        y += window.y
+        x2 += window.x
+        y2 += window.y
+        lParam = win32api.MAKELONG(x, y)
+        lParam2 = win32api.MAKELONG(x2, y2)
+        # MOUSEMOVE event is required for game to register clicks correctly
+        win32gui.PostMessage(window.id, wcon.WM_MOUSEMOVE, 0, lParam)
+        while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
+               win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
+               win32api.GetKeyState(wcon.VK_MENU) < 0):
+            time.sleep(0.005)
+        print("clicking")
+        win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
+                             wcon.MK_LBUTTON, lParam)
+        time.sleep(userset.LONG_SLEEP * 2)
+        win32gui.PostMessage(window.id, wcon.WM_MOUSEMOVE, 0, lParam2)
+        time.sleep(userset.SHORT_SLEEP)
+        win32gui.PostMessage(window.id, wcon.WM_LBUTTONUP,
+                             wcon.MK_LBUTTON, lParam2)
+        time.sleep(userset.MEDIUM_SLEEP)
 
     def ctrl_click(self, x, y):
         """Clicks at pixel x, y while simulating the CTRL button to be down."""
@@ -189,7 +212,10 @@ class Inputs():
         bmp = bmp.crop((x_start + 8, y_start + 8, x_end + 8, y_end + 8))
         *_, right, lower = bmp.getbbox()
         bmp = bmp.resize((right*4, lower*4), image.BICUBIC)  # Resize image
+        enhancer = ImageEnhance.Sharpness(bmp)
+        bmp = enhancer.enhance(0)
         bmp = bmp.filter(ImageFilter.SHARPEN)  # Sharpen image for better OCR
+
         if debug:
             bmp.save("debug_ocr.png")
         s = pytesseract.image_to_string(bmp)
