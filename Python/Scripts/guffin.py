@@ -37,7 +37,7 @@ class Guffin(Features):
             i += 1
             if i > 5:
                 print("Wishes will be disabled.")
-                self.wishes = None
+                self._wishes = None
                 break
 
         self.runs = 0
