@@ -33,7 +33,7 @@ class Guffin(Features):
         i = 0
         while 1 in lst:
             print("OCR reading failed for stat breakdowns, trying again...")
-            self.wishes = Wishes()
+            self._wishes = Wishes(wish_slots, wish_min_time)
             i += 1
             if i > 5:
                 print("Wishes will be disabled.")
