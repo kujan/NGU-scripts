@@ -19,7 +19,7 @@ class Guffin(Features):
         ##############
         self._max_rb_duration = 1800  # How long in seconds you want to run
         self._zone = 3  # The zone number in which you want to do minor quests (for farming specific guffs)
-        self._hacks = [2, 9, 11, 13, 14]  # Adv, QP, Exp, PP, Hack
+        self._hacks = [9]  # Adv, QP, Exp, PP, Hack
         self._diggers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]  # All
         self._butter = True  # Butter majors? True/False
         self._aug = ["EB", "CS"]  # Which aug/upgrade to use, see naming convention in augments() in features.py
@@ -69,7 +69,7 @@ class Guffin(Features):
             self.questing(duration=2, butter=self._butter)
 
     def run(self):
-        """Rebirth procedure"""
+        """Rebirth procedure."""
         self.__update_gamestate()
         self.nuke()
         time.sleep(2)
@@ -85,7 +85,6 @@ class Guffin(Features):
         self.time_machine(self.get_idle_cap(1) * 0.1, magic=True)
         self.__update_gamestate()
         self.toggle_auto_spells(drop=False, gold=False)
-        self.hacks(self._hacks, self.get_idle_cap(3))
         if self._wishes:
             self._wishes.get_caps()
             self._wishes.get_wish_status()

@@ -24,17 +24,20 @@ def speedrun(duration, f):
     duration -- duration in minutes to run
     f -- feature object
     """
-    print("This speedrun procedure is outdated since November 2018")
-    f.do_rebirth()
-    start = time.time()
-    end = time.time() + (duration * 60) + 1
-    blood_digger_active = False
+    time.sleep(1)
+    rt = f.rt_to_seconds()
+    end = (duration * 60) + 1
+
+    if rt > end:
+        f.do_rebirth()
+        time.sleep(1)
+        rt = f.rt_to_seconds()
     itopod_advance = False
-    f.nuke(125)
-    f.loadout(1)  # Gold drop equipment
+    f.nuke()
+    f.loadout(3)  # Gold drop equipment
     f.adventure(highest=True)
     time.sleep(4)
-    f.loadout(2)  # Bar/power equimpent
+    f.loadout(4)  # Bar/power equimpent
     f.adventure(itopod=True, itopodauto=True)
     f.time_machine(1e8, magic=True)
     f.augments({"AE": 0.7, "ES": 0.3}, 1.8e10)
@@ -44,21 +47,27 @@ def speedrun(duration, f):
     f.gold_diggers([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
     f.augments({"AE": 0.7, "ES": 0.3}, 1.5e10)
     f.wandoos(True)
-    while time.time() < end - 20:
+
+    while rt < end - 20:
         f.wandoos(True)
         f.gold_diggers([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
-        if time.time () > start + 40:
+
+        if rt > 40:
             try:
-                NGU_energy = f.get_idle_cap()
-                feature.assign_ngu(NGU_energy, [1, 2, 4, 5, 6, 7, 8, 9])
-                NGU_magic = f.get_idle_cap(magic=True)
-                feature.assign_ngu(NGU_magic, [1, 2, 3, 4], magic=True)
+                f.assign_ngu(f.get_idle_cap(2), [x for x in range(1, 10)])
+                f.cap_ngu([x for x in range(1, 10)])
+                f.assign_ngu(f.get_idle_cap(1), [x for x in range(1, 8)], True)
+                f.cap_ngu([x for x in range(1, 8)], True)
+                if r3unlocked:
+                    f.hacks(list(range(1, 16)), f.get_idle_cap(3))
             except ValueError:
                 print("couldn't assign e/m to NGUs")
             time.sleep(0.5)
-        if time.time() > start + 90 and not itopod_advance:
+        if rt > 90 and not itopod_advance:
             f.adventure(itopod=True, itopodauto=True)
             itopod_advance = True
+        rt = f.rt = f.rt_to_seconds()
+
     f.nuke()
     time.sleep(2)
     f.fight()
@@ -68,9 +77,9 @@ def speedrun(duration, f):
     tracker.progress()
     u.buy()
     tracker.adjustxp()
-    while time.time() < end:
-        time.sleep(0.1)
 
+    while f.get_rebirth_time_in_seconds() < end:
+        time.sleep(0.1)
     return
 
 
@@ -83,6 +92,7 @@ Window.x, Window.y = i.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 400, 600)
 nav.menu("inventory")
 
 u = UpgradeEM(37500, 37500, 2, 2, 3)
+r3unlocked = False
 
 print(f"Top left found at: {w.x}, {w.y}")
 

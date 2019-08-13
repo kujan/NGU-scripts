@@ -246,8 +246,6 @@ class Wishes(Features):
                     if wish.id == max(candidates.items(), key=lambda x: x[1][2])[0]:
                         available_wishes.remove(wish)
 
-        print(f"Best allocation suggestion:\n{best}")
-
         for i, k in enumerate(best):
             for w in const.WISH_ORDER:
                 if w.id == k:
