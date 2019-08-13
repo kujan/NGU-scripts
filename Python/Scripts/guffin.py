@@ -131,7 +131,7 @@ class Guffin(Features):
         print(f"Completed guffin run #{self.runs} in {time.strftime('%H:%M:%S', time.gmtime(self._rb_time))}")
 
 
-w = Window(True)
+w = Window()
 feature = Features()
 Window.x, Window.y = feature.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 400, 600)
 feature.menu("inventory")
