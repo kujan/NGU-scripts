@@ -23,22 +23,24 @@ class Guffin(Features):
         self._diggers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]  # All
         self._butter = True  # Butter majors? True/False
         self._aug = ["EB", "CS"]  # Which aug/upgrade to use, see naming convention in augments() in features.py
+        self._allocate_wishes = True  # Do you wish to allocate resources to wishes? True/False
         #####################
         # DO NOT EDIT BELOW #
         #####################
         print("If you want to use muffins, use them manually. You can eat several muffins at once to extend the duration above 24 hours.")
         input("Press enter to rebirth and start script. ")
-        self._wishes = Wishes(wish_slots, wish_min_time)
-        lst = [self._wishes.epow, self._wishes.mpow, self._wishes.rpow]
-        i = 0
-        while 1 in lst:
-            print("OCR reading failed for stat breakdowns, trying again...")
+        if self._allocate_wishes:
             self._wishes = Wishes(wish_slots, wish_min_time)
-            i += 1
-            if i > 5:
-                print("Wishes will be disabled.")
-                self._wishes = None
-                break
+            lst = [self._wishes.epow, self._wishes.mpow, self._wishes.rpow]
+            i = 0
+            while 1 in lst:
+                print("OCR reading failed for stat breakdowns, trying again...")
+                self._wishes = Wishes(wish_slots, wish_min_time)
+                i += 1
+                if i > 5:
+                    print("Wishes will be disabled.")
+                    self._wishes = None
+                    break
 
         self.runs = 0
         self.do_rebirth()
