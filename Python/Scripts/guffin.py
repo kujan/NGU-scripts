@@ -29,6 +29,7 @@ class Guffin(Features):
         #####################
         print("If you want to use muffins, use them manually. You can eat several muffins at once to extend the duration above 24 hours.")
         input("Press enter to rebirth and start script. ")
+        self._wishes = None
         if self._allocate_wishes:
             self._wishes = Wishes(wish_slots, wish_min_time)
             lst = [self._wishes.epow, self._wishes.mpow, self._wishes.rpow]
