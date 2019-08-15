@@ -157,6 +157,9 @@ class Wishes(Features):
     def get_wish_status(self):
         """Check which wishes are done and which are level 1 or higher."""
         self.menu("wishes")
+        self.wishes_completed = []  # completed wishes
+        self.wishes_in_progress = []  # wishes above level 0
+        self.wishes_active = []  # wishes that currently are progressing
         self.click(*coords.WISH_PAGE[1])  # go to page 2 and select the first wish to get rid of the green border
         time.sleep(userset.MEDIUM_SLEEP)
         self.click(*coords.WISH_SELECTION)
