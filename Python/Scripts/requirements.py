@@ -16,6 +16,7 @@ Window.x, Window.y = i.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 400, 600)
 #sets everything to the proper requirements to run the script
 i.click(*coords.GAME_SETTINGS)
 i.click(*coords.TO_SCIENTIFIC)
+i.click(*coords.TOOLTIPS_DISABLE)
 i.click(*coords.CHECK_FOR_UPDATE_OFF)
 i.click(*coords.FANCY_TITAN_HP_BAR_OFF)
 i.click(*coords.DISABLE_HIGHSCORE)
