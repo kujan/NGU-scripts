@@ -5,7 +5,7 @@ import coordinates as coords
 import time
 
 
-class Basic(Features, Inputs):
+class Ngu(Features, Inputs):
     """Contains functions for running a no NGU challenge."""
     def first_rebirth(self, duration):
         """Procedure for first rebirth."""
@@ -174,21 +174,10 @@ class Basic(Features, Inputs):
     def start(self):
         """Defeat target boss."""
         self.set_wandoos(0)
-        for x in range(6):
-            self.speedrun(3)
-            if not self.check_challenge():
-                return
-        for x in range(4):
-            self.speedrun(7)
-            if not self.check_challenge():
-                return
-        self.set_wandoos(1)
-        for x in range(4):
-            self.speedrun(12)
-            if not self.check_challenge():
-                return
-        self.set_wandoos(2)
-        for x in range(4):
+        self.first_rebirth(15)
+        if not self.check_challenge():
+            return
+        for x in range(8):
             self.speedrun(30)
             if not self.check_challenge():
                 return

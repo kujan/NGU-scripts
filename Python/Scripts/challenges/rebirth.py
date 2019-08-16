@@ -7,7 +7,9 @@ import time
 
 class Rebirth(Features):
     """Contains functions for running a no rebirth challenge."""
+
     final_aug = False
+
     def first_rebirth(self):
         """Procedure for first rebirth."""
         end = time.time() + 3 * 60
@@ -47,7 +49,7 @@ class Rebirth(Features):
             try:
                 current_boss = int(self.get_current_boss())
                 if current_boss > 36:
-                    self.augments({"SS": 0.67, "DS": 0.33}, self.get_idle_cap())
+                    self.augments({"SS": 0.67, "DS": 0.33}, self.get_idle_cap(1))
             except ValueError:
                 print("couldn't get current boss")
             self.gold_diggers(diggers)
@@ -62,7 +64,7 @@ class Rebirth(Features):
                     if not self.final_aug:
                         self.reclaim_aug()
                         self.final_aug = True
-                    self.augments({"SM": 0.67, "AA": 0.33}, self.get_idle_cap())
+                    self.augments({"SM": 0.67, "AA": 0.33}, self.get_idle_cap(1))
             except ValueError:
                 print("couldn't get current boss")
             self.fight()

@@ -20,6 +20,32 @@ class Features(Navigation, Inputs):
 
     current_adventure_zone = 0
     inventory_cleaned = False
+    itopod_tier_counts = {}
+    itopod_tier_map = {
+                       1: 0,
+                       2: 50,
+                       3: 100,
+                       4: 150,
+                       5: 200,
+                       6: 250,
+                       7: 300,
+                       8: 350,
+                       9: 400,
+                       10: 450,
+                       11: 500,
+                       12: 550,
+                       13: 600,
+                       14: 650,
+                       15: 700,
+                       16: 750,
+                       17: 800,
+                       18: 850,
+                       19: 900,
+                       20: 950,
+                       }
+    itopod_ap_gained = 0
+    itopod_kills = 0
+    completed_wishes = []
 
     def merge_equipment(self):
         """Navigate to inventory and merge equipment."""
@@ -290,6 +316,8 @@ class Features(Navigation, Inputs):
 
     def do_rebirth(self):
         """Start a rebirth or challenge."""
+        self.menu("fight")
+        self.click(*coords.FIGHT_STOP)
         self.rebirth()
         self.current_adventure_zone = 0
         self.click(*coords.REBIRTH)
@@ -903,22 +931,25 @@ class Features(Navigation, Inputs):
         """Get the available idle energy, magic, or resource 3."""
         try:
             if resource == 1:
-                res = self.ocr(*coords.OCR_MAGIC)
-            elif resource == 2:
                 res = self.ocr(*coords.OCR_ENERGY)
+            elif resource == 2:
+                res = self.ocr(*coords.OCR_MAGIC)
             else:
                 res = self.ocr(*coords.OCR_R3)
+
             match = re.search(r".*(\d+\.\d+E\+\d+)", res)
-            
+
             if match is not None:
                 return int(float(match.group(1)))
             elif match is None:
-                match = re.sub("[^\d\,]", "", res)
+                match = self.remove_letters(res)
                 if match is not None:
                     return int(match)
                 if match is None:
                     return 0
-
+        except ValueError:
+            print("couldn't get idle cap")
+            return 0
     def get_quest_text(self):
         """Check if we have an active quest or not."""
         self.menu("questing")
@@ -940,6 +971,7 @@ class Features(Navigation, Inputs):
     def questing_consume_items(self, cleanup=False):
         """Check for items in inventory that can be turned in."""
         self.menu("inventory")
+        self.click(*coords.INVENTORY_PAGE[0])
         bmp = self.get_bitmap()
         for item in coords.QUESTING_FILENAMES:
             path = self.get_file_path("images", item)
@@ -951,7 +983,7 @@ class Features(Navigation, Inputs):
                     self.ctrl_click(*loc)
                 time.sleep(3)  # Need to wait for tooltip to disappear after consuming
 
-    def questing(self, duration=30, major=False, subcontract=False, force=0, adv_duration=2):
+    def questing(self, duration=30, major=False, subcontract=False, force=0, adv_duration=2, butter=False):
         """Procedure for questing.
 
         Keyword arguments:
@@ -1046,7 +1078,8 @@ class Features(Navigation, Inputs):
 
         if not self.check_pixel_color(*coords.QUESTING_IDLE_INACTIVE):  # turn off idle
             self.click(*coords.QUESTING_SUBCONTRACT)
-
+        if butter:
+            self.click(*coords.QUESTING_BUTTER)
         for count, zone in enumerate(coords.QUESTING_ZONES, start=0):
             if zone in text.lower():
                 current_time = time.time()
@@ -1113,6 +1146,12 @@ class Features(Navigation, Inputs):
             timestamp = time.strptime(f"{hours}:{minutes}:{seconds}", "%H:%M:%S")
         return Rebirth_time(days, timestamp)
 
+    def rt_to_seconds(self):
+        """Convert rebirth_time object to seconds"""
+        rt = self.get_rebirth_time()
+        seconds = ((rt.days * 24 + rt.timestamp.tm_hour) * 60 + rt.timestamp.tm_min) * 60 + rt.timestamp.tm_sec
+        return seconds
+
     def eat_muffin(self, buy=False):
         """Eat a MacGuffin Muffin if it's not active.
 
@@ -1150,3 +1189,99 @@ class Features(Navigation, Inputs):
             item = i - (page * 8)
             self.click(*coords.HACK_PAGE[page])
             self.click(*coords.HACKS[item])
+
+    def check_wandoos_bb_status(self, magic=False):
+        """Check if wandoos is currently fully BB'd."""
+        self.menu("wandoos")
+        if magic:
+            return self.check_pixel_color(*coords.COLOR_WANDOOS_MAGIC_BB)
+        return self.check_pixel_color(*coords.COLOR_WANDOOS_ENERGY_BB)
+    
+    def itopod_ap(self, duration):
+        """Abuse an oversight in the kill counter for AP rewards for mucher higher AP/h in ITOPOD.
+        If you use this method, make sure you do not retoggle idle mode in adventure in other parts
+        of your script. If you have to, make sure to empty itopod_tier_counts with:
+        itopod_tier_counts = {}
+
+        Keyword arguments:
+        duration -- Duration in seconds to run, before toggling idle mode
+                    back on and returning.
+        """
+        print("WARNING: itopod_ap() is largely untested")
+        end = time.time() + duration * 60
+        self.current_adventure_zone = 0
+        self.menu("adventure")
+        self.click(625, 500)  # click somewhere to move tooltip
+        if self.check_pixel_color(*coords.IS_IDLE):
+            self.click(*coords.ABILITY_IDLE_MODE)
+        # check if we're already in ITOPOD, otherwise enter
+        if not self.itopod_tier_counts:
+            for tier, floor in self.itopod_tier_map.items():
+                self.click(*coords.ITOPOD)
+                self.click(*coords.ITOPOD_START)
+                self.send_string(floor)
+                # set end to 0 in case it's higher than start
+                self.click(*coords.ITOPOD_ENTER)
+                self.click(*coords.ADVENTURE_TOOLTIP)
+                count = self.remove_letters(self.ocr(*coords.OCR_AP_KILL_COUNT))
+                print(f"Tier {tier}: {count}")
+                try:
+                    count = int(count)
+                except ValueError:
+                    print(f"couldn't convert '{count}' to int")
+                self.itopod_tier_counts[tier] = count
+        print(self.itopod_tier_counts)
+        while time.time() < end:
+            next_tier = min(self.itopod_tier_counts, key=self.itopod_tier_counts.get)
+            print(f"going to itopod tier {next_tier}")
+            self.click(*coords.ITOPOD)
+            self.click(*coords.ITOPOD_START)
+            self.send_string(self.itopod_tier_map[next_tier])
+            # set end to 0 in case it's higher than start
+            self.click(*coords.ITOPOD_ENTER)
+            time.sleep(userset.LONG_SLEEP)
+            kc = self.itopod_tier_counts[next_tier]
+            while kc > 0:
+                if self.check_pixel_color(*coords.IS_ENEMY_ALIVE):
+                    self.click(*coords.ABILITY_REGULAR_ATTACK)
+
+                    self.itopod_kills += 1
+                    kc -= 1
+                    if kc > 0:
+                        time.sleep(.7 - userset.MEDIUM_SLEEP)  # Make sure we wait long enough
+                    for tier, count in self.itopod_tier_counts.items():
+                        self.itopod_tier_counts[tier] -= 1
+                        if self.itopod_tier_counts[tier] < 1:
+                            self.itopod_tier_counts[tier] = 40 - tier
+                else:
+                    time.sleep(0.06)
+            self.itopod_ap_gained += 1
+            print(f"Kills: {self.itopod_kills}\nAP gained: {self.itopod_ap_gained}")
+        return
+
+"""epow = 13544420000000
+ecap = 1.9e16
+mpow = 7269913000000
+mcap = 4.4e15
+rpow = 494335
+rcap = 533784265
+wish_speed = 2.34
+
+powproduct = (epow * mpow * rpow) ** 0.17
+wish_cap_ticks = 218 * 60 * 50
+capreq = 5e15 * 9 / wish_cap_ticks / wish_speed / powproduct
+
+ratio = [ecap / rcap, mcap / rcap, 1]
+capproduct = reduce((lambda x, y: x * y), ratio)
+factor = (capreq / capproduct ** 0.17) ** (1 / .17 / 3)
+vals = []
+for x in ratio:
+    vals.append(ceil((x * factor)))
+
+coord = [(590, 220), (720, 220), (860, 220)]
+
+for index, x in enumerate(vals):
+    print('%.2E' % Decimal(x))
+    feature.input_box()
+    feature.send_string(x)
+    feature.click(*coord[index])"""

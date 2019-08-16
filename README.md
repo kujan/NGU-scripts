@@ -14,11 +14,12 @@ The AHK script is unsupported and deleted, but I kept the functions here because
 * Windows 7 or later (NT >=6.1)
 * Python 3 (only tested on 3.7)
 * Tesseract OCR
-* Firefox Browser
+* Firefox Browser with hardware acceleration turned OFF (you have to restart the browser for it to take effect)
 * Use scientific notation in game
 * The "simple inventory shortcuts" setting must be enabled
 * The normal theme must be enabled
 * Fancy titan HP bars must be disabled if using the ``kill_titan()`` method
+* If you plan on using wishes/R3 I strongly recommend you to name your R3 to 'R' and use the green background, otherwise you will get spotty results from Tesseract. It's also strongly recommended to have 50 speed in all 3 resources.
 ## Installation
 Install Python dependencies using [pip](https://pip.pypa.io/en/stable/quickstart/):
 ```
