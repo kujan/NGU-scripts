@@ -178,7 +178,7 @@ TM_MULT = Pixel(532, 330)
 TM_SPEED_MINUS = Pixel(570, 236)
 TM_MULT_MINUS = Pixel(570, 335)
 #BLOOD MAGIC OFFSETS
-BM_LOCKED = Pixel(229, 294)
+BM_LOCKED = Pixel(231, 276)
 
 BM_X = 570
 BM = {0: Pixel(BM_X, 228), 1: Pixel(BM_X, 263), 2: Pixel(BM_X, 298), 3: Pixel(BM_X, 333),
