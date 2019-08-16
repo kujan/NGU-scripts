@@ -14,7 +14,7 @@ The AHK script is unsupported and deleted, but I kept the functions here because
 * Windows 7 or later (NT >=6.1)
 * Python 3 (only tested on 3.7)
 * Tesseract OCR
-* Firefox Browser with hardware acceleration turned OFF
+* Firefox Browser with hardware acceleration turned OFF (you have to restart the browser for it to take effect)
 * Use scientific notation in game
 * The "simple inventory shortcuts" setting must be enabled
 * The normal theme must be enabled
