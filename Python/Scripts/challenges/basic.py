@@ -64,6 +64,7 @@ class Basic(Features, Inputs):
         self.adventure(highest=True)
 
         while self.current_boss < 29 and self.minutes_elapsed < duration:  # buster unlocks after 28
+            self.augments({"SS": 1}, self.get_idle_cap(1))
             self.wandoos(True)
             self.nuke()
             self.fight()
