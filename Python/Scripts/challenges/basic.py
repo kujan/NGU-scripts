@@ -54,19 +54,17 @@ class Basic(Features, Inputs):
 
         while self.current_boss < 18 and self.minutes_elapsed < duration:  # augs unlocks after 17
             self.wandoos(True)
-            self.augments({"SS": 1}, self.get_idle_cap(1))
             self.nuke()
             self.fight()
             if not self.advanced_training_locked and not adv_training_assigned:
                 print("assigning adv")
-                self.reclaim_aug()
                 self.advanced_training(4e11)
-                self.augments({"SS": 1}, self.get_idle_cap(1))
                 adv_training_assigned = True
             self.update_gamestate()
         self.adventure(highest=True)
 
         while self.current_boss < 29 and self.minutes_elapsed < duration:  # buster unlocks after 28
+            self.augments({"SS": 1}, self.get_idle_cap(1))
             self.wandoos(True)
             self.nuke()
             self.fight()
