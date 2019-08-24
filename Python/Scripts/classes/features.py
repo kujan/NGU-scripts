@@ -1099,12 +1099,15 @@ class Features(Navigation, Inputs):
                             start_qp = int(self.remove_letters(self.ocr(*coords.OCR_QUESTING_QP)))
                         except ValueError:
                             print("Couldn't fetch current QP")
+                            start_qp = 0
                         self.click(*coords.QUESTING_START_QUEST)
                         self.click(605, 510)  # move tooltip
                         try:
                             current_qp = int(self.remove_letters(self.ocr(*coords.OCR_QUESTING_QP)))
                         except ValueError:
                             print("Couldn't fetch current QP")
+                            current_qp = 0
+
                         gained_qp = current_qp - start_qp
                         print(f"Completed quest in zone #{count} at {datetime.datetime.now().strftime('%H:%M:%S')} for {gained_qp} QP")
 
