@@ -10,6 +10,10 @@ LONG_SLEEP = 0.4
 
 SPELL = 300
 
+# Own the Beast's Fertilizer Quirk?
+
+FERTILIZER = False
+
 # DISCORD WEBHOOK URLS
 
 ERROR_URL = ""
