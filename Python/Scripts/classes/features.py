@@ -950,6 +950,10 @@ class Features(Navigation, Inputs):
         except ValueError:
             print("couldn't get idle cap")
             return 0
+        
+    def get_fertilizer(self):
+        return userset.FERTILIZER
+    
     def get_quest_text(self):
         """Check if we have an active quest or not."""
         self.menu("questing")
