@@ -15,7 +15,7 @@ def start_procedure(f, rt):
     f.send_string("r")  # make sure we reset e/m if we run this mid-rebirth
     f.send_string("t")
     f.nuke(101)  # PPP
-    f.loadout(2)  # respawn
+    f.loadout(2)  # respawn loadout with equipment set 2
     f.adventure(highest=True)
     f.time_machine(5e11, magic=True)
     f.augments({"CI": 0.7, "ML": 0.3}, 1e12)
@@ -23,10 +23,10 @@ def start_procedure(f, rt):
     f.toggle_auto_spells()
     f.gold_diggers([x for x in range(1, 13)])
 
-    if rt.timestamp.tm_hour > 0 or rt.timestamp.tm_min >= 13:
+    if rt >= 13*60:
         print("assigning adv training")
     else:
-        duration = (12.5 - rt.timestamp.tm_min) * 60
+        duration = 12.5*60 - rt
         print(f"doing itopod for {duration} seconds while waiting for adv training to activate")
         f.itopod_snipe(duration)
 
@@ -34,9 +34,9 @@ def start_procedure(f, rt):
     f.gold_diggers([x for x in range(1, 13)])
     f.reclaim_bm()
     f.wandoos(True)
-    f.assign_ngu(f.get_idle_cap(2), [x for x in range(1, 10)])
-    f.assign_ngu(f.get_idle_cap(1), [x for x in range(1, 8)], True)
-
+    f.assign_ngu(f.get_idle_cap(1), [x for x in range(1, 10)])
+    f.assign_ngu(f.get_idle_cap(2), [x for x in range(1, 8)], True)
+    #f.hacks(list(range(1, 16)), f.get_idle_cap(3))
 
 w = Window()
 i = Inputs()
@@ -45,11 +45,15 @@ feature = Features()
 
 Window.x, Window.y = i.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 400, 600)
 nav.menu("inventory")
-rt = feature.get_rebirth_time()
+rt = feature.rt_to_seconds()
 start_procedure(feature, rt)
 
+max_rb_time = 24*60*60
+if feature.get_fertilizer():
+    max_rb_time = 23*60*60
+
 while True:
-    rt = feature.get_rebirth_time()
+    rt = feature.rt_to_seconds()
     feature.nuke()
     feature.gold_diggers([x for x in range(1, 13)])
     feature.merge_inventory(8)  # merge uneqipped guffs
@@ -59,11 +63,11 @@ while True:
         for spell in spells:
             feature.cast_spell(spell)
         feature.reclaim_bm()
-        feature.assign_ngu(feature.get_idle_cap(True), [x for x in range(1, 8)], True)
+        feature.assign_ngu(feature.get_idle_cap(2), [x for x in range(1, 8)], True)
         feature.toggle_auto_spells()  # retoggle autospells
 
-    if rt.days > 0:  # rebirth is at >24 hours
-        print(f"rebirthing at {rt}")  # debug
+    if rt > max_rb_time:  # rebirth is at >24 hours
+        print(f"rebirthing at {feature.get_rebirth_time()}")  # debug
         feature.nuke()
         feature.spin()
         feature.deactivate_all_diggers()
@@ -72,13 +76,13 @@ while True:
         feature.level_diggers()  # level all diggers
         feature.do_rebirth()
         time.sleep(3)
-        rt = feature.get_rebirth_time()
+        rt = feature.rt_to_seconds()
         start_procedure(feature, rt)
     else:
         feature.ygg()
         feature.save_check()
         feature.pit()
-        if rt.timestamp.tm_hour <= 12:  # quests for first 12 hours
+        if rt <= 12*60*60:  # quests for first 12 hours
             feature.boost_cube()
             feature.questing()
         else:  # after hour 12, do itopod in 5-minute intervals
