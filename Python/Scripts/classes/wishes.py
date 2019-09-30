@@ -198,7 +198,7 @@ class Wishes(Features):
 
     def allocate_wishes(self):
         """Use the order defined in constants.py to determine which wish to run."""
-        available_wishes = const.WISH_ORDER
+        available_wishes = const.WISH_ORDER.copy()
         costs = {}
         tmp = []
 

@@ -18,11 +18,11 @@ class Guffin(Features):
         # EDIT BELOW #
         ##############
         self._max_rb_duration = 1800  # How long in seconds you want to run
-        self._zone = 3  # The zone number in which you want to do minor quests (for farming specific guffs)
-        self._hacks = [9]  # Adv, QP, Exp, PP, Hack
+        self._zone = 2  # The zone number in which you want to do minor quests (for farming specific guffs)
+        self._hacks = [6, 7, 8, 9, 10, 11, 12]  # Adv, QP, Exp, PP, Hack
         self._diggers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]  # All
         self._butter = True  # Butter majors? True/False
-        self._aug = ["EB", "CS"]  # Which aug/upgrade to use, see naming convention in augments() in features.py
+        self._aug = ["LS", "QSL"]  # Which aug/upgrade to use, see naming convention in augments() in features.py
         self._allocate_wishes = True  # Do you wish to allocate resources to wishes? True/False
         #####################
         # DO NOT EDIT BELOW #
@@ -99,7 +99,7 @@ class Guffin(Features):
             self.gold_diggers(self._diggers)
             self.cap_ngu()
             self.cap_ngu(magic=True)
-            self.hacks(self._hacks, self.get_idle_cap(3))
+            self.hacks(self._hacks, coords.INPUT_MAX)
             self.augments({self._aug[0]: 0.66, self._aug[1]: 0.34}, self.get_idle_cap(1) * 0.5)
             self.time_machine(coords.INPUT_MAX, magic=True)
             self.__update_gamestate()
@@ -115,7 +115,7 @@ class Guffin(Features):
         while self._rb_time < self._max_rb_duration - 140:
             self.gold_diggers(self._diggers)
             self.nuke()
-            self.hacks(self._hacks, self.get_idle_cap(3))
+            self.hacks(self._hacks, coords.INPUT_MAX)
             self.__do_quest()
             self.__update_gamestate()
 

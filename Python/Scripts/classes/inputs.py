@@ -217,7 +217,7 @@ class Inputs():
 
         if debug:
             bmp.save("debug_ocr.png")
-        s = pytesseract.image_to_string(bmp)
+        s = pytesseract.image_to_string(bmp, config='--psm 4')
         return s
 
     def get_pixel_color(self, x, y, debug=False):
