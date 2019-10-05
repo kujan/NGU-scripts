@@ -46,6 +46,8 @@ class Features(Navigation, Inputs):
     itopod_ap_gained = 0
     itopod_kills = 0
     completed_wishes = []
+    mega_buff_unlocked = False
+    oh_shit_unlocked = False
 
     def merge_equipment(self):
         """Navigate to inventory and merge equipment."""
@@ -173,7 +175,7 @@ class Features(Navigation, Inputs):
         else:
             self.current_adventure_zone = zone
             self.click(*coords.LEFT_ARROW, button="right")
-            for i in range(zone):
+            for _ in range(zone):
                 self.click(*coords.RIGHT_ARROW)
             return
 
@@ -198,7 +200,7 @@ class Features(Navigation, Inputs):
             self.click(*coords.RIGHT_ARROW, button="right")
         elif zone > 0 and zone != self.current_adventure_zone:
             self.click(*coords.LEFT_ARROW, button="right")
-            for i in range(zone):
+            for _ in range(zone):
                 self.click(*coords.RIGHT_ARROW)
         self.current_adventure_zone = zone
         self.click(625, 500)  # click somewhere to move tooltip
@@ -769,12 +771,9 @@ class Features(Navigation, Inputs):
             queue = deque(self.get_ability_queue())
             while self.check_pixel_color(*coords.IS_ENEMY_ALIVE):
                 if len(queue) == 0:
-                    print("NEW QUEUE")
                     queue = deque(self.get_ability_queue())
-                    print(queue)
 
                 ability = queue.popleft()
-                print(f"using ability {ability}")
                 if ability <= 4:
                     x = coords.ABILITY_ROW1X + ability * coords.ABILITY_OFFSETX
                     y = coords.ABILITY_ROW1Y
@@ -803,7 +802,7 @@ class Features(Navigation, Inputs):
         queue = []
 
         # Add all abilities that are ready to the ready array
-        for i in range(13):
+        for i in range(16):
             if i <= 4:
                 x = coords.ABILITY_ROW1X + i * coords.ABILITY_OFFSETX
                 y = coords.ABILITY_ROW1Y
@@ -811,6 +810,8 @@ class Features(Navigation, Inputs):
                 if color == coords.ABILITY_ROW1_READY_COLOR:
                     ready.append(i)
             if i >= 5 and i <= 10:
+                if self.mega_buff_unlocked and i == 6:
+                    continue
                 x = coords.ABILITY_ROW2X + (i - 5) * coords.ABILITY_OFFSETX
                 y = coords.ABILITY_ROW2Y
                 if color == coords.ABILITY_ROW2_READY_COLOR:
@@ -822,16 +823,24 @@ class Features(Navigation, Inputs):
                 if color == coords.ABILITY_ROW3_READY_COLOR:
                     ready.append(i)
 
+        if 15 in ready:
+            self.oh_shit_unlocked = True
+        if 14 in ready:
+            self.mega_buff_unlocked = True
         # heal if we need to heal
         if self.check_pixel_color(*coords.PLAYER_HEAL_THRESHOLD):
-            if 12 in ready:
+            if 15 in ready:
+                queue.append(15)
+            elif 12 in ready:
                 queue.append(12)
             elif 7 in ready:
                 queue.append(7)
 
         # check if offensive buff and ultimate buff are both ready
         buffs = [8, 10]
-        if all(i in ready for i in buffs):
+        if 14 in ready:
+            queue.append(14)
+        elif all(i in ready for i in buffs) and not self.mega_buff_unlocked:
             queue.extend(buffs)
 
         d = coords.ABILITY_PRIORITY
@@ -1261,30 +1270,3 @@ class Features(Navigation, Inputs):
             self.itopod_ap_gained += 1
             print(f"Kills: {self.itopod_kills}\nAP gained: {self.itopod_ap_gained}")
         return
-
-"""epow = 13544420000000
-ecap = 1.9e16
-mpow = 7269913000000
-mcap = 4.4e15
-rpow = 494335
-rcap = 533784265
-wish_speed = 2.34
-
-powproduct = (epow * mpow * rpow) ** 0.17
-wish_cap_ticks = 218 * 60 * 50
-capreq = 5e15 * 9 / wish_cap_ticks / wish_speed / powproduct
-
-ratio = [ecap / rcap, mcap / rcap, 1]
-capproduct = reduce((lambda x, y: x * y), ratio)
-factor = (capreq / capproduct ** 0.17) ** (1 / .17 / 3)
-vals = []
-for x in ratio:
-    vals.append(ceil((x * factor)))
-
-coord = [(590, 220), (720, 220), (860, 220)]
-
-for index, x in enumerate(vals):
-    print('%.2E' % Decimal(x))
-    feature.input_box()
-    feature.send_string(x)
-    feature.click(*coord[index])"""
