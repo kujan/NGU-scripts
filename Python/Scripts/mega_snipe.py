@@ -33,7 +33,6 @@ while True:  # main loop
         feature.click(*coords.ABILITY_IDLE_MODE)
     feature.click(625, 500)
     color = feature.get_pixel_color(647, 176)
-    print(color, coords.ABILITY_ROW3_READY_COLOR)
     if color == coords.ABILITY_ROW3_READY_COLOR:
         feature.snipe(args.zone, 1, manual=True)
         feature.click(*coords.LEFT_ARROW, button="right")
