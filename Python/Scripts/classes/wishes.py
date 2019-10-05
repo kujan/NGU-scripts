@@ -14,6 +14,7 @@ class Wishes(Features):
     def __init__(self, wish_slots, wish_min_time):
         """Fetch initial breakdown values."""
         print(const.WISH_DISCLAIMER)
+
         self.wish_slots = wish_slots
         self.available_slots = 0
         self.wish_min_time = wish_min_time
@@ -30,6 +31,7 @@ class Wishes(Features):
         self.get_breakdowns()
         self.get_wish_status()
         # self.allocate_wishes()
+
 
     def get_breakdowns(self):
         """Go to stat breakdowns and fetch the necessary stats."""
@@ -245,7 +247,6 @@ class Wishes(Features):
         if r > rcap:
             r_min = min(best.items(), key=lambda x: x[1][2])[1][2]
             r_max = max(best.items(), key=lambda x: x[1][2])[1][2]
-            print(r_max / r_min)
             if r_max / r_min <= 100000:
                 cap_div = r / rcap
                 rcap_cost = 0
