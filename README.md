@@ -20,6 +20,7 @@ The AHK script is unsupported and deleted, but I kept the functions here because
 * The normal theme must be enabled
 * Fancy titan HP bars must be disabled if using the ``kill_titan()`` method
 * If you plan on using wishes/R3 I strongly recommend you to name your R3 to 'R' and use the green background, otherwise you will get spotty results from Tesseract. It's also strongly recommended to have 50 speed in all 3 resources.
+
 ## Installation
 Install Python dependencies using [pip](https://pip.pypa.io/en/stable/quickstart/):
 ```
@@ -30,6 +31,11 @@ Install [Tesseract](https://github.com/tesseract-ocr/tesseract/releases) and add
 Remember to restart your command prompt/IDE after changing your environment variables.
 
 Change the settings in ``usersettings_example.py`` and rename it to ``usersettings.py``
+
+### Big Monitors
+If you are using a big monitor (4K, 8K) or by some reason your Windows scaling is set to something other than 100%, the scripts won't work.
+To solve this, on Firefox go to ```about:config``` and set ```layout.css.devPixelsPerPx``` to ```1.0```.
+
 ### Optional
 If you're using Firefox as your main browser, you will notice that the script will steal focus each time it performs an action. To solve this you can create a specific profile that only runs the game. 
 
