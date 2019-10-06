@@ -58,7 +58,7 @@ You're either sending invalid coordinates to the function, or the ``Window()`` c
 * Q: I get a ``TypeError: cannot unpack non-iterable NoneType object`` error from ``pixel_search()``.
 
 Make sure you have the game running in Firefox, and that the window is NOT minimized, you cannot minimize the window while running, but you can have other windows on top of the game window just fine. This error will also occur if you lock the computer screen, or if Windows put your monitors to sleep due to power settings. See answer above if you're using DisplayPort.
-This can also happen on big monitors, as the search area might be too little. Try changing the script to ```pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 2000, 1000)``` instead.
+This can also happen on big monitors, as the search area might be too little. Try changing the script to ```pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 2000, 1000)``` instead. Note that reducing Firefox windows size can make this search area be out of bounds and throw an error.
 
 * Q: I get a ``pywintypes.error: (0, 'GetPixel', 'No error message is available')`` error.
 
