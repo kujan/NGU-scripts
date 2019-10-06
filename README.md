@@ -1,5 +1,4 @@
 # About
-
 This is a collection of functions I created for AHK and Python with the purpose of automating different aspects of the game [NGU-IDLE](https://www.kongregate.com/games/somethingggg/ngu-idle). This project first started because the built-in functions ControlClick/ControlSend in AHK did not work with the game, because of how Unity handles input. I first created replacements for these functions in AHK, but later moved over to Python because there was little reason to use AHK when the input was being sent directly via the Windows API.
 
 ### Features
@@ -48,7 +47,6 @@ If you're using Firefox as your main browser, you will notice that the script wi
 6. Start firefox via the shortcut and load your NGU save.
 
 ## FAQ
-
 * Q: I get a ``ValueError``.
 
 You're probably trying to cast a result from `ocr()`, that returns a string which might be empty or contain non-numeric characters. Use [try/except](https://docs.python.org/3/tutorial/errors.html#handling-exceptions) to handle this appropriately.
@@ -60,6 +58,7 @@ You're either sending invalid coordinates to the function, or the ``Window()`` c
 * Q: I get a ``TypeError: cannot unpack non-iterable NoneType object`` error from ``pixel_search()``.
 
 Make sure you have the game running in Firefox, and that the window is NOT minimized, you cannot minimize the window while running, but you can have other windows on top of the game window just fine. This error will also occur if you lock the computer screen, or if Windows put your monitors to sleep due to power settings. See answer above if you're using DisplayPort.
+This can also happen on big monitors, as the search area might be too little. Try changing the script to ```pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 2000, 1000)``` instead.
 
 * Q: I get a ``pywintypes.error: (0, 'GetPixel', 'No error message is available')`` error.
 
