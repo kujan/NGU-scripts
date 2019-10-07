@@ -21,5 +21,5 @@ import requirements
 print(f"Top left found at: {w.x}, {w.y}")
 
 while True:  # main loop
-    feature.snipe(args.zone, duration=300, manual=True)
+    feature.snipe(args.zone, duration=300, manual=True, bosses=True)
     feature.pit()

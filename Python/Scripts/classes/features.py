@@ -5,6 +5,7 @@ from classes.window import Window
 from collections import deque, namedtuple
 from decimal import Decimal
 from deprecated import deprecated
+import constants as const
 import coordinates as coords
 import datetime
 import math
@@ -201,7 +202,7 @@ class Features(Navigation, Inputs):
         elif zone > 0 and zone != self.current_adventure_zone:
             self.click(*coords.LEFT_ARROW, button="right")
             for _ in range(zone):
-                self.click(*coords.RIGHT_ARROW)
+                self.click(*coords.RIGHT_ARROW, fast=True)
         self.current_adventure_zone = zone
         self.click(625, 500)  # click somewhere to move tooltip
 
@@ -723,78 +724,112 @@ class Features(Navigation, Inputs):
         self.click(*coords.ADV_TRAINING_WANDOOS_ENERGY)
         self.click(*coords.ADV_TRAINING_WANDOOS_MAGIC)
 
-    def titan_pt_check(self, target):
-        """Check if we have the recommended p/t to defeat the target Titan.
+    def check_titan_status(self):
+        """Check to see if any titans are ready."""
+        self.click(*coords.MENU_ITEMS["adventure"], button="right")
+        text = self.ocr(*coords.OCR_TITAN_RESPAWN).lower()
+        ready = []
+        i = 1
+        for line in text.split('\n'):
+            if line == '' or line == '\n':
+                continue
+            if "ready" in line:
+                ready.append(i)
+            i += 1
+        return ready
 
-        Keyword arguments:
-        target -- The name of the titan you wish to kill. ["GRB", "GCT",
-                  "jake", "UUG", "walderp", "BEAST1", "BEAST2", "BEAST3",
-                  "BEAST4"]
-        """
-        self.menu("adventure")
-        bmp = self.get_bitmap()
-        power = self.ocr(*coords.OCR_ADV_POW, bmp=bmp)
-        tough = self.ocr(*coords.OCR_ADV_TOUGH, bmp=bmp)
-
-        if (float(power) > coords.TITAN_PT[target]["p"] and
-           float(tough) > coords.TITAN_PT[target]["t"]):
-            return True
-
-        else:
-            print(f"Lacking: {Decimal(coords.TITAN_PT[target]['p'] - float(power)):.2E}"
-                  f"/{Decimal(coords.TITAN_PT[target]['t'] - float(tough)):.2E} P/T"
-                  f" to kill {target}")
-            return False
-
-    def kill_titan(self, target):
+    def kill_titan(self, target, mega=True):
         """Attempt to kill the target titan.
 
         Keyword arguments:
-        target -- The name of the titan you wish to kill. ["GRB", "GCT",
-                  "jake", "UUG", "walderp", "BEAST1", "BEAST2", "BEAST3",
-                  "BEAST4"]
+        target -- The id of the titan you wish to kill. 1 for GRB, 2 for GCT and so on.
         """
         self.menu("adventure")
         if self.check_pixel_color(*coords.IS_IDLE):
             self.click(*coords.ABILITY_IDLE_MODE)
 
         self.click(*coords.LEFT_ARROW, button="right")
-        for i in range(coords.TITAN_ZONE[target]):
-            self.click(*coords.RIGHT_ARROW)
-        self.current_adventure_zone = coords.TITAN_ZONE[target]
-        time.sleep(userset.LONG_SLEEP)
-
-        available = self.ocr(*coords.OCR_ADV_TITAN)
-
-        if "titan" in available.lower():
-            time.sleep(1.5)  # Make sure titans spawn, otherwise loop breaks
-            queue = deque(self.get_ability_queue())
-            while self.check_pixel_color(*coords.IS_ENEMY_ALIVE):
-                if len(queue) == 0:
-                    queue = deque(self.get_ability_queue())
-
-                ability = queue.popleft()
-                if ability <= 4:
-                    x = coords.ABILITY_ROW1X + ability * coords.ABILITY_OFFSETX
+        charge = False
+        parry = False
+        if mega:
+            while not self.check_pixel_color(*coords.COLOR_MEGA_BUFF_READY) or not charge or not parry:
+                queue = self.get_ability_queue()
+                self.click(625, 600)
+                if 2 in queue and not parry:
+                    x = coords.ABILITY_ROW1X + 2 * coords.ABILITY_OFFSETX
                     y = coords.ABILITY_ROW1Y
-
-                if ability >= 5 and ability <= 10:
-                    x = coords.ABILITY_ROW2X + (ability - 5) * coords.ABILITY_OFFSETX
+                    self.click(x, y)
+                    parry = True 
+                    time.sleep(1)  # wait for global cooldown
+                if 9 in queue and not charge:
+                    x = coords.ABILITY_ROW2X + (9 - 5) * coords.ABILITY_OFFSETX
                     y = coords.ABILITY_ROW2Y
+                    self.click(x, y)
+                    charge = True
+                    time.sleep(1)  # wait for global cooldown
+                time.sleep(userset.MEDIUM_SLEEP)
 
-                if ability > 10:
-                    x = coords.ABILITY_ROW3X + (ability - 11) * coords.ABILITY_OFFSETX
-                    y = coords.ABILITY_ROW3Y
+        else:
+            while not self.check_pixel_color(*coords.COLOR_ULTIMATE_BUFF_READY) or not charge or not parry:
+                queue = self.get_ability_queue()
+                self.click(625, 600)
+                if 2 in queue and not parry:
+                    x = coords.ABILITY_ROW1X + 2 * coords.ABILITY_OFFSETX
+                    y = coords.ABILITY_ROW1Y
+                    self.click(x, y)
+                    parry = True
+                    time.sleep(1)  # wait for global cooldown
+                if 9 in queue and not charge:
+                    x = coords.ABILITY_ROW2X + 4 * coords.ABILITY_OFFSETX
+                    y = coords.ABILITY_ROW2Y
+                    self.click(x, y)
+                    charge = True
+                    time.sleep(1)  # wait for global cooldown
+                time.sleep(userset.MEDIUM_SLEEP)
 
-                self.click(x, y)
-                time.sleep(userset.LONG_SLEEP)
+        buffs = [2, 9]
+        while not all(x in self.get_ability_queue() for x in buffs):
+            print(f"ability queue: {self.get_ability_queue()}")
+            time.sleep(.5)
+
+        for _ in range(const.TITAN_ZONE[target - 1]):
+            self.click(*coords.RIGHT_ARROW, fast=True)
+        self.current_adventure_zone = const.TITAN_ZONE[target - 1]
+        time.sleep(userset.LONG_SLEEP)
+        start = time.time()
+        while self.check_pixel_color(*coords.IS_DEAD):  # wait for titan to spawn
+            time.sleep(.1)
+            if time.time() > start + 5:
+                print("Couldn't detect enemy in kill_titan()")
+                return
+
+        queue = deque(self.get_ability_queue())
+        while not self.check_pixel_color(*coords.IS_DEAD):
+            if len(queue) == 0:
+                queue = deque(self.get_ability_queue())
+
+            ability = queue.popleft()
+            if ability <= 4:
+                x = coords.ABILITY_ROW1X + ability * coords.ABILITY_OFFSETX
+                y = coords.ABILITY_ROW1Y
+
+            if ability >= 5 and ability <= 10:
+                x = coords.ABILITY_ROW2X + (ability - 5) * coords.ABILITY_OFFSETX
+                y = coords.ABILITY_ROW2Y
+
+            if ability > 10:
+                x = coords.ABILITY_ROW3X + (ability - 11) * coords.ABILITY_OFFSETX
+                y = coords.ABILITY_ROW3Y
+
+            self.click(x, y)
+            time.sleep(userset.LONG_SLEEP)
+            color = self.get_pixel_color(coords.ABILITY_ROW1X,
+                                            coords.ABILITY_ROW1Y)
+
+            while color != coords.ABILITY_ROW1_READY_COLOR:
+                time.sleep(0.05)
                 color = self.get_pixel_color(coords.ABILITY_ROW1X,
-                                             coords.ABILITY_ROW1Y)
-
-                while color != coords.ABILITY_ROW1_READY_COLOR:
-                    time.sleep(0.05)
-                    color = self.get_pixel_color(coords.ABILITY_ROW1X,
-                                                 coords.ABILITY_ROW1Y)
+                                                coords.ABILITY_ROW1Y)
 
     def get_ability_queue(self):
         """Return a queue of usable abilities."""
@@ -802,7 +837,7 @@ class Features(Navigation, Inputs):
         queue = []
 
         # Add all abilities that are ready to the ready array
-        for i in range(16):
+        for i in range(1, 16):
             if i <= 4:
                 x = coords.ABILITY_ROW1X + i * coords.ABILITY_OFFSETX
                 y = coords.ABILITY_ROW1Y
@@ -814,6 +849,7 @@ class Features(Navigation, Inputs):
                     continue
                 x = coords.ABILITY_ROW2X + (i - 5) * coords.ABILITY_OFFSETX
                 y = coords.ABILITY_ROW2Y
+                color = self.get_pixel_color(x, y)
                 if color == coords.ABILITY_ROW2_READY_COLOR:
                     ready.append(i)
             if i > 10:

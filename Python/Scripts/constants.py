@@ -126,3 +126,4 @@ WISH_ORDER = [
 
 WISH_BLACKLIST = [8, 21, 23, 27, 45, 58, 59, 76]
 WISH_DISCLAIMER = "Disclaimer: this class is experimental, expect issues and crashes. Please do report them on discord or open an issue on github if you encounter one. I recommend using the color 'green' as your R3 color in the settings, it yields the best OCR results in my testing."
+TITAN_ZONE = [7, 9, 12, 15, 17, 20, 24, 27, 31, 35]
