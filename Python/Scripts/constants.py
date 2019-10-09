@@ -83,8 +83,48 @@ WISH_ORDER = [
               Wish(45, "I wish there was more cute Daycare Kitty Art", 1, 3e19),
               Wish(58, "I wish I had more Inventory space III", 12, 8e19),
               Wish(59, "I wish I had another cool new move for adventure", 1, 3e21),
-              Wish(76, "I wish I was a giant jar of Mayo.", 1, 5e21)
+              Wish(76, "I wish I was a giant jar of Mayo.", 1, 5e21),
+
+              # sad
+
+              Wish(89, "I wish I had more Resource 3 Power V", 10, 5e+21),
+              Wish(91, "I wish I had more Resource 3 Cap V", 10, 5e+21),
+              Wish(98, "I wish I had more Resource 3 Power VI", 10, 1e+23),
+              Wish(100, "I wish I had more Resource 3 Cap VI", 10, 1e+23),
+              Wish(83, "I wish I had more Energy Power V", 10, 5e+21),
+              Wish(85, "I wish I had more Energy Cap V", 10, 5e+21),
+              Wish(92, "I wish I had more Energy Power VI", 10, 1e+23),
+              Wish(94, "I wish I had more Energy Cap VI", 10, 1e+23),
+              Wish(86, "I wish I had more Magic Power V", 10, 5e+21),
+              Wish(88, "I wish I had more Magic Cap V", 10, 5e+21),
+              Wish(95, "I wish I had more Magic Power VI", 10, 1e+23),
+              Wish(95, "I wish I had more Magic Cap VI", 10, 1e+23),
+              
+              Wish(104, "I wish I was stronger in Adventure mode III", 10, 1e+19),
+              Wish(105, "I wish I was stronger in Adventure mode IV", 10, 3e+21),
+              Wish(80, "I wish I the ITOPOD had more Base PP awarded", 10, 2e+21),
+              Wish(102, "I wish Major Quests had better Base QP Rewards.", 10, 1e+22),
+              Wish(103, "I wish Minor Quests had better Base QP Rewards.", 2, 1.8e+23),
+              Wish(101, "I wish Titan 10 dropped QP", 1, 5e+22),
+              Wish(110, "I wish I had yet another Accessory Slot!", 1, 5e+24),
+
+              Wish(81, "I wish higher level quest drops counted for even more Quest progress I", 2, 5e+17),
+              Wish(82, "I wish higher level quest drops counted for even more Quest progress II", 2, 1e+22),
+              
+              Wish(106, "I wish I could beat up more bosses III", 10, 2e+19),
+              Wish(107, "I wish I could beat up more bosses IV", 10, 1e+21),
+              Wish(108, "I wish the Sadistic Boss Multiplier didn't suck so bad I", 10, 2e+22),
+              Wish(109, "I wish the Sadistic Boss Multiplier didn't suck so bad II", 10, 5e+23),
+              Wish(90, "I wish I had more Resource 3 Bars V", 10, 5e+21),
+              Wish(99, "I wish I had more Resource 3 Bars VI", 10, 1e+23),
+              Wish(84, "I wish I had more Energy Bars V", 10, 5e+21),
+              Wish(87, "I wish I had more Magic Bars V", 10, 5e+21),
+              Wish(93, "I wish I had more Energy Bars VI", 10, 1e+23),
+              Wish(96, "I wish I had more Magic Bars VI", 10, 1e+23),
+
              ]
 
 WISH_BLACKLIST = [8, 21, 23, 27, 45, 58, 59, 76]
 WISH_DISCLAIMER = "Disclaimer: this class is experimental, expect issues and crashes. Please do report them on discord or open an issue on github if you encounter one. I recommend using the color 'green' as your R3 color in the settings, it yields the best OCR results in my testing."
+TITAN_ZONE = [7, 9, 12, 15, 17, 20, 24, 27, 31, 35]
+DEFAULT_DIGGER_ORDER = [12, 4, 9, 10, 11, 1, 2, 3, 5, 6, 7, 8]

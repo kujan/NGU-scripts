@@ -182,7 +182,7 @@ class Inputs():
         search_area = cv2.cvtColor(search_area, cv2.COLOR_RGB2GRAY)
         template = cv2.imread(image, 0)
         res = cv2.matchTemplate(search_area, template, cv2.TM_CCOEFF_NORMED)
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
         if max_val < threshold:
             return None
 
