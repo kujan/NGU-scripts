@@ -78,7 +78,7 @@ def speedrun(duration, f):
     u.buy()
     tracker.adjustxp()
 
-    while f.get_rebirth_time_in_seconds() < end:
+    while f.rt_to_seconds() < end:
         time.sleep(0.1)
     return
 
