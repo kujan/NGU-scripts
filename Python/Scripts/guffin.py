@@ -6,13 +6,14 @@ from classes.window import Window
 from classes.wishes import Wishes
 
 import coordinates as coords
+import  constants as const
 import time
 
 
 class Guffin(Features):
     """Guffin run class."""
 
-    def __init__(self, wish_slots, wish_min_time):
+    def __init__(self):
         """Get breakdowns for wishes."""
         ##############
         # EDIT BELOW #
@@ -20,10 +21,12 @@ class Guffin(Features):
         self._max_rb_duration = 1800  # How long in seconds you want to run
         self._zone = 2  # The zone number in which you want to do minor quests (for farming specific guffs)
         self._hacks = [6, 7, 8, 9, 10, 11, 12]  # Adv, QP, Exp, PP, Hack
-        self._diggers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]  # All
+        self._diggers = const.DEFAULT_DIGGER_ORDER  # Which diggers to use, in which order, see constants.py for default
         self._butter = True  # Butter majors? True/False
         self._aug = ["LS", "QSL"]  # Which aug/upgrade to use, see naming convention in augments() in features.py
         self._allocate_wishes = True  # Do you wish to allocate resources to wishes? True/False
+        self._wish_min_time = 180  # The minimum time it takes to complete a wish
+        self._wish_slots = 4  # The amount of wish slots you have
         #####################
         # DO NOT EDIT BELOW #
         #####################
@@ -31,12 +34,12 @@ class Guffin(Features):
         input("Press enter to rebirth and start script. ")
         self._wishes = None
         if self._allocate_wishes:
-            self._wishes = Wishes(wish_slots, wish_min_time)
+            self._wishes = Wishes(self._wish_slots, self._wish_min_time)
             lst = [self._wishes.epow, self._wishes.mpow, self._wishes.rpow]
             i = 0
             while 1 in lst:
                 print("OCR reading failed for stat breakdowns, trying again...")
-                self._wishes = Wishes(wish_slots, wish_min_time)
+                self._wishes = Wishes(self._wish_slots, self._wish_min_time)
                 i += 1
                 if i > 5:
                     print("Wishes will be disabled.")
@@ -119,7 +122,7 @@ class Guffin(Features):
             self.__do_quest()
             self.__update_gamestate()
 
-        self.nuke()
+        
         self.fight()
         self.adventure(itopodauto=True)
         self.pit()
@@ -128,17 +131,19 @@ class Guffin(Features):
             time.sleep(1)
             self.__update_gamestate()
 
+        self.nuke()
         self.do_rebirth()
         self.runs += 1
         time.strftime('%H:%M:%S', time.gmtime(12345))
         print(f"Completed guffin run #{self.runs} in {time.strftime('%H:%M:%S', time.gmtime(self._rb_time))}")
 
 
-w = Window()
+Window.__init__(object)
 feature = Features()
 Window.x, Window.y = feature.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 400, 600)
 feature.menu("inventory")
-guffin = Guffin(4, 218)
+import requirements
+guffin = Guffin()
 
 while True:
     guffin.run()

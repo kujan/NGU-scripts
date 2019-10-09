@@ -84,7 +84,7 @@ class Features(Navigation, Inputs):
         """Navigate to Fight Boss and Nuke or Fast Fight."""
         self.menu("fight")
         if boss:
-            for i in range(boss):
+            for _ in range(boss):
                 self.click(*coords.FIGHT, fast=True)
             time.sleep(userset.SHORT_SLEEP)
             try:
@@ -94,7 +94,7 @@ class Features(Navigation, Inputs):
             x = 0
             while current_boss < boss:
                 bossdiff = boss - current_boss
-                for i in range(0, bossdiff):
+                for _ in range(0, bossdiff):
                     self.click(*coords.FIGHT, fast=True)
                 time.sleep(userset.SHORT_SLEEP)
                 try:
@@ -177,7 +177,7 @@ class Features(Navigation, Inputs):
             self.current_adventure_zone = zone
             self.click(*coords.LEFT_ARROW, button="right")
             for _ in range(zone):
-                self.click(*coords.RIGHT_ARROW)
+                self.click(*coords.RIGHT_ARROW, fast=True)
             return
 
     def snipe(self, zone, duration, once=False, highest=False, bosses=False, manual=False):
@@ -788,8 +788,8 @@ class Features(Navigation, Inputs):
                 time.sleep(userset.MEDIUM_SLEEP)
 
         buffs = [2, 9]
+        print("Waiting for charge and parry to be ready")
         while not all(x in self.get_ability_queue() for x in buffs):
-            print(f"ability queue: {self.get_ability_queue()}")
             time.sleep(.5)
 
         for _ in range(const.TITAN_ZONE[target - 1]):
@@ -798,7 +798,7 @@ class Features(Navigation, Inputs):
         time.sleep(userset.LONG_SLEEP)
         start = time.time()
         while self.check_pixel_color(*coords.IS_DEAD):  # wait for titan to spawn
-            time.sleep(.1)
+            time.sleep(0.05)
             if time.time() > start + 5:
                 print("Couldn't detect enemy in kill_titan()")
                 return
