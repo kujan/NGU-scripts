@@ -10,14 +10,12 @@ class Window():
     x = 0
     y = 0
     dc = 0
-
+    
     def __init__(self, debug=False):
-        """Keyword arguments.
+        Window.init(debug)
 
-        hwnd -- The window ID
-        x -- The x-coordinate for the top left corner of the game window.
-        y -- The y-coordinate for the top left corner of the game window.
-        """
+    @staticmethod
+    def init(debug=False):
         if platform.release() == "10":
             ctypes.windll.shcore.SetProcessDpiAwareness(2)
         else:
@@ -39,3 +37,8 @@ class Window():
                 Window.id = i[0]
         if Window.id == 0:
             raise RuntimeError(f"Couldn't find game window")
+    
+    @staticmethod    
+    def setPos(x, y):
+        Window.x = x
+        Window.y = y
