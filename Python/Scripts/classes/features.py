@@ -328,12 +328,44 @@ class Features(Navigation, Inputs):
         self.click(*coords.CONFIRM)
         return
 
-    def check_challenge(self):
+    def check_challenge(self, getNum=False):
         """Check if a challenge is active."""
         self.rebirth()
         self.click(*coords.CHALLENGE_BUTTON)
         time.sleep(userset.LONG_SLEEP)
-        return True if self.check_pixel_color(*coords.COLOR_CHALLENGE_ACTIVE) else False
+        active = self.check_pixel_color(*coords.COLOR_CHALLENGE_ACTIVE)
+        
+        if not active:
+            return False
+        if not getNum:
+            return True
+            
+        text = self.ocr(*coords.OCR_CHALLENGE_NAME)
+        if "basic" in text.lower():
+            return 1
+        elif "augs" in text.lower():
+            return 2
+        elif "100 level" in text.lower():
+            return 3
+        elif "24 hour" in text.lower():
+            return 4
+        elif "equipment" in text.lower():
+            return 5
+        elif "troll" in text.lower():
+            return 6
+        elif "rebirth" in text.lower():
+            return 7
+        elif "laser" in text.lower():
+            return 8
+        elif "blind" in text.lower():
+            return 9
+        elif "ngu" in text.lower():
+            return 10
+        elif "time machine" in text.lower():
+            return 11
+        #  TODO: add other challenges here
+        else:
+            return -1
 
     def pit(self, loadout=0):
         """Throws money into the pit.
