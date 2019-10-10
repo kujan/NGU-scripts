@@ -43,10 +43,6 @@ class Inputs():
         
     def click_drag(self, x, y, x2, y2):
         """Click at pixel xy."""
-        x += window.x
-        y += window.y
-        x2 += window.x
-        y2 += window.y
         pyautogui.mouseDown(*win32gui.ClientToScreen(window.id, (x, y)))
         time.sleep(userset.LONG_SLEEP * 2)
         pyautogui.dragTo(*win32gui.ClientToScreen(window.id, (x2, y2)), duration=userset.SHORT_SLEEP)
@@ -64,21 +60,12 @@ class Inputs():
 
     def send_string(self, string):
         """Send one or multiple characters to the window."""
+        win32gui.ShowWindow(window.id, 5)
+        win32gui.SetForegroundWindow(window.id)
         if type(string) == float:  # Remove decimal
             string = str(int(string))
         for c in str(string):
-            while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
-                   win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
-                   win32api.GetKeyState(wcon.VK_MENU) < 0):
-                time.sleep(0.005)
-            if c.isdigit():  # Digits only require KEY_UP event.
-                win32gui.PostMessage(window.id, wcon.WM_KEYUP, ord(c.upper()),
-                                     0)
-                # time.sleep(0.03)  # This can probably be removed
-                continue
-            win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, ord(c.upper()), 0)
-            time.sleep(userset.SHORT_SLEEP)  # This can probably be removed
-            win32gui.PostMessage(window.id, wcon.WM_KEYUP, ord(c.upper()), 0)
+            pyautogui.press(c)
         time.sleep(userset.SHORT_SLEEP)
 
     def get_bitmap(self):
