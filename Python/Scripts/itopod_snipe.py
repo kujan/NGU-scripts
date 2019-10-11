@@ -25,6 +25,7 @@ while True:  # main loop
     if titans:
         for titan in titans:
             feature.kill_titan(titan)
+    feature.adventure(itopod=True, itopodauto=True) # update optimal floor every loop
     feature.itopod_snipe(300)
     feature.pit()
     tracker.progress()
