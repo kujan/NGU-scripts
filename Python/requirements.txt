@@ -1,6 +1,0 @@
-pywin32
-pytesseract
-opencv-python
-pillow
-discord-webhook
-deprecated
