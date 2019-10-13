@@ -81,7 +81,11 @@ class Features(Navigation, Inputs):
         return self.remove_letters(boss)
 
     def nuke(self, boss=None):
-        """Navigate to Fight Boss and Nuke or Fast Fight."""
+        """Navigate to Fight Boss and Nuke or Fast Fight.
+        
+        Keyword arguments
+        boss -- If provided, will fight until reached
+                If omitted, will hit nuke instead"""
         self.menu("fight")
         if boss:
             for _ in range(boss):
@@ -117,8 +121,9 @@ class Features(Navigation, Inputs):
         """Navigate to inventory and handle fruits.
 
         Keyword arguments:
-        rebirth -- Set to true if you're rebirthing, it will force eat all
+        eat_all -- Set to true if you're rebirthing, it will force eat all
                    fruit.
+        equip.  -- Equip loadout with given index. Don't change equip if zero.
         """
         self.menu("yggdrasil")
         if eat_all:
@@ -332,7 +337,12 @@ class Features(Navigation, Inputs):
         return
 
     def check_challenge(self, getNum=False):
-        """Check if a challenge is active."""
+        """Check if a challenge is active.
+        
+        Keyword arguments
+        getNum. -- If true, return the number of the active challenge.
+                   This is slower.
+                   If False or omitted, return if a challenge is active."""
         self.rebirth()
         self.click(*coords.CHALLENGE_BUTTON)
         time.sleep(userset.LONG_SLEEP)
@@ -464,7 +474,12 @@ class Features(Navigation, Inputs):
             self.click(*coords.TM_MULT)
 
     def blood_magic(self, target):
-        """Assign magic to BM."""
+        """Assign magic to BM.
+        
+        Keyword arguments
+        target -- Will cap all rituals till the target ritual
+                  Usually run as blood_magic(8)
+                  """
         self.menu("bloodmagic")
         for i in range(target):
             self.click(*coords.BM[i])
