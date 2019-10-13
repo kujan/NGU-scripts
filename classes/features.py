@@ -1,18 +1,19 @@
 """Feature class handles the different features in the game."""
-from classes.inputs import Inputs
-from classes.navigation import Navigation
-from classes.window import Window
 from collections import deque, namedtuple
-from decimal import Decimal
-from deprecated import deprecated
-import constants as const
-import coordinates as coords
 import datetime
 import math
 import re
 import time
+
+from deprecated import deprecated
 import win32con as wcon
 import win32gui
+
+from classes.inputs import Inputs
+from classes.navigation import Navigation
+from classes.window import Window
+import constants as const
+import coordinates as coords
 import usersettings as userset
 
 
@@ -23,27 +24,27 @@ class Features(Navigation, Inputs):
     inventory_cleaned = False
     itopod_tier_counts = {}
     itopod_tier_map = {
-                       1: 0,
-                       2: 50,
-                       3: 100,
-                       4: 150,
-                       5: 200,
-                       6: 250,
-                       7: 300,
-                       8: 350,
-                       9: 400,
-                       10: 450,
-                       11: 500,
-                       12: 550,
-                       13: 600,
-                       14: 650,
-                       15: 700,
-                       16: 750,
-                       17: 800,
-                       18: 850,
-                       19: 900,
-                       20: 950,
-                       }
+        1: 0,
+        2: 50,
+        3: 100,
+        4: 150,
+        5: 200,
+        6: 250,
+        7: 300,
+        8: 350,
+        9: 400,
+        10: 450,
+        11: 500,
+        12: 550,
+        13: 600,
+        14: 650,
+        15: 700,
+        16: 750,
+        17: 800,
+        18: 850,
+        19: 900,
+        20: 950,
+        }
     itopod_ap_gained = 0
     itopod_kills = 0
     completed_wishes = []
@@ -54,7 +55,7 @@ class Features(Navigation, Inputs):
         """Navigate to inventory and merge equipment."""
         self.menu("inventory")
         for slot in coords.EQUIPMENT_SLOTS:
-            if (slot == "cube"):
+            if slot == "cube":
                 return
             self.click(*coords.EQUIPMENT_SLOTS[slot])
             self.send_string("d")
@@ -63,7 +64,7 @@ class Features(Navigation, Inputs):
         """Boost all equipment."""
         self.menu("inventory")
         for slot in coords.EQUIPMENT_SLOTS:
-            if (slot == "cube"):
+            if slot == "cube":
                 self.click(*coords.EQUIPMENT_SLOTS[slot], "right")
                 return
             self.click(*coords.EQUIPMENT_SLOTS[slot])
@@ -295,7 +296,7 @@ class Features(Navigation, Inputs):
                 return
         queue = deque(self.get_ability_queue())
         while not self.check_pixel_color(*coords.IS_DEAD):
-            if len(queue) == 0:
+            if not queue:
                 queue = deque(self.get_ability_queue())
             ability = queue.popleft()
             if ability <= 4:
@@ -337,12 +338,12 @@ class Features(Navigation, Inputs):
         self.click(*coords.CHALLENGE_BUTTON)
         time.sleep(userset.LONG_SLEEP)
         active = self.check_pixel_color(*coords.COLOR_CHALLENGE_ACTIVE)
-        
+
         if not active:
             return False
         if not getNum:
             return True
-            
+
         text = self.ocr(*coords.OCR_CHALLENGE_NAME)
         if "basic" in text.lower():
             return 1
@@ -366,7 +367,6 @@ class Features(Navigation, Inputs):
             return 10
         elif "time machine" in text.lower():
             return 11
-        #  TODO: add other challenges here
         else:
             return -1
 
@@ -407,7 +407,7 @@ class Features(Navigation, Inputs):
             # Scroll down if we have to.
             bottom_augments = ["AE", "ES", "LS", "QSL"]
             i = 0
-            if (k in bottom_augments):
+            if k in bottom_augments:
                 color = self.get_pixel_color(*coords.AUG_SCROLL_SANITY_BOT)
                 while color not in coords.SANITY_AUG_SCROLL_COLORS:
                     self.click(*coords.AUG_SCROLL_BOT)
@@ -492,10 +492,12 @@ class Features(Navigation, Inputs):
 
     @deprecated(version='0.1', reason="speedrun_bloodpill is deprecated, use iron_pill() instead")
     def speedrun_bloodpill(self):
+        """Deprecated."""
         return
 
     @deprecated(version='0.1', reason="iron_pill is deprecated, use cast_spell() instead")
     def iron_pill(self):
+        """Deprecated."""
         return
 
     def toggle_auto_spells(self, number=True, drop=True, gold=True):
@@ -572,11 +574,13 @@ class Features(Navigation, Inputs):
             self.click(*targets[target])
 
     def reclaim_all(self):
+        """Reclaim all resources from all features."""
         self.send_string("r")
         self.send_string("t")
         self.send_string("f")
-   
+
     def reclaim_res(self, energy=False, magic=False, r3=False):
+        """Reclaim one or more resources from all features."""
         if energy:
             self.send_string("r")
         if magic:
@@ -686,8 +690,8 @@ class Features(Navigation, Inputs):
         """Estimates the BB value of each supplied NGU.
 
         It will send value into the target NGU's, which will fill the progress bar. It's very
-        important that you put enough e/m into the NGU's to trigger the "anti-flicker" (>10% of BB cost),
-        otherwise it will not function properly.
+        important that you put enough e/m into the NGU's to trigger the "anti-flicker"
+        (>10% of BB cost), otherwise it will not function properly.
 
         Keyword arguments:
         value -- The amount of energy used to determine the cost of BBing the target NGU's
@@ -732,7 +736,7 @@ class Features(Navigation, Inputs):
             self.send_string(str(int(energy)))
             self.click(coords.NGU_PLUS.x, coords.NGU_PLUS.y + target * 35)
 
-    def cap_ngu(self, targets=[], magic=False, cap_all=True):
+    def cap_ngu(self, targets=None, magic=False, cap_all=True):
         """Cap NGU's.
 
         Keyword arguments
@@ -741,6 +745,7 @@ class Features(Navigation, Inputs):
         cap_all -- Set to true if you wish to cap all NGU's
 
         """
+        targets = targets or []
         if magic:
             self.ngu_magic()
         else:
@@ -762,7 +767,7 @@ class Features(Navigation, Inputs):
     def advanced_training(self, value, ability=0):
         """Assign energy to adventure power/thoughness and wandoos."""
         self.menu("advtraining")
-        if (ability == 0):
+        if ability == 0:
             value = value // 4
             self.input_box()
             self.send_string(value)
@@ -770,19 +775,19 @@ class Features(Navigation, Inputs):
             self.click(*coords.ADV_TRAINING_TOUGHNESS)
             self.click(*coords.ADV_TRAINING_WANDOOS_ENERGY)
             self.click(*coords.ADV_TRAINING_WANDOOS_MAGIC)
-            
+
         else:
             self.input_box()
             self.send_string(value)
-            if (ability == 1):
+            if ability == 1:
                 self.click(*coords.ADV_TRAINING_TOUGHNESS)
-            if (ability == 2):
+            if ability == 2:
                 self.click(*coords.ADV_TRAINING_POWER)
-            if (ability == 3):
+            if ability == 3:
                 self.click(*coords.ADV_TRAINING_BLOCK)
-            if (ability == 4):
+            if ability == 4:
                 self.click(*coords.ADV_TRAINING_WANDOOS_ENERGY)
-            if (ability == 5):
+            if ability == 5:
                 self.click(*coords.ADV_TRAINING_WANDOOS_MAGIC)
 
 
@@ -821,7 +826,7 @@ class Features(Navigation, Inputs):
                     x = coords.ABILITY_ROW1X + 2 * coords.ABILITY_OFFSETX
                     y = coords.ABILITY_ROW1Y
                     self.click(x, y)
-                    parry = True 
+                    parry = True
                     time.sleep(1)  # wait for global cooldown
                 if 9 in queue and not charge:
                     x = coords.ABILITY_ROW2X + (9 - 5) * coords.ABILITY_OFFSETX
@@ -867,7 +872,7 @@ class Features(Navigation, Inputs):
 
         queue = deque(self.get_ability_queue())
         while not self.check_pixel_color(*coords.IS_DEAD):
-            if len(queue) == 0:
+            if not queue:
                 queue = deque(self.get_ability_queue())
 
             ability = queue.popleft()
@@ -886,12 +891,12 @@ class Features(Navigation, Inputs):
             self.click(x, y)
             time.sleep(userset.LONG_SLEEP)
             color = self.get_pixel_color(coords.ABILITY_ROW1X,
-                                            coords.ABILITY_ROW1Y)
+                                         coords.ABILITY_ROW1Y)
 
             while color != coords.ABILITY_ROW1_READY_COLOR:
                 time.sleep(0.05)
                 color = self.get_pixel_color(coords.ABILITY_ROW1X,
-                                                coords.ABILITY_ROW1Y)
+                                             coords.ABILITY_ROW1Y)
 
     def get_ability_queue(self):
         """Return a queue of usable abilities."""
@@ -948,7 +953,7 @@ class Features(Navigation, Inputs):
         queue.extend([a for a in abilities if a in ready])
 
         # If nothing is ready, return a regular attack
-        if len(queue) == 0:
+        if not queue:
             queue.append(0)
         return queue
 
@@ -986,8 +991,8 @@ class Features(Navigation, Inputs):
         slots -- The amount of slots you wish to merge
         """
         self.menu("inventory")
-        coords = self.get_inventory_slots(slots)
-        for slot in coords:
+        coord = self.get_inventory_slots(slots)
+        for slot in coord:
             self.click(*slot)
             self.send_string("d")
 
@@ -998,8 +1003,8 @@ class Features(Navigation, Inputs):
         slots -- The amount of slots you wish to merge
         """
         self.menu("inventory")
-        coords = self.get_inventory_slots(slots)
-        for slot in coords:
+        coord = self.get_inventory_slots(slots)
+        for slot in coord:
             self.click(*slot)
             self.send_string("a")
 
@@ -1025,13 +1030,13 @@ class Features(Navigation, Inputs):
         time.sleep(userset.SHORT_SLEEP)
 
         if consume:
-            coords = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600,
-                                       self.get_file_path("images", "consumable.png"), threshold)
+            coord = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600,
+                                      self.get_file_path("images", "consumable.png"), threshold)
         else:
-            coords = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600,
-                                       self.get_file_path("images", "transformable.png"), threshold)
+            coord = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600,
+                                      self.get_file_path("images", "transformable.png"), threshold)
 
-        if coords:
+        if coord:
             self.ctrl_click(*slot)
 
     def get_idle_cap(self, resource):
@@ -1065,6 +1070,7 @@ class Features(Navigation, Inputs):
         return self.ocr(*coords.OCR_QUESTING_LEFT_TEXT)
 
     def get_available_majors(self):
+        """Return the amount of available major quests."""
         self.menu("questing")
         text = self.ocr(*coords.OCR_QUESTING_MAJORS)
         try:
@@ -1289,8 +1295,9 @@ class Features(Navigation, Inputs):
         self.click(*coords.SELLOUT_MUFFIN_USE)
         print(f"Used MacGuffin Muffin at: {datetime.datetime.now()}")
 
-    def hacks(self, targets=[1, 2, 3, 4, 5, 6, 7, 8], value=1e12):
+    def hacks(self, targets=None, value=1e12):
         """Activate hacks."""
+        targets = targets or range(1, 9)
         self.input_box()
         self.send_string(value // len(targets))
         self.menu("hacks")
@@ -1306,7 +1313,7 @@ class Features(Navigation, Inputs):
         if magic:
             return self.check_pixel_color(*coords.COLOR_WANDOOS_MAGIC_BB)
         return self.check_pixel_color(*coords.COLOR_WANDOOS_ENERGY_BB)
-    
+
     def itopod_ap(self, duration):
         """Abuse an oversight in the kill counter for AP rewards for mucher higher AP/h in ITOPOD.
         If you use this method, make sure you do not retoggle idle mode in adventure in other parts

@@ -1,7 +1,9 @@
 """Handles different challenges"""
-from classes.features import Features
-from classes.discord import Discord
-from classes.window import Window
+
+import time
+
+import win32gui
+
 from challenges.augment import Augment
 from challenges.basic import Basic
 from challenges.equipment import Equipment
@@ -11,17 +13,21 @@ from challenges.ngu import Ngu
 from challenges.rebirth import Rebirth
 from challenges.timemachine import Timemachine
 from challenges.blind import Blind
+
+from classes.features import Features
+from classes.discord import Discord
+from classes.window import Window
+
 import coordinates as coords
 import usersettings as userset
-import time
-import win32gui
+
 
 class Challenge(Features):
     """Handles different challenges."""
 
     def start_challenge(self, challenge):
         """Start the selected challenge."""
-        
+
         self.toggle_auto_spells(drop=False)
         self.rebirth()
         self.click(*coords.CHALLENGE_BUTTON)
@@ -93,7 +99,6 @@ class Challenge(Features):
             else:
                 print("Couldn't determine which script to start from the OCR",
                       "input")
-            #  TODO: add other challenges here
 
         else:
             x = coords.CHALLENGE.x

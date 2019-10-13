@@ -1,21 +1,22 @@
 """Input class contains functions for mouse and keyboard input."""
-from classes.window import Window as window
 from ctypes import windll
+import datetime
+import os
+import re
+import time
+
 from PIL import Image as image
 from PIL import ImageFilter, ImageEnhance
 import cv2
-import datetime
-import usersettings as userset
 import numpy
 import pytesseract
-import re
-import time
-import os
 import win32api
 import win32con as wcon
 import win32gui
 import win32ui
 
+import usersettings as userset
+from classes.window import Window as window
 
 class Inputs():
     """This class handles inputs."""
@@ -31,7 +32,7 @@ class Inputs():
                win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
                win32api.GetKeyState(wcon.VK_MENU) < 0):
             time.sleep(0.005)
-        if (button == "left"):
+        if button == "left":
             win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
                                  wcon.MK_LBUTTON, lParam)
             win32gui.PostMessage(window.id, wcon.WM_LBUTTONUP,
@@ -90,7 +91,7 @@ class Inputs():
 
     def send_string(self, string):
         """Send one or multiple characters to the window."""
-        if type(string) == float:  # Remove decimal
+        if isinstance(string) == float:  # Remove decimal
             string = str(int(string))
         for c in str(string):
             while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
@@ -150,12 +151,12 @@ class Inputs():
                 if y > height or x > width:
                     continue
                 t = bmp.getpixel((x, y))
-                if (self.rgb_to_hex(t) == color):
+                if self.rgb_to_hex(t) == color:
                     return x - 8, y - 8
 
         return None
 
-    def image_search(self, x_start, y_start, x_end, y_end, image, threshold, bmp=None):
+    def image_search(self, x_start, y_start, x_end, y_end, img, threshold, bmp=None):
         """Search the screen for the supplied picture.
 
         Returns a tuple with x,y-coordinates, or None if result is below
@@ -180,7 +181,7 @@ class Inputs():
                                 x_end + 8, y_end + 8))
         search_area = numpy.asarray(search_area)
         search_area = cv2.cvtColor(search_area, cv2.COLOR_RGB2GRAY)
-        template = cv2.imread(image, 0)
+        template = cv2.imread(img, 0)
         res = cv2.matchTemplate(search_area, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         if max_val < threshold:
@@ -235,6 +236,7 @@ class Inputs():
         return self.rgb_to_hex((r, g, b))
 
     def check_pixel_color(self, x, y, checks):
+        """Check if coordinate matches with one or more colors."""
         color = self.get_pixel_color(x, y)
         if isinstance(checks, list):
             for check in checks:

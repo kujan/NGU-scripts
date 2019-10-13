@@ -1,7 +1,9 @@
 """Window class contains the coordinate for the top left of the game window."""
-import win32gui
 import ctypes
 import platform
+
+import win32gui
+
 
 class Window():
     """This class contains game window coordinates."""
@@ -10,12 +12,13 @@ class Window():
     x = 0
     y = 0
     dc = 0
-    
+
     def __init__(self, debug=False):
         Window.init(debug)
 
     @staticmethod
     def init(debug=False):
+        """Set class variables."""
         if platform.release() == "10":
             ctypes.windll.shcore.SetProcessDpiAwareness(2)
         else:
@@ -37,8 +40,9 @@ class Window():
                 Window.id = i[0]
         if Window.id == 0:
             raise RuntimeError(f"Couldn't find game window")
-    
-    @staticmethod    
+
+    @staticmethod
     def setPos(x, y):
+        """Set top left coordinates."""
         Window.x = x
         Window.y = y

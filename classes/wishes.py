@@ -1,12 +1,15 @@
-from classes.features import Features
+"""Class that handles wish allocation."""
 from decimal import Decimal
-import constants as const
-import coordinates as coords
-import usersettings as userset
 from functools import reduce
 import math
 import re
 import time
+
+import coordinates as coords
+import constants as const
+import usersettings as userset
+from classes.features import Features
+
 
 class Wishes(Features):
     """Class that handles wishes."""
@@ -135,7 +138,7 @@ class Wishes(Features):
                         values.append(re.sub(r'[^0-9E+\.]', '', line))
                     else:
                         fields.append(line)
-            assert(len(fields) == len(values))
+            assert len(fields) == len(values)
 
             for index, field in enumerate(fields):
                 res.append((field, values[index]))
@@ -239,7 +242,7 @@ class Wishes(Features):
                 for wish in available_wishes:
                     if wish.id == max(candidates.items(), key=lambda x: x[1][2])[0]:
                         available_wishes.remove(wish)
-        
+
         rcap = self.rcap
         r = 0
         for wish in best:
@@ -253,7 +256,7 @@ class Wishes(Features):
                 tmp = {}
                 for wish in best:
                     tmp[wish] = [math.ceil(best[wish][0] / cap_div), math.ceil(best[wish][1] / cap_div),
-                                math.ceil(best[wish][2] / cap_div)]
+                                 math.ceil(best[wish][2] / cap_div)]
                 best = tmp
             else:
                 print("wish dividers too far apart, splitting resources evenly")

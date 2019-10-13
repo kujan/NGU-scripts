@@ -17,7 +17,7 @@ class Discord():
     ERROR = 1
 
     @classmethod
-    def send_message(self, text, level):
+    def send_message(cls, text, level):
         """Send message to webhook."""
         url = ""
         if level == 0:  # info
