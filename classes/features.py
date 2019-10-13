@@ -84,7 +84,7 @@ class Features(Navigation, Inputs):
 
     def nuke(self, boss=None):
         """Navigate to Fight Boss and Nuke or Fast Fight.
-        
+
         Keyword arguments
         boss -- If provided, will fight until reached
                 If omitted, will hit nuke instead.
@@ -122,7 +122,7 @@ class Features(Navigation, Inputs):
 
     def ygg(self, eat_all=False, equip=0):
         """Navigate to inventory and handle fruits.
-        
+
         Keyword arguments:
         eat_all -- Set to true if you're rebirthing, it will force eat all
                    fruit.
@@ -149,7 +149,7 @@ class Features(Navigation, Inputs):
 
     def adventure(self, zone=-1, highest=False, itopod=None, itopodauto=False):
         """Go to adventure zone to idle.
-        
+
         Keyword arguments
         zone -- Zone to idle in, 0 is safe zone, 1 is tutorial and so on.
         highest -- If true, will go to your highest available non-titan zone.
@@ -190,7 +190,7 @@ class Features(Navigation, Inputs):
 
     def snipe(self, zone, duration, once=False, highest=False, bosses=False, manual=False):
         """Go to adventure and snipe bosses in specified zone.
-        
+
         Keyword arguments
         zone -- Zone to snipe, 0 is safe zone, 1 is turorial and so on.
                 If 0, it will use the current zone (to maintain guffin counter)
@@ -259,7 +259,7 @@ class Features(Navigation, Inputs):
 
     def itopod_snipe(self, duration, auto=False):
         """Manually snipes ITOPOD for increased speed PP/h.
-        
+
         Keyword arguments:
         duration -- Duration in seconds to snipe, before toggling idle mode
                     back on and returning.
@@ -342,7 +342,7 @@ class Features(Navigation, Inputs):
 
     def check_challenge(self, getNum=False):
         """Check if a challenge is active.
-        
+
         Keyword arguments
         getNum. -- If true, return the number of the active challenge.
                    This is slower.
@@ -352,12 +352,12 @@ class Features(Navigation, Inputs):
         self.click(*coords.CHALLENGE_BUTTON)
         time.sleep(userset.LONG_SLEEP)
         active = self.check_pixel_color(*coords.COLOR_CHALLENGE_ACTIVE)
-        
+
         if not active:
             return False
         if not getNum:
             return True
-            
+
         text = self.ocr(*coords.OCR_CHALLENGE_NAME)
         if "basic" in text.lower():
             return 1
@@ -381,13 +381,13 @@ class Features(Navigation, Inputs):
             return 10
         elif "time machine" in text.lower():
             return 11
-        #  TODO: add other challenges here
+
         else:
             return -1
 
     def pit(self, loadout=0):
         """Throws money into the pit.
-        
+
         Keyword arguments:
         loadout -- The loadout you wish to equip before throwing gold
                    into the pit, for gear you wish to shock. Make
@@ -404,7 +404,7 @@ class Features(Navigation, Inputs):
 
     def augments(self, augments, energy):
         """Dump energy into augmentations.
-        
+
         Keyword arguments
         augments -- Dictionary that contains which augments you wish to use and
                     a ratio that tells how much of the total energy you
@@ -453,15 +453,15 @@ class Features(Navigation, Inputs):
 
     def time_machine(self, e, m=0, magic=False):
         """Add energy and/or magic to TM.
-        
+
         Example: self.time_machine(1000, 2000)
                  self.time_machine(1000, magic=True)
                  self.time_machine(1000)
-                 
+
         First example will add 1000 energy and 2000 magic to TM.
         Second example will add 1000 energy and 1000 magic to TM.
         Third example will add 1000 energy to TM.
-        
+
         Keyword arguments:
         e -- The amount of energy to put into TM.
         m -- The amount of magic to put into TM, if this is 0, it will use the
@@ -480,7 +480,7 @@ class Features(Navigation, Inputs):
 
     def blood_magic(self, target):
         """Assign magic to BM.
-        
+
         Keyword arguments
         target -- Will cap all rituals till the target ritual
                   Usually run as blood_magic(8)
@@ -491,7 +491,7 @@ class Features(Navigation, Inputs):
 
     def wandoos(self, energy=True, magic=False):
         """Assign energy and/or magic to wandoos.
-        
+
         Keyword arguments
         energy -- Assign energy to Wandoos (default: True)
         magic  -- Assign magic to Wandoos  (default: False)
@@ -504,7 +504,7 @@ class Features(Navigation, Inputs):
 
     def set_wandoos(self, version):
         """Set wandoos version.
-        
+
         Keyword arguments:
         version -- Wandoos version of choice. Possible values are:
                    0 : Wandoos 98
@@ -517,7 +517,7 @@ class Features(Navigation, Inputs):
 
     def loadout(self, target):
         """Equip a loadout.
-        
+
         Keyword arguments
         target -- The loadout to be equiped
         """
@@ -536,7 +536,7 @@ class Features(Navigation, Inputs):
 
     def toggle_auto_spells(self, number=True, drop=True, gold=True):
         """Enable/Disable autospells
-        
+
         Keyword arguments
         number, drop, gold -- Spells to be enabled or disabled.
                               If True, enable the spell. If False, disable the spell.
@@ -544,7 +544,7 @@ class Features(Navigation, Inputs):
         """
         self.spells()
         self.click(600, 600)  # move tooltip
-        
+
         if number is not None:
             number_active = self.check_pixel_color(*coords.COLOR_BM_AUTO_NUMBER)
             if (number and not number_active) or (not number and number_active):
@@ -553,15 +553,15 @@ class Features(Navigation, Inputs):
             drop_active = self.check_pixel_color(*coords.COLOR_BM_AUTO_DROP)
             if (drop and not drop_active) or (not drop and drop_active):
                 self.click(*coords.BM_AUTO_DROP)
-            
-        if gold is not None:  
+
+        if gold is not None:
             gold_active = self.check_pixel_color(*coords.COLOR_BM_AUTO_GOLD)
             if (gold and not gold_active) or (not gold and gold_active):
                 self.click(*coords.BM_AUTO_GOLD)
 
     def check_spells_ready(self):
         """Check which spells are ready to cast.
-        
+
         Returns a list with integers corresponding to which spell is ready. The values on the
         list can be:
             1 - Iron pill
@@ -592,11 +592,11 @@ class Features(Navigation, Inputs):
 
     def cast_spell(self, target):
         """Cast target spell.
-        
+
         This method will allocate any idle magic into BM and wait for the
         time set in usersettings.py. Remember to re-enable auto spells after
         calling this method, using toggle_auto_spells().
-        
+
         Keyword arguments
         number -- The spell to be cast. Possible values are:
             1 - Iron pill
@@ -625,10 +625,10 @@ class Features(Navigation, Inputs):
         self.send_string("r")
         self.send_string("t")
         self.send_string("f")
-   
+
     def reclaim_res(self, energy=False, magic=False, r3=False):
         """Reclaim resources of choosing from all features.
-        
+
         Keyword arguments
         energy -- If True, reclaim energy.
         magic  -- If True, reclaim magic.
@@ -640,7 +640,7 @@ class Features(Navigation, Inputs):
             self.send_string("t")
         if r3:
             self.send_string("f")
-            
+
     def reclaim_bm(self):
         """Remove all magic from BM."""
         self.menu("bloodmagic")
@@ -663,7 +663,7 @@ class Features(Navigation, Inputs):
 
     def reclaim_tm(self, energy=True, magic=False):
         """Remove all e/m from TM.
-        
+
         Keyword arguments
         energy -- If True, reclaim energy from TM.
         magic  -- If True, reclaim magic from TM.
@@ -674,7 +674,8 @@ class Features(Navigation, Inputs):
         if magic:
             self.click(*coords.TM_MULT_MINUS)
             return
-        self.click(*coords.TM_SPEED_MINUS)
+        if energy:
+            self.click(*coords.TM_SPEED_MINUS)
 
     def reclaim_aug(self):
         """Remove all energy from augs"""
@@ -693,7 +694,7 @@ class Features(Navigation, Inputs):
 
     def assign_ngu(self, value, targets, magic=False):
         """Assign energy/magic to NGU's.
-        
+
         Keyword arguments:
         value -- the amount of energy/magic that will get split over all NGUs.
         targets -- Array of NGU's to use (1-9).
@@ -715,7 +716,7 @@ class Features(Navigation, Inputs):
 
     def gold_diggers(self, targets, deactivate=False):
         """Activate diggers.
-        
+
         Keyword arguments:
         targets -- Array of diggers to use from 1-12. Example: [1, 2, 3, 4, 9].
         deactivate -- Set to True if you wish to deactivate these
@@ -750,7 +751,7 @@ class Features(Navigation, Inputs):
         It will send value into the target NGU's, which will fill the progress bar. It's very
         important that you put enough e/m into the NGU's to trigger the "anti-flicker"
         (>10% of BB cost), otherwise it will not function properly.
-        
+
         Keyword arguments:
         value -- The amount of energy used to determine the cost of BBing the target NGU's
         targets -- Array of NGU's to BB. Example: [1, 3, 4, 5, 6]
@@ -794,14 +795,15 @@ class Features(Navigation, Inputs):
             self.send_string(str(int(energy)))
             self.click(coords.NGU_PLUS.x, coords.NGU_PLUS.y + target * 35)
 
-    def cap_ngu(self, targets=[], magic=False, cap_all=True):
+    def cap_ngu(self, targets=None, magic=False, cap_all=True):
         """Cap NGUs.
-        
+
         Keyword arguments
         targets -- The NGU's you wish to cap
         magic -- Set to true if these are magic NGU's
         cap_all -- Set to true if you wish to cap all NGU's
         """
+        targets = targets or []
         if magic:
             self.ngu_magic()
         else:
@@ -822,10 +824,10 @@ class Features(Navigation, Inputs):
 
     def advanced_training(self, value, ability=0):
         """Assign energy to adanced training.
-        
+
         Keyword arguments
         value   -- Set the total energy to assign to AT.
-        ability -- The AT ability to be trained. 
+        ability -- The AT ability to be trained.
                    If this is zero, it'll split the energy evenly between
                    Adv Toughness, Adv Power, Wandoos Energy and Wandoos Magic.
                    Splitting energy is the default behavior.
@@ -839,7 +841,7 @@ class Features(Navigation, Inputs):
             self.click(*coords.ADV_TRAINING_TOUGHNESS)
             self.click(*coords.ADV_TRAINING_WANDOOS_ENERGY)
             self.click(*coords.ADV_TRAINING_WANDOOS_MAGIC)
-            
+
         else:
             self.input_box()
             self.send_string(value)
@@ -870,7 +872,7 @@ class Features(Navigation, Inputs):
 
     def kill_titan(self, target, mega=True):
         """Attempt to kill the target titan.
-        
+
         Keyword arguments:
         target -- The id of the titan you wish to kill. 1 for GRB, 2 for GCT and so on.
         mega   -- Use Mega Buff
@@ -890,7 +892,7 @@ class Features(Navigation, Inputs):
                     x = coords.ABILITY_ROW1X + 2 * coords.ABILITY_OFFSETX
                     y = coords.ABILITY_ROW1Y
                     self.click(x, y)
-                    parry = True 
+                    parry = True
                     time.sleep(1)  # wait for global cooldown
                 if 9 in queue and not charge:
                     x = coords.ABILITY_ROW2X + (9 - 5) * coords.ABILITY_OFFSETX
@@ -955,12 +957,12 @@ class Features(Navigation, Inputs):
             self.click(x, y)
             time.sleep(userset.LONG_SLEEP)
             color = self.get_pixel_color(coords.ABILITY_ROW1X,
-                                            coords.ABILITY_ROW1Y)
+                                         coords.ABILITY_ROW1Y)
 
             while color != coords.ABILITY_ROW1_READY_COLOR:
                 time.sleep(0.05)
                 color = self.get_pixel_color(coords.ABILITY_ROW1X,
-                                                coords.ABILITY_ROW1Y)
+                                             coords.ABILITY_ROW1Y)
 
     def get_ability_queue(self):
         """Return a queue of usable abilities."""
@@ -1049,25 +1051,25 @@ class Features(Navigation, Inputs):
 
     def merge_inventory(self, slots):
         """Merge all inventory slots starting from 1 to slots.
-        
+
         Keyword arguments:
         slots -- The amount of slots you wish to merge
         """
         self.menu("inventory")
-        coords = self.get_inventory_slots(slots)
-        for slot in coords:
+        coord = self.get_inventory_slots(slots)
+        for slot in coord:
             self.click(*slot)
             self.send_string("d")
 
     def boost_inventory(self, slots):
         """Merge all inventory slots starting from 1 to slots.
-        
+
         Keyword arguments:
         slots -- The amount of slots you wish to merge
         """
         self.menu("inventory")
-        coords = self.get_inventory_slots(slots)
-        for slot in coords:
+        coord = self.get_inventory_slots(slots)
+        for slot in coord:
             self.click(*slot)
             self.send_string("a")
 
@@ -1079,7 +1081,7 @@ class Features(Navigation, Inputs):
         a special tooltip that will block you from doing another check
         for a few seconds, keep this in mind if you're checking multiple
         slots in succession.
-        
+
         Keyword arguments:
         slot      -- The slot you wish to transform, if possible
         threshold -- The fuzziness in the image search, I recommend a value
@@ -1092,18 +1094,18 @@ class Features(Navigation, Inputs):
         time.sleep(userset.SHORT_SLEEP)
 
         if consume:
-            coords = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600,
-                                       self.get_file_path("images", "consumable.png"), threshold)
+            coord = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600,
+                                      self.get_file_path("images", "consumable.png"), threshold)
         else:
-            coords = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600,
-                                       self.get_file_path("images", "transformable.png"), threshold)
+            coord = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600,
+                                      self.get_file_path("images", "transformable.png"), threshold)
 
-        if coords:
+        if coord:
             self.ctrl_click(*slot)
 
     def get_idle_cap(self, resource):
         """Get the available idle energy, magic, or resource 3.
-        
+
         Keyword arguments
         resource -- The resource to get idle cap for. 1 for energy, 2 for magic and 3 for r3.
         """
@@ -1128,7 +1130,7 @@ class Features(Navigation, Inputs):
         except ValueError:
             print("couldn't get idle cap")
             return 0
-        
+
     def get_quest_text(self):
         """Check if we have an active quest or not."""
         self.menu("questing")
@@ -1165,20 +1167,20 @@ class Features(Navigation, Inputs):
 
     def questing(self, duration=30, major=False, subcontract=False, force=0, adv_duration=2, butter=False):
         """Procedure for questing.
-        
+
         ===== IMPORTANT =====
         This method uses imagesearch to find items in your inventory, it will
         both right click and ctrl-click items (quick delete keybind), so make
         sure all items are protected.
-        
+
         The method will only check the inventory page that is currently open,
         so make sure it's set to page 1 and that your inventory has space.
-        
+
         If your inventory fills with mcguffins/other drops while it runs, it
         will get stuck doing the same quest forever. Make sure you will have
         space for the entire duration you will leave it running unattended.
         =====================
-        
+
         Keyword arguments:
         duration     -- The duration in minutes to run if manual mode is selected. If
                         quest gets completed, function will return prematurely.
@@ -1193,7 +1195,7 @@ class Features(Navigation, Inputs):
                         scanning the inventory and you will not waste any extra quest items.
                         A value around 2 minutes is good when doing majors because it's very
                         likely that the extra items are lost.
-        
+
         Suggested usages:
         questing(major=True)
         questing(subcontract=True)
@@ -1331,7 +1333,7 @@ class Features(Navigation, Inputs):
 
     def eat_muffin(self, buy=False):
         """Eat a MacGuffin Muffin if it's not active.
-        
+
         Keyword arguments:
         buy -- set to True if you wish to buy a muffin if you have enough
         AP and you currently have 0 muffins.
@@ -1356,13 +1358,14 @@ class Features(Navigation, Inputs):
         self.click(*coords.SELLOUT_MUFFIN_USE)
         print(f"Used MacGuffin Muffin at: {datetime.datetime.now()}")
 
-    def hacks(self, targets=[1, 2, 3, 4, 5, 6, 7, 8], value=1e12):
+    def hacks(self, targets=None, value=1e12):
         """Activate hacks.
-        
+
         Keyword arguments
         targets -- List of hacks to level up. Default value is [1, 2, 3, 4, 5, 6, 7, 8].
         value   -- Resource to spend, default to 1e12.
         """
+        targets = targets or []
         self.input_box()
         self.send_string(value // len(targets))
         self.menu("hacks")
@@ -1374,7 +1377,7 @@ class Features(Navigation, Inputs):
 
     def check_wandoos_bb_status(self, magic=False):
         """Check if wandoos is currently fully BB'd.
-        
+
         Keyword arguments
         magic -- If True, check if Wandoos magic is BB'd
                  If False (default), check if Wandoos energy is BB'd
@@ -1383,13 +1386,13 @@ class Features(Navigation, Inputs):
         if magic:
             return self.check_pixel_color(*coords.COLOR_WANDOOS_MAGIC_BB)
         return self.check_pixel_color(*coords.COLOR_WANDOOS_ENERGY_BB)
-    
+
     def itopod_ap(self, duration):
         """Abuse an oversight in the kill counter for AP rewards for mucher higher AP/h in ITOPOD.
         If you use this method, make sure you do not retoggle idle mode in adventure in other parts
         of your script. If you have to, make sure to empty itopod_tier_counts with:
         itopod_tier_counts = {}
-        
+
         Keyword arguments:
         duration -- Duration in seconds to run, before toggling idle mode
                     back on and returning.
