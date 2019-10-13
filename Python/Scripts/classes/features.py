@@ -139,7 +139,7 @@ class Features(Navigation, Inputs):
         self.click(*coords.SPIN_MENU)
         self.click(*coords.SPIN)
 
-    def adventure(self, zone=0, highest=True, itopod=None, itopodauto=False):
+    def adventure(self, zone=-1, highest=False, itopod=None, itopodauto=False):
         """Go to adventure zone to idle.
 
         Keyword arguments
@@ -169,7 +169,7 @@ class Features(Navigation, Inputs):
             self.send_string(str(itopod))
             self.click(*coords.ITOPOD_ENTER)
             return
-        if highest:
+        if zone == -1 or highest:
             self.current_adventure_zone = 0
             self.click(*coords.RIGHT_ARROW, button="right")
             return
@@ -328,12 +328,44 @@ class Features(Navigation, Inputs):
         self.click(*coords.CONFIRM)
         return
 
-    def check_challenge(self):
+    def check_challenge(self, getNum=False):
         """Check if a challenge is active."""
         self.rebirth()
         self.click(*coords.CHALLENGE_BUTTON)
         time.sleep(userset.LONG_SLEEP)
-        return True if self.check_pixel_color(*coords.COLOR_CHALLENGE_ACTIVE) else False
+        active = self.check_pixel_color(*coords.COLOR_CHALLENGE_ACTIVE)
+        
+        if not active:
+            return False
+        if not getNum:
+            return True
+            
+        text = self.ocr(*coords.OCR_CHALLENGE_NAME)
+        if "basic" in text.lower():
+            return 1
+        elif "augs" in text.lower():
+            return 2
+        elif "100 level" in text.lower():
+            return 3
+        elif "24 hour" in text.lower():
+            return 4
+        elif "equipment" in text.lower():
+            return 5
+        elif "troll" in text.lower():
+            return 6
+        elif "rebirth" in text.lower():
+            return 7
+        elif "laser" in text.lower():
+            return 8
+        elif "blind" in text.lower():
+            return 9
+        elif "ngu" in text.lower():
+            return 10
+        elif "time machine" in text.lower():
+            return 11
+        #  TODO: add other challenges here
+        else:
+            return -1
 
     def pit(self, loadout=0):
         """Throws money into the pit.
@@ -536,6 +568,18 @@ class Features(Navigation, Inputs):
             self.spells()
             self.click(*targets[target])
 
+    def reclaim_all(self):
+        self.send_string("r")
+        self.send_string("t")
+        self.send_string("f")
+   
+    def reclaim_res(self, energy=False, magic=False, r3=False):
+        if energy:
+            self.send_string("r")
+        if magic:
+            self.send_string("t")
+        if r3:
+            self.send_string("f")
     def reclaim_bm(self):
         """Remove all magic from BM."""
         self.menu("bloodmagic")
@@ -712,17 +756,32 @@ class Features(Navigation, Inputs):
         self.click(*coords.NGU_OVERCAP)
         self.send_string(value)
 
-    # TODO: make this actually useful for anything
-    def advanced_training(self, value):
+    def advanced_training(self, value, ability=0):
         """Assign energy to adventure power/thoughness and wandoos."""
         self.menu("advtraining")
-        value = value // 4
-        self.input_box()
-        self.send_string(value)
-        self.click(*coords.ADV_TRAINING_POWER)
-        self.click(*coords.ADV_TRAINING_TOUGHNESS)
-        self.click(*coords.ADV_TRAINING_WANDOOS_ENERGY)
-        self.click(*coords.ADV_TRAINING_WANDOOS_MAGIC)
+        if (ability == 0):
+            value = value // 4
+            self.input_box()
+            self.send_string(value)
+            self.click(*coords.ADV_TRAINING_POWER)
+            self.click(*coords.ADV_TRAINING_TOUGHNESS)
+            self.click(*coords.ADV_TRAINING_WANDOOS_ENERGY)
+            self.click(*coords.ADV_TRAINING_WANDOOS_MAGIC)
+            
+        else:
+            self.input_box()
+            self.send_string(value)
+            if (ability == 1):
+                self.click(*coords.ADV_TRAINING_TOUGHNESS)
+            if (ability == 2):
+                self.click(*coords.ADV_TRAINING_POWER)
+            if (ability == 3):
+                self.click(*coords.ADV_TRAINING_BLOCK)
+            if (ability == 4):
+                self.click(*coords.ADV_TRAINING_WANDOOS_ENERGY)
+            if (ability == 5):
+                self.click(*coords.ADV_TRAINING_WANDOOS_MAGIC)
+
 
     def check_titan_status(self):
         """Check to see if any titans are ready."""
