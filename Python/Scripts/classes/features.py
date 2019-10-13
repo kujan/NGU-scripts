@@ -59,6 +59,7 @@ class Features(Navigation, Inputs):
             self.click(*coords.EQUIPMENT_SLOTS[slot])
             self.send_string("d")
 
+    # why does this buff cube?
     def boost_equipment(self):
         """Boost all equipment."""
         self.menu("inventory")
@@ -85,7 +86,8 @@ class Features(Navigation, Inputs):
         
         Keyword arguments
         boss -- If provided, will fight until reached
-                If omitted, will hit nuke instead"""
+                If omitted, will hit nuke instead.
+        """
         self.menu("fight")
         if boss:
             for _ in range(boss):
@@ -342,7 +344,8 @@ class Features(Navigation, Inputs):
         Keyword arguments
         getNum. -- If true, return the number of the active challenge.
                    This is slower.
-                   If False or omitted, return if a challenge is active."""
+                   If False or omitted, return if a challenge is active.
+        """
         self.rebirth()
         self.click(*coords.CHALLENGE_BUTTON)
         time.sleep(userset.LONG_SLEEP)
@@ -479,15 +482,21 @@ class Features(Navigation, Inputs):
         Keyword arguments
         target -- Will cap all rituals till the target ritual
                   Usually run as blood_magic(8)
-                  """
+        """
         self.menu("bloodmagic")
         for i in range(target):
             self.click(*coords.BM[i])
 
-    def wandoos(self, magic=False):
-        """Assign energy and/or magic to wandoos."""
+    def wandoos(self, energy=True, magic=False):
+        """Assign energy and/or magic to wandoos.
+        
+        Keyword arguments
+        energy -- Assign energy to Wandoos (default: True)
+        magic  -- Assign magic to Wandoos  (default: False)
+        """
         self.menu("wandoos")
-        self.click(*coords.WANDOOS_ENERGY)
+        if energy:
+            self.click(*coords.WANDOOS_ENERGY)
         if magic:
             self.click(*coords.WANDOOS_MAGIC)
 
@@ -495,13 +504,18 @@ class Features(Navigation, Inputs):
         """Set wandoos version.
 
         Keyword arguments:
-        version -- 0 = Wandoos, 1 = Meh, 2 = XL"""
+        version -- 0 = Wandoos 98, 1 = Meh, 2 = XL
+        """
         self.menu("wandoos")
         self.click(*coords.WANDOOS_VERSION[version])
         self.confirm()
 
     def loadout(self, target):
-        """Equip targeted loadout."""
+        """Equip a loadout.
+        
+        Keyword arguments
+        target -- The loadout to be equiped
+        """
         self.menu("inventory")
         self.click(*coords.LOADOUT[target])
 
@@ -514,19 +528,29 @@ class Features(Navigation, Inputs):
         return
 
     def toggle_auto_spells(self, number=True, drop=True, gold=True):
-        """Check and toggle autospells according to booleans."""
+        """Enable/Disable autospells
+        
+        Keyword arguments
+        number, drop, gold -- Spells to be enabled or disabled.
+                              If True, enable the spell. If False, disable the spell.
+                              If None, ignore the spell.
+        """
         self.spells()
         self.click(600, 600)  # move tooltip
-        number_active = self.check_pixel_color(*coords.COLOR_BM_AUTO_NUMBER)
-        drop_active = self.check_pixel_color(*coords.COLOR_BM_AUTO_DROP)
-        gold_active = self.check_pixel_color(*coords.COLOR_BM_AUTO_GOLD)
-
-        if (number and not number_active) or (not number and number_active):
-            self.click(*coords.BM_AUTO_NUMBER)
-        if (drop and not drop_active) or (not drop and drop_active):
-            self.click(*coords.BM_AUTO_DROP)
-        if (gold and not gold_active) or (not gold and gold_active):
-            self.click(*coords.BM_AUTO_GOLD)
+        
+        if number is not None:
+            number_active = self.check_pixel_color(*coords.COLOR_BM_AUTO_NUMBER)
+            if (number and not number_active) or (not number and number_active):
+                self.click(*coords.BM_AUTO_NUMBER)
+        if drop is not None:
+            drop_active = self.check_pixel_color(*coords.COLOR_BM_AUTO_DROP)
+            if (drop and not drop_active) or (not drop and drop_active):
+                self.click(*coords.BM_AUTO_DROP)
+            
+        if gold is not None:  
+            gold_active = self.check_pixel_color(*coords.COLOR_BM_AUTO_GOLD)
+            if (gold and not gold_active) or (not gold and gold_active):
+                self.click(*coords.BM_AUTO_GOLD)
 
     def check_spells_ready(self):
         """Check which spells are ready to cast.
@@ -565,9 +589,11 @@ class Features(Navigation, Inputs):
         time set in usersettings.py. Remember to re-enable auto spells after
         calling this method, using toggle_auto_spells().
 
-        1 - Iron pill
-        2 - MacGuffin alpha
-        3 - MacGuffin beta
+        Keyword arguments
+        number -- The spell to be cast. Possible values are:
+            1 - Iron pill
+            2 - MacGuffin alpha
+            3 - MacGuffin beta
         """
         if self.check_pixel_color(*coords.COLOR_SPELL_READY):
             targets = [0, coords.BM_PILL, coords.BM_GUFFIN_A, coords.BM_GUFFIN_B]
@@ -592,12 +618,20 @@ class Features(Navigation, Inputs):
         self.send_string("f")
    
     def reclaim_res(self, energy=False, magic=False, r3=False):
+        """Reclaim resources
+        
+        Keyword arguments
+        energy -- If True, reclaim energy.
+        magic  -- If True, reclaim magic.
+        r3     -- If True, reclaim resource 3.
+        """
         if energy:
             self.send_string("r")
         if magic:
             self.send_string("t")
         if r3:
             self.send_string("f")
+            
     def reclaim_bm(self):
         """Remove all magic from BM."""
         self.menu("bloodmagic")
@@ -618,8 +652,13 @@ class Features(Navigation, Inputs):
             NGU = coords.Pixel(coords.NGU_MINUS.x, coords.NGU_PLUS.y + i * 35)
             self.click(*NGU)
 
-    def reclaim_tm(self, magic=False):
-        """Remove all e/m from TM."""
+    def reclaim_tm(self, energy=True, magic=False):
+        """Remove all e/m from TM.
+        
+        Keyword arguments
+        energy -- If True, reclaim energy from TM.
+        magic  -- If True, reclaim magic from TM.
+        """
         self.menu("timemachine")
         self.input_box()
         self.send_string(coords.INPUT_MAX)
@@ -775,7 +814,13 @@ class Features(Navigation, Inputs):
         self.send_string(value)
 
     def advanced_training(self, value, ability=0):
-        """Assign energy to adventure power/thoughness and wandoos."""
+        """Assign energy to adanced training.
+        
+        Keyword arguments
+        value -- Set the total energy to assign to AT.
+        ability -- The AT ability to be trained. If this is zero, it'll split the energy
+                   evenly between Adv Toughness, Adv Power, Wandoos Energy and Wandoos Magic
+        """
         self.menu("advtraining")
         if (ability == 0):
             value = value // 4
@@ -820,6 +865,7 @@ class Features(Navigation, Inputs):
 
         Keyword arguments:
         target -- The id of the titan you wish to kill. 1 for GRB, 2 for GCT and so on.
+        mega   -- Use Mega Buff
         """
         self.menu("adventure")
         if self.check_pixel_color(*coords.IS_IDLE):
@@ -1050,7 +1096,11 @@ class Features(Navigation, Inputs):
             self.ctrl_click(*slot)
 
     def get_idle_cap(self, resource):
-        """Get the available idle energy, magic, or resource 3."""
+        """Get the available idle energy, magic, or resource 3.
+        
+        Keyword arguments
+        resource -- The resource to get idle cap for. 1 for energy, 2 for magic and 3 for r3.
+        """
         try:
             if resource == 1:
                 res = self.ocr(*coords.OCR_ENERGY)
@@ -1072,6 +1122,7 @@ class Features(Navigation, Inputs):
         except ValueError:
             print("couldn't get idle cap")
             return 0
+        
     def get_quest_text(self):
         """Check if we have an active quest or not."""
         self.menu("questing")
@@ -1272,7 +1323,7 @@ class Features(Navigation, Inputs):
         return Rebirth_time(days, timestamp)
 
     def rt_to_seconds(self):
-        """Convert rebirth_time object to seconds"""
+        """Get the Rebirth time in seconds"""
         rt = self.get_rebirth_time()
         seconds = ((rt.days * 24 + rt.timestamp.tm_hour) * 60 + rt.timestamp.tm_min) * 60 + rt.timestamp.tm_sec
         return seconds
@@ -1316,7 +1367,12 @@ class Features(Navigation, Inputs):
             self.click(*coords.HACKS[item])
 
     def check_wandoos_bb_status(self, magic=False):
-        """Check if wandoos is currently fully BB'd."""
+        """Check if wandoos is currently fully BB'd.
+        
+        Keyword arguments
+        magic -- If True, check if Wandoos magic is BB'd
+                 If False (default), check if Wandoos energy is BB'd
+        """
         self.menu("wandoos")
         if magic:
             return self.check_pixel_color(*coords.COLOR_WANDOOS_MAGIC_BB)
