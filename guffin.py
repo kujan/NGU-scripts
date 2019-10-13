@@ -1,13 +1,15 @@
 """Guffin script."""
 
+import time
+
 # Helper classes
 from classes.features import Features
-from classes.window import Window
+import classes.helper as helper
 from classes.wishes import Wishes
 
 import coordinates as coords
 import  constants as const
-import time
+
 
 
 class Guffin(Features):
@@ -30,6 +32,9 @@ class Guffin(Features):
         #####################
         # DO NOT EDIT BELOW #
         #####################
+        self._rb_time = 0
+        self._advanced_training_locked = True
+        self._current_boss = 0
         print("If you want to use muffins, use them manually. You can eat several muffins at once to extend the duration above 24 hours.")
         input("Press enter to rebirth and start script. ")
         self._wishes = None
@@ -53,7 +58,6 @@ class Guffin(Features):
     def __update_gamestate(self):
         """Update relevant state information."""
         self._rb_time = self.rt_to_seconds()
-        self._advanced_training_locked = True
         try:
             self._current_boss = int(self.get_current_boss())
         except ValueError:
@@ -122,7 +126,6 @@ class Guffin(Features):
             self.__do_quest()
             self.__update_gamestate()
 
-        
         self.fight()
         self.adventure(itopodauto=True)
         self.pit()
@@ -138,11 +141,9 @@ class Guffin(Features):
         print(f"Completed guffin run #{self.runs} in {time.strftime('%H:%M:%S', time.gmtime(self._rb_time))}")
 
 
-Window.__init__(object)
 feature = Features()
-Window.x, Window.y = feature.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 400, 600)
-feature.menu("inventory")
-import requirements
+helper.init(feature, True)
+
 guffin = Guffin()
 
 while True:

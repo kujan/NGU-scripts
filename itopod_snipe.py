@@ -1,23 +1,14 @@
 """ITOPOD Sniping script."""
-
+import time
 # Helper classes
+import classes.helper as helper
 from classes.features import Features
 from classes.stats import Tracker
-from classes.window import Window
 
-import coordinates as coords
 import constants as const
-import time
-
-Window.__init__(object)
 
 feature = Features()
-
-Window.x, Window.y = feature.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 400, 600)
-feature.menu("inventory")
-import requirements
-print(f"Top left found at: {Window.x}, {Window.y}")
-
+helper.init(feature, True)
 tracker = Tracker(5)
 
 while True:  # main loop

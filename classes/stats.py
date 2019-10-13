@@ -2,6 +2,7 @@
 import datetime
 import time
 import coordinates as coords
+import classes.helper as helper
 from classes.navigation import Navigation
 
 class Stats(Navigation):
@@ -123,7 +124,7 @@ class EstimateRate(Stats):
         dtime = time.time() - self.last_timestamp
         self.dtime_log.append(dtime)
         self.last_timestamp = time.time()
-        print("This run: {:^8}{:^3}This run: {:^8}".format(Tracker.human_format(dxp), "|", Tracker.human_format(dpp)))
+        print("This run: {:^8}{:^3}This run: {:^8}".format(helper.human_format(dxp), "|", helper.human_format(dpp)))
 
     def update_xp(self):
         """This method is used to update last xp after upgrade spends"""
@@ -156,13 +157,13 @@ class Tracker():
 
     def __show_progress(self):
         if self.__iteration == 1:
-            print('Starting: {:^8}{:^3}Starting: {:^8}'.format(self.human_format(Stats.xp), "|", self.human_format(Stats.pp)))
+            print('Starting: {:^8}{:^3}Starting: {:^8}'.format(helper.human_format(Stats.xp), "|", helper.human_format(Stats.pp)))
         else:
             elapsed = self.elapsed_time()
             xph, pph = self.__estimaterate.rates()
             report_time = "\n{0:^40}\n".format(elapsed)
-            print('Current:  {:^8}{:^3}Current:  {:^8}'.format(self.human_format(Stats.xp), "|", self.human_format(Stats.pp)))
-            print('Per hour: {:^8}{:^3}Per hour: {:^8}'.format(self.human_format(xph), "|", self.human_format(pph)))
+            print('Current:  {:^8}{:^3}Current:  {:^8}'.format(helper.human_format(Stats.xp), "|", helper.human_format(Stats.pp)))
+            print('Per hour: {:^8}{:^3}Per hour: {:^8}'.format(helper.human_format(xph), "|", helper.human_format(pph)))
             print(report_time)
 
     def elapsed_time(self):
@@ -172,24 +173,13 @@ class Tracker():
         return elapsed_time
 
     def progress(self):
-            self.__estimaterate.stop_watch()
-            self.__update_progress()
-            if not Stats.OCR_failed:
-                self.__show_progress()
-            print("{0:{fill}{align}40}".format(f" {self.__iteration} ", fill="-", align="^"))
-            print("{:^18}{:^3}{:^18}".format("XP", "|", "PP"))
-            print("-" * 40)
+        self.__estimaterate.stop_watch()
+        self.__update_progress()
+        if not Stats.OCR_failed:
+            self.__show_progress()
+        print("{0:{fill}{align}40}".format(f" {self.__iteration} ", fill="-", align="^"))
+        print("{:^18}{:^3}{:^18}".format("XP", "|", "PP"))
+        print("-" * 40)
 
     def adjustxp(self):
-            self.__estimaterate.update_xp()
-
-    @classmethod
-    def human_format(self, num):
-        num = float('{:.3g}'.format(num))
-        if num > 1e14:
-            return
-        magnitude = 0
-        while abs(num) >= 1000:
-            magnitude += 1
-            num /= 1000.0
-        return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
+        self.__estimaterate.update_xp()

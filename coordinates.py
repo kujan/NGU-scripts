@@ -1,3 +1,4 @@
+"""Contains constants for various coordinates and colors."""
 from collections import namedtuple
 
 Pixel = namedtuple('Pixel', 'x y')
@@ -29,7 +30,7 @@ NGU_BAR_GRAY = "FAFAFA"
 #     PLAYER_HEAL_THRESHOLDX # SAME
 # ]
 
-INPUT_MAX = 1000000000000000000
+INPUT_MAX = 9e18
 
 # Adventure Offsets
 RIGHT_ARROW = Pixel(930, 220)
@@ -44,7 +45,7 @@ HEALTH = Pixel(706, 411)
 ADVENTURE_TOOLTIP = Pixel(445, 45)
 OCR_AP_KILL_COUNT = OCRBox(470, 115, 740, 145)
 OCR_TITAN_RESPAWN = OCRBox(260, 150, 525, 310)
-# TODO: Rewrite kill_titan
+
 ABILITY_ROW1X = 426
 ABILITY_ROW2X = 321
 ABILITY_ROW3X = 321
@@ -56,7 +57,6 @@ ABILITY_ROW3Y = 186
 ABILITY_IDLE_MODE = Pixel(330, 105)
 ABILITY_REGULAR_ATTACK = Pixel(430, 105)
 
-# TODO: FIX TITAN SNIPE
 ABILITY_ANCHOR_PIXEL = Pixel(321, 113)
 ABILITY_OFFSETX = 106
 ABILITY_OFFSETY = 37
@@ -81,7 +81,6 @@ ABILITY_HYPER_REGEN = Pixel(426, 186)
 ABILITY_BEAST_MODE = Pixel(531, 186)
 ABILITY_ROW3_READY_COLOR = "C39494"
 
-# TODO: FIX ABILITY NUMBERING TO NEW SCHEME
 ABILITY_PRIORITY = {1: 6,  # Strong
                     2: 8,  # Parry
                     3: 9,  # Piercing
@@ -125,7 +124,7 @@ MENU_DIGGERS = Pixel(MENU_OFFSET_X, 405)
 MENU_BEARD = Pixel(MENU_OFFSET_X, 435)
 MENU_QUESTING = Pixel(MENU_OFFSET_X, 465)
 MENU_HACKS = Pixel(MENU_OFFSET_X, 495)
-MENU_WISHES = Pixel(MENU_OFFSET_X, 525)
+MENU_WISHES = Pixel(MENU_OFFSET_X, 520)
 MENU_ITEMS = {
     'fight': MENU_FIGHT, 'pit': MENU_PIT, 'adventure': MENU_ADVENTURE,
     'inventory': MENU_INVENTORY, 'augmentations': MENU_AUGMENTATIONS,
@@ -157,15 +156,15 @@ FIGHT_STOP = Pixel(625, 165)
 
 # INVENTORY OFFSETS
 EQUIPMENT_SLOTS = {"accessory1": Pixel(480, 65),
-                  "accessory2": Pixel(480, 115),
-                  "accessory3": Pixel(480, 165),
-                  "accessory4": Pixel(480, 215),
-                  "head": Pixel(525, 65),
-                  "chest": Pixel(525, 115),
-                  "legs": Pixel(525, 165),
-                  "boots": Pixel(525, 210),
-                  "weapon": Pixel(575, 115),
-                  "cube": Pixel(625, 115)}
+                   "accessory2": Pixel(480, 115),
+                   "accessory3": Pixel(480, 165),
+                   "accessory4": Pixel(480, 215),
+                   "head": Pixel(525, 65),
+                   "chest": Pixel(525, 115),
+                   "legs": Pixel(525, 165),
+                   "boots": Pixel(525, 210),
+                   "weapon": Pixel(575, 115),
+                   "cube": Pixel(625, 115)}
 LOADOUT_Y = 255
 LOADOUT = {1: Pixel(330, LOADOUT_Y), 2: Pixel(360, LOADOUT_Y), 3: Pixel(390, LOADOUT_Y), 4: Pixel(420, LOADOUT_Y), 5: Pixel(450, LOADOUT_Y),
            6: Pixel(480, LOADOUT_Y), 7: Pixel(510, LOADOUT_Y), 8: Pixel(540, LOADOUT_Y), 9: Pixel(570, LOADOUT_Y), 10: Pixel(600, LOADOUT_Y)}
@@ -201,14 +200,13 @@ BM_RECLAIM = [Pixel(BM_RECLAIM_X, 228), Pixel(BM_RECLAIM_X, 263), Pixel(BM_RECLA
 
 OCR_BM_SPELL_TEXT = OCRBox(440, 350, 800, 412)
 
-#TODO: AUGMENTATION OFFSETS
 AUGMENT_X = 535
 
 AUGMENT = {"SS": Pixel(AUGMENT_X, 263), "DS": Pixel(AUGMENT_X, 292), "MI": Pixel(AUGMENT_X, 329),
            "DTMT": Pixel(AUGMENT_X, 357), "CI": Pixel(AUGMENT_X, 394), "ML": Pixel(AUGMENT_X, 422),
-            "SM": Pixel(AUGMENT_X, 459), "AA": Pixel(AUGMENT_X, 487), "EB": Pixel(AUGMENT_X, 525), 
-            "CS": Pixel(AUGMENT_X, 552), "AE": Pixel(AUGMENT_X, 450), "ES": Pixel(AUGMENT_X, 478),
-            "LS": Pixel(AUGMENT_X, 516), "QSL": Pixel(AUGMENT_X, 544)}
+           "SM": Pixel(AUGMENT_X, 459), "AA": Pixel(AUGMENT_X, 487), "EB": Pixel(AUGMENT_X, 525),
+           "CS": Pixel(AUGMENT_X, 552), "AE": Pixel(AUGMENT_X, 450), "ES": Pixel(AUGMENT_X, 478),
+           "LS": Pixel(AUGMENT_X, 516), "QSL": Pixel(AUGMENT_X, 544)}
 
 AUG_MINUS_X = 575
 
@@ -218,7 +216,6 @@ AUG_SCROLL_BOT = Pixel(945, 575)
 AUG_SCROLL_SANITY_TOP = Pixel(943, 261)
 AUG_SCROLL_SANITY_BOT = Pixel(943, 578)
 
-#TODO: NGU OFFSETS
 NGU_TARGET = Pixel(635, 205)
 NGU_MAGIC = Pixel(380, 120)
 NGU_MINUS = Pixel(551, 207)
@@ -232,7 +229,6 @@ NGU_BAR_MIN = Pixel(306, 215)
 NGU_BAR_MAX = Pixel(503, 215)
 NGU_BAR_OFFSET_Y = 35
 
-#TODO: Make into dict ADVTRAINING
 ADV_TRAINING_TOUGHNESS = Pixel(890, 230)
 ADV_TRAINING_POWER = Pixel(890, 270)
 ADV_TRAINING_BLOCK = Pixel(890, 310)
@@ -310,7 +306,6 @@ OCR_CHALLENGE_24HC_TARGET = OCRBox(479, 267, 771, 297)
 
 BEARD_X = {1: 312, 2: 338, 3: 312, 4: 1}
 
-#TODO: DIGGER OFFSETS
 DIG_PAGE_Y = 110
 DIG_PAGE = [Pixel(340, DIG_PAGE_Y), Pixel(405, DIG_PAGE_Y), Pixel(470, DIG_PAGE_Y)]
 
@@ -426,7 +421,6 @@ BREAKDOWN_MISC_SCROLL_DRAG_START = Pixel(956, 132)
 BREAKDOWN_MISC_SCROLL_DRAG_END = Pixel(956, 150)
 
 # PIXEL CHECKS
-# TODO: CONVERT to ColorPixel of COLOR_
 IS_BOSS_CROWN = ColorPixel(715, 277, 'F7EF29')
 IS_ENEMY_ALIVE = ColorPixel(*HEALTH, ['D93030', 'EB3434', 'DB3131', 'DA3030']) # If you reduce the enemy healthbar to 1px, the color changes for some reason
 IS_DEAD = ColorPixel(*HEALTH, ['EBEBEB', 'ECECEC'])
@@ -451,6 +445,7 @@ COLOR_WANDOOS_MAGIC_BB = ColorPixel(526, 350, ['718DF1', '738FF5'])
 COLOR_ADV_TRAINING_LOCKED = ColorPixel(195, 225, '96A7B7')
 COLOR_MEGA_BUFF_READY = ColorPixel(647, 176, ABILITY_ROW3_READY_COLOR)
 COLOR_ULTIMATE_BUFF_READY = ColorPixel(850, 110, ABILITY_ROW1_READY_COLOR)
+COLOR_REGULAR_ATTACK_READY = ColorPixel(325, 110, ABILITY_ROW1_READY_COLOR)
 HACKS = {1: Pixel(570, 230), 2: Pixel(890, 230),
          3: Pixel(570, 320), 4: Pixel(890, 320),
          5: Pixel(570, 415), 6: Pixel(890, 415),
