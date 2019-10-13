@@ -98,7 +98,7 @@ WISH_ORDER = [
               Wish(86, "I wish I had more Magic Power V", 10, 5e+21),
               Wish(88, "I wish I had more Magic Cap V", 10, 5e+21),
               Wish(95, "I wish I had more Magic Power VI", 10, 1e+23),
-              Wish(95, "I wish I had more Magic Cap VI", 10, 1e+23),
+              Wish(97, "I wish I had more Magic Cap VI", 10, 1e+23),
               
               Wish(104, "I wish I was stronger in Adventure mode III", 10, 1e+19),
               Wish(105, "I wish I was stronger in Adventure mode IV", 10, 3e+21),

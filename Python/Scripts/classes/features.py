@@ -248,7 +248,7 @@ class Features(Navigation, Inputs):
 
         self.click(*coords.ABILITY_IDLE_MODE)
 
-    def itopod_snipe(self, auto=False, duration):
+    def itopod_snipe(self, duration, auto=False):
         """Manually snipes ITOPOD for increased speed PP/h.
 
         Keyword arguments:
