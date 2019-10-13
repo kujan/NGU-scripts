@@ -248,12 +248,14 @@ class Features(Navigation, Inputs):
 
         self.click(*coords.ABILITY_IDLE_MODE)
 
-    def itopod_snipe(self, duration):
+    def itopod_snipe(self, auto=False, duration):
         """Manually snipes ITOPOD for increased speed PP/h.
 
         Keyword arguments:
         duration -- Duration in seconds to snipe, before toggling idle mode
                     back on and returning.
+        auto     -- Make sure you're on the optimal floor even if you're
+                    already in the ITOPOD
         """
         end = time.time() + duration
         self.current_adventure_zone = 0
@@ -261,7 +263,8 @@ class Features(Navigation, Inputs):
         self.click(625, 500)  # click somewhere to move tooltip
 
         # check if we're already in ITOPOD, otherwise enter
-        if not self.check_pixel_color(*coords.IS_ITOPOD_ACTIVE):
+        # if auto is true, re-enter ITOPOD to make sure floor is optimal
+        if auto or not self.check_pixel_color(*coords.IS_ITOPOD_ACTIVE):
             self.click(*coords.ITOPOD)
             self.click(*coords.ITOPOD_END)
             # set end to 0 in case it's higher than start
