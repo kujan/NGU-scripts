@@ -616,13 +616,13 @@ class Features(Navigation, Inputs):
             self.click(*targets[target])
 
     def reclaim_all(self):
-        """Reclaim all resources"""
+        """Reclaim all resources from all features."""
         self.send_string("r")
         self.send_string("t")
         self.send_string("f")
    
     def reclaim_res(self, energy=False, magic=False, r3=False):
-        """Reclaim resources
+        """Reclaim resources of choosing from all features.
         
         Keyword arguments
         energy -- If True, reclaim energy.
@@ -688,6 +688,7 @@ class Features(Navigation, Inputs):
 
     def assign_ngu(self, value, targets, magic=False):
         """Assign energy/magic to NGU's.
+        
         Keyword arguments:
         value -- the amount of energy/magic that will get split over all NGUs.
         targets -- Array of NGU's to use (1-9).
@@ -709,6 +710,7 @@ class Features(Navigation, Inputs):
 
     def gold_diggers(self, targets, deactivate=False):
         """Activate diggers.
+        
         Keyword arguments:
         targets -- Array of diggers to use from 1-12. Example: [1, 2, 3, 4, 9].
         deactivate -- Set to True if you wish to deactivate these
@@ -741,8 +743,9 @@ class Features(Navigation, Inputs):
     def bb_ngu(self, value, targets, overcap=1, magic=False):
         """Estimates the BB value of each supplied NGU.
         It will send value into the target NGU's, which will fill the progress bar. It's very
-        important that you put enough e/m into the NGU's to trigger the "anti-flicker" (>10% of BB cost),
-        otherwise it will not function properly.
+        important that you put enough e/m into the NGU's to trigger the "anti-flicker"
+        (>10% of BB cost), otherwise it will not function properly.
+        
         Keyword arguments:
         value -- The amount of energy used to determine the cost of BBing the target NGU's
         targets -- Array of NGU's to BB. Example: [1, 3, 4, 5, 6]
@@ -787,7 +790,8 @@ class Features(Navigation, Inputs):
             self.click(coords.NGU_PLUS.x, coords.NGU_PLUS.y + target * 35)
 
     def cap_ngu(self, targets=[], magic=False, cap_all=True):
-        """Cap NGU's.
+        """Cap NGUs.
+        
         Keyword arguments
         targets -- The NGU's you wish to cap
         magic -- Set to true if these are magic NGU's
@@ -815,12 +819,14 @@ class Features(Navigation, Inputs):
         """Assign energy to adanced training.
         
         Keyword arguments
-        value -- Set the total energy to assign to AT.
-        ability -- The AT ability to be trained. If this is zero, it'll split the energy
-                   evenly between Adv Toughness, Adv Power, Wandoos Energy and Wandoos Magic
+        value   -- Set the total energy to assign to AT.
+        ability -- The AT ability to be trained. 
+                   If this is zero, it'll split the energy evenly between
+                   Adv Toughness, Adv Power, Wandoos Energy and Wandoos Magic.
+                   Splitting energy is the default behavior.
         """
         self.menu("advtraining")
-        if (ability == 0):
+        if ability == 0:
             value = value // 4
             self.input_box()
             self.send_string(value)
@@ -843,7 +849,6 @@ class Features(Navigation, Inputs):
             if (ability == 5):
                 self.click(*coords.ADV_TRAINING_WANDOOS_MAGIC)
 
-
     def check_titan_status(self):
         """Check to see if any titans are ready."""
         self.click(*coords.MENU_ITEMS["adventure"], button="right")
@@ -860,6 +865,7 @@ class Features(Navigation, Inputs):
 
     def kill_titan(self, target, mega=True):
         """Attempt to kill the target titan.
+        
         Keyword arguments:
         target -- The id of the titan you wish to kill. 1 for GRB, 2 for GCT and so on.
         mega   -- Use Mega Buff
@@ -1038,6 +1044,7 @@ class Features(Navigation, Inputs):
 
     def merge_inventory(self, slots):
         """Merge all inventory slots starting from 1 to slots.
+        
         Keyword arguments:
         slots -- The amount of slots you wish to merge
         """
@@ -1049,6 +1056,7 @@ class Features(Navigation, Inputs):
 
     def boost_inventory(self, slots):
         """Merge all inventory slots starting from 1 to slots.
+        
         Keyword arguments:
         slots -- The amount of slots you wish to merge
         """
@@ -1066,11 +1074,12 @@ class Features(Navigation, Inputs):
         a special tooltip that will block you from doing another check
         for a few seconds, keep this in mind if you're checking multiple
         slots in succession.
+        
         Keyword arguments:
-        slot -- The slot you wish to transform, if possible
+        slot      -- The slot you wish to transform, if possible
         threshold -- The fuzziness in the image search, I recommend a value
                      between 0.7 - 0.95.
-        consume -- Set to true if item is consumable instead.
+        consume   -- Set to true if item is consumable instead.
         """
         self.menu("inventory")
         slot = self.get_inventory_slots(slot)[-1]
@@ -1150,20 +1159,35 @@ class Features(Navigation, Inputs):
 
     def questing(self, duration=30, major=False, subcontract=False, force=0, adv_duration=2, butter=False):
         """Procedure for questing.
+        
+        ===== IMPORTANT =====
+        This method uses imagesearch to find items in your inventory, it will
+        both right click and ctrl-click items (quick delete keybind), so make
+        sure all items are protected.
+        
+        The method will only check the inventory page that is currently open,
+        so make sure it's set to page 1 and that your inventory has space.
+        
+        If your inventory fills with mcguffins/other drops while it runs, it
+        will get stuck doing the same quest forever. Make sure you will have
+        space for the entire duration you will leave it running unattended.
+        =====================
+        
         Keyword arguments:
-        duration -- The duration in minutes to run if manual mode is selected. If
-                    quest gets completed, function will return prematurely.
-        major -- Set to true if you only wish to manually do main quests,
-                if False it will manually do all quests.
-        subcontract -- Set to True if you wish to subcontract all quests.
-        force -- Only quest in this zone. This will skip quests until you
-                 recieve one for the selected zone, so make sure you disable
-                 "Use major quests if available".
+        duration     -- The duration in minutes to run if manual mode is selected. If
+                        quest gets completed, function will return prematurely.
+        major        -- Set to true if you only wish to manually do main quests,
+                        if False it will manually do all quests.
+        subcontract  -- Set to True if you wish to subcontract all quests.
+        force        -- Only quest in this zone. This will skip quests until you
+                        recieve one for the selected zone, so make sure you disable
+                        "Use major quests if available".
         adv_duration -- The time in minutes to spend sniping before checking inventory.
                         A higher value is good when forcing, because you spend less time
                         scanning the inventory and you will not waste any extra quest items.
                         A value around 2 minutes is good when doing majors because it's very
                         likely that the extra items are lost.
+        
         Suggested usages:
         questing(major=True)
         questing(subcontract=True)
@@ -1179,15 +1203,6 @@ class Features(Navigation, Inputs):
         or it returns when the quest is completed.
         Use this together with harvesting ygg, recapping diggers and so on, or even
         sniping ITOPOD.
-        ===== IMPORTANT =====
-        This method uses imagesearch to find items in your inventory, it will
-        both right click and ctrl-click items (quick delete keybind), so make
-        sure all items are protected.
-        The method will only check the inventory page that is currently open,
-        so make sure it's set to page 1 and that your inventory has space.
-        If your inventory fills with mcguffins/other drops while it runs, it
-        will get stuck doing the same quest forever. Make sure you will have
-        space for the entire duration you will leave it running unattended.
         """
         end = time.time() + duration * 60
         self.menu("questing")
@@ -1310,6 +1325,7 @@ class Features(Navigation, Inputs):
 
     def eat_muffin(self, buy=False):
         """Eat a MacGuffin Muffin if it's not active.
+        
         Keyword arguments:
         buy -- set to True if you wish to buy a muffin if you have enough
         AP and you currently have 0 muffins.
@@ -1362,6 +1378,7 @@ class Features(Navigation, Inputs):
         If you use this method, make sure you do not retoggle idle mode in adventure in other parts
         of your script. If you have to, make sure to empty itopod_tier_counts with:
         itopod_tier_counts = {}
+        
         Keyword arguments:
         duration -- Duration in seconds to run, before toggling idle mode
                     back on and returning.
