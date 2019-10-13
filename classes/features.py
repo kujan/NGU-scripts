@@ -24,27 +24,27 @@ class Features(Navigation, Inputs):
     inventory_cleaned = False
     itopod_tier_counts = {}
     itopod_tier_map = {
-                       1: 0,
-                       2: 50,
-                       3: 100,
-                       4: 150,
-                       5: 200,
-                       6: 250,
-                       7: 300,
-                       8: 350,
-                       9: 400,
-                       10: 450,
-                       11: 500,
-                       12: 550,
-                       13: 600,
-                       14: 650,
-                       15: 700,
-                       16: 750,
-                       17: 800,
-                       18: 850,
-                       19: 900,
-                       20: 950,
-                       }
+        1: 0,
+        2: 50,
+        3: 100,
+        4: 150,
+        5: 200,
+        6: 250,
+        7: 300,
+        8: 350,
+        9: 400,
+        10: 450,
+        11: 500,
+        12: 550,
+        13: 600,
+        14: 650,
+        15: 700,
+        16: 750,
+        17: 800,
+        18: 850,
+        19: 900,
+        20: 950,
+        }
     itopod_ap_gained = 0
     itopod_kills = 0
     completed_wishes = []
@@ -55,7 +55,7 @@ class Features(Navigation, Inputs):
         """Navigate to inventory and merge equipment."""
         self.menu("inventory")
         for slot in coords.EQUIPMENT_SLOTS:
-            if (slot == "cube"):
+            if slot == "cube":
                 return
             self.click(*coords.EQUIPMENT_SLOTS[slot])
             self.send_string("d")
@@ -65,7 +65,7 @@ class Features(Navigation, Inputs):
         """Boost all equipment."""
         self.menu("inventory")
         for slot in coords.EQUIPMENT_SLOTS:
-            if (slot == "cube"):
+            if slot == "cube":
                 self.click(*coords.EQUIPMENT_SLOTS[slot], "right")
                 return
             self.click(*coords.EQUIPMENT_SLOTS[slot])
@@ -122,6 +122,7 @@ class Features(Navigation, Inputs):
 
     def ygg(self, eat_all=False, equip=0):
         """Navigate to inventory and handle fruits.
+        
         Keyword arguments:
         eat_all -- Set to true if you're rebirthing, it will force eat all
                    fruit.
@@ -148,6 +149,7 @@ class Features(Navigation, Inputs):
 
     def adventure(self, zone=-1, highest=False, itopod=None, itopodauto=False):
         """Go to adventure zone to idle.
+        
         Keyword arguments
         zone -- Zone to idle in, 0 is safe zone, 1 is tutorial and so on.
         highest -- If true, will go to your highest available non-titan zone.
@@ -188,6 +190,7 @@ class Features(Navigation, Inputs):
 
     def snipe(self, zone, duration, once=False, highest=False, bosses=False, manual=False):
         """Go to adventure and snipe bosses in specified zone.
+        
         Keyword arguments
         zone -- Zone to snipe, 0 is safe zone, 1 is turorial and so on.
                 If 0, it will use the current zone (to maintain guffin counter)
