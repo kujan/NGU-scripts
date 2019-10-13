@@ -222,7 +222,8 @@ class Features(Navigation, Inputs):
                         else:
                             while enemy_alive:
                                 enemy_alive = not self.check_pixel_color(*coords.IS_DEAD)
-                                self.click(*coords.ABILITY_REGULAR_ATTACK)
+                                if self.check_pixel_color(*coords.COLOR_REGULAR_ATTACK_READY):
+                                    self.click(*coords.ABILITY_REGULAR_ATTACK)
                                 time.sleep(0.1)
                         if once:
                             break
@@ -277,7 +278,7 @@ class Features(Navigation, Inputs):
             self.click(*coords.ABILITY_IDLE_MODE)
 
         while time.time() < end:
-            if self.check_pixel_color(*coords.IS_ENEMY_ALIVE):
+            if self.check_pixel_color(*coords.IS_ENEMY_ALIVE) and self.check_pixel_color(*coords.COLOR_REGULAR_ATTACK_READY):
                 self.click(*coords.ABILITY_REGULAR_ATTACK)
             else:
                 time.sleep(0.01)
