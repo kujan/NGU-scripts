@@ -404,6 +404,7 @@ class Features(Navigation, Inputs):
 
     def augments(self, augments, energy):
         """Dump energy into augmentations.
+        
         Keyword arguments
         augments -- Dictionary that contains which augments you wish to use and
                     a ratio that tells how much of the total energy you
@@ -452,12 +453,15 @@ class Features(Navigation, Inputs):
 
     def time_machine(self, e, m=0, magic=False):
         """Add energy and/or magic to TM.
+        
         Example: self.time_machine(1000, 2000)
                  self.time_machine(1000, magic=True)
                  self.time_machine(1000)
+                 
         First example will add 1000 energy and 2000 magic to TM.
         Second example will add 1000 energy and 1000 magic to TM.
         Third example will add 1000 energy to TM.
+        
         Keyword arguments:
         e -- The amount of energy to put into TM.
         m -- The amount of magic to put into TM, if this is 0, it will use the
@@ -518,10 +522,12 @@ class Features(Navigation, Inputs):
 
     @deprecated(version='0.1', reason="speedrun_bloodpill is deprecated, use iron_pill() instead")
     def speedrun_bloodpill(self):
+        """Deprecated"""
         return
 
     @deprecated(version='0.1', reason="iron_pill is deprecated, use cast_spell() instead")
     def iron_pill(self):
+        """Deprecated"""
         return
 
     def toggle_auto_spells(self, number=True, drop=True, gold=True):
@@ -551,10 +557,12 @@ class Features(Navigation, Inputs):
 
     def check_spells_ready(self):
         """Check which spells are ready to cast.
-        returns a list with integers corresponding to which spell is ready.
-        1 - Iron pill
-        2 - MacGuffin alpha
-        3 - MacGuffin beta
+        
+        Returns a list with integers corresponding to which spell is ready. The values on the
+        list can be:
+            1 - Iron pill
+            2 - MacGuffin alpha
+            3 - MacGuffin beta
         """
         if self.check_pixel_color(*coords.COLOR_SPELL_READY):
             self.spells()
@@ -580,6 +588,7 @@ class Features(Navigation, Inputs):
 
     def cast_spell(self, target):
         """Cast target spell.
+        
         This method will allocate any idle magic into BM and wait for the
         time set in usersettings.py. Remember to re-enable auto spells after
         calling this method, using toggle_auto_spells().
@@ -607,6 +616,7 @@ class Features(Navigation, Inputs):
             self.click(*targets[target])
 
     def reclaim_all(self):
+        """Reclaim all resources"""
         self.send_string("r")
         self.send_string("t")
         self.send_string("f")
