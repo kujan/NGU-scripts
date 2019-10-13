@@ -1,13 +1,9 @@
 """24-hour rebirth script."""
-
+import time
 # Helper classes
 from classes.features import Features
-from classes.inputs import Inputs
-from classes.navigation import Navigation
 from classes.window import Window
-
 import coordinates as coords
-import time
 
 
 def start_procedure(f, rt):

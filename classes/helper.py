@@ -1,13 +1,29 @@
 """Helper functions."""
+import win32gui
 from classes.window import Window
 import coordinates as coords
 
 def init(feature, printCoords=False):
     """Initialize Window class variables."""
     Window.init()
-    top_x, top_y = feature.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 2000, 1000)
+    rect = win32gui.GetWindowRect(Window.id)
+    x = rect[0]
+    y = rect[1]
+    w = rect[2] - x
+    h = rect[3] - y
+    top_x, top_y = feature.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, h, w)
     Window.setPos(top_x, top_y)
-    feature.menu("inventory")
+    feature.menu("inventory")  # Sometimes the very first click is ignored, this makes sure the first click is unimportant.
+
+    # Set everything to the proper requirements to run the script.
+    feature.click(*coords.GAME_SETTINGS)
+    feature.click(*coords.TO_SCIENTIFIC)
+    feature.click(*coords.CHECK_FOR_UPDATE_OFF)
+    feature.click(*coords.FANCY_TITAN_HP_BAR_OFF)
+    feature.click(*coords.DISABLE_HIGHSCORE)
+    feature.click(*coords.SETTINGS_PAGE_2)
+    feature.click(*coords.SIMPLE_INVENTORY_SHORTCUT_ON)
+
     if printCoords:
         print(f"Top left found at: {Window.x}, {Window.y}")
 

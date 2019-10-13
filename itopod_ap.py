@@ -1,18 +1,11 @@
 """AP farming script."""
 
 # Helper classes
+import classes.helper as helper
 from classes.features import Features
-from classes.window import Window
 
-import coordinates as coords
-
-w = Window()
 feature = Features()
-
-Window.x, Window.y = feature.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 400, 600)
-feature.menu("inventory")
-
-print(f"Top left found at: {w.x}, {w.y}")
+helper.init(feature, True)
 
 while True:  # main loop
     feature.itopod_ap(600)

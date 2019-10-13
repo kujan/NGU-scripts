@@ -16,31 +16,32 @@ import win32gui
 import win32ui
 
 import usersettings as userset
-from classes.window import Window as window
+from classes.window import Window
 
 class Inputs():
     """This class handles inputs."""
 
-    def click(self, x, y, button="left", fast=False):
+    @staticmethod
+    def click(x, y, button="left", fast=False):
         """Click at pixel xy."""
-        x += window.x
-        y += window.y
+        x += Window.x
+        y += Window.y
         lParam = win32api.MAKELONG(x, y)
         # MOUSEMOVE event is required for game to register clicks correctly
-        win32gui.PostMessage(window.id, wcon.WM_MOUSEMOVE, 0, lParam)
+        win32gui.PostMessage(Window.id, wcon.WM_MOUSEMOVE, 0, lParam)
         while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
                win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
                win32api.GetKeyState(wcon.VK_MENU) < 0):
             time.sleep(0.005)
         if button == "left":
-            win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
+            win32gui.PostMessage(Window.id, wcon.WM_LBUTTONDOWN,
                                  wcon.MK_LBUTTON, lParam)
-            win32gui.PostMessage(window.id, wcon.WM_LBUTTONUP,
+            win32gui.PostMessage(Window.id, wcon.WM_LBUTTONUP,
                                  wcon.MK_LBUTTON, lParam)
         else:
-            win32gui.PostMessage(window.id, wcon.WM_RBUTTONDOWN,
+            win32gui.PostMessage(Window.id, wcon.WM_RBUTTONDOWN,
                                  wcon.MK_RBUTTON, lParam)
-            win32gui.PostMessage(window.id, wcon.WM_RBUTTONUP,
+            win32gui.PostMessage(Window.id, wcon.WM_RBUTTONUP,
                                  wcon.MK_RBUTTON, lParam)
         # Sleep lower than 0.1 might cause issues when clicking in succession
         if fast:
@@ -48,50 +49,53 @@ class Inputs():
         else:
             time.sleep(userset.MEDIUM_SLEEP)
 
-    def click_drag(self, x, y, x2, y2):
+    @staticmethod
+    def click_drag(x, y, x2, y2):
         """Click at pixel xy."""
-        x += window.x
-        y += window.y
-        x2 += window.x
-        y2 += window.y
+        x += Window.x
+        y += Window.y
+        x2 += Window.x
+        y2 += Window.y
         lParam = win32api.MAKELONG(x, y)
         lParam2 = win32api.MAKELONG(x2, y2)
         # MOUSEMOVE event is required for game to register clicks correctly
-        win32gui.PostMessage(window.id, wcon.WM_MOUSEMOVE, 0, lParam)
+        win32gui.PostMessage(Window.id, wcon.WM_MOUSEMOVE, 0, lParam)
         while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
                win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
                win32api.GetKeyState(wcon.VK_MENU) < 0):
             time.sleep(0.005)
-        win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
+        win32gui.PostMessage(Window.id, wcon.WM_LBUTTONDOWN,
                              wcon.MK_LBUTTON, lParam)
         time.sleep(userset.LONG_SLEEP * 2)
-        win32gui.PostMessage(window.id, wcon.WM_MOUSEMOVE, 0, lParam2)
+        win32gui.PostMessage(Window.id, wcon.WM_MOUSEMOVE, 0, lParam2)
         time.sleep(userset.SHORT_SLEEP)
-        win32gui.PostMessage(window.id, wcon.WM_LBUTTONUP,
+        win32gui.PostMessage(Window.id, wcon.WM_LBUTTONUP,
                              wcon.MK_LBUTTON, lParam2)
         time.sleep(userset.MEDIUM_SLEEP)
 
-    def ctrl_click(self, x, y):
+    @staticmethod
+    def ctrl_click(x, y):
         """Clicks at pixel x, y while simulating the CTRL button to be down."""
-        x += window.x
-        y += window.y
+        x += Window.x
+        y += Window.y
         lParam = win32api.MAKELONG(x, y)
         while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
                win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
                win32api.GetKeyState(wcon.VK_MENU) < 0):
             time.sleep(0.005)
 
-        win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, wcon.VK_CONTROL, 0)
-        win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
+        win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN, wcon.VK_CONTROL, 0)
+        win32gui.PostMessage(Window.id, wcon.WM_LBUTTONDOWN,
                              wcon.MK_LBUTTON, lParam)
-        win32gui.PostMessage(window.id, wcon.WM_LBUTTONUP,
+        win32gui.PostMessage(Window.id, wcon.WM_LBUTTONUP,
                              wcon.MK_LBUTTON, lParam)
-        win32gui.PostMessage(window.id, wcon.WM_KEYUP, wcon.VK_CONTROL, 0)
+        win32gui.PostMessage(Window.id, wcon.WM_KEYUP, wcon.VK_CONTROL, 0)
         time.sleep(userset.MEDIUM_SLEEP)
 
-    def send_string(self, string):
-        """Send one or multiple characters to the window."""
-        if isinstance(string) == float:  # Remove decimal
+    @staticmethod
+    def send_string(string):
+        """Send one or multiple characters to the Window."""
+        if isinstance(string, str) == float:  # Remove decimal
             string = str(int(string))
         for c in str(string):
             while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
@@ -99,27 +103,28 @@ class Inputs():
                    win32api.GetKeyState(wcon.VK_MENU) < 0):
                 time.sleep(0.005)
             if c.isdigit():  # Digits only require KEY_UP event.
-                win32gui.PostMessage(window.id, wcon.WM_KEYUP, ord(c.upper()),
+                win32gui.PostMessage(Window.id, wcon.WM_KEYUP, ord(c.upper()),
                                      0)
                 # time.sleep(0.03)  # This can probably be removed
                 continue
-            win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, ord(c.upper()), 0)
+            win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN, ord(c.upper()), 0)
             time.sleep(userset.SHORT_SLEEP)  # This can probably be removed
-            win32gui.PostMessage(window.id, wcon.WM_KEYUP, ord(c.upper()), 0)
+            win32gui.PostMessage(Window.id, wcon.WM_KEYUP, ord(c.upper()), 0)
         time.sleep(userset.SHORT_SLEEP)
 
-    def get_bitmap(self):
-        """Get and return a bitmap of the window."""
-        left, top, right, bot = win32gui.GetWindowRect(window.id)
+    @staticmethod
+    def get_bitmap():
+        """Get and return a bitmap of the Window."""
+        left, top, right, bot = win32gui.GetWindowRect(Window.id)
         w = right - left
         h = bot - top
-        hwnd_dc = win32gui.GetWindowDC(window.id)
+        hwnd_dc = win32gui.GetWindowDC(Window.id)
         mfc_dc = win32ui.CreateDCFromHandle(hwnd_dc)
         save_dc = mfc_dc.CreateCompatibleDC()
         save_bitmap = win32ui.CreateBitmap()
         save_bitmap.CreateCompatibleBitmap(mfc_dc, w, h)
         save_dc.SelectObject(save_bitmap)
-        windll.user32.PrintWindow(window.id, save_dc.GetSafeHdc(), 0)
+        windll.user32.PrintWindow(Window.id, save_dc.GetSafeHdc(), 0)
         bmpinfo = save_bitmap.GetInfo()
         bmpstr = save_bitmap.GetBitmapBits(True)
 
@@ -132,11 +137,12 @@ class Inputs():
         win32gui.DeleteObject(save_bitmap.GetHandle())
         save_dc.DeleteDC()
         mfc_dc.DeleteDC()
-        win32gui.ReleaseDC(window.id, hwnd_dc)
+        win32gui.ReleaseDC(Window.id, hwnd_dc)
         # bmp.save("asdf.png")
         return bmp
 
-    def pixel_search(self, color, x_start, y_start, x_end, y_end):
+    @classmethod
+    def pixel_search(cls, color, x_start, y_start, x_end, y_end):
         """Find the first pixel with the supplied color within area.
 
         Function searches per row, left to right. Returns the coordinates of
@@ -144,19 +150,20 @@ class Inputs():
 
         Color must be supplied in hex.
         """
-        bmp = self.get_bitmap()
+        bmp = cls.get_bitmap()
         width, height = bmp.size
         for y in range(y_start, y_end):
             for x in range(x_start, x_end):
                 if y > height or x > width:
                     continue
                 t = bmp.getpixel((x, y))
-                if self.rgb_to_hex(t) == color:
+                if cls.rgb_to_hex(t) == color:
                     return x - 8, y - 8
 
         return None
 
-    def image_search(self, x_start, y_start, x_end, y_end, img, threshold, bmp=None):
+    @classmethod
+    def image_search(cls, x_start, y_start, x_end, y_end, img, threshold, bmp=None):
         """Search the screen for the supplied picture.
 
         Returns a tuple with x,y-coordinates, or None if result is below
@@ -175,7 +182,7 @@ class Inputs():
                will get the bitmap itself. (default None)
         """
         if not bmp:
-            bmp = self.get_bitmap()
+            bmp = cls.get_bitmap()
         # Bitmaps are created with a 8px border
         search_area = bmp.crop((x_start + 8, y_start + 8,
                                 x_end + 8, y_end + 8))
@@ -201,10 +208,10 @@ class Inputs():
                bitmap multiple times. If a bitmap is not passed, the function
                will get the bitmap itself. (default None)
         """
-        x_start += window.x
-        x_end += window.x
-        y_start += window.y
-        y_end += window.y
+        x_start += Window.x
+        x_end += Window.x
+        y_start += Window.y
+        y_end += Window.y
 
         if not bmp:
             bmp = self.get_bitmap()
@@ -223,9 +230,9 @@ class Inputs():
 
     def get_pixel_color(self, x, y, debug=False):
         """Get the color of selected pixel in HEX."""
-        dc = win32gui.GetWindowDC(window.id)
-        rgba = win32gui.GetPixel(dc, x + 8 + window.x, y + 8 + window.y)
-        win32gui.ReleaseDC(window.id, dc)
+        dc = win32gui.GetWindowDC(Window.id)
+        rgba = win32gui.GetPixel(dc, x + 8 + Window.x, y + 8 + Window.y)
+        win32gui.ReleaseDC(Window.id, dc)
         r = rgba & 0xff
         g = rgba >> 8 & 0xff
         b = rgba >> 16 & 0xff
@@ -235,42 +242,49 @@ class Inputs():
 
         return self.rgb_to_hex((r, g, b))
 
-    def check_pixel_color(self, x, y, checks):
+    @classmethod
+    def check_pixel_color(cls, x, y, checks):
         """Check if coordinate matches with one or more colors."""
-        color = self.get_pixel_color(x, y)
+        color = cls.get_pixel_color(cls, x, y)
         if isinstance(checks, list):
             for check in checks:
                 if check == color:
                     return True
-        else:
-            return color == checks
 
-    def remove_letters(self, s):
+        return color == checks
+
+    @staticmethod
+    def remove_letters(s):
         """Remove all non digit characters from string."""
         return re.sub('[^0-9]', '', s)
 
-    def rgb_to_hex(self, tup):
+    @staticmethod
+    def rgb_to_hex(tup):
         """Convert RGB value to HEX."""
         return '%02x%02x%02x'.upper() % (tup[0], tup[1], tup[2])
 
-    def get_file_path(self, directory, file):
+    @staticmethod
+    def get_file_path(directory, file):
         """Get the absolute path for a file."""
         working = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         path = os.path.join(working, directory, file)
         return path
 
-    def ocr_number(self, x_1, y_1, x_2, y_2):
+    @classmethod
+    def ocr_number(cls, x_1, y_1, x_2, y_2):
         """Remove all non-digits."""
-        return int(self.remove_letters(self.ocr(x_1, y_1, x_2, y_2)))
+        return int(cls.remove_letters(cls.ocr(cls, x_1, y_1, x_2, y_2)))
 
-    def ocr_notation(self, x_1, y_1, x_2, y_2):
+    @classmethod
+    def ocr_notation(cls, x_1, y_1, x_2, y_2):
         """Convert scientific notation from string to int."""
-        return int(float(self.ocr(x_1, y_1, x_2, y_2)))
+        return int(float(cls.ocr(cls, x_1, y_1, x_2, y_2)))
 
-    def save_screenshot(self):
+    @classmethod
+    def save_screenshot(cls):
         """Save a screenshot of the game."""
-        bmp = self.get_bitmap()
-        bmp = bmp.crop((window.x + 8, window.y + 8, window.x + 968, window.y + 608))
+        bmp = cls.get_bitmap()
+        bmp = bmp.crop((Window.x + 8, Window.y + 8, Window.x + 968, Window.y + 608))
         if not os.path.exists("screenshots"):
             os.mkdir("screenshots")
         bmp.save('screenshots/' + datetime.datetime.now().strftime('%d-%m-%y-%H-%M-%S') + '.png')
