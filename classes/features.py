@@ -229,7 +229,8 @@ class Features(Navigation, Inputs):
                         else:
                             while enemy_alive:
                                 enemy_alive = not self.check_pixel_color(*coords.IS_DEAD)
-                                self.click(*coords.ABILITY_REGULAR_ATTACK)
+                                if self.check_pixel_color(*coords.COLOR_REGULAR_ATTACK_READY):
+                                    self.click(*coords.ABILITY_REGULAR_ATTACK)
                                 time.sleep(0.1)
                         if once:
                             break
@@ -258,6 +259,7 @@ class Features(Navigation, Inputs):
 
     def itopod_snipe(self, duration, auto=False):
         """Manually snipes ITOPOD for increased speed PP/h.
+        
         Keyword arguments:
         duration -- Duration in seconds to snipe, before toggling idle mode
                     back on and returning.
@@ -283,7 +285,7 @@ class Features(Navigation, Inputs):
             self.click(*coords.ABILITY_IDLE_MODE)
 
         while time.time() < end:
-            if self.check_pixel_color(*coords.IS_ENEMY_ALIVE):
+            if self.check_pixel_color(*coords.IS_ENEMY_ALIVE) and self.check_pixel_color(*coords.COLOR_REGULAR_ATTACK_READY):
                 self.click(*coords.ABILITY_REGULAR_ATTACK)
             else:
                 time.sleep(0.01)
@@ -302,7 +304,7 @@ class Features(Navigation, Inputs):
                 return
         queue = deque(self.get_ability_queue())
         while not self.check_pixel_color(*coords.IS_DEAD):
-            if len(queue) == 0:
+            if not queue:
                 queue = deque(self.get_ability_queue())
             ability = queue.popleft()
             if ability <= 4:
@@ -385,6 +387,7 @@ class Features(Navigation, Inputs):
 
     def pit(self, loadout=0):
         """Throws money into the pit.
+        
         Keyword arguments:
         loadout -- The loadout you wish to equip before throwing gold
                    into the pit, for gear you wish to shock. Make
@@ -418,7 +421,7 @@ class Features(Navigation, Inputs):
             # Scroll down if we have to.
             bottom_augments = ["AE", "ES", "LS", "QSL"]
             i = 0
-            if (k in bottom_augments):
+            if k in bottom_augments:
                 color = self.get_pixel_color(*coords.AUG_SCROLL_SANITY_BOT)
                 while color not in coords.SANITY_AUG_SCROLL_COLORS:
                     self.click(*coords.AUG_SCROLL_BOT)
