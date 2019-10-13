@@ -504,8 +504,12 @@ class Features(Navigation, Inputs):
 
     def set_wandoos(self, version):
         """Set wandoos version.
+        
         Keyword arguments:
-        version -- 0 = Wandoos 98, 1 = Meh, 2 = XL
+        version -- Wandoos version of choice. Possible values are:
+                   0 : Wandoos 98
+                   1 : Wandoos Meh
+                   2 : Wandoos XL
         """
         self.menu("wandoos")
         self.click(*coords.WANDOOS_VERSION[version])
@@ -592,6 +596,7 @@ class Features(Navigation, Inputs):
         This method will allocate any idle magic into BM and wait for the
         time set in usersettings.py. Remember to re-enable auto spells after
         calling this method, using toggle_auto_spells().
+        
         Keyword arguments
         number -- The spell to be cast. Possible values are:
             1 - Iron pill
@@ -838,15 +843,15 @@ class Features(Navigation, Inputs):
         else:
             self.input_box()
             self.send_string(value)
-            if (ability == 1):
+            if ability == 1:
                 self.click(*coords.ADV_TRAINING_TOUGHNESS)
-            if (ability == 2):
+            if ability == 2:
                 self.click(*coords.ADV_TRAINING_POWER)
-            if (ability == 3):
+            if ability == 3:
                 self.click(*coords.ADV_TRAINING_BLOCK)
-            if (ability == 4):
+            if ability == 4:
                 self.click(*coords.ADV_TRAINING_WANDOOS_ENERGY)
-            if (ability == 5):
+            if ability == 5:
                 self.click(*coords.ADV_TRAINING_WANDOOS_MAGIC)
 
     def check_titan_status(self):
@@ -931,7 +936,7 @@ class Features(Navigation, Inputs):
 
         queue = deque(self.get_ability_queue())
         while not self.check_pixel_color(*coords.IS_DEAD):
-            if len(queue) == 0:
+            if not queue:
                 queue = deque(self.get_ability_queue())
 
             ability = queue.popleft()
@@ -1012,7 +1017,7 @@ class Features(Navigation, Inputs):
         queue.extend([a for a in abilities if a in ready])
 
         # If nothing is ready, return a regular attack
-        if len(queue) == 0:
+        if not queue:
             queue.append(0)
         return queue
 
@@ -1132,6 +1137,7 @@ class Features(Navigation, Inputs):
         return self.ocr(*coords.OCR_QUESTING_LEFT_TEXT)
 
     def get_available_majors(self):
+        """Return the amount of available major quests."""
         self.menu("questing")
         text = self.ocr(*coords.OCR_QUESTING_MAJORS)
         try:
@@ -1351,7 +1357,12 @@ class Features(Navigation, Inputs):
         print(f"Used MacGuffin Muffin at: {datetime.datetime.now()}")
 
     def hacks(self, targets=[1, 2, 3, 4, 5, 6, 7, 8], value=1e12):
-        """Activate hacks."""
+        """Activate hacks.
+        
+        Keyword arguments
+        targets -- List of hacks to level up. Default value is [1, 2, 3, 4, 5, 6, 7, 8].
+        value   -- Resource to spend, default to 1e12.
+        """
         self.input_box()
         self.send_string(value // len(targets))
         self.menu("hacks")
