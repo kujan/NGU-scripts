@@ -1,18 +1,19 @@
 """Feature class handles the different features in the game."""
-from classes.inputs import Inputs
-from classes.navigation import Navigation
-from classes.window import Window
 from collections import deque, namedtuple
-from decimal import Decimal
-from deprecated import deprecated
-import constants as const
-import coordinates as coords
 import datetime
 import math
 import re
 import time
+
+from deprecated import deprecated
 import win32con as wcon
 import win32gui
+
+from classes.inputs import Inputs
+from classes.navigation import Navigation
+from classes.window import Window
+import constants as const
+import coordinates as coords
 import usersettings as userset
 
 
