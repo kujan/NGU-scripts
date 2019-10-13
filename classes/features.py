@@ -61,11 +61,16 @@ class Features(Navigation, Inputs):
             self.send_string("d")
 
     # why does this buff cube?
-    def boost_equipment(self):
-        """Boost all equipment."""
+    def boost_equipment(self, boost_cube=True):
+        """Boost all equipment.
+        
+        Keyword arguments
+        boost_cube -- If True (default), will boost cube after all equipment
+                      has been boosted.
+        """
         self.menu("inventory")
         for slot in coords.EQUIPMENT_SLOTS:
-            if slot == "cube":
+            if boost_cube and slot == "cube":
                 self.click(*coords.EQUIPMENT_SLOTS[slot], "right")
                 return
             self.click(*coords.EQUIPMENT_SLOTS[slot])
