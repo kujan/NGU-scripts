@@ -12,7 +12,7 @@ import time
 parser = argparse.ArgumentParser()
 parser.add_argument("-z", "--zone", required=True, type=int, help="select which zone you wish to snipe")
 args = parser.parse_args()
-w = Window()
+Window.init()
 feature = Features()
 
 Window.x, Window.y = feature.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 400, 600)
