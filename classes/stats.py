@@ -1,7 +1,10 @@
 """Handles various statistics."""
 import datetime
 import time
+
 import coordinates as coords
+import usersettings as userset
+
 import classes.helper as helper
 from classes.navigation import Navigation
 
@@ -63,7 +66,7 @@ class EstimateRate(Stats):
         self.dxp_log = []
         self.dpp_log = []
         # Num runs to keep for moving average
-        self.__keep_runs = 60 // duration
+        self.__keep_runs = userset.E_RATE_KEEP_RUNS // duration
         self.__iteration = 0
         self.__elapsed = 0
         self.__alg = {
