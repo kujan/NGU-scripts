@@ -4,6 +4,8 @@ import platform
 
 import win32gui
 
+from deprecated import deprecated
+
 
 class Window():
     """This class contains game window coordinates."""
@@ -13,6 +15,7 @@ class Window():
     y = 0
     dc = 0
 
+    @deprecated(reason="Window() -Window instantiation- is deprecated, use Window.init() instead")
     def __init__(self, debug=False):
         Window.init(debug)
 
