@@ -70,7 +70,7 @@ class Features(Navigation, Inputs):
         self.menu("inventory")
         for slot in coords.EQUIPMENT_SLOTS:
             if boost_cube and slot == "cube":
-                self.click(*self.equipment["cube"], "right")
+                self.boost_cube()
                 return
             self.click(*coords.EQUIPMENT_SLOTS[slot])
             self.send_string("a")
