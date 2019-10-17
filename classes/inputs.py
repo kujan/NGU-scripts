@@ -18,7 +18,7 @@ import win32ui
 import usersettings as userset
 from classes.window import Window
 
-class Inputs():
+class Inputs:
     """This class handles inputs."""
 
     @staticmethod
@@ -141,8 +141,8 @@ class Inputs():
         # bmp.save("asdf.png")
         return bmp
 
-    @classmethod
-    def pixel_search(cls, color, x_start, y_start, x_end, y_end):
+    @staticmethod
+    def pixel_search(color, x_start, y_start, x_end, y_end):
         """Find the first pixel with the supplied color within area.
 
         Function searches per row, left to right. Returns the coordinates of
@@ -150,20 +150,20 @@ class Inputs():
 
         Color must be supplied in hex.
         """
-        bmp = cls.get_bitmap()
+        bmp = Inputs.get_bitmap()
         width, height = bmp.size
         for y in range(y_start, y_end):
             for x in range(x_start, x_end):
                 if y > height or x > width:
                     continue
                 t = bmp.getpixel((x, y))
-                if cls.rgb_to_hex(t) == color:
+                if Inputs.rgb_to_hex(t) == color:
                     return x - 8, y - 8
 
         return None
 
-    @classmethod
-    def image_search(cls, x_start, y_start, x_end, y_end, img, threshold, bmp=None):
+    @staticmethod
+    def image_search(x_start, y_start, x_end, y_end, img, threshold, bmp=None):
         """Search the screen for the supplied picture.
 
         Returns a tuple with x,y-coordinates, or None if result is below
@@ -182,7 +182,7 @@ class Inputs():
                will get the bitmap itself. (default None)
         """
         if not bmp:
-            bmp = cls.get_bitmap()
+            bmp = Inputs.get_bitmap()
         # Bitmaps are created with a 8px border
         search_area = bmp.crop((x_start + 8, y_start + 8,
                                 x_end + 8, y_end + 8))
@@ -196,7 +196,8 @@ class Inputs():
 
         return max_loc
 
-    def ocr(self, x_start, y_start, x_end, y_end, debug=False, bmp=None):
+    @staticmethod
+    def ocr(x_start, y_start, x_end, y_end, debug=False, bmp=None):
         """Perform an OCR of the supplied area, returns a string of the result.
 
         Keyword arguments:
@@ -214,7 +215,7 @@ class Inputs():
         y_end += Window.y
 
         if not bmp:
-            bmp = self.get_bitmap()
+            bmp = Inputs.get_bitmap()
         # Bitmaps are created with a 8px border
         bmp = bmp.crop((x_start + 8, y_start + 8, x_end + 8, y_end + 8))
         *_, right, lower = bmp.getbbox()
@@ -228,6 +229,7 @@ class Inputs():
         s = pytesseract.image_to_string(bmp, config='--psm 4')
         return s
 
+    @staticmethod
     def get_pixel_color(self, x, y, debug=False):
         """Get the color of selected pixel in HEX."""
         dc = win32gui.GetWindowDC(Window.id)
@@ -236,16 +238,15 @@ class Inputs():
         r = rgba & 0xff
         g = rgba >> 8 & 0xff
         b = rgba >> 16 & 0xff
-
-        if debug:
-            print(self.rgb_to_hex((r, g, b)))
-
+        
+        if debug: print(self.rgb_to_hex((r, g, b)))
+        
         return self.rgb_to_hex((r, g, b))
 
-    @classmethod
-    def check_pixel_color(cls, x, y, checks):
+    @staticmethod
+    def check_pixel_color(x, y, checks):
         """Check if coordinate matches with one or more colors."""
-        color = cls.get_pixel_color(cls, x, y)
+        color = Inputs.get_pixel_color(x, y)
         if isinstance(checks, list):
             for check in checks:
                 if check == color:
@@ -270,20 +271,20 @@ class Inputs():
         path = os.path.join(working, directory, file)
         return path
 
-    @classmethod
-    def ocr_number(cls, x_1, y_1, x_2, y_2):
+    @staticmethod
+    def ocr_number(x_1, y_1, x_2, y_2):
         """Remove all non-digits."""
-        return int(cls.remove_letters(cls.ocr(cls, x_1, y_1, x_2, y_2)))
+        return int(Inputs.remove_letters(Inputs.ocr(x_1, y_1, x_2, y_2)))
 
-    @classmethod
-    def ocr_notation(cls, x_1, y_1, x_2, y_2):
+    @staticmethod
+    def ocr_notation(x_1, y_1, x_2, y_2):
         """Convert scientific notation from string to int."""
-        return int(float(cls.ocr(cls, x_1, y_1, x_2, y_2)))
+        return int(float(Inputs.ocr(x_1, y_1, x_2, y_2)))
 
-    @classmethod
+    @staticmethod
     def save_screenshot(cls):
         """Save a screenshot of the game."""
-        bmp = cls.get_bitmap()
+        bmp = Inputs.get_bitmap()
         bmp = bmp.crop((Window.x + 8, Window.y + 8, Window.x + 968, Window.y + 608))
         if not os.path.exists("screenshots"):
             os.mkdir("screenshots")

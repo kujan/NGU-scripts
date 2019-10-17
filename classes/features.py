@@ -1,4 +1,5 @@
 """Feature class handles the different features in the game."""
+
 from collections import deque, namedtuple
 import datetime
 import math
@@ -17,11 +18,82 @@ import coordinates as coords
 import usersettings as userset
 
 
-class Features(Navigation, Inputs):
-    """Handles the different features in the game."""
+class FightBoss:
+    @staticmethod
+    def get_current_boss():
+        """Go to fight and read current boss number."""
+        Inputs.menu("fight")
+        boss = Inputs.ocr(*coords.OCR_BOSS, debug=False)
+        return Inputs.remove_letters(boss)
 
+    @staticmethod
+    def nuke(boss=None):
+        """Navigate to Fight Boss and Nuke or Fast Fight.
+        
+        Keyword arguments
+        boss -- If provided, will fight until reached
+                If omitted, will hit nuke instead.
+        """
+        Inputs.menu("fight")
+        if boss:
+            for _ in range(boss):
+                Inputs.click(*coords.FIGHT, fast=True)
+            time.sleep(userset.SHORT_SLEEP)
+            try:
+                current_boss = int(FightBoss.get_current_boss())
+            except ValueError:
+                current_boss = 1
+            x = 0
+            while current_boss < boss:
+                bossdiff = boss - current_boss
+                for _ in range(0, bossdiff):
+                    Inputs.click(*coords.FIGHT, fast=True)
+                time.sleep(userset.SHORT_SLEEP)
+                try:
+                    current_boss = int(FightBoss.get_current_boss())
+                except ValueError:
+                    current_boss = 1
+                x += 1
+                if x > 7:  # Safeguard if number is too low to reach target boss, otherwise we get stuck here
+                    print("Couldn't reach the target boss, something probably went wrong the last rebirth.")
+                    break
+        else:
+            Inputs.click(*coords.NUKE)
+    
+    @staticmethod
+    def fight():
+        """Navigate to Fight Boss and click fight."""
+        Inputs.menu("fight")
+        Inputs.click(*coords.FIGHT)
+
+class MoneyPit:
+    @staticmethod
+    def pit(loadout=0):
+        """Throws money into the pit.
+        
+        Keyword arguments:
+        loadout -- The loadout you wish to equip before throwing gold
+                   into the pit, for gear you wish to shock. Make
+                   sure that you don't get cap-blocked by either using
+                   the unassign setting in the game or swapping gear that
+                   doesn't have e/m cap.
+        """
+        if Inputs.check_pixel_color(*coords.IS_PIT_READY):
+            if loadout:
+                Inventory.loadout(loadout)
+            Inputs.menu("pit")
+            Inputs.click(*coords.PIT)
+            Inputs.click(*coords.CONFIRM)
+    
+    @staticmethod
+    def spin():
+        """Spin the wheel."""
+        Inputs.menu("pit")
+        Inputs.click(*coords.SPIN_MENU)
+        Inputs.click(*coords.SPIN)
+
+class Adventure:
     current_adventure_zone = 0
-    inventory_cleaned = False
     itopod_tier_counts = {}
     itopod_tier_map = {
         1: 0,
@@ -47,113 +119,14 @@ class Features(Navigation, Inputs):
         }
     itopod_ap_gained = 0
     itopod_kills = 0
-    completed_wishes = []
+    
     mega_buff_unlocked = False
     oh_shit_unlocked = False
-
-    def merge_equipment(self):
-        """Navigate to inventory and merge equipment."""
-        self.menu("inventory")
-        for slot in coords.EQUIPMENT_SLOTS:
-            if slot == "cube":
-                return
-            self.click(*coords.EQUIPMENT_SLOTS[slot])
-            self.send_string("d")
-
-    def boost_equipment(self, boost_cube=True):
-        """Boost all equipment.
-        
-        Keyword arguments
-        boost_cube -- If True (default), will boost cube after all equipment
-                      has been boosted.
-        """
-        self.menu("inventory")
-        for slot in coords.EQUIPMENT_SLOTS:
-            if boost_cube and slot == "cube":
-                self.boost_cube()
-                return
-            self.click(*coords.EQUIPMENT_SLOTS[slot])
-            self.send_string("a")
-
-    def boost_cube(self):
-        """Boost cube."""
-        self.menu("inventory")
-        self.click(*self.equipment["cube"], "right")
-
-    def get_current_boss(self):
-        """Go to fight and read current boss number."""
-        self.menu("fight")
-        boss = self.ocr(*coords.OCR_BOSS, debug=False)
-        return self.remove_letters(boss)
-
-    def nuke(self, boss=None):
-        """Navigate to Fight Boss and Nuke or Fast Fight.
-
-        Keyword arguments
-        boss -- If provided, will fight until reached
-                If omitted, will hit nuke instead.
-        """
-        self.menu("fight")
-        if boss:
-            for _ in range(boss):
-                self.click(*coords.FIGHT, fast=True)
-            time.sleep(userset.SHORT_SLEEP)
-            try:
-                current_boss = int(self.get_current_boss())
-            except ValueError:
-                current_boss = 1
-            x = 0
-            while current_boss < boss:
-                bossdiff = boss - current_boss
-                for _ in range(0, bossdiff):
-                    self.click(*coords.FIGHT, fast=True)
-                time.sleep(userset.SHORT_SLEEP)
-                try:
-                    current_boss = int(self.get_current_boss())
-                except ValueError:
-                    current_boss = 1
-                x += 1
-                if x > 7:  # Safeguard if number is too low to reach target boss, otherwise we get stuck here
-                    print("Couldn't reach the target boss, something probably went wrong the last rebirth.")
-                    break
-        else:
-            self.click(*coords.NUKE)
-
-    def fight(self):
-        """Navigate to Fight Boss and click fight."""
-        self.menu("fight")
-        self.click(*coords.FIGHT)
-
-    def ygg(self, eat_all=False, equip=0):
-        """Navigate to inventory and handle fruits.
-
-        Keyword arguments:
-        eat_all -- Set to true if you're rebirthing, it will force eat all
-                   fruit.
-        equip.  -- Equip loadout with given index. Don't change equip if zero.
-        """
-        self.menu("yggdrasil")
-        if eat_all:
-            self.click(*coords.YGG_EAT_ALL)
-            return
-        if equip:
-            self.send_string("t")
-            self.send_string("r")
-            self.loadout(equip)
-            self.menu("yggdrasil")
-            self.click(*coords.HARVEST)
-        else:
-            self.click(*coords.HARVEST)
-
-    def spin(self):
-        """Spin the wheel."""
-        self.menu("pit")
-        self.click(*coords.SPIN_MENU)
-        self.click(*coords.SPIN)
-
-    def adventure(self, zone=-1, highest=False, itopod=None, itopodauto=False):
+    
+    @staticmethod
+    def adventure(zone=-1, highest=False, itopod=None, itopodauto=False):
         """Go to adventure zone to idle.
-
+        
         Keyword arguments
         zone -- Zone to idle in, 0 is safe zone, 1 is tutorial and so on.
         highest -- If true, will go to your highest available non-titan zone.
@@ -161,40 +134,41 @@ class Features(Navigation, Inputs):
                   instead enter the specified ITOPOD floor.
         itopodauto -- If set to true it will click the "optimal" floor button.
         """
-        self.menu("adventure")
-        self.click(625, 500)  # click somewhere to move tooltip
-        if not self.check_pixel_color(*coords.IS_IDLE):
-            self.click(*coords.ABILITY_IDLE_MODE)
+        Inputs.menu("adventure")
+        Inputs.click(625, 500)  # click somewhere to move tooltip
+        if not Inputs.check_pixel_color(*coords.IS_IDLE):
+            Inputs.click(*coords.ABILITY_IDLE_MODE)
         if itopod:
-            self.current_adventure_zone = 0
-            self.click(*coords.ITOPOD)
+            Adventure.current_adventure_zone = 0
+            Inputs.click(*coords.ITOPOD)
             if itopodauto:
-                self.click(*coords.ITOPOD_END)
+                Inputs.click(*coords.ITOPOD_END)
                 # set end to 0 in case it's higher than start
-                self.send_string("0")
-                self.click(*coords.ITOPOD_AUTO)
-                self.click(*coords.ITOPOD_ENTER)
+                Inputs.send_string("0")
+                Inputs.click(*coords.ITOPOD_AUTO)
+                Inputs.click(*coords.ITOPOD_ENTER)
                 return
-            self.click(*coords.ITOPOD_START)
-            self.send_string(str(itopod))
-            self.click(*coords.ITOPOD_END)
-            self.send_string(str(itopod))
-            self.click(*coords.ITOPOD_ENTER)
+            Inputs.click(*coords.ITOPOD_START)
+            Inputs.send_string(str(itopod))
+            Inputs.click(*coords.ITOPOD_END)
+            Inputs.send_string(str(itopod))
+            Inputs.click(*coords.ITOPOD_ENTER)
             return
         if zone == -1 or highest:
-            self.current_adventure_zone = 0
-            self.click(*coords.RIGHT_ARROW, button="right")
+            Adventure.current_adventure_zone = 0
+            Inputs.click(*coords.RIGHT_ARROW, button="right")
             return
         else:
-            self.current_adventure_zone = zone
-            self.click(*coords.LEFT_ARROW, button="right")
+            Adventure.current_adventure_zone = zone
+            Inputs.click(*coords.LEFT_ARROW, button="right")
             for _ in range(zone):
-                self.click(*coords.RIGHT_ARROW, fast=True)
+                Inputs.click(*coords.RIGHT_ARROW, fast=True)
             return
-
-    def snipe(self, zone, duration, once=False, highest=False, bosses=False, manual=False):
+    
+    @staticmethod
+    def snipe(zone, duration, once=False, highest=False, bosses=False, manual=False):
         """Go to adventure and snipe bosses in specified zone.
-
+        
         Keyword arguments
         zone -- Zone to snipe, 0 is safe zone, 1 is turorial and so on.
                 If 0, it will use the current zone (to maintain guffin counter)
@@ -207,34 +181,34 @@ class Features(Navigation, Inputs):
         manual -- If set to true it will use all available abilities to kill the enemy.
                   In addition it will return after killing one enemy.
         """
-        self.menu("adventure")
+        Inputs.menu("adventure")
         if highest:
-            self.click(*coords.LEFT_ARROW, button="right")
-            self.click(*coords.RIGHT_ARROW, button="right")
-        elif zone > 0 and zone != self.current_adventure_zone:
-            self.click(*coords.LEFT_ARROW, button="right")
+            Inputs.click(*coords.LEFT_ARROW, button="right")
+            Inputs.click(*coords.RIGHT_ARROW, button="right")
+        elif zone > 0 and zone != Adventure.current_adventure_zone:
+            Inputs.click(*coords.LEFT_ARROW, button="right")
             for _ in range(zone):
-                self.click(*coords.RIGHT_ARROW, fast=True)
-        self.current_adventure_zone = zone
-        self.click(625, 500)  # click somewhere to move tooltip
-
-        if self.check_pixel_color(*coords.IS_IDLE):
-            self.click(*coords.ABILITY_IDLE_MODE)
-
+                Inputs.click(*coords.RIGHT_ARROW, fast=True)
+        Adventure.current_adventure_zone = zone
+        Inputs.click(625, 500)  # click somewhere to move tooltip
+        
+        if Inputs.check_pixel_color(*coords.IS_IDLE):
+            Inputs.click(*coords.ABILITY_IDLE_MODE)
+        
         end = time.time() + duration * 60
         while time.time() < end:
-            self.click(625, 500)  # click somewhere to move tooltip
-            if not self.check_pixel_color(*coords.IS_DEAD):
+            Inputs.click(625, 500)  # click somewhere to move tooltip
+            if not Inputs.check_pixel_color(*coords.IS_DEAD):
                 if bosses:
-                    if self.check_pixel_color(*coords.IS_BOSS_CROWN):
+                    if Inputs.check_pixel_color(*coords.IS_BOSS_CROWN):
                         enemy_alive = True
                         if manual:
-                            self.kill_enemy()
+                            Adventure.kill_enemy()
                         else:
                             while enemy_alive:
-                                enemy_alive = not self.check_pixel_color(*coords.IS_DEAD)
-                                if self.check_pixel_color(*coords.COLOR_REGULAR_ATTACK_READY):
-                                    self.click(*coords.ABILITY_REGULAR_ATTACK)
+                                enemy_alive = not Inputs.check_pixel_color(*coords.IS_DEAD)
+                                if Inputs.check_pixel_color(*coords.COLOR_REGULAR_ATTACK_READY):
+                                    Inputs.click(*coords.ABILITY_REGULAR_ATTACK)
                                 time.sleep(0.1)
                         if once:
                             break
@@ -253,17 +227,18 @@ class Features(Navigation, Inputs):
                                              wcon.VK_RIGHT, 0)
                 else:
                     if manual:
-                        self.kill_enemy()
+                        Adventure.kill_enemy()
                         return
                     else:
-                        self.click(*coords.ABILITY_REGULAR_ATTACK)
+                        Inputs.click(*coords.ABILITY_REGULAR_ATTACK)
             time.sleep(0.01)
-
-        self.click(*coords.ABILITY_IDLE_MODE)
-
-    def itopod_snipe(self, duration, auto=False):
+        
+        Inputs.click(*coords.ABILITY_IDLE_MODE)
+    
+    @staticmethod
+    def itopod_snipe(duration, auto=False):
         """Manually snipes ITOPOD for increased speed PP/h.
-
+        
         Keyword arguments:
         duration -- Duration in seconds to snipe, before toggling idle mode
                     back on and returning.
@@ -271,98 +246,1107 @@ class Features(Navigation, Inputs):
                     already in the ITOPOD
         """
         end = time.time() + duration
-        self.current_adventure_zone = 0
-        self.menu("adventure")
-        self.click(625, 500)  # click somewhere to move tooltip
-
+        Adventure.current_adventure_zone = 0
+        Inputs.menu("adventure")
+        Inputs.click(625, 500)  # click somewhere to move tooltip
+        
         # check if we're already in ITOPOD, otherwise enter
         # if auto is true, re-enter ITOPOD to make sure floor is optimal
-        if auto or not self.check_pixel_color(*coords.IS_ITOPOD_ACTIVE):
-            self.click(*coords.ITOPOD)
-            self.click(*coords.ITOPOD_END)
+        if auto or not Inputs.check_pixel_color(*coords.IS_ITOPOD_ACTIVE):
+            Inputs.click(*coords.ITOPOD)
+            Inputs.click(*coords.ITOPOD_END)
             # set end to 0 in case it's higher than start
-            self.send_string("0")
-            self.click(*coords.ITOPOD_AUTO)
-            self.click(*coords.ITOPOD_ENTER)
-
-        if self.check_pixel_color(*coords.IS_IDLE):
-            self.click(*coords.ABILITY_IDLE_MODE)
-
+            Inputs.send_string("0")
+            Inputs.click(*coords.ITOPOD_AUTO)
+            Inputs.click(*coords.ITOPOD_ENTER)
+        
+        if Inputs.check_pixel_color(*coords.IS_IDLE):
+            Inputs.click(*coords.ABILITY_IDLE_MODE)
+        
         while time.time() < end:
-            if self.check_pixel_color(*coords.IS_ENEMY_ALIVE) and self.check_pixel_color(*coords.COLOR_REGULAR_ATTACK_READY):
-                self.click(*coords.ABILITY_REGULAR_ATTACK)
+            if Inputs.check_pixel_color(*coords.IS_ENEMY_ALIVE) and Inputs.check_pixel_color(*coords.COLOR_REGULAR_ATTACK_READY):
+                Inputs.click(*coords.ABILITY_REGULAR_ATTACK)
             else:
                 time.sleep(0.01)
-
-        self.click(*coords.ABILITY_IDLE_MODE)
-
-    def kill_enemy(self):
+        
+        Inputs.click(*coords.ABILITY_IDLE_MODE)
+    
+    @staticmethod
+    def kill_enemy():
         """Attempt to kill enemy in adventure using abilities."""
         start = time.time()
-        if self.check_pixel_color(*coords.IS_IDLE):
-            self.click(*coords.ABILITY_IDLE_MODE)
-        while self.check_pixel_color(*coords.IS_DEAD):
+        if Inputs.check_pixel_color(*coords.IS_IDLE):
+            Inputs.click(*coords.ABILITY_IDLE_MODE)
+        while Inputs.check_pixel_color(*coords.IS_DEAD):
             time.sleep(.1)
             if time.time() > start + 5:
                 print("Couldn't detect enemy in kill_enemy()")
                 return
-        queue = deque(self.get_ability_queue())
-        while not self.check_pixel_color(*coords.IS_DEAD):
+        queue = deque(.get_ability_queue())
+        while not Inputs.check_pixel_color(*coords.IS_DEAD):
             if not queue:
-                queue = deque(self.get_ability_queue())
+                queue = deque(.get_ability_queue())
             ability = queue.popleft()
             if ability <= 4:
                 x = coords.ABILITY_ROW1X + ability * coords.ABILITY_OFFSETX
                 y = coords.ABILITY_ROW1Y
-
+            
             if ability >= 5 and ability <= 10:
                 x = coords.ABILITY_ROW2X + (ability - 5) * coords.ABILITY_OFFSETX
                 y = coords.ABILITY_ROW2Y
-
+            
             if ability > 10:
                 x = coords.ABILITY_ROW3X + (ability - 11) * coords.ABILITY_OFFSETX
                 y = coords.ABILITY_ROW3Y
-
-            self.click(x, y)
+            
+            Inputs.click(x, y)
             time.sleep(userset.LONG_SLEEP)
-            color = self.get_pixel_color(coords.ABILITY_ROW1X,
+            color = Inputs.get_pixel_color(coords.ABILITY_ROW1X,
                                          coords.ABILITY_ROW1Y)
-
+            
             while color != coords.ABILITY_ROW1_READY_COLOR:
                 time.sleep(0.03)
-                color = self.get_pixel_color(coords.ABILITY_ROW1X,
+                color = Inputs.get_pixel_color(coords.ABILITY_ROW1X,
                                              coords.ABILITY_ROW1Y)
-
-    def do_rebirth(self):
-        """Start a rebirth or challenge."""
-        self.menu("fight")
-        self.click(*coords.FIGHT_STOP)
-        self.rebirth()
-        self.current_adventure_zone = 0
-        self.click(*coords.REBIRTH)
-        self.click(*coords.REBIRTH_BUTTON)
-        self.click(*coords.CONFIRM)
+    
+    @staticmethod
+    def check_titan_status():
+        """Check to see if any titans are ready."""
+        Inputs.click(*coords.MENU_ITEMS["adventure"], button="right")
+        text = Inputs.ocr(*coords.OCR_TITAN_RESPAWN).lower()
+        ready = []
+        i = 1
+        for line in text.split('\n'):
+            if line == '' or line == '\n':
+                continue
+            if "ready" in line:
+                ready.append(i)
+            i += 1
+        return ready
+    
+    @staticmethod
+    def kill_titan(target, mega=True):
+        """Attempt to kill the target titan.
+        
+        Keyword arguments:
+        target -- The id of the titan you wish to kill. 1 for GRB, 2 for GCT and so on.
+        mega   -- Use Mega Buff
+        """
+        Inputs.menu("adventure")
+        if Inputs.check_pixel_color(*coords.IS_IDLE):
+            Inputs.click(*coords.ABILITY_IDLE_MODE)
+        
+        Inputs.click(*coords.LEFT_ARROW, button="right")
+        charge = False
+        parry = False
+        if mega:
+            while not Inputs.check_pixel_color(*coords.COLOR_MEGA_BUFF_READY) or not charge or not parry:
+                queue = Adventure.get_ability_queue()
+                Inputs.click(625, 600)
+                if 2 in queue and not parry:
+                    x = coords.ABILITY_ROW1X + 2 * coords.ABILITY_OFFSETX
+                    y = coords.ABILITY_ROW1Y
+                    Inputs.click(x, y)
+                    parry = True
+                    time.sleep(1)  # wait for global cooldown
+                if 9 in queue and not charge:
+                    x = coords.ABILITY_ROW2X + (9 - 5) * coords.ABILITY_OFFSETX
+                    y = coords.ABILITY_ROW2Y
+                    Inputs.click(x, y)
+                    charge = True
+                    time.sleep(1)  # wait for global cooldown
+                time.sleep(userset.MEDIUM_SLEEP)
+        
+        else:
+            while not Inputs.check_pixel_color(*coords.COLOR_ULTIMATE_BUFF_READY) or not charge or not parry:
+                queue = Adventure.get_ability_queue()
+                Inputs.click(625, 600)
+                if 2 in queue and not parry:
+                    x = coords.ABILITY_ROW1X + 2 * coords.ABILITY_OFFSETX
+                    y = coords.ABILITY_ROW1Y
+                    Inputs.click(x, y)
+                    parry = True
+                    time.sleep(1)  # wait for global cooldown
+                if 9 in queue and not charge:
+                    x = coords.ABILITY_ROW2X + 4 * coords.ABILITY_OFFSETX
+                    y = coords.ABILITY_ROW2Y
+                    Inputs.click(x, y)
+                    charge = True
+                    time.sleep(1)  # wait for global cooldown
+                time.sleep(userset.MEDIUM_SLEEP)
+        
+        buffs = [2, 9]
+        print("Waiting for charge and parry to be ready")
+        while not all(x in Adventure.get_ability_queue() for x in buffs):
+            time.sleep(.5)
+        
+        for _ in range(const.TITAN_ZONE[target - 1]):
+            Inputs.click(*coords.RIGHT_ARROW, fast=True)
+        Adventure.current_adventure_zone = const.TITAN_ZONE[target - 1]
+        time.sleep(userset.LONG_SLEEP)
+        start = time.time()
+        while Inputs.check_pixel_color(*coords.IS_DEAD):  # wait for titan to spawn
+            time.sleep(0.05)
+            if time.time() > start + 5:
+                print("Couldn't detect enemy in kill_titan()")
+                return
+        
+        queue = deque(.get_ability_queue())
+        while not Inputs.check_pixel_color(*coords.IS_DEAD):
+            if not queue:
+                queue = deque(.get_ability_queue())
+            
+            ability = queue.popleft()
+            if ability <= 4:
+                x = coords.ABILITY_ROW1X + ability * coords.ABILITY_OFFSETX
+                y = coords.ABILITY_ROW1Y
+            
+            if ability >= 5 and ability <= 10:
+                x = coords.ABILITY_ROW2X + (ability - 5) * coords.ABILITY_OFFSETX
+                y = coords.ABILITY_ROW2Y
+            
+            if ability > 10:
+                x = coords.ABILITY_ROW3X + (ability - 11) * coords.ABILITY_OFFSETX
+                y = coords.ABILITY_ROW3Y
+            
+            Inputs.click(x, y)
+            time.sleep(userset.LONG_SLEEP)
+            color = Inputs.get_pixel_color(coords.ABILITY_ROW1X,
+                                         coords.ABILITY_ROW1Y)
+            
+            while color != coords.ABILITY_ROW1_READY_COLOR:
+                time.sleep(0.05)
+                color = Inputs.get_pixel_color(coords.ABILITY_ROW1X,
+                                             coords.ABILITY_ROW1Y)
+    
+    @staticmethod
+    def get_ability_queue():
+        """Return a queue of usable abilities."""
+        ready = []
+        queue = []
+        
+        # Add all abilities that are ready to the ready array
+        for i in range(1, 16):
+            if i <= 4:
+                x = coords.ABILITY_ROW1X + i * coords.ABILITY_OFFSETX
+                y = coords.ABILITY_ROW1Y
+                color = Inputs.get_pixel_color(x, y)
+                if color == coords.ABILITY_ROW1_READY_COLOR:
+                    ready.append(i)
+            if i >= 5 and i <= 10:
+                if Adventure.mega_buff_unlocked and i == 6:
+                    continue
+                x = coords.ABILITY_ROW2X + (i - 5) * coords.ABILITY_OFFSETX
+                y = coords.ABILITY_ROW2Y
+                color = Inputs.get_pixel_color(x, y)
+                if color == coords.ABILITY_ROW2_READY_COLOR:
+                    ready.append(i)
+            if i > 10:
+                x = coords.ABILITY_ROW3X + (i - 11) * coords.ABILITY_OFFSETX
+                y = coords.ABILITY_ROW3Y
+                color = Inputs.get_pixel_color(x, y)
+                if color == coords.ABILITY_ROW3_READY_COLOR:
+                    ready.append(i)
+        
+        if 15 in ready:
+            Adventure.oh_shit_unlocked = True
+        if 14 in ready:
+            Adventure.mega_buff_unlocked = True
+        # heal if we need to heal
+        if Inputs.check_pixel_color(*coords.PLAYER_HEAL_THRESHOLD):
+            if 15 in ready:
+                queue.append(15)
+            elif 12 in ready:
+                queue.append(12)
+            elif 7 in ready:
+                queue.append(7)
+        
+        # check if offensive buff and ultimate buff are both ready
+        buffs = [8, 10]
+        if 14 in ready:
+            queue.append(14)
+        elif all(i in ready for i in buffs) and not Adventure.mega_buff_unlocked:
+            queue.extend(buffs)
+        
+        d = coords.ABILITY_PRIORITY
+        # Sort the abilities by the set priority
+        abilities = sorted(d, key=d.get, reverse=True)
+        # Only add the abilities that are ready to the queue
+        queue.extend([a for a in abilities if a in ready])
+        
+        # If nothing is ready, return a regular attack
+        if not queue:
+            queue.append(0)
+        return queue
+    
+    @staticmethod
+    def itopod_ap(duration):
+        """Abuse an oversight in the kill counter for AP rewards for mucher higher AP/h in ITOPOD.
+        If you use this method, make sure you do not retoggle idle mode in adventure in other parts
+        of your script. If you have to, make sure to empty itopod_tier_counts with:
+        itopod_tier_counts = {}
+        
+        Keyword arguments:
+        duration -- Duration in seconds to run, before toggling idle mode
+                    back on and returning.
+        """
+        print("WARNING: itopod_ap() is largely untested")
+        end = time.time() + duration * 60
+        Adventure.current_adventure_zone = 0
+        Inputs.menu("adventure")
+        Inputs.click(625, 500)  # click somewhere to move tooltip
+        if Inputs.check_pixel_color(*coords.IS_IDLE):
+            Inputs.click(*coords.ABILITY_IDLE_MODE)
+        # check if we're already in ITOPOD, otherwise enter
+        if not Adventure.itopod_tier_counts:
+            for tier, floor in Adventure.itopod_tier_map.items():
+                Inputs.click(*coords.ITOPOD)
+                Inputs.click(*coords.ITOPOD_START)
+                Inputs.send_string(floor)
+                # set end to 0 in case it's higher than start
+                Inputs.click(*coords.ITOPOD_ENTER)
+                Inputs.click(*coords.ADVENTURE_TOOLTIP)
+                count = Inputs.remove_letters(Inputs.ocr(*coords.OCR_AP_KILL_COUNT))
+                print(f"Tier {tier}: {count}")
+                try:
+                    count = int(count)
+                except ValueError:
+                    print(f"couldn't convert '{count}' to int")
+                Adventure.itopod_tier_counts[tier] = count
+        print(.itopod_tier_counts)
+        while time.time() < end:
+            next_tier = min(.itopod_tier_counts, key=Adventure.itopod_tier_counts.get)
+            print(f"going to itopod tier {next_tier}")
+            Inputs.click(*coords.ITOPOD)
+            Inputs.click(*coords.ITOPOD_START)
+            Inputs.send_string(.itopod_tier_map[next_tier])
+            # set end to 0 in case it's higher than start
+            Inputs.click(*coords.ITOPOD_ENTER)
+            time.sleep(userset.LONG_SLEEP)
+            kc = Adventure.itopod_tier_counts[next_tier]
+            while kc > 0:
+                if Inputs.check_pixel_color(*coords.IS_ENEMY_ALIVE):
+                    Inputs.click(*coords.ABILITY_REGULAR_ATTACK)
+                    
+                    Adventure.itopod_kills += 1
+                    kc -= 1
+                    if kc > 0:
+                        time.sleep(.7 - userset.MEDIUM_SLEEP)  # Make sure we wait long enough
+                    for tier, count in Adventure.itopod_tier_counts.items():
+                        Adventure.itopod_tier_counts[tier] -= 1
+                        if Adventure.itopod_tier_counts[tier] < 1:
+                            Adventure.itopod_tier_counts[tier] = 40 - tier
+                else:
+                    time.sleep(0.06)
+            Adventure.itopod_ap_gained += 1
+            print(f"Kills: {Adventure.itopod_kills}\nAP gained: {Adventure.itopod_ap_gained}")
         return
 
-    def check_challenge(self, getNum=False):
-        """Check if a challenge is active.
+class Inventory:
+    inventory_cleaned = False
+    
+    @staticmethod
+    def merge_equipment():
+        """Navigate to inventory and merge equipment."""
+        Inputs.menu("inventory")
+        for slot in coords.EQUIPMENT_SLOTS:
+            if slot == "cube":
+                return
+            Inputs.click(*coords.EQUIPMENT_SLOTS[slot])
+            Inputs.send_string("d")
+    
+    @staticmethod
+    def boost_equipment(boost_cube=True):
+        """Boost all equipment.
+        
+        Keyword arguments
+        boost_cube -- If True (default), will boost cube after all equipment
+                      has been boosted.
+        """
+        Inputs.menu("inventory")
+        for slot in coords.EQUIPMENT_SLOTS:
+            if boost_cube and slot == "cube":
+                Inventory.boost_cube()
+                return
+            Inputs.click(*coords.EQUIPMENT_SLOTS[slot])
+            Inputs.send_string("a")
+    
+    @staticmethod
+    def boost_cube():
+        """Boost cube."""
+        Inputs.menu("inventory")
+        Inputs.click(*coords.EQUIPMENT_SLOTS["cube"], "right")
+    
+    @staticmethod
+    def loadout(target):
+        """Equip a loadout.
+        
+        Keyword arguments
+        target -- The loadout to be equiped
+        """
+        Inputs.menu("inventory")
+        Inputs.click(*coords.LOADOUT[target])
+    
+    @staticmethod
+    def get_inventory_slots(slots):
+        """Get coords for inventory slots from 1 to slots."""
+        point = namedtuple("p", ("x", "y"))
+        i = 1
+        row = 1
+        x_pos, y_pos = coords.INVENTORY_SLOTS
+        res = []
+        
+        while i <= slots:
+            x = x_pos + (i - (12 * (row - 1))) * 50
+            y = y_pos + ((row - 1) * 50)
+            res.append(point(x, y))
+            if i % 12 == 0:
+                row += 1
+            i += 1
+        return res
+    
+    @staticmethod
+    def merge_inventory(slots):
+        """Merge all inventory slots starting from 1 to slots.
+        
+        Keyword arguments:
+        slots -- The amount of slots you wish to merge
+        """
+        Inputs.menu("inventory")
+        coord = Inventory.get_inventory_slots(slots)
+        for slot in coord:
+            Inputs.click(*slot)
+            Inputs.send_string("d")
+    
+    @staticmethod
+    def boost_inventory(slots):
+        """Merge all inventory slots starting from 1 to slots.
+        
+        Keyword arguments:
+        slots -- The amount of slots you wish to merge
+        """
+        Inputs.menu("inventory")
+        coord = Inventory.get_inventory_slots(slots)
+        for slot in coord:
+            Inputs.click(*slot)
+            Inputs.send_string("a")
+    
+    @staticmethod
+    def transform_slot(slot, threshold=0.8, consume=False):
+        """Check if slot is transformable and transform if it is.
+        Be careful using this, make sure the item you want to transform is
+        not protected, and that all other items are protected, this might
+        delete items otherwise. Another note, consuming items will show
+        a special tooltip that will block you from doing another check
+        for a few seconds, keep this in mind if you're checking multiple
+        slots in succession.
+        
+        Keyword arguments:
+        slot      -- The slot you wish to transform, if possible
+        threshold -- The fuzziness in the image search, I recommend a value
+                     between 0.7 - 0.95.
+        consume   -- Set to true if item is consumable instead.
+        """
+        Inputs.menu("inventory")
+        slot = Inventory.get_inventory_slots(slot)[-1]
+        Inputs.click(*slot)
+        time.sleep(userset.SHORT_SLEEP)
+        
+        if consume:
+            coord = Inputs.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600,
+                                      Inputs.get_file_path("images", "consumable.png"), threshold)
+        else:
+            coord = Inputs.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600,
+                                      Inputs.get_file_path("images", "transformable.png"), threshold)
+        
+        if coord:
+            Inputs.ctrl_click(*slot)
 
+class Augmentation:
+    @staticmethod
+    def augments(augments, energy):
+        """Dump energy into augmentations.
+        
+        Keyword arguments
+        augments -- Dictionary that contains which augments you wish to use and
+                    a ratio that tells how much of the total energy you
+                    allocated you wish to send. Example:
+                    {"SS": 0, "DS": 0, "MI": 0, "DTMT": 0, "CI": 0, "M": 0,
+                     "SM": 0, "AA": 0, "EB": 0, "CS": 0, "AE": 0, "ES": 0,
+                     "LS": 0.9, "QSL": 0.1}
+        Energy -- The total amount of energy you want to use for all augments.
+        """
+        Inputs.menu("augmentations")
+        for k in augments:
+            val = math.floor(augments[k] * energy)
+            Navigation.input_box()
+            Inputs.send_string(str(val))
+            # Scroll down if we have to.
+            bottom_augments = ["AE", "ES", "LS", "QSL"]
+            i = 0
+            if k in bottom_augments:
+                color = Inputs.get_pixel_color(*coords.AUG_SCROLL_SANITY_BOT)
+                while color not in coords.SANITY_AUG_SCROLL_COLORS:
+                    Inputs.click(*coords.AUG_SCROLL_BOT)
+                    time.sleep(userset.MEDIUM_SLEEP)
+                    color = Inputs.get_pixel_color(*coords.AUG_SCROLL_SANITY_BOT)
+                    i += 1
+                    if i > 5 and i <= 10:  # Safeguard if something goes wrong with augs
+                        Navigation.current_menu = ""
+                        Inputs.menu("augmentations")
+                    elif i > 10:
+                        print("Couldn't assign augments")
+                        break
+            
+            else:
+                color = Inputs.get_pixel_color(*coords.AUG_SCROLL_SANITY_TOP)
+                while color not in coords.SANITY_AUG_SCROLL_COLORS:
+                    Inputs.click(*coords.AUG_SCROLL_TOP)
+                    time.sleep(userset.MEDIUM_SLEEP)
+                    color = Inputs.get_pixel_color(*coords.AUG_SCROLL_SANITY_TOP)
+                    i += 1
+                    if i > 5 and i <= 10:  # Safeguard if something goes wrong with augs
+                        Navigation.current_menu = ""
+                        Inputs.menu("augmentations")
+                    elif i > 10:
+                        print("Couldn't assign augments")
+                        break
+            Inputs.click(*coords.AUGMENT[k])
+
+class AdvancedTraining:
+    @staticmethod
+    def advanced_training(value, ability=0):
+        """Assign energy to adanced training.
+        
+        Keyword arguments
+        value   -- Set the total energy to assign to AT.
+        ability -- The AT ability to be trained.
+                   If this is zero, it'll split the energy evenly between
+                   Adv Toughness, Adv Power, Wandoos Energy and Wandoos Magic.
+                   Splitting energy is the default behavior.
+        """
+        Inputs.menu("advtraining")
+        if ability == 0:
+            value = value // 4
+            Navigation.input_box()
+            Inputs.send_string(value)
+            Inputs.click(*coords.ADV_TRAINING_POWER)
+            Inputs.click(*coords.ADV_TRAINING_TOUGHNESS)
+            Inputs.click(*coords.ADV_TRAINING_WANDOOS_ENERGY)
+            Inputs.click(*coords.ADV_TRAINING_WANDOOS_MAGIC)
+        
+        else:
+            Navigation.input_box()
+            Inputs.send_string(value)
+            if ability == 1:
+                Inputs.click(*coords.ADV_TRAINING_TOUGHNESS)
+            if ability == 2:
+                Inputs.click(*coords.ADV_TRAINING_POWER)
+            if ability == 3:
+                Inputs.click(*coords.ADV_TRAINING_BLOCK)
+            if ability == 4:
+                Inputs.click(*coords.ADV_TRAINING_WANDOOS_ENERGY)
+            if ability == 5:
+                Inputs.click(*coords.ADV_TRAINING_WANDOOS_MAGIC)
+
+class TimeMachine:
+    @staticmethod
+    def time_machine(e, m=0, magic=False):
+        """Add energy and/or magic to TM.
+        
+        Example: TimeMachine.time_machine(1000, 2000)
+                 TimeMachine.time_machine(1000, magic=True)
+                 TimeMachine.time_machine(1000)
+        
+        First example will add 1000 energy and 2000 magic to TM.
+        Second example will add 1000 energy and 1000 magic to TM.
+        Third example will add 1000 energy to TM.
+        
+        Keyword arguments:
+        e -- The amount of energy to put into TM.
+        m -- The amount of magic to put into TM, if this is 0, it will use the
+             energy value to save unnecessary clicks to the input box.
+        magic -- Set to true if you wish to add magic as well
+        """
+        Inputs.menu("timemachine")
+        Navigation.input_box()
+        Inputs.send_string(e)
+        Inputs.click(*coords.TM_SPEED)
+        if magic or m:
+            if m:
+                Navigation.input_box()
+                Inputs.send_string(m)
+            Inputs.click(*coords.TM_MULT)
+
+class BloodMagic:
+    @staticmethod
+    def blood_magic(target):
+        """Assign magic to BM.
+        
+        Keyword arguments
+        target -- Will cap all rituals till the target ritual
+                  Usually run as blood_magic(8)
+        """
+        Inputs.menu("bloodmagic")
+        for i in range(target):
+            Inputs.click(*coords.BM[i])
+    
+    @deprecated(version='0.1', reason="speedrun_bloodpill is deprecated, use iron_pill() instead")
+    @staticmethod
+    def speedrun_bloodpill():
+        """Deprecated"""
+        return
+    
+    @deprecated(version='0.1', reason="iron_pill is deprecated, use cast_spell() instead")
+    @staticmethod
+    def iron_pill():
+        """Deprecated"""
+        return
+    
+    @staticmethod
+    def toggle_auto_spells(number=True, drop=True, gold=True):
+        """Enable/Disable autospells
+        
+        Keyword arguments
+        number, drop, gold -- Spells to be enabled or disabled.
+                              If True, enable the spell. If False, disable the spell.
+                              If None, ignore the spell.
+        """
+        Navigation.spells()
+        Inputs.click(600, 600)  # move tooltip
+        
+        if number is not None:
+            number_active = Inputs.check_pixel_color(*coords.COLOR_BM_AUTO_NUMBER)
+            if (number and not number_active) or (not number and number_active):
+                Inputs.click(*coords.BM_AUTO_NUMBER)
+        if drop is not None:
+            drop_active = Inputs.check_pixel_color(*coords.COLOR_BM_AUTO_DROP)
+            if (drop and not drop_active) or (not drop and drop_active):
+                Inputs.click(*coords.BM_AUTO_DROP)
+        
+        if gold is not None:
+            gold_active = Inputs.check_pixel_color(*coords.COLOR_BM_AUTO_GOLD)
+            if (gold and not gold_active) or (not gold and gold_active):
+                Inputs.click(*coords.BM_AUTO_GOLD)
+    
+    @staticmethod
+    def check_spells_ready():
+        """Check which spells are ready to cast.
+        
+        Returns a list with integers corresponding to which spell is ready. The values on the
+        list can be:
+            1 - Iron pill
+            2 - MacGuffin alpha
+            3 - MacGuffin beta
+        """
+        if Inputs.check_pixel_color(*coords.COLOR_SPELL_READY):
+            Navigation.spells()
+            Inputs.click(*coords.BM_PILL, button="right")
+            spells = []
+            res = Inputs.ocr(*coords.OCR_BM_SPELL_TEXT)
+            if "cooldown: 0.0s" in res.lower():
+                spells.append(1)
+            
+            Inputs.click(*coords.BM_GUFFIN_A, button="right")
+            res = Inputs.ocr(*coords.OCR_BM_SPELL_TEXT)
+            if "cooldown: 0.0s" in res.lower():
+                spells.append(2)
+            
+            Inputs.click(*coords.BM_GUFFIN_B, button="right")
+            res = Inputs.ocr(*coords.OCR_BM_SPELL_TEXT)
+            if "cooldown: 0.0s" in res.lower():
+                spells.append(3)
+            
+            return spells
+        else:
+            return []
+    
+    @staticmethod
+    def cast_spell(target):
+        """Cast target spell.
+        
+        This method will allocate any idle magic into BM and wait for the
+        time set in usersettings.py. Remember to re-enable auto spells after
+        calling this method, using toggle_auto_spells().
+        
+        Keyword arguments
+        number -- The spell to be cast. Possible values are:
+            1 - Iron pill
+            2 - MacGuffin alpha
+            3 - MacGuffin beta
+        """
+        if Inputs.check_pixel_color(*coords.COLOR_SPELL_READY):
+            targets = [0, coords.BM_PILL, coords.BM_GUFFIN_A, coords.BM_GUFFIN_B]
+            start = time.time()
+            BloodMagic.blood_magic(8)
+            BloodMagic.toggle_auto_spells(False, False, False)  # disable all auto spells
+            
+            if userset.SPELL == 0:  # Default to 5 mins if not set
+                duration = 300
+            else:
+                duration = userset.SPELL
+            
+            while time.time() < start + duration:
+                print(f"Sniping itopod for {duration} seconds while waiting to cast spell.")
+                BloodMagic.itopod_snipe(duration)
+            Navigation.spells()
+            Inputs.click(*targets[target])
+
+class Wandoos:
+    @staticmethod
+    def wandoos(energy=True, magic=False):
+        """Assign energy and/or magic to wandoos.
+        
+        Keyword arguments
+        energy -- Assign energy to Wandoos (default: True)
+        magic  -- Assign magic to Wandoos  (default: False)
+        """
+        Inputs.menu("wandoos")
+        if energy:
+            Inputs.click(*coords.WANDOOS_ENERGY)
+        if magic:
+            Inputs.click(*coords.WANDOOS_MAGIC)
+    
+    @staticmethod
+    def set_wandoos(version):
+        """Set wandoos version.
+        
+        Keyword arguments:
+        version -- Wandoos version of choice. Possible values are:
+                   0 : Wandoos 98
+                   1 : Wandoos Meh
+                   2 : Wandoos XL
+        """
+        Inputs.menu("wandoos")
+        Inputs.click(*coords.WANDOOS_VERSION[version])
+        Navigation.confirm()
+    
+    @staticmethod
+    def check_wandoos_bb_status(magic=False):
+        """Check if wandoos is currently fully BB'd.
+        
+        Keyword arguments
+        magic -- If True, check if Wandoos magic is BB'd
+                 If False (default), check if Wandoos energy is BB'd
+        """
+        Inputs.menu("wandoos")
+        if magic:
+            return Inputs.check_pixel_color(*coords.COLOR_WANDOOS_MAGIC_BB)
+        return Inputs.check_pixel_color(*coords.COLOR_WANDOOS_ENERGY_BB)
+
+class NGU:
+    @staticmethod
+    def assign_ngu(value, targets, magic=False):
+        """Assign energy/magic to NGU's.
+        
+        Keyword arguments:
+        value -- the amount of energy/magic that will get split over all NGUs.
+        targets -- Array of NGU's to use (1-9).
+        magic -- Set to true if these are magic NGUs
+        """
+        if len(targets) > 9:
+            raise RuntimeError("Passing too many NGU's to assign_ngu," +
+                               " allowed: 9, sent: " + str(len(targets)))
+        if magic:
+            Navigation.ngu_magic()
+        else:
+            Inputs.menu("ngu")
+        
+        Navigation.input_box()
+        Inputs.send_string(value // len(targets))
+        for i in targets:
+            NGU = coords.Pixel(coords.NGU_PLUS.x, coords.NGU_PLUS.y + i * 35)
+            Inputs.click(*NGU)
+    
+    @deprecated(version='0.1', reason="bb_ngu() is deprecated since .415 use cap_ngu() instead")
+    @staticmethod
+    def bb_ngu(value, targets, overcap=1, magic=False):
+        """Estimates the BB value of each supplied NGU.
+        It will send value into the target NGU's, which will fill the progress bar. It's very
+        important that you put enough e/m into the NGU's to trigger the "anti-flicker"
+        (>10% of BB cost), otherwise it will not function properly.
+        
+        Keyword arguments:
+        value -- The amount of energy used to determine the cost of BBing the target NGU's
+        targets -- Array of NGU's to BB. Example: [1, 3, 4, 5, 6]
+        overcap -- Use this if you wish to assign more e/m than absolute minimum to BB
+                   the NGU's. This might be useful for longer runs to make sure the cost
+                   to BB doesn't exceed the assigned e/m. A value of 1.1 assigns 10% extra.
+        magic -- Set to true if these are magic NGUs
+        """
+        if magic:
+            Navigation.ngu_magic()
+        else:
+            Inputs.menu("ngu")
+        
+        Navigation.input_box()
+        Inputs.send_string(str(int(value)))
+        
+        for target in targets:
+            NGU = coords.Pixel(coords.NGU_PLUS.x, coords.NGU_PLUS.y + target * 35)
+            Inputs.click(*NGU)
+        
+        for target in targets:
+            energy = 0
+            for x in range(198):
+                color = Inputs.get_pixel_color(coords.NGU_BAR_MIN.x + x,
+                                             coords.NGU_BAR_MIN.y +
+                                             coords.NGU_BAR_OFFSET_Y * target,
+                                             )
+                if color == coords.NGU_BAR_WHITE:
+                    pixel_coefficient = x / 198
+                    value_coefficient = overcap / pixel_coefficient
+                    energy = (value_coefficient * value) - value
+                    break
+            if energy == 0:
+                if magic:
+                    print(f"Warning: You might be overcapping magic NGU #{target}")
+                else:
+                    print(f"Warning: You might be overcapping energy NGU #{target}")
+                continue
+            
+            Navigation.input_box()
+            Inputs.send_string(str(int(energy)))
+            Inputs.click(coords.NGU_PLUS.x, coords.NGU_PLUS.y + target * 35)
+    
+    @staticmethod
+    def cap_ngu(targets=None, magic=False, cap_all=True):
+        """Cap NGUs.
+        
+        Keyword arguments
+        targets -- The NGU's you wish to cap
+        magic -- Set to true if these are magic NGU's
+        cap_all -- Set to true if you wish to cap all NGU's
+        """
+        targets = targets or []
+        if magic:
+            Navigation.ngu_magic()
+        else:
+            Inputs.menu("ngu")
+        
+        for target in targets:
+            NGU = coords.Pixel(coords.NGU_CAP.x, coords.NGU_CAP.y + target * 35)
+            Inputs.click(*NGU)
+        
+        if cap_all and not targets:
+            Inputs.click(*coords.NGU_CAP_ALL)
+    
+    @staticmethod
+    def set_ngu_overcap(value):
+        """Set the amount you wish to overcap your NGU's."""
+        Inputs.menu("ngu")
+        Inputs.click(*coords.NGU_OVERCAP)
+        Inputs.send_string(value)
+
+class Yggdrasil:
+    @staticmethod
+    def ygg(eat_all=False, equip=0):
+        """Navigate to inventory and handle fruits.
+        
+        Keyword arguments:
+        eat_all -- Set to true if you're rebirthing, it will force eat all
+                   fruit.
+        equip.  -- Equip loadout with given index. Don't change equip if zero.
+        """
+        Inputs.menu("yggdrasil")
+        if eat_all:
+            Inputs.click(*coords.YGG_EAT_ALL)
+            return
+        if equip:
+            Inputs.send_string("t")
+            Inputs.send_string("r")
+            Inventory.loadout(equip)
+            Inputs.menu("yggdrasil")
+            Inputs.click(*coords.HARVEST)
+        else:
+            Inputs.click(*coords.HARVEST)
+
+class GoldDiggers:
+    @staticmethod
+    def gold_diggers(targets, deactivate=False):
+        """Activate diggers.
+        
+        Keyword arguments:
+        targets -- Array of diggers to use from 1-12. Example: [1, 2, 3, 4, 9].
+        deactivate -- Set to True if you wish to deactivate these
+                    diggers otherwise it will just try to up the cap.
+        """
+        Inputs.menu("digger")
+        for i in targets:
+            page = ((i-1)//4)
+            item = i - (page * 4)
+            Inputs.click(*coords.DIG_PAGE[page])
+            if deactivate:
+                Inputs.click(*coords.DIG_ACTIVE[item])
+            else:
+                Inputs.click(*coords.DIG_CAP[item])
+    
+    @staticmethod
+    def deactivate_all_diggers():
+        """Click deactivate all in digger menu."""
+        Inputs.menu("digger")
+        Inputs.click(*coords.DIG_DEACTIVATE_ALL)
+    
+    @staticmethod
+    def level_diggers():
+        """Level all diggers."""
+        Inputs.menu("digger")
+        for page in coords.DIG_PAGE:
+            Inputs.click(*page)
+            for digger in coords.DIG_LEVEL:
+                Inputs.click(*digger, button="right")
+
+class BeardsOfPower:
+    """Probably the most useful class ever. -- 4G"""
+
+class Questing:
+    @staticmethod
+    def get_quest_text():
+        """Check if we have an active quest or not."""
+        Inputs.menu("questing")
+        Inputs.click(950, 590)  # move tooltip
+        time.sleep(userset.SHORT_SLEEP)
+        return Inputs.ocr(*coords.OCR_QUESTING_LEFT_TEXT)
+    
+    @staticmethod
+    def get_available_majors():
+        """Return the amount of available major quests."""
+        Inputs.menu("questing")
+        text = Inputs.ocr(*coords.OCR_QUESTING_MAJORS)
+        try:
+            match = re.search(r"(\d+)\/\d+", text)
+            if match:
+                return int(match.group(1))
+        except ValueError:
+            print("couldn't get current major quests available")
+            return -1
+    
+    @staticmethod
+    def questing_consume_items(cleanup=False):
+        """Check for items in inventory that can be turned in."""
+        Inputs.menu("inventory")
+        Inputs.click(*coords.INVENTORY_PAGE[0])
+        bmp = Inputs.get_bitmap()
+        for item in coords.QUESTING_FILENAMES:
+            path = Inputs.get_file_path("images", item)
+            loc = Inputs.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600, path, 0.91, bmp=bmp)
+            if loc:
+                Inputs.click(*loc, button="right")
+                if cleanup:
+                    Inputs.send_string("d")
+                    Inputs.ctrl_click(*loc)
+                time.sleep(3)  # Need to wait for tooltip to disappear after consuming
+    
+    @staticmethod
+    def questing(duration=30, major=False, subcontract=False, force=0, adv_duration=2, butter=False):
+        """Procedure for questing.
+        
+        ===== IMPORTANT =====
+        This method uses imagesearch to find items in your inventory, it will
+        both right click and ctrl-click items (quick delete keybind), so make
+        sure all items are protected.
+        
+        The method will only check the inventory page that is currently open,
+        so make sure it's set to page 1 and that your inventory has space.
+        
+        If your inventory fills with mcguffins/other drops while it runs, it
+        will get stuck doing the same quest forever. Make sure you will have
+        space for the entire duration you will leave it running unattended.
+        =====================
+        
+        Keyword arguments:
+        duration     -- The duration in minutes to run if manual mode is selected. If
+                        quest gets completed, function will return prematurely.
+        major        -- Set to true if you only wish to manually do main quests,
+                        if False it will manually do all quests.
+        subcontract  -- Set to True if you wish to subcontract all quests.
+        force        -- Only quest in this zone. This will skip quests until you
+                        recieve one for the selected zone, so make sure you disable
+                        "Use major quests if available".
+        adv_duration -- The time in minutes to spend sniping before checking inventory.
+                        A higher value is good when forcing, because you spend less time
+                        scanning the inventory and you will not waste any extra quest items.
+                        A value around 2 minutes is good when doing majors because it's very
+                        likely that the extra items are lost.
+        
+        Suggested usages:
+        questing(major=True)
+        questing(subcontract=True)
+        If you only wish to manually do major quests (so you can do ITOPOD)
+        then I suggest that you only call questing() every 10-15 minutes because
+        subcontracting takes very long to finish. Same obviously goes for subcontracting
+        only.
+        Remember the default duration is 40, which is there to safeguard if something
+        goes wrong to break out of the function. Set this higher/lower after your own
+        preferences.
+        questing(duration=40)
+        This will manually complete any quest you get for 30 minutes, then it returns,
+        or it returns when the quest is completed.
+        Use this together with harvesting ygg, recapping diggers and so on, or even
+        sniping ITOPOD.
+        """
+        end = time.time() + duration * 60
+        Inputs.menu("questing")
+        Inputs.click(950, 590)  # move tooltip
+        text = Questing.get_quest_text()
+        
+        if coords.QUESTING_QUEST_COMPLETE in text.lower():
+            Inputs.click(*coords.QUESTING_START_QUEST)
+            time.sleep(userset.LONG_SLEEP * 2)
+            text = Questing.get_quest_text()  # fetch new quest text
+        
+        if coords.QUESTING_NO_QUEST_ACTIVE in text.lower():  # if we have no active quest, start one
+            Inputs.click(*coords.QUESTING_START_QUEST)
+            if force and not Inventory.inventory_cleaned:
+                Questing.questing_consume_items(True)  # we have to clean up the inventory from any old quest items
+                Inventory.inventory_cleaned = True
+            elif not force:
+                Questing.questing_consume_items(True)
+            Inputs.click(960, 600)  # move tooltip
+            time.sleep(userset.LONG_SLEEP)
+            text = Questing.get_quest_text()  # fetch new quest text
+        
+        if force:
+            if Inputs.check_pixel_color(*coords.COLOR_QUESTING_USE_MAJOR):
+                Inputs.click(*coords.QUESTING_USE_MAJOR)
+            
+            while not coords.QUESTING_ZONES[force] in text.lower():
+                Inputs.click(*coords.QUESTING_SKIP_QUEST)
+                Inputs.click(*coords.CONFIRM)
+                Inputs.click(*coords.QUESTING_START_QUEST)
+                text = Questing.get_quest_text()
+        
+        if subcontract:
+            if Inputs.check_pixel_color(*coords.QUESTING_IDLE_INACTIVE):
+                Inputs.click(*coords.QUESTING_SUBCONTRACT)
+            return
+        
+        if major and coords.QUESTING_MINOR_QUEST in text.lower():  # check if current quest is minor
+            if Inputs.check_pixel_color(*coords.QUESTING_IDLE_INACTIVE):
+                Inputs.click(*coords.QUESTING_SUBCONTRACT)
+            return
+        
+        if not Inputs.check_pixel_color(*coords.QUESTING_IDLE_INACTIVE):  # turn off idle
+            Inputs.click(*coords.QUESTING_SUBCONTRACT)
+        if butter:
+            Inputs.click(*coords.QUESTING_BUTTER)
+        for count, zone in enumerate(coords.QUESTING_ZONES, start=0):
+            if zone in text.lower():
+                current_time = time.time()
+                while current_time < end:
+                    if current_time + adv_duration * 60 > end:  # adjust adv_duration if it will cause duration to be exceeded
+                        adv_duration = (end - current_time) / 60
+                        if adv_duration < 0.5:
+                            adv_duration = 0
+                            return
+                    Adventure.snipe(count, adv_duration)
+                    Inventory.boost_cube()
+                    Questing.questing_consume_items()
+                    text = Questing.get_quest_text()
+                    current_time = time.time()
+                    if coords.QUESTING_QUEST_COMPLETE in text.lower():
+                        try:
+                            start_qp = int(Inputs.remove_letters(Inputs.ocr(*coords.OCR_QUESTING_QP)))
+                        except ValueError:
+                            print("Couldn't fetch current QP")
+                            start_qp = 0
+                        Inputs.click(*coords.QUESTING_START_QUEST)
+                        Inputs.click(605, 510)  # move tooltip
+                        try:
+                            current_qp = int(Inputs.remove_letters(Inputs.ocr(*coords.OCR_QUESTING_QP)))
+                        except ValueError:
+                            print("Couldn't fetch current QP")
+                            current_qp = 0
+                        
+                        gained_qp = current_qp - start_qp
+                        print(f"Completed quest in zone #{count} at {datetime.datetime.now().strftime('%H:%M:%S')} for {gained_qp} QP")
+                        
+                        return
+
+class Hacks:
+    @staticmethod
+    def hacks(targets=None, value=1e12):
+        """Activate hacks.
+        
+        Keyword arguments
+        targets -- List of hacks to level up. Default value is [1, 2, 3, 4, 5, 6, 7, 8].
+        value   -- Resource to spend, default to 1e12.
+        """
+        targets = targets or []
+        Navigation.input_box()
+        Inputs.send_string(value // len(targets))
+        Inputs.menu("hacks")
+        for i in targets:
+            page = ((i-1)//8)
+            item = i - (page * 8)
+            Inputs.click(*coords.HACK_PAGE[page])
+            Inputs.click(*coords.HACKS[item])
+
+class Wishes:
+    completed_wishes = []
+
+class SelloutShop:
+    @staticmethod
+    def eat_muffin(buy=False):
+        """Eat a MacGuffin Muffin if it's not active.
+        
+        Keyword arguments:
+        buy -- set to True if you wish to buy a muffin if you have enough
+        AP and you currently have 0 muffins.
+        """
+        Navigation.sellout_boost_2()
+        muffin_status = Inputs.ocr(*coords.OCR_MUFFIN).lower()
+        if "have: 0" in muffin_status and "inactive" in muffin_status:
+            print(muffin_status)
+            if buy:
+                try:
+                    ap = int(Inputs.remove_letters(Inputs.ocr(*coords.OCR_AP)))
+                except ValueError:
+                    print("Couldn't get current AP")
+                if ap >= 50000:
+                    print(f"Bought MacGuffin Muffin at: {datetime.datetime.now()}")
+                    Inputs.click(*coords.SELLOUT_MUFFIN_BUY)
+                    Navigation.confirm()
+            else:
+                return
+        else:
+            return
+        Inputs.click(*coords.SELLOUT_MUFFIN_USE)
+        print(f"Used MacGuffin Muffin at: {datetime.datetime.now()}")
+
+class Rebirth:
+    @staticmethod
+    def do_rebirth():
+        """Start a rebirth or challenge."""
+        Inputs.menu("fight")
+        Inputs.click(*coords.FIGHT_STOP)
+        Navigation.rebirth()
+        Adventure.current_adventure_zone = 0
+        Inputs.click(*coords.REBIRTH)
+        Inputs.click(*coords.REBIRTH_BUTTON)
+        Inputs.click(*coords.CONFIRM)
+        return
+    
+    @staticmethod
+    def check_challenge(getNum=False):
+        """Check if a challenge is active.
+        
         Keyword arguments
         getNum. -- If true, return the number of the active challenge.
                    This is slower.
                    If False or omitted, return if a challenge is active.
         """
-        self.rebirth()
-        self.click(*coords.CHALLENGE_BUTTON)
+        Navigation.rebirth()
+        Inputs.click(*coords.CHALLENGE_BUTTON)
         time.sleep(userset.LONG_SLEEP)
-        active = self.check_pixel_color(*coords.COLOR_CHALLENGE_ACTIVE)
-
+        active = Inputs.check_pixel_color(*coords.COLOR_CHALLENGE_ACTIVE)
+        
         if not active:
             return False
         if not getNum:
             return True
-
-        text = self.ocr(*coords.OCR_CHALLENGE_NAME)
+        
+        text = Inputs.ocr(*coords.OCR_CHALLENGE_NAME)
         if "basic" in text.lower():
             return 1
         elif "augs" in text.lower():
@@ -385,923 +1369,19 @@ class Features(Navigation, Inputs):
             return 10
         elif "time machine" in text.lower():
             return 11
-
+        
         else:
             return -1
-
-    def pit(self, loadout=0):
-        """Throws money into the pit.
-
-        Keyword arguments:
-        loadout -- The loadout you wish to equip before throwing gold
-                   into the pit, for gear you wish to shock. Make
-                   sure that you don't get cap-blocked by either using
-                   the unassign setting in the game or swapping gear that
-                   doesn't have e/m cap.
-        """
-        if self.check_pixel_color(*coords.IS_PIT_READY):
-            if loadout:
-                self.loadout(loadout)
-            self.menu("pit")
-            self.click(*coords.PIT)
-            self.click(*coords.CONFIRM)
-
-    def augments(self, augments, energy):
-        """Dump energy into augmentations.
-
-        Keyword arguments
-        augments -- Dictionary that contains which augments you wish to use and
-                    a ratio that tells how much of the total energy you
-                    allocated you wish to send. Example:
-                    {"SS": 0, "DS": 0, "MI": 0, "DTMT": 0, "CI": 0, "M": 0,
-                     "SM": 0, "AA": 0, "EB": 0, "CS": 0, "AE": 0, "ES": 0,
-                     "LS": 0.9, "QSL": 0.1}
-        Energy -- The total amount of energy you want to use for all augments.
-        """
-        self.menu("augmentations")
-        for k in augments:
-            val = math.floor(augments[k] * energy)
-            self.input_box()
-            self.send_string(str(val))
-            # Scroll down if we have to.
-            bottom_augments = ["AE", "ES", "LS", "QSL"]
-            i = 0
-            if k in bottom_augments:
-                color = self.get_pixel_color(*coords.AUG_SCROLL_SANITY_BOT)
-                while color not in coords.SANITY_AUG_SCROLL_COLORS:
-                    self.click(*coords.AUG_SCROLL_BOT)
-                    time.sleep(userset.MEDIUM_SLEEP)
-                    color = self.get_pixel_color(*coords.AUG_SCROLL_SANITY_BOT)
-                    i += 1
-                    if i > 5 and i <= 10:  # Safeguard if something goes wrong with augs
-                        Navigation.current_menu = ""
-                        self.menu("augmentations")
-                    elif i > 10:
-                        print("Couldn't assign augments")
-                        break
-
-            else:
-                color = self.get_pixel_color(*coords.AUG_SCROLL_SANITY_TOP)
-                while color not in coords.SANITY_AUG_SCROLL_COLORS:
-                    self.click(*coords.AUG_SCROLL_TOP)
-                    time.sleep(userset.MEDIUM_SLEEP)
-                    color = self.get_pixel_color(*coords.AUG_SCROLL_SANITY_TOP)
-                    i += 1
-                    if i > 5 and i <= 10:  # Safeguard if something goes wrong with augs
-                        Navigation.current_menu = ""
-                        self.menu("augmentations")
-                    elif i > 10:
-                        print("Couldn't assign augments")
-                        break
-            self.click(*coords.AUGMENT[k])
-
-    def time_machine(self, e, m=0, magic=False):
-        """Add energy and/or magic to TM.
-
-        Example: self.time_machine(1000, 2000)
-                 self.time_machine(1000, magic=True)
-                 self.time_machine(1000)
-
-        First example will add 1000 energy and 2000 magic to TM.
-        Second example will add 1000 energy and 1000 magic to TM.
-        Third example will add 1000 energy to TM.
-
-        Keyword arguments:
-        e -- The amount of energy to put into TM.
-        m -- The amount of magic to put into TM, if this is 0, it will use the
-             energy value to save unnecessary clicks to the input box.
-        magic -- Set to true if you wish to add magic as well
-        """
-        self.menu("timemachine")
-        self.input_box()
-        self.send_string(e)
-        self.click(*coords.TM_SPEED)
-        if magic or m:
-            if m:
-                self.input_box()
-                self.send_string(m)
-            self.click(*coords.TM_MULT)
-
-    def blood_magic(self, target):
-        """Assign magic to BM.
-
-        Keyword arguments
-        target -- Will cap all rituals till the target ritual
-                  Usually run as blood_magic(8)
-        """
-        self.menu("bloodmagic")
-        for i in range(target):
-            self.click(*coords.BM[i])
-
-    def wandoos(self, energy=True, magic=False):
-        """Assign energy and/or magic to wandoos.
-
-        Keyword arguments
-        energy -- Assign energy to Wandoos (default: True)
-        magic  -- Assign magic to Wandoos  (default: False)
-        """
-        self.menu("wandoos")
-        if energy:
-            self.click(*coords.WANDOOS_ENERGY)
-        if magic:
-            self.click(*coords.WANDOOS_MAGIC)
-
-    def set_wandoos(self, version):
-        """Set wandoos version.
-
-        Keyword arguments:
-        version -- Wandoos version of choice. Possible values are:
-                   0 : Wandoos 98
-                   1 : Wandoos Meh
-                   2 : Wandoos XL
-        """
-        self.menu("wandoos")
-        self.click(*coords.WANDOOS_VERSION[version])
-        self.confirm()
-
-    def loadout(self, target):
-        """Equip a loadout.
-
-        Keyword arguments
-        target -- The loadout to be equiped
-        """
-        self.menu("inventory")
-        self.click(*coords.LOADOUT[target])
-
-    @deprecated(version='0.1', reason="speedrun_bloodpill is deprecated, use iron_pill() instead")
-    def speedrun_bloodpill(self):
-        """Deprecated"""
-        return
-
-    @deprecated(version='0.1', reason="iron_pill is deprecated, use cast_spell() instead")
-    def iron_pill(self):
-        """Deprecated"""
-        return
-
-    def toggle_auto_spells(self, number=True, drop=True, gold=True):
-        """Enable/Disable autospells
-
-        Keyword arguments
-        number, drop, gold -- Spells to be enabled or disabled.
-                              If True, enable the spell. If False, disable the spell.
-                              If None, ignore the spell.
-        """
-        self.spells()
-        self.click(600, 600)  # move tooltip
-
-        if number is not None:
-            number_active = self.check_pixel_color(*coords.COLOR_BM_AUTO_NUMBER)
-            if (number and not number_active) or (not number and number_active):
-                self.click(*coords.BM_AUTO_NUMBER)
-        if drop is not None:
-            drop_active = self.check_pixel_color(*coords.COLOR_BM_AUTO_DROP)
-            if (drop and not drop_active) or (not drop and drop_active):
-                self.click(*coords.BM_AUTO_DROP)
-
-        if gold is not None:
-            gold_active = self.check_pixel_color(*coords.COLOR_BM_AUTO_GOLD)
-            if (gold and not gold_active) or (not gold and gold_active):
-                self.click(*coords.BM_AUTO_GOLD)
-
-    def check_spells_ready(self):
-        """Check which spells are ready to cast.
-
-        Returns a list with integers corresponding to which spell is ready. The values on the
-        list can be:
-            1 - Iron pill
-            2 - MacGuffin alpha
-            3 - MacGuffin beta
-        """
-        if self.check_pixel_color(*coords.COLOR_SPELL_READY):
-            self.spells()
-            self.click(*coords.BM_PILL, button="right")
-            spells = []
-            res = self.ocr(*coords.OCR_BM_SPELL_TEXT)
-            if "cooldown: 0.0s" in res.lower():
-                spells.append(1)
-
-            self.click(*coords.BM_GUFFIN_A, button="right")
-            res = self.ocr(*coords.OCR_BM_SPELL_TEXT)
-            if "cooldown: 0.0s" in res.lower():
-                spells.append(2)
-
-            self.click(*coords.BM_GUFFIN_B, button="right")
-            res = self.ocr(*coords.OCR_BM_SPELL_TEXT)
-            if "cooldown: 0.0s" in res.lower():
-                spells.append(3)
-
-            return spells
-        else:
-            return []
-
-    def cast_spell(self, target):
-        """Cast target spell.
-
-        This method will allocate any idle magic into BM and wait for the
-        time set in usersettings.py. Remember to re-enable auto spells after
-        calling this method, using toggle_auto_spells().
-
-        Keyword arguments
-        number -- The spell to be cast. Possible values are:
-            1 - Iron pill
-            2 - MacGuffin alpha
-            3 - MacGuffin beta
-        """
-        if self.check_pixel_color(*coords.COLOR_SPELL_READY):
-            targets = [0, coords.BM_PILL, coords.BM_GUFFIN_A, coords.BM_GUFFIN_B]
-            start = time.time()
-            self.blood_magic(8)
-            self.toggle_auto_spells(False, False, False)  # disable all auto spells
-
-            if userset.SPELL == 0:  # Default to 5 mins if not set
-                duration = 300
-            else:
-                duration = userset.SPELL
-
-            while time.time() < start + duration:
-                print(f"Sniping itopod for {duration} seconds while waiting to cast spell.")
-                self.itopod_snipe(duration)
-            self.spells()
-            self.click(*targets[target])
-
-    def reclaim_all(self):
-        """Reclaim all resources from all features."""
-        self.send_string("r")
-        self.send_string("t")
-        self.send_string("f")
-
-    def reclaim_res(self, energy=False, magic=False, r3=False):
-        """Reclaim resources of choosing from all features.
-
-        Keyword arguments
-        energy -- If True, reclaim energy.
-        magic  -- If True, reclaim magic.
-        r3     -- If True, reclaim resource 3.
-        """
-        if energy:
-            self.send_string("r")
-        if magic:
-            self.send_string("t")
-        if r3:
-            self.send_string("f")
-
-    def reclaim_bm(self):
-        """Remove all magic from BM."""
-        self.menu("bloodmagic")
-        self.input_box()
-        self.send_string(coords.INPUT_MAX)
-        for coord in coords.BM_RECLAIM:
-            self.click(*coord)
-
-    def reclaim_ngu(self, magic=False):
-        """Remove all e/m from NGUs."""
-        if magic:
-            self.ngu_magic()
-        else:
-            self.menu("ngu")
-        self.input_box()
-        self.send_string(coords.INPUT_MAX)
-        for i in range(1, 10):
-            NGU = coords.Pixel(coords.NGU_MINUS.x, coords.NGU_PLUS.y + i * 35)
-            self.click(*NGU)
-
-    def reclaim_tm(self, energy=True, magic=False):
-        """Remove all e/m from TM.
-
-        Keyword arguments
-        energy -- If True, reclaim energy from TM.
-        magic  -- If True, reclaim magic from TM.
-        """
-        self.menu("timemachine")
-        self.input_box()
-        self.send_string(coords.INPUT_MAX)
-        if magic:
-            self.click(*coords.TM_MULT_MINUS)
-            return
-        if energy:
-            self.click(*coords.TM_SPEED_MINUS)
-
-    def reclaim_aug(self):
-        """Remove all energy from augs"""
-        self.menu("augmentations")
-        self.input_box()
-        self.send_string(coords.INPUT_MAX)
-        self.click(*coords.AUG_SCROLL_TOP)
-        scroll_down = False
-        for i, k in enumerate(coords.AUGMENT.keys()):
-            if i >= 10 and not scroll_down:
-                self.click(*coords.AUG_SCROLL_BOT)
-                self.click(*coords.AUG_SCROLL_BOT)
-                time.sleep(1)
-                scroll_down = True
-            self.click(coords.AUG_MINUS_X, coords.AUGMENT[k].y)
-
-    def assign_ngu(self, value, targets, magic=False):
-        """Assign energy/magic to NGU's.
-
-        Keyword arguments:
-        value -- the amount of energy/magic that will get split over all NGUs.
-        targets -- Array of NGU's to use (1-9).
-        magic -- Set to true if these are magic NGUs
-        """
-        if len(targets) > 9:
-            raise RuntimeError("Passing too many NGU's to assign_ngu," +
-                               " allowed: 9, sent: " + str(len(targets)))
-        if magic:
-            self.ngu_magic()
-        else:
-            self.menu("ngu")
-
-        self.input_box()
-        self.send_string(value // len(targets))
-        for i in targets:
-            NGU = coords.Pixel(coords.NGU_PLUS.x, coords.NGU_PLUS.y + i * 35)
-            self.click(*NGU)
-
-    def gold_diggers(self, targets, deactivate=False):
-        """Activate diggers.
-
-        Keyword arguments:
-        targets -- Array of diggers to use from 1-12. Example: [1, 2, 3, 4, 9].
-        deactivate -- Set to True if you wish to deactivate these
-                    diggers otherwise it will just try to up the cap.
-        """
-        self.menu("digger")
-        for i in targets:
-            page = ((i-1)//4)
-            item = i - (page * 4)
-            self.click(*coords.DIG_PAGE[page])
-            if deactivate:
-                self.click(*coords.DIG_ACTIVE[item])
-            else:
-                self.click(*coords.DIG_CAP[item])
-
-    def deactivate_all_diggers(self):
-        """Click deactivate all in digger menu."""
-        self.menu("digger")
-        self.click(*coords.DIG_DEACTIVATE_ALL)
-
-    def level_diggers(self):
-        """Level all diggers."""
-        self.menu("digger")
-        for page in coords.DIG_PAGE:
-            self.click(*page)
-            for digger in coords.DIG_LEVEL:
-                self.click(*digger, button="right")
-
-    @deprecated(version='0.1', reason="bb_ngu() is deprecated since .415 use cap_ngu() instead")
-    def bb_ngu(self, value, targets, overcap=1, magic=False):
-        """Estimates the BB value of each supplied NGU.
-        It will send value into the target NGU's, which will fill the progress bar. It's very
-        important that you put enough e/m into the NGU's to trigger the "anti-flicker"
-        (>10% of BB cost), otherwise it will not function properly.
-
-        Keyword arguments:
-        value -- The amount of energy used to determine the cost of BBing the target NGU's
-        targets -- Array of NGU's to BB. Example: [1, 3, 4, 5, 6]
-        overcap -- Use this if you wish to assign more e/m than absolute minimum to BB
-                   the NGU's. This might be useful for longer runs to make sure the cost
-                   to BB doesn't exceed the assigned e/m. A value of 1.1 assigns 10% extra.
-        magic -- Set to true if these are magic NGUs
-        """
-        if magic:
-            self.ngu_magic()
-        else:
-            self.menu("ngu")
-
-        self.input_box()
-        self.send_string(str(int(value)))
-
-        for target in targets:
-            NGU = coords.Pixel(coords.NGU_PLUS.x, coords.NGU_PLUS.y + target * 35)
-            self.click(*NGU)
-
-        for target in targets:
-            energy = 0
-            for x in range(198):
-                color = self.get_pixel_color(coords.NGU_BAR_MIN.x + x,
-                                             coords.NGU_BAR_MIN.y +
-                                             coords.NGU_BAR_OFFSET_Y * target,
-                                             )
-                if color == coords.NGU_BAR_WHITE:
-                    pixel_coefficient = x / 198
-                    value_coefficient = overcap / pixel_coefficient
-                    energy = (value_coefficient * value) - value
-                    break
-            if energy == 0:
-                if magic:
-                    print(f"Warning: You might be overcapping magic NGU #{target}")
-                else:
-                    print(f"Warning: You might be overcapping energy NGU #{target}")
-                continue
-
-            self.input_box()
-            self.send_string(str(int(energy)))
-            self.click(coords.NGU_PLUS.x, coords.NGU_PLUS.y + target * 35)
-
-    def cap_ngu(self, targets=None, magic=False, cap_all=True):
-        """Cap NGUs.
-
-        Keyword arguments
-        targets -- The NGU's you wish to cap
-        magic -- Set to true if these are magic NGU's
-        cap_all -- Set to true if you wish to cap all NGU's
-        """
-        targets = targets or []
-        if magic:
-            self.ngu_magic()
-        else:
-            self.menu("ngu")
-
-        for target in targets:
-            NGU = coords.Pixel(coords.NGU_CAP.x, coords.NGU_CAP.y + target * 35)
-            self.click(*NGU)
-
-        if cap_all and not targets:
-            self.click(*coords.NGU_CAP_ALL)
-
-    def set_ngu_overcap(self, value):
-        """Set the amount you wish to overcap your NGU's."""
-        self.menu("ngu")
-        self.click(*coords.NGU_OVERCAP)
-        self.send_string(value)
-
-    def advanced_training(self, value, ability=0):
-        """Assign energy to adanced training.
-
-        Keyword arguments
-        value   -- Set the total energy to assign to AT.
-        ability -- The AT ability to be trained.
-                   If this is zero, it'll split the energy evenly between
-                   Adv Toughness, Adv Power, Wandoos Energy and Wandoos Magic.
-                   Splitting energy is the default behavior.
-        """
-        self.menu("advtraining")
-        if ability == 0:
-            value = value // 4
-            self.input_box()
-            self.send_string(value)
-            self.click(*coords.ADV_TRAINING_POWER)
-            self.click(*coords.ADV_TRAINING_TOUGHNESS)
-            self.click(*coords.ADV_TRAINING_WANDOOS_ENERGY)
-            self.click(*coords.ADV_TRAINING_WANDOOS_MAGIC)
-
-        else:
-            self.input_box()
-            self.send_string(value)
-            if ability == 1:
-                self.click(*coords.ADV_TRAINING_TOUGHNESS)
-            if ability == 2:
-                self.click(*coords.ADV_TRAINING_POWER)
-            if ability == 3:
-                self.click(*coords.ADV_TRAINING_BLOCK)
-            if ability == 4:
-                self.click(*coords.ADV_TRAINING_WANDOOS_ENERGY)
-            if ability == 5:
-                self.click(*coords.ADV_TRAINING_WANDOOS_MAGIC)
-
-    def check_titan_status(self):
-        """Check to see if any titans are ready."""
-        self.click(*coords.MENU_ITEMS["adventure"], button="right")
-        text = self.ocr(*coords.OCR_TITAN_RESPAWN).lower()
-        ready = []
-        i = 1
-        for line in text.split('\n'):
-            if line == '' or line == '\n':
-                continue
-            if "ready" in line:
-                ready.append(i)
-            i += 1
-        return ready
-
-    def kill_titan(self, target, mega=True):
-        """Attempt to kill the target titan.
-
-        Keyword arguments:
-        target -- The id of the titan you wish to kill. 1 for GRB, 2 for GCT and so on.
-        mega   -- Use Mega Buff
-        """
-        self.menu("adventure")
-        if self.check_pixel_color(*coords.IS_IDLE):
-            self.click(*coords.ABILITY_IDLE_MODE)
-
-        self.click(*coords.LEFT_ARROW, button="right")
-        charge = False
-        parry = False
-        if mega:
-            while not self.check_pixel_color(*coords.COLOR_MEGA_BUFF_READY) or not charge or not parry:
-                queue = self.get_ability_queue()
-                self.click(625, 600)
-                if 2 in queue and not parry:
-                    x = coords.ABILITY_ROW1X + 2 * coords.ABILITY_OFFSETX
-                    y = coords.ABILITY_ROW1Y
-                    self.click(x, y)
-                    parry = True
-                    time.sleep(1)  # wait for global cooldown
-                if 9 in queue and not charge:
-                    x = coords.ABILITY_ROW2X + (9 - 5) * coords.ABILITY_OFFSETX
-                    y = coords.ABILITY_ROW2Y
-                    self.click(x, y)
-                    charge = True
-                    time.sleep(1)  # wait for global cooldown
-                time.sleep(userset.MEDIUM_SLEEP)
-
-        else:
-            while not self.check_pixel_color(*coords.COLOR_ULTIMATE_BUFF_READY) or not charge or not parry:
-                queue = self.get_ability_queue()
-                self.click(625, 600)
-                if 2 in queue and not parry:
-                    x = coords.ABILITY_ROW1X + 2 * coords.ABILITY_OFFSETX
-                    y = coords.ABILITY_ROW1Y
-                    self.click(x, y)
-                    parry = True
-                    time.sleep(1)  # wait for global cooldown
-                if 9 in queue and not charge:
-                    x = coords.ABILITY_ROW2X + 4 * coords.ABILITY_OFFSETX
-                    y = coords.ABILITY_ROW2Y
-                    self.click(x, y)
-                    charge = True
-                    time.sleep(1)  # wait for global cooldown
-                time.sleep(userset.MEDIUM_SLEEP)
-
-        buffs = [2, 9]
-        print("Waiting for charge and parry to be ready")
-        while not all(x in self.get_ability_queue() for x in buffs):
-            time.sleep(.5)
-
-        for _ in range(const.TITAN_ZONE[target - 1]):
-            self.click(*coords.RIGHT_ARROW, fast=True)
-        self.current_adventure_zone = const.TITAN_ZONE[target - 1]
-        time.sleep(userset.LONG_SLEEP)
-        start = time.time()
-        while self.check_pixel_color(*coords.IS_DEAD):  # wait for titan to spawn
-            time.sleep(0.05)
-            if time.time() > start + 5:
-                print("Couldn't detect enemy in kill_titan()")
-                return
-
-        queue = deque(self.get_ability_queue())
-        while not self.check_pixel_color(*coords.IS_DEAD):
-            if not queue:
-                queue = deque(self.get_ability_queue())
-
-            ability = queue.popleft()
-            if ability <= 4:
-                x = coords.ABILITY_ROW1X + ability * coords.ABILITY_OFFSETX
-                y = coords.ABILITY_ROW1Y
-
-            if ability >= 5 and ability <= 10:
-                x = coords.ABILITY_ROW2X + (ability - 5) * coords.ABILITY_OFFSETX
-                y = coords.ABILITY_ROW2Y
-
-            if ability > 10:
-                x = coords.ABILITY_ROW3X + (ability - 11) * coords.ABILITY_OFFSETX
-                y = coords.ABILITY_ROW3Y
-
-            self.click(x, y)
-            time.sleep(userset.LONG_SLEEP)
-            color = self.get_pixel_color(coords.ABILITY_ROW1X,
-                                         coords.ABILITY_ROW1Y)
-
-            while color != coords.ABILITY_ROW1_READY_COLOR:
-                time.sleep(0.05)
-                color = self.get_pixel_color(coords.ABILITY_ROW1X,
-                                             coords.ABILITY_ROW1Y)
-
-    def get_ability_queue(self):
-        """Return a queue of usable abilities."""
-        ready = []
-        queue = []
-
-        # Add all abilities that are ready to the ready array
-        for i in range(1, 16):
-            if i <= 4:
-                x = coords.ABILITY_ROW1X + i * coords.ABILITY_OFFSETX
-                y = coords.ABILITY_ROW1Y
-                color = self.get_pixel_color(x, y)
-                if color == coords.ABILITY_ROW1_READY_COLOR:
-                    ready.append(i)
-            if i >= 5 and i <= 10:
-                if self.mega_buff_unlocked and i == 6:
-                    continue
-                x = coords.ABILITY_ROW2X + (i - 5) * coords.ABILITY_OFFSETX
-                y = coords.ABILITY_ROW2Y
-                color = self.get_pixel_color(x, y)
-                if color == coords.ABILITY_ROW2_READY_COLOR:
-                    ready.append(i)
-            if i > 10:
-                x = coords.ABILITY_ROW3X + (i - 11) * coords.ABILITY_OFFSETX
-                y = coords.ABILITY_ROW3Y
-                color = self.get_pixel_color(x, y)
-                if color == coords.ABILITY_ROW3_READY_COLOR:
-                    ready.append(i)
-
-        if 15 in ready:
-            self.oh_shit_unlocked = True
-        if 14 in ready:
-            self.mega_buff_unlocked = True
-        # heal if we need to heal
-        if self.check_pixel_color(*coords.PLAYER_HEAL_THRESHOLD):
-            if 15 in ready:
-                queue.append(15)
-            elif 12 in ready:
-                queue.append(12)
-            elif 7 in ready:
-                queue.append(7)
-
-        # check if offensive buff and ultimate buff are both ready
-        buffs = [8, 10]
-        if 14 in ready:
-            queue.append(14)
-        elif all(i in ready for i in buffs) and not self.mega_buff_unlocked:
-            queue.extend(buffs)
-
-        d = coords.ABILITY_PRIORITY
-        # Sort the abilities by the set priority
-        abilities = sorted(d, key=d.get, reverse=True)
-        # Only add the abilities that are ready to the queue
-        queue.extend([a for a in abilities if a in ready])
-
-        # If nothing is ready, return a regular attack
-        if not queue:
-            queue.append(0)
-        return queue
-
-    def save_check(self):
-        """Check if we can do the daily save for AP.
-        Make sure no window in your browser pops up when you click the "Save"
-        button, otherwise sit will mess with the rest of the script.
-        """
-        if self.check_pixel_color(*coords.IS_SAVE_READY):
-            self.click(*coords.SAVE)
-        return
-
-    def get_inventory_slots(self, slots):
-        """Get coords for inventory slots from 1 to slots."""
-        point = namedtuple("p", ("x", "y"))
-        i = 1
-        row = 1
-        x_pos, y_pos = coords.INVENTORY_SLOTS
-        res = []
-
-        while i <= slots:
-            x = x_pos + (i - (12 * (row - 1))) * 50
-            y = y_pos + ((row - 1) * 50)
-            res.append(point(x, y))
-            if i % 12 == 0:
-                row += 1
-            i += 1
-        return res
-
-    def merge_inventory(self, slots):
-        """Merge all inventory slots starting from 1 to slots.
-
-        Keyword arguments:
-        slots -- The amount of slots you wish to merge
-        """
-        self.menu("inventory")
-        coord = self.get_inventory_slots(slots)
-        for slot in coord:
-            self.click(*slot)
-            self.send_string("d")
-
-    def boost_inventory(self, slots):
-        """Merge all inventory slots starting from 1 to slots.
-
-        Keyword arguments:
-        slots -- The amount of slots you wish to merge
-        """
-        self.menu("inventory")
-        coord = self.get_inventory_slots(slots)
-        for slot in coord:
-            self.click(*slot)
-            self.send_string("a")
-
-    def transform_slot(self, slot, threshold=0.8, consume=False):
-        """Check if slot is transformable and transform if it is.
-        Be careful using this, make sure the item you want to transform is
-        not protected, and that all other items are protected, this might
-        delete items otherwise. Another note, consuming items will show
-        a special tooltip that will block you from doing another check
-        for a few seconds, keep this in mind if you're checking multiple
-        slots in succession.
-
-        Keyword arguments:
-        slot      -- The slot you wish to transform, if possible
-        threshold -- The fuzziness in the image search, I recommend a value
-                     between 0.7 - 0.95.
-        consume   -- Set to true if item is consumable instead.
-        """
-        self.menu("inventory")
-        slot = self.get_inventory_slots(slot)[-1]
-        self.click(*slot)
-        time.sleep(userset.SHORT_SLEEP)
-
-        if consume:
-            coord = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600,
-                                      self.get_file_path("images", "consumable.png"), threshold)
-        else:
-            coord = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600,
-                                      self.get_file_path("images", "transformable.png"), threshold)
-
-        if coord:
-            self.ctrl_click(*slot)
-
-    def get_idle_cap(self, resource):
-        """Get the available idle energy, magic, or resource 3.
-
-        Keyword arguments
-        resource -- The resource to get idle cap for. 1 for energy, 2 for magic and 3 for r3.
-        """
-        try:
-            if resource == 1:
-                res = self.ocr(*coords.OCR_ENERGY)
-            elif resource == 2:
-                res = self.ocr(*coords.OCR_MAGIC)
-            else:
-                res = self.ocr(*coords.OCR_R3)
-
-            match = re.search(r".*(\d+\.\d+E\+\d+)", res)
-
-            if match is not None:
-                return int(float(match.group(1)))
-            elif match is None:
-                match = self.remove_letters(res)
-                if match is not None:
-                    return int(match)
-                if match is None:
-                    return 0
-        except ValueError:
-            print("couldn't get idle cap")
-            return 0
-
-    def get_quest_text(self):
-        """Check if we have an active quest or not."""
-        self.menu("questing")
-        self.click(950, 590)  # move tooltip
-        time.sleep(userset.SHORT_SLEEP)
-        return self.ocr(*coords.OCR_QUESTING_LEFT_TEXT)
-
-    def get_available_majors(self):
-        """Return the amount of available major quests."""
-        self.menu("questing")
-        text = self.ocr(*coords.OCR_QUESTING_MAJORS)
-        try:
-            match = re.search(r"(\d+)\/\d+", text)
-            if match:
-                return int(match.group(1))
-        except ValueError:
-            print("couldn't get current major quests available")
-            return -1
-
-    def questing_consume_items(self, cleanup=False):
-        """Check for items in inventory that can be turned in."""
-        self.menu("inventory")
-        self.click(*coords.INVENTORY_PAGE[0])
-        bmp = self.get_bitmap()
-        for item in coords.QUESTING_FILENAMES:
-            path = self.get_file_path("images", item)
-            loc = self.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600, path, 0.91, bmp=bmp)
-            if loc:
-                self.click(*loc, button="right")
-                if cleanup:
-                    self.send_string("d")
-                    self.ctrl_click(*loc)
-                time.sleep(3)  # Need to wait for tooltip to disappear after consuming
-
-    def questing(self, duration=30, major=False, subcontract=False, force=0, adv_duration=2, butter=False):
-        """Procedure for questing.
-
-        ===== IMPORTANT =====
-        This method uses imagesearch to find items in your inventory, it will
-        both right click and ctrl-click items (quick delete keybind), so make
-        sure all items are protected.
-
-        The method will only check the inventory page that is currently open,
-        so make sure it's set to page 1 and that your inventory has space.
-
-        If your inventory fills with mcguffins/other drops while it runs, it
-        will get stuck doing the same quest forever. Make sure you will have
-        space for the entire duration you will leave it running unattended.
-        =====================
-
-        Keyword arguments:
-        duration     -- The duration in minutes to run if manual mode is selected. If
-                        quest gets completed, function will return prematurely.
-        major        -- Set to true if you only wish to manually do main quests,
-                        if False it will manually do all quests.
-        subcontract  -- Set to True if you wish to subcontract all quests.
-        force        -- Only quest in this zone. This will skip quests until you
-                        recieve one for the selected zone, so make sure you disable
-                        "Use major quests if available".
-        adv_duration -- The time in minutes to spend sniping before checking inventory.
-                        A higher value is good when forcing, because you spend less time
-                        scanning the inventory and you will not waste any extra quest items.
-                        A value around 2 minutes is good when doing majors because it's very
-                        likely that the extra items are lost.
-
-        Suggested usages:
-        questing(major=True)
-        questing(subcontract=True)
-        If you only wish to manually do major quests (so you can do ITOPOD)
-        then I suggest that you only call questing() every 10-15 minutes because
-        subcontracting takes very long to finish. Same obviously goes for subcontracting
-        only.
-        Remember the default duration is 40, which is there to safeguard if something
-        goes wrong to break out of the function. Set this higher/lower after your own
-        preferences.
-        questing(duration=40)
-        This will manually complete any quest you get for 30 minutes, then it returns,
-        or it returns when the quest is completed.
-        Use this together with harvesting ygg, recapping diggers and so on, or even
-        sniping ITOPOD.
-        """
-        end = time.time() + duration * 60
-        self.menu("questing")
-        self.click(950, 590)  # move tooltip
-        text = self.get_quest_text()
-
-        if coords.QUESTING_QUEST_COMPLETE in text.lower():
-            self.click(*coords.QUESTING_START_QUEST)
-            time.sleep(userset.LONG_SLEEP * 2)
-            text = self.get_quest_text()  # fetch new quest text
-
-        if coords.QUESTING_NO_QUEST_ACTIVE in text.lower():  # if we have no active quest, start one
-            self.click(*coords.QUESTING_START_QUEST)
-            if force and not self.inventory_cleaned:
-                self.questing_consume_items(True)  # we have to clean up the inventory from any old quest items
-                self.inventory_cleaned = True
-            elif not force:
-                self.questing_consume_items(True)
-            self.click(960, 600)  # move tooltip
-            time.sleep(userset.LONG_SLEEP)
-            text = self.get_quest_text()  # fetch new quest text
-
-        if force:
-            if self.check_pixel_color(*coords.COLOR_QUESTING_USE_MAJOR):
-                self.click(*coords.QUESTING_USE_MAJOR)
-
-            while not coords.QUESTING_ZONES[force] in text.lower():
-                self.click(*coords.QUESTING_SKIP_QUEST)
-                self.click(*coords.CONFIRM)
-                self.click(*coords.QUESTING_START_QUEST)
-                text = self.get_quest_text()
-
-        if subcontract:
-            if self.check_pixel_color(*coords.QUESTING_IDLE_INACTIVE):
-                self.click(*coords.QUESTING_SUBCONTRACT)
-            return
-
-        if major and coords.QUESTING_MINOR_QUEST in text.lower():  # check if current quest is minor
-            if self.check_pixel_color(*coords.QUESTING_IDLE_INACTIVE):
-                self.click(*coords.QUESTING_SUBCONTRACT)
-            return
-
-        if not self.check_pixel_color(*coords.QUESTING_IDLE_INACTIVE):  # turn off idle
-            self.click(*coords.QUESTING_SUBCONTRACT)
-        if butter:
-            self.click(*coords.QUESTING_BUTTER)
-        for count, zone in enumerate(coords.QUESTING_ZONES, start=0):
-            if zone in text.lower():
-                current_time = time.time()
-                while current_time < end:
-                    if current_time + adv_duration * 60 > end:  # adjust adv_duration if it will cause duration to be exceeded
-                        adv_duration = (end - current_time) / 60
-                        if adv_duration < 0.5:
-                            adv_duration = 0
-                            return
-                    self.snipe(count, adv_duration)
-                    self.boost_cube()
-                    self.questing_consume_items()
-                    text = self.get_quest_text()
-                    current_time = time.time()
-                    if coords.QUESTING_QUEST_COMPLETE in text.lower():
-                        try:
-                            start_qp = int(self.remove_letters(self.ocr(*coords.OCR_QUESTING_QP)))
-                        except ValueError:
-                            print("Couldn't fetch current QP")
-                            start_qp = 0
-                        self.click(*coords.QUESTING_START_QUEST)
-                        self.click(605, 510)  # move tooltip
-                        try:
-                            current_qp = int(self.remove_letters(self.ocr(*coords.OCR_QUESTING_QP)))
-                        except ValueError:
-                            print("Couldn't fetch current QP")
-                            current_qp = 0
-
-                        gained_qp = current_qp - start_qp
-                        print(f"Completed quest in zone #{count} at {datetime.datetime.now().strftime('%H:%M:%S')} for {gained_qp} QP")
-
-                        return
-
-    def get_rebirth_time(self):
+    
+    @staticmethod
+    def get_rebirth_time():
         """Get the current rebirth time.
         returns a namedtuple(days, timestamp) where days is the number
         of days displayed in the rebirth time text and timestamp is a
         time.time_struct object.
         """
         Rebirth_time = namedtuple('Rebirth_time', 'days timestamp')
-        t = self.ocr(*coords.OCR_REBIRTH_TIME)
+        t = Inputs.ocr(*coords.OCR_REBIRTH_TIME)
         x = re.search(r"((?P<days>[0-9]+) days? )?((?P<hours>[0-9]+):)?(?P<minutes>[0-9]+):(?P<seconds>[0-9]+)", t)
         days = 0
         if x is None:
@@ -1311,144 +1391,157 @@ class Features(Navigation, Inputs):
                 days = 0
             else:
                 days = int(x.group('days'))
-
+            
             if x.group('hours') is None:
                 hours = "0"
             else:
                 hours = x.group('hours')
-
+            
             if x.group('minutes') is None:
                 minutes = "0"
             else:
                 minutes = x.group('minutes')
-
+            
             if x.group('seconds') is None:
                 seconds = "0"
             else:
                 seconds = x.group('seconds')
             timestamp = time.strptime(f"{hours}:{minutes}:{seconds}", "%H:%M:%S")
         return Rebirth_time(days, timestamp)
-
-    def rt_to_seconds(self):
+    
+    @staticmethod
+    def rt_to_seconds():
         """Get the Rebirth time in seconds"""
-        rt = self.get_rebirth_time()
+        rt = Rebirth.get_rebirth_time()
         seconds = ((rt.days * 24 + rt.timestamp.tm_hour) * 60 + rt.timestamp.tm_min) * 60 + rt.timestamp.tm_sec
         return seconds
 
-    def eat_muffin(self, buy=False):
-        """Eat a MacGuffin Muffin if it's not active.
-
-        Keyword arguments:
-        buy -- set to True if you wish to buy a muffin if you have enough
-        AP and you currently have 0 muffins.
-        """
-        self.sellout_boost_2()
-        muffin_status = self.ocr(*coords.OCR_MUFFIN).lower()
-        if "have: 0" in muffin_status and "inactive" in muffin_status:
-            print(muffin_status)
-            if buy:
-                try:
-                    ap = int(self.remove_letters(self.ocr(*coords.OCR_AP)))
-                except ValueError:
-                    print("Couldn't get current AP")
-                if ap >= 50000:
-                    print(f"Bought MacGuffin Muffin at: {datetime.datetime.now()}")
-                    self.click(*coords.SELLOUT_MUFFIN_BUY)
-                    self.confirm()
-            else:
-                return
-        else:
-            return
-        self.click(*coords.SELLOUT_MUFFIN_USE)
-        print(f"Used MacGuffin Muffin at: {datetime.datetime.now()}")
-
-    def hacks(self, targets=None, value=1e12):
-        """Activate hacks.
-
+class Misc:
+    @staticmethod
+    def reclaim_all():
+        """Reclaim all resources from all features."""
+        Inputs.send_string("r")
+        Inputs.send_string("t")
+        Inputs.send_string("f")
+    
+    @staticmethod
+    def reclaim_res(energy=False, magic=False, r3=False):
+        """Reclaim resources of choosing from all features.
+        
         Keyword arguments
-        targets -- List of hacks to level up. Default value is [1, 2, 3, 4, 5, 6, 7, 8].
-        value   -- Resource to spend, default to 1e12.
+        energy -- If True, reclaim energy.
+        magic  -- If True, reclaim magic.
+        r3     -- If True, reclaim resource 3.
         """
-        targets = targets or []
-        self.input_box()
-        self.send_string(value // len(targets))
-        self.menu("hacks")
-        for i in targets:
-            page = ((i-1)//8)
-            item = i - (page * 8)
-            self.click(*coords.HACK_PAGE[page])
-            self.click(*coords.HACKS[item])
-
-    def check_wandoos_bb_status(self, magic=False):
-        """Check if wandoos is currently fully BB'd.
-
-        Keyword arguments
-        magic -- If True, check if Wandoos magic is BB'd
-                 If False (default), check if Wandoos energy is BB'd
-        """
-        self.menu("wandoos")
+        if energy:
+            Inputs.send_string("r")
         if magic:
-            return self.check_pixel_color(*coords.COLOR_WANDOOS_MAGIC_BB)
-        return self.check_pixel_color(*coords.COLOR_WANDOOS_ENERGY_BB)
-
-    def itopod_ap(self, duration):
-        """Abuse an oversight in the kill counter for AP rewards for mucher higher AP/h in ITOPOD.
-        If you use this method, make sure you do not retoggle idle mode in adventure in other parts
-        of your script. If you have to, make sure to empty itopod_tier_counts with:
-        itopod_tier_counts = {}
-
-        Keyword arguments:
-        duration -- Duration in seconds to run, before toggling idle mode
-                    back on and returning.
+            Inputs.send_string("t")
+        if r3:
+            Inputs.send_string("f")
+    
+    @staticmethod
+    def reclaim_bm():
+        """Remove all magic from BM."""
+        Inputs.menu("bloodmagic")
+        Navigation.input_box()
+        Inputs.send_string(coords.INPUT_MAX)
+        for coord in coords.BM_RECLAIM:
+            Inputs.click(*coord)
+    
+    @staticmethod
+    def reclaim_ngu(magic=False):
+        """Remove all e/m from NGUs."""
+        if magic:
+            Navigation.ngu_magic()
+        else:
+            Inputs.menu("ngu")
+        Navigation.input_box()
+        Inputs.send_string(coords.INPUT_MAX)
+        for i in range(1, 10):
+            NGU = coords.Pixel(coords.NGU_MINUS.x, coords.NGU_PLUS.y + i * 35)
+            Inputs.click(*NGU)
+    
+    @staticmethod
+    def reclaim_tm(energy=True, magic=False):
+        """Remove all e/m from TM.
+        
+        Keyword arguments
+        energy -- If True, reclaim energy from TM.
+        magic  -- If True, reclaim magic from TM.
         """
-        print("WARNING: itopod_ap() is largely untested")
-        end = time.time() + duration * 60
-        self.current_adventure_zone = 0
-        self.menu("adventure")
-        self.click(625, 500)  # click somewhere to move tooltip
-        if self.check_pixel_color(*coords.IS_IDLE):
-            self.click(*coords.ABILITY_IDLE_MODE)
-        # check if we're already in ITOPOD, otherwise enter
-        if not self.itopod_tier_counts:
-            for tier, floor in self.itopod_tier_map.items():
-                self.click(*coords.ITOPOD)
-                self.click(*coords.ITOPOD_START)
-                self.send_string(floor)
-                # set end to 0 in case it's higher than start
-                self.click(*coords.ITOPOD_ENTER)
-                self.click(*coords.ADVENTURE_TOOLTIP)
-                count = self.remove_letters(self.ocr(*coords.OCR_AP_KILL_COUNT))
-                print(f"Tier {tier}: {count}")
-                try:
-                    count = int(count)
-                except ValueError:
-                    print(f"couldn't convert '{count}' to int")
-                self.itopod_tier_counts[tier] = count
-        print(self.itopod_tier_counts)
-        while time.time() < end:
-            next_tier = min(self.itopod_tier_counts, key=self.itopod_tier_counts.get)
-            print(f"going to itopod tier {next_tier}")
-            self.click(*coords.ITOPOD)
-            self.click(*coords.ITOPOD_START)
-            self.send_string(self.itopod_tier_map[next_tier])
-            # set end to 0 in case it's higher than start
-            self.click(*coords.ITOPOD_ENTER)
-            time.sleep(userset.LONG_SLEEP)
-            kc = self.itopod_tier_counts[next_tier]
-            while kc > 0:
-                if self.check_pixel_color(*coords.IS_ENEMY_ALIVE):
-                    self.click(*coords.ABILITY_REGULAR_ATTACK)
-
-                    self.itopod_kills += 1
-                    kc -= 1
-                    if kc > 0:
-                        time.sleep(.7 - userset.MEDIUM_SLEEP)  # Make sure we wait long enough
-                    for tier, count in self.itopod_tier_counts.items():
-                        self.itopod_tier_counts[tier] -= 1
-                        if self.itopod_tier_counts[tier] < 1:
-                            self.itopod_tier_counts[tier] = 40 - tier
-                else:
-                    time.sleep(0.06)
-            self.itopod_ap_gained += 1
-            print(f"Kills: {self.itopod_kills}\nAP gained: {self.itopod_ap_gained}")
+        Inputs.menu("timemachine")
+        Navigation.input_box()
+        Inputs.send_string(coords.INPUT_MAX)
+        if magic:
+            Inputs.click(*coords.TM_MULT_MINUS)
+            return
+        if energy:
+            Inputs.click(*coords.TM_SPEED_MINUS)
+    
+    @staticmethod
+    def reclaim_aug():
+        """Remove all energy from augs"""
+        Inputs.menu("augmentations")
+        Navigation.input_box()
+        Inputs.send_string(coords.INPUT_MAX)
+        Inputs.click(*coords.AUG_SCROLL_TOP)
+        scroll_down = False
+        for i, k in enumerate(coords.AUGMENT.keys()):
+            if i >= 10 and not scroll_down:
+                Inputs.click(*coords.AUG_SCROLL_BOT)
+                Inputs.click(*coords.AUG_SCROLL_BOT)
+                time.sleep(1)
+                scroll_down = True
+            Inputs.click(coords.AUG_MINUS_X, coords.AUGMENT[k].y)
+    
+    @staticmethod
+    def save_check():
+        """Check if we can do the daily save for AP.
+        Make sure no window in your browser pops up when you click the "Save"
+        button, otherwise sit will mess with the rest of the script.
+        """
+        if Inputs.check_pixel_color(*coords.IS_SAVE_READY):
+            Inputs.click(*coords.SAVE)
         return
+    
+    @staticmethod
+    def get_idle_cap(resource):
+        """Get the available idle energy, magic, or resource 3.
+        
+        Keyword arguments
+        resource -- The resource to get idle cap for. 1 for energy, 2 for magic and 3 for r3.
+        """
+        try:
+            if resource == 1:
+                res = Inputs.ocr(*coords.OCR_ENERGY)
+            elif resource == 2:
+                res = Inputs.ocr(*coords.OCR_MAGIC)
+            else:
+                res = Inputs.ocr(*coords.OCR_R3)
+            
+            match = re.search(r".*(\d+\.\d+E\+\d+)", res)
+            
+            if match is not None:
+                return int(float(match.group(1)))
+            elif match is None:
+                match = Inputs.remove_letters(res)
+                if match is not None:
+                    return int(match)
+                if match is None:
+                    return 0
+        except ValueError:
+            print("couldn't get idle cap")
+            return 0
+
+    @staticmethod
+    def set_input(value):
+        """Sets a value in the input box.
+        Requires the current menu to have an imput box.
+        
+        Keyword arguments
+        value -- The value to be set
+        """
+        
+        Navigation.input_box()
+        Inputs.send_string(value)
