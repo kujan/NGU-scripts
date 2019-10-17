@@ -8,7 +8,7 @@ Check the blame as well for even further inspiration!
 ### Disclaimer
 If you're automating the game using these or any other scripts, please consider disabling the high score submissions in the game settings.
 
-The AHK script is unsupported and deleted. They will work well in any Unity based browser game, where AHK's builtins fall short. If you want them, check the AHK branch.
+The AHK script is unsupported and deleted. They will work well in any Unity based browser game, where AHK's builtins fall short. If you want them, check the AHK branch https://github.com/kujan/NGU-scripts/tree/AHK.
 
 ## Requirements
 * Windows 7 or later (NT >=6.1)
