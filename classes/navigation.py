@@ -5,149 +5,166 @@ import coordinates as coords
 import usersettings as userset
 
 
-class Navigation(Inputs):
+class Navigation:
     """Navigate through menus."""
 
     menus = coords.MENU_ITEMS
-    equipment = coords.EQUIPMENT_SLOTS
+    # equipment = coords.EQUIPMENT_SLOTS # deprecated?
     current_menu = ''
-
-    def menu(self, target):
+    
+    @staticmethod
+    def menu(target):
         """Navigate through main menu."""
         if Navigation.current_menu == target:
             return
-        self.click(*Navigation.menus[target])
+        Inputs.click(*Navigation.menus[target])
         time.sleep(userset.LONG_SLEEP)
         Navigation.current_menu = target
-
-    def input_box(self):
+    
+    @staticmethod
+    def input_box():
         """Click input box."""
-        self.click(*coords.NUMBER_INPUT_BOX)
+        Inputs.click(*coords.NUMBER_INPUT_BOX)
         time.sleep(userset.SHORT_SLEEP)
-
-    def rebirth(self):
+    
+    @staticmethod
+    def rebirth():
         """Click rebirth menu."""
         if Navigation.current_menu == 'rebirth':
             return
-        self.click(*coords.REBIRTH)
+        Inputs.click(*coords.REBIRTH)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = 'rebirth'
-
-    def confirm(self):
+    
+    @staticmethod
+    def confirm():
         """Click yes in confirm window."""
-        self.click(*coords.CONFIRM)
+        Inputs.click(*coords.CONFIRM)
         time.sleep(userset.SHORT_SLEEP)
-
-    def ngu_magic(self):
+    
+    @staticmethod
+    def ngu_magic():
         """Navigate to NGU magic."""
         if Navigation.current_menu == 'ngu_magic':
             return
-        self.menu('ngu')
-        self.click(*coords.NGU_MAGIC)
+        Navigation.menu('ngu')
+        Inputs.click(*coords.NGU_MAGIC)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = 'ngu_magic'
-
-    def exp(self):
+    
+    @staticmethod
+    def exp():
         """Navigate to EXP Menu."""
         if Navigation.current_menu == 'exp':
             return
-        self.click(*coords.XP_MENU)
+        Inputs.click(*coords.XP_MENU)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = 'exp'
-
-    def exp_magic(self):
+    
+    @staticmethod
+    def exp_magic():
         """Navigate to the magic menu within the EXP menu."""
         if Navigation.current_menu == 'exp_magic':
             return
-        self.exp()
-        self.click(*coords.MAGIC_MENU)
+        Navigation.exp()
+        Inputs.click(*coords.MAGIC_MENU)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = 'exp_magic'
-
-    def exp_adventure(self):
+    
+    @staticmethod
+    def exp_adventure():
         """Navigate to the adventure menu within the EXP menu."""
         if Navigation.current_menu == "exp_adventure":
             return
-        self.exp()
-        self.click(*coords.ADVENTURE_MENU)
+        Navigation.exp()
+        Inputs.click(*coords.ADVENTURE_MENU)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = "exp_adventure"
-
-    def exp_rich(self):
+    
+    @staticmethod
+    def exp_rich():
         """Navigate to the misc menu within the EXP menu."""
         if Navigation.current_menu == "exp_rich":
             return
-        self.exp()
-        self.click(*coords.RICH_MENU)
+        Navigation.exp()
+        Inputs.click(*coords.RICH_MENU)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = "exp_rich"
-
-    def exp_hack(self):
+    
+    @staticmethod
+    def exp_hack():
         """Navigate to the hacks menu within the EXP menu."""
         if Navigation.current_menu == "exp_hack":
             return
-        self.exp()
-        self.click(*coords.EXP_HACK_MENU)
+        Navigation.exp()
+        Inputs.click(*coords.EXP_HACK_MENU)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = "exp_hack"
-
-    def info(self):
+    
+    @staticmethod
+    def info():
         """Click info 'n stuff."""
         if Navigation.current_menu == 'info':
             return
-        self.click(*coords.INFO)
+        Inputs.click(*coords.INFO)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = 'info'
-
-    def misc(self):
+    
+    @staticmethod
+    def misc():
         """Navigate to Misc stats."""
         if Navigation.current_menu == 'misc':
             return
-        self.info()
-        self.click(*coords.MISC)
+        Navigation.info()
+        Inputs.click(*coords.MISC)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = 'misc'
-
-    def perks(self):
+    
+    @staticmethod
+    def perks():
         """Navigate to Perks screen."""
         if Navigation.current_menu == 'perks':
             return
-        self.menu('adventure')
-        self.click(*coords.ITOPOD_PERKS)
+        Navigation.menu('adventure')
+        Inputs.click(*coords.ITOPOD_PERKS)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = 'perks'
-
-    def spells(self):
+    
+    @staticmethod
+    def spells():
         """Navigate to the spells menu within the magic menu."""
         if Navigation.current_menu == 'spells':
             return
-        self.menu('bloodmagic')
-        self.click(*coords.BM_SPELL)
+        Navigation.menu('bloodmagic')
+        Inputs.click(*coords.BM_SPELL)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = 'spells'
-
-    def sellout(self):
+    
+    @staticmethod
+    def sellout():
         """Navigate to sellout shop."""
         if Navigation.current_menu == 'sellout':
             return
-        self.click(*coords.SELLOUT)
+        Inputs.click(*coords.SELLOUT)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = "sellout"
-
-    def sellout_boost_2(self):
+    
+    @staticmethod
+    def sellout_boost_2():
         """Navigate to Boost 2 menu within the sellout shop."""
         if Navigation.current_menu == 'boost_2':
             return
-        self.sellout()
-        self.click(*coords.SELLOUT_BOOST_2)
+        Navigation.sellout()
+        Inputs.click(*coords.SELLOUT_BOOST_2)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = "boost_2"
-
-    def stat_breakdown(self):
+    
+    @staticmethod
+    def stat_breakdown():
         """Navigate to stat breakdown."""
         if Navigation.current_menu == 'stat_breakdown':
             return
-        self.misc()
-        self.click(*coords.STAT_BREAKDOWN)
+        Navigation.misc()
+        Inputs.click(*coords.STAT_BREAKDOWN)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu = 'stat_breakdown'
