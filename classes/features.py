@@ -22,7 +22,7 @@ class FightBoss:
     @staticmethod
     def get_current_boss():
         """Go to fight and read current boss number."""
-        Inputs.menu("fight")
+        Navigation.menu("fight")
         boss = Inputs.ocr(*coords.OCR_BOSS, debug=False)
         return Inputs.remove_letters(boss)
 
@@ -34,7 +34,7 @@ class FightBoss:
         boss -- If provided, will fight until reached
                 If omitted, will hit nuke instead.
         """
-        Inputs.menu("fight")
+        Navigation.menu("fight")
         if boss:
             for _ in range(boss):
                 Inputs.click(*coords.FIGHT, fast=True)
@@ -63,7 +63,7 @@ class FightBoss:
     @staticmethod
     def fight():
         """Navigate to Fight Boss and click fight."""
-        Inputs.menu("fight")
+        Navigation.menu("fight")
         Inputs.click(*coords.FIGHT)
 
 class MoneyPit:
@@ -81,14 +81,14 @@ class MoneyPit:
         if Inputs.check_pixel_color(*coords.IS_PIT_READY):
             if loadout:
                 Inventory.loadout(loadout)
-            Inputs.menu("pit")
+            Navigation.menu("pit")
             Inputs.click(*coords.PIT)
             Inputs.click(*coords.CONFIRM)
     
     @staticmethod
     def spin():
         """Spin the wheel."""
-        Inputs.menu("pit")
+        Navigation.menu("pit")
         Inputs.click(*coords.SPIN_MENU)
         Inputs.click(*coords.SPIN)
 
@@ -134,7 +134,7 @@ class Adventure:
                   instead enter the specified ITOPOD floor.
         itopodauto -- If set to true it will click the "optimal" floor button.
         """
-        Inputs.menu("adventure")
+        Navigation.menu("adventure")
         Inputs.click(625, 500)  # click somewhere to move tooltip
         if not Inputs.check_pixel_color(*coords.IS_IDLE):
             Inputs.click(*coords.ABILITY_IDLE_MODE)
@@ -181,7 +181,7 @@ class Adventure:
         manual -- If set to true it will use all available abilities to kill the enemy.
                   In addition it will return after killing one enemy.
         """
-        Inputs.menu("adventure")
+        Navigation.menu("adventure")
         if highest:
             Inputs.click(*coords.LEFT_ARROW, button="right")
             Inputs.click(*coords.RIGHT_ARROW, button="right")
@@ -247,7 +247,7 @@ class Adventure:
         """
         end = time.time() + duration
         Adventure.current_adventure_zone = 0
-        Inputs.menu("adventure")
+        Navigation.menu("adventure")
         Inputs.click(625, 500)  # click somewhere to move tooltip
         
         # check if we're already in ITOPOD, otherwise enter
@@ -282,10 +282,10 @@ class Adventure:
             if time.time() > start + 5:
                 print("Couldn't detect enemy in kill_enemy()")
                 return
-        queue = deque(.get_ability_queue())
+        queue = deque(Adventure.get_ability_queue())
         while not Inputs.check_pixel_color(*coords.IS_DEAD):
             if not queue:
-                queue = deque(.get_ability_queue())
+                queue = deque(Adventure.get_ability_queue())
             ability = queue.popleft()
             if ability <= 4:
                 x = coords.ABILITY_ROW1X + ability * coords.ABILITY_OFFSETX
@@ -332,7 +332,7 @@ class Adventure:
         target -- The id of the titan you wish to kill. 1 for GRB, 2 for GCT and so on.
         mega   -- Use Mega Buff
         """
-        Inputs.menu("adventure")
+        Navigation.menu("adventure")
         if Inputs.check_pixel_color(*coords.IS_IDLE):
             Inputs.click(*coords.ABILITY_IDLE_MODE)
         
@@ -391,10 +391,10 @@ class Adventure:
                 print("Couldn't detect enemy in kill_titan()")
                 return
         
-        queue = deque(.get_ability_queue())
+        queue = deque(Adventure.get_ability_queue())
         while not Inputs.check_pixel_color(*coords.IS_DEAD):
             if not queue:
-                queue = deque(.get_ability_queue())
+                queue = deque(Adventure.get_ability_queue())
             
             ability = queue.popleft()
             if ability <= 4:
@@ -493,7 +493,7 @@ class Adventure:
         print("WARNING: itopod_ap() is largely untested")
         end = time.time() + duration * 60
         Adventure.current_adventure_zone = 0
-        Inputs.menu("adventure")
+        Navigation.menu("adventure")
         Inputs.click(625, 500)  # click somewhere to move tooltip
         if Inputs.check_pixel_color(*coords.IS_IDLE):
             Inputs.click(*coords.ABILITY_IDLE_MODE)
@@ -513,13 +513,13 @@ class Adventure:
                 except ValueError:
                     print(f"couldn't convert '{count}' to int")
                 Adventure.itopod_tier_counts[tier] = count
-        print(.itopod_tier_counts)
+        print(Adventure.itopod_tier_counts)
         while time.time() < end:
-            next_tier = min(.itopod_tier_counts, key=Adventure.itopod_tier_counts.get)
+            next_tier = min(Adventure.itopod_tier_counts, key=Adventure.itopod_tier_counts.get)
             print(f"going to itopod tier {next_tier}")
             Inputs.click(*coords.ITOPOD)
             Inputs.click(*coords.ITOPOD_START)
-            Inputs.send_string(.itopod_tier_map[next_tier])
+            Inputs.send_string(Adventure.itopod_tier_map[next_tier])
             # set end to 0 in case it's higher than start
             Inputs.click(*coords.ITOPOD_ENTER)
             time.sleep(userset.LONG_SLEEP)
@@ -543,12 +543,10 @@ class Adventure:
         return
 
 class Inventory:
-    inventory_cleaned = False
-    
     @staticmethod
     def merge_equipment():
         """Navigate to inventory and merge equipment."""
-        Inputs.menu("inventory")
+        Navigation.menu("inventory")
         for slot in coords.EQUIPMENT_SLOTS:
             if slot == "cube":
                 return
@@ -563,7 +561,7 @@ class Inventory:
         boost_cube -- If True (default), will boost cube after all equipment
                       has been boosted.
         """
-        Inputs.menu("inventory")
+        Navigation.menu("inventory")
         for slot in coords.EQUIPMENT_SLOTS:
             if boost_cube and slot == "cube":
                 Inventory.boost_cube()
@@ -574,7 +572,7 @@ class Inventory:
     @staticmethod
     def boost_cube():
         """Boost cube."""
-        Inputs.menu("inventory")
+        Navigation.menu("inventory")
         Inputs.click(*coords.EQUIPMENT_SLOTS["cube"], "right")
     
     @staticmethod
@@ -584,7 +582,7 @@ class Inventory:
         Keyword arguments
         target -- The loadout to be equiped
         """
-        Inputs.menu("inventory")
+        Navigation.menu("inventory")
         Inputs.click(*coords.LOADOUT[target])
     
     @staticmethod
@@ -612,7 +610,7 @@ class Inventory:
         Keyword arguments:
         slots -- The amount of slots you wish to merge
         """
-        Inputs.menu("inventory")
+        Navigation.menu("inventory")
         coord = Inventory.get_inventory_slots(slots)
         for slot in coord:
             Inputs.click(*slot)
@@ -625,7 +623,7 @@ class Inventory:
         Keyword arguments:
         slots -- The amount of slots you wish to merge
         """
-        Inputs.menu("inventory")
+        Navigation.menu("inventory")
         coord = Inventory.get_inventory_slots(slots)
         for slot in coord:
             Inputs.click(*slot)
@@ -647,7 +645,7 @@ class Inventory:
                      between 0.7 - 0.95.
         consume   -- Set to true if item is consumable instead.
         """
-        Inputs.menu("inventory")
+        Navigation.menu("inventory")
         slot = Inventory.get_inventory_slots(slot)[-1]
         Inputs.click(*slot)
         time.sleep(userset.SHORT_SLEEP)
@@ -676,7 +674,7 @@ class Augmentation:
                      "LS": 0.9, "QSL": 0.1}
         Energy -- The total amount of energy you want to use for all augments.
         """
-        Inputs.menu("augmentations")
+        Navigation.menu("augmentations")
         for k in augments:
             val = math.floor(augments[k] * energy)
             Navigation.input_box()
@@ -693,7 +691,7 @@ class Augmentation:
                     i += 1
                     if i > 5 and i <= 10:  # Safeguard if something goes wrong with augs
                         Navigation.current_menu = ""
-                        Inputs.menu("augmentations")
+                        Navigation.menu("augmentations")
                     elif i > 10:
                         print("Couldn't assign augments")
                         break
@@ -707,7 +705,7 @@ class Augmentation:
                     i += 1
                     if i > 5 and i <= 10:  # Safeguard if something goes wrong with augs
                         Navigation.current_menu = ""
-                        Inputs.menu("augmentations")
+                        Navigation.menu("augmentations")
                     elif i > 10:
                         print("Couldn't assign augments")
                         break
@@ -725,7 +723,7 @@ class AdvancedTraining:
                    Adv Toughness, Adv Power, Wandoos Energy and Wandoos Magic.
                    Splitting energy is the default behavior.
         """
-        Inputs.menu("advtraining")
+        Navigation.menu("advtraining")
         if ability == 0:
             value = value // 4
             Navigation.input_box()
@@ -768,7 +766,7 @@ class TimeMachine:
              energy value to save unnecessary clicks to the input box.
         magic -- Set to true if you wish to add magic as well
         """
-        Inputs.menu("timemachine")
+        Navigation.menu("timemachine")
         Navigation.input_box()
         Inputs.send_string(e)
         Inputs.click(*coords.TM_SPEED)
@@ -787,18 +785,18 @@ class BloodMagic:
         target -- Will cap all rituals till the target ritual
                   Usually run as blood_magic(8)
         """
-        Inputs.menu("bloodmagic")
+        Navigation.menu("bloodmagic")
         for i in range(target):
             Inputs.click(*coords.BM[i])
     
-    @deprecated(version='0.1', reason="speedrun_bloodpill is deprecated, use iron_pill() instead")
     @staticmethod
+    @deprecated(version='0.1', reason="speedrun_bloodpill is deprecated, use iron_pill() instead")
     def speedrun_bloodpill():
         """Deprecated"""
         return
     
-    @deprecated(version='0.1', reason="iron_pill is deprecated, use cast_spell() instead")
     @staticmethod
+    @deprecated(version='0.1', reason="iron_pill is deprecated, use cast_spell() instead")
     def iron_pill():
         """Deprecated"""
         return
@@ -901,7 +899,7 @@ class Wandoos:
         energy -- Assign energy to Wandoos (default: True)
         magic  -- Assign magic to Wandoos  (default: False)
         """
-        Inputs.menu("wandoos")
+        Navigation.menu("wandoos")
         if energy:
             Inputs.click(*coords.WANDOOS_ENERGY)
         if magic:
@@ -917,7 +915,7 @@ class Wandoos:
                    1 : Wandoos Meh
                    2 : Wandoos XL
         """
-        Inputs.menu("wandoos")
+        Navigation.menu("wandoos")
         Inputs.click(*coords.WANDOOS_VERSION[version])
         Navigation.confirm()
     
@@ -929,7 +927,7 @@ class Wandoos:
         magic -- If True, check if Wandoos magic is BB'd
                  If False (default), check if Wandoos energy is BB'd
         """
-        Inputs.menu("wandoos")
+        Navigation.menu("wandoos")
         if magic:
             return Inputs.check_pixel_color(*coords.COLOR_WANDOOS_MAGIC_BB)
         return Inputs.check_pixel_color(*coords.COLOR_WANDOOS_ENERGY_BB)
@@ -950,7 +948,7 @@ class NGU:
         if magic:
             Navigation.ngu_magic()
         else:
-            Inputs.menu("ngu")
+            Navigation.menu("ngu")
         
         Navigation.input_box()
         Inputs.send_string(value // len(targets))
@@ -958,8 +956,8 @@ class NGU:
             NGU = coords.Pixel(coords.NGU_PLUS.x, coords.NGU_PLUS.y + i * 35)
             Inputs.click(*NGU)
     
-    @deprecated(version='0.1', reason="bb_ngu() is deprecated since .415 use cap_ngu() instead")
     @staticmethod
+    @deprecated(version='0.1', reason="bb_ngu() is deprecated since .415 use cap_ngu() instead")
     def bb_ngu(value, targets, overcap=1, magic=False):
         """Estimates the BB value of each supplied NGU.
         It will send value into the target NGU's, which will fill the progress bar. It's very
@@ -977,7 +975,7 @@ class NGU:
         if magic:
             Navigation.ngu_magic()
         else:
-            Inputs.menu("ngu")
+            Navigation.menu("ngu")
         
         Navigation.input_box()
         Inputs.send_string(str(int(value)))
@@ -1022,7 +1020,7 @@ class NGU:
         if magic:
             Navigation.ngu_magic()
         else:
-            Inputs.menu("ngu")
+            Navigation.menu("ngu")
         
         for target in targets:
             NGU = coords.Pixel(coords.NGU_CAP.x, coords.NGU_CAP.y + target * 35)
@@ -1034,7 +1032,7 @@ class NGU:
     @staticmethod
     def set_ngu_overcap(value):
         """Set the amount you wish to overcap your NGU's."""
-        Inputs.menu("ngu")
+        Navigation.menu("ngu")
         Inputs.click(*coords.NGU_OVERCAP)
         Inputs.send_string(value)
 
@@ -1048,7 +1046,7 @@ class Yggdrasil:
                    fruit.
         equip.  -- Equip loadout with given index. Don't change equip if zero.
         """
-        Inputs.menu("yggdrasil")
+        Navigation.menu("yggdrasil")
         if eat_all:
             Inputs.click(*coords.YGG_EAT_ALL)
             return
@@ -1056,7 +1054,7 @@ class Yggdrasil:
             Inputs.send_string("t")
             Inputs.send_string("r")
             Inventory.loadout(equip)
-            Inputs.menu("yggdrasil")
+            Navigation.menu("yggdrasil")
             Inputs.click(*coords.HARVEST)
         else:
             Inputs.click(*coords.HARVEST)
@@ -1071,7 +1069,7 @@ class GoldDiggers:
         deactivate -- Set to True if you wish to deactivate these
                     diggers otherwise it will just try to up the cap.
         """
-        Inputs.menu("digger")
+        Navigation.menu("digger")
         for i in targets:
             page = ((i-1)//4)
             item = i - (page * 4)
@@ -1084,13 +1082,13 @@ class GoldDiggers:
     @staticmethod
     def deactivate_all_diggers():
         """Click deactivate all in digger menu."""
-        Inputs.menu("digger")
+        Navigation.menu("digger")
         Inputs.click(*coords.DIG_DEACTIVATE_ALL)
     
     @staticmethod
     def level_diggers():
         """Level all diggers."""
-        Inputs.menu("digger")
+        Navigation.menu("digger")
         for page in coords.DIG_PAGE:
             Inputs.click(*page)
             for digger in coords.DIG_LEVEL:
@@ -1100,10 +1098,12 @@ class BeardsOfPower:
     """Probably the most useful class ever. -- 4G"""
 
 class Questing:
+    inventory_cleaned = False
+    
     @staticmethod
     def get_quest_text():
         """Check if we have an active quest or not."""
-        Inputs.menu("questing")
+        Navigation.menu("questing")
         Inputs.click(950, 590)  # move tooltip
         time.sleep(userset.SHORT_SLEEP)
         return Inputs.ocr(*coords.OCR_QUESTING_LEFT_TEXT)
@@ -1111,7 +1111,7 @@ class Questing:
     @staticmethod
     def get_available_majors():
         """Return the amount of available major quests."""
-        Inputs.menu("questing")
+        Navigation.menu("questing")
         text = Inputs.ocr(*coords.OCR_QUESTING_MAJORS)
         try:
             match = re.search(r"(\d+)\/\d+", text)
@@ -1124,7 +1124,7 @@ class Questing:
     @staticmethod
     def questing_consume_items(cleanup=False):
         """Check for items in inventory that can be turned in."""
-        Inputs.menu("inventory")
+        Navigation.menu("inventory")
         Inputs.click(*coords.INVENTORY_PAGE[0])
         bmp = Inputs.get_bitmap()
         for item in coords.QUESTING_FILENAMES:
@@ -1186,7 +1186,7 @@ class Questing:
         sniping ITOPOD.
         """
         end = time.time() + duration * 60
-        Inputs.menu("questing")
+        Navigation.menu("questing")
         Inputs.click(950, 590)  # move tooltip
         text = Questing.get_quest_text()
         
@@ -1197,9 +1197,9 @@ class Questing:
         
         if coords.QUESTING_NO_QUEST_ACTIVE in text.lower():  # if we have no active quest, start one
             Inputs.click(*coords.QUESTING_START_QUEST)
-            if force and not Inventory.inventory_cleaned:
+            if force and not Questing.inventory_cleaned:
                 Questing.questing_consume_items(True)  # we have to clean up the inventory from any old quest items
-                Inventory.inventory_cleaned = True
+                Questing.inventory_cleaned = True
             elif not force:
                 Questing.questing_consume_items(True)
             Inputs.click(960, 600)  # move tooltip
@@ -1275,7 +1275,7 @@ class Hacks:
         targets = targets or []
         Navigation.input_box()
         Inputs.send_string(value // len(targets))
-        Inputs.menu("hacks")
+        Navigation.menu("hacks")
         for i in targets:
             page = ((i-1)//8)
             item = i - (page * 8)
@@ -1318,7 +1318,7 @@ class Rebirth:
     @staticmethod
     def do_rebirth():
         """Start a rebirth or challenge."""
-        Inputs.menu("fight")
+        Navigation.menu("fight")
         Inputs.click(*coords.FIGHT_STOP)
         Navigation.rebirth()
         Adventure.current_adventure_zone = 0
@@ -1443,7 +1443,7 @@ class Misc:
     @staticmethod
     def reclaim_bm():
         """Remove all magic from BM."""
-        Inputs.menu("bloodmagic")
+        Navigation.menu("bloodmagic")
         Navigation.input_box()
         Inputs.send_string(coords.INPUT_MAX)
         for coord in coords.BM_RECLAIM:
@@ -1455,7 +1455,7 @@ class Misc:
         if magic:
             Navigation.ngu_magic()
         else:
-            Inputs.menu("ngu")
+            Navigation.menu("ngu")
         Navigation.input_box()
         Inputs.send_string(coords.INPUT_MAX)
         for i in range(1, 10):
@@ -1470,7 +1470,7 @@ class Misc:
         energy -- If True, reclaim energy from TM.
         magic  -- If True, reclaim magic from TM.
         """
-        Inputs.menu("timemachine")
+        Navigation.menu("timemachine")
         Navigation.input_box()
         Inputs.send_string(coords.INPUT_MAX)
         if magic:
@@ -1482,7 +1482,7 @@ class Misc:
     @staticmethod
     def reclaim_aug():
         """Remove all energy from augs"""
-        Inputs.menu("augmentations")
+        Navigation.menu("augmentations")
         Navigation.input_box()
         Inputs.send_string(coords.INPUT_MAX)
         Inputs.click(*coords.AUG_SCROLL_TOP)

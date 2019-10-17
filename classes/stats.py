@@ -7,8 +7,9 @@ import usersettings as userset
 
 import classes.helper as helper
 from classes.navigation import Navigation
+from classes.inputs import Inputs
 
-class Stats(Navigation):
+class Stats():
     """Handles various statistics."""
 
     total_xp = 0
@@ -24,16 +25,16 @@ class Stats(Navigation):
         """Store start EXP via OCR."""
         try:
             if value == "TOTAL XP":
-                self.misc()
-                Stats.total_xp = self.ocr_notation(*coords.OCR_TOTAL_EXP)
+                Navigation.misc()
+                Stats.total_xp = Inputs.ocr_notation(*coords.OCR_TOTAL_EXP)
                 # print("OCR Captured TOTAL XP: {:,}".format(Stats.total_xp))
             elif value == "XP":
-                self.exp()
-                Stats.xp = self.ocr_number(*coords.OCR_EXP)
+                Navigation.exp()
+                Stats.xp = Inputs.ocr_number(*coords.OCR_EXP)
                 # print("OCR Captured Current XP: {:,}".format(Stats.xp))
             elif value == "PP":
-                self.perks()
-                Stats.pp = self.ocr_number(*coords.OCR_PP)
+                Navigation.perks()
+                Stats.pp = Inputs.ocr_number(*coords.OCR_PP)
                 # print("OCR Captured Current PP: {:,}".format(Stats.pp))
             Stats.OCR_failed = False
             Stats.OCR_failures = 0

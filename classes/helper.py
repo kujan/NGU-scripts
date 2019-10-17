@@ -1,9 +1,13 @@
 """Helper functions."""
 import win32gui
+
 from classes.window import Window
+from classes.inputs import Inputs
+from classes.navigation import Navigation
+from classes.features import MoneyPit, Adventure, Yggdrasil, GoldDiggers, Questing
 import coordinates as coords
 
-def init(feature, printCoords=False):
+def init(printCoords=False):
     """Initialize Window class variables."""
     Window.init()
     rect = win32gui.GetWindowRect(Window.id)
@@ -11,31 +15,31 @@ def init(feature, printCoords=False):
     y = rect[1]
     w = rect[2] - x
     h = rect[3] - y
-    top_x, top_y = feature.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, h, w)
+    top_x, top_y = Inputs.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, h, w)
     Window.setPos(top_x, top_y)
-    feature.menu("inventory")  # Sometimes the very first click is ignored, this makes sure the first click is unimportant.
+    Navigation.menu("inventory")  # Sometimes the very first click is ignored, this makes sure the first click is unimportant.
 
     # Set everything to the proper requirements to run the script.
-    feature.click(*coords.GAME_SETTINGS)
-    feature.click(*coords.TO_SCIENTIFIC)
-    feature.click(*coords.CHECK_FOR_UPDATE_OFF)
-    feature.click(*coords.FANCY_TITAN_HP_BAR_OFF)
-    feature.click(*coords.DISABLE_HIGHSCORE)
-    feature.click(*coords.SETTINGS_PAGE_2)
-    feature.click(*coords.SIMPLE_INVENTORY_SHORTCUT_ON)
+    Inputs.click(*coords.GAME_SETTINGS)
+    Inputs.click(*coords.TO_SCIENTIFIC)
+    Inputs.click(*coords.CHECK_FOR_UPDATE_OFF)
+    Inputs.click(*coords.FANCY_TITAN_HP_BAR_OFF)
+    Inputs.click(*coords.DISABLE_HIGHSCORE)
+    Inputs.click(*coords.SETTINGS_PAGE_2)
+    Inputs.click(*coords.SIMPLE_INVENTORY_SHORTCUT_ON)
 
     if printCoords:
         print(f"Top left found at: {Window.x}, {Window.y}")
 
-def loop(feature):
+def loop():
     """Run infinite loop to prevent idling after task is complete."""
     print("Engaging ITOPOD snipe loop")
     while True:  # main loop
-        feature.pit()
-        feature.gold_diggers([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
-        feature.questing(subcontract=True)
-        feature.ygg()
-        feature.itopod_snipe(300)
+        MoneyPit.pit()
+        GoldDiggers.gold_diggers([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+        Questing.questing(subcontract=True)
+        Yggdrasil.ygg()
+        Adventure.itopod_snipe(300)
 
 def human_format(num):
     """Convert large numbers into something readable."""

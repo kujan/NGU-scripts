@@ -13,7 +13,7 @@ class Navigation:
     current_menu = ''
     
     @staticmethod
-    def menu(self, target):
+    def menu(target):
         """Navigate through main menu."""
         if Navigation.current_menu == target:
             return
@@ -22,13 +22,13 @@ class Navigation:
         Navigation.current_menu = target
     
     @staticmethod
-    def input_box(self):
+    def input_box():
         """Click input box."""
         Inputs.click(*coords.NUMBER_INPUT_BOX)
         time.sleep(userset.SHORT_SLEEP)
     
     @staticmethod
-    def rebirth(self):
+    def rebirth():
         """Click rebirth menu."""
         if Navigation.current_menu == 'rebirth':
             return
@@ -37,13 +37,13 @@ class Navigation:
         Navigation.current_menu = 'rebirth'
     
     @staticmethod
-    def confirm(self):
+    def confirm():
         """Click yes in confirm window."""
         Inputs.click(*coords.CONFIRM)
         time.sleep(userset.SHORT_SLEEP)
     
     @staticmethod
-    def ngu_magic(self):
+    def ngu_magic():
         """Navigate to NGU magic."""
         if Navigation.current_menu == 'ngu_magic':
             return
@@ -53,7 +53,7 @@ class Navigation:
         Navigation.current_menu = 'ngu_magic'
     
     @staticmethod
-    def exp(self):
+    def exp():
         """Navigate to EXP Menu."""
         if Navigation.current_menu == 'exp':
             return
@@ -62,7 +62,7 @@ class Navigation:
         Navigation.current_menu = 'exp'
     
     @staticmethod
-    def exp_magic(self):
+    def exp_magic():
         """Navigate to the magic menu within the EXP menu."""
         if Navigation.current_menu == 'exp_magic':
             return
@@ -72,7 +72,7 @@ class Navigation:
         Navigation.current_menu = 'exp_magic'
     
     @staticmethod
-    def exp_adventure(self):
+    def exp_adventure():
         """Navigate to the adventure menu within the EXP menu."""
         if Navigation.current_menu == "exp_adventure":
             return
@@ -82,7 +82,7 @@ class Navigation:
         Navigation.current_menu = "exp_adventure"
     
     @staticmethod
-    def exp_rich(self):
+    def exp_rich():
         """Navigate to the misc menu within the EXP menu."""
         if Navigation.current_menu == "exp_rich":
             return
@@ -92,7 +92,7 @@ class Navigation:
         Navigation.current_menu = "exp_rich"
     
     @staticmethod
-    def exp_hack(self):
+    def exp_hack():
         """Navigate to the hacks menu within the EXP menu."""
         if Navigation.current_menu == "exp_hack":
             return
@@ -102,7 +102,7 @@ class Navigation:
         Navigation.current_menu = "exp_hack"
     
     @staticmethod
-    def info(self):
+    def info():
         """Click info 'n stuff."""
         if Navigation.current_menu == 'info':
             return
@@ -111,7 +111,7 @@ class Navigation:
         Navigation.current_menu = 'info'
     
     @staticmethod
-    def misc(self):
+    def misc():
         """Navigate to Misc stats."""
         if Navigation.current_menu == 'misc':
             return
@@ -121,7 +121,7 @@ class Navigation:
         Navigation.current_menu = 'misc'
     
     @staticmethod
-    def perks(self):
+    def perks():
         """Navigate to Perks screen."""
         if Navigation.current_menu == 'perks':
             return
@@ -131,7 +131,7 @@ class Navigation:
         Navigation.current_menu = 'perks'
     
     @staticmethod
-    def spells(self):
+    def spells():
         """Navigate to the spells menu within the magic menu."""
         if Navigation.current_menu == 'spells':
             return
@@ -141,7 +141,7 @@ class Navigation:
         Navigation.current_menu = 'spells'
     
     @staticmethod
-    def sellout(self):
+    def sellout():
         """Navigate to sellout shop."""
         if Navigation.current_menu == 'sellout':
             return
@@ -150,7 +150,7 @@ class Navigation:
         Navigation.current_menu = "sellout"
     
     @staticmethod
-    def sellout_boost_2(self):
+    def sellout_boost_2():
         """Navigate to Boost 2 menu within the sellout shop."""
         if Navigation.current_menu == 'boost_2':
             return
@@ -160,7 +160,7 @@ class Navigation:
         Navigation.current_menu = "boost_2"
     
     @staticmethod
-    def stat_breakdown(self):
+    def stat_breakdown():
         """Navigate to stat breakdown."""
         if Navigation.current_menu == 'stat_breakdown':
             return

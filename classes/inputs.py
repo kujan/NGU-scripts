@@ -230,7 +230,7 @@ class Inputs:
         return s
 
     @staticmethod
-    def get_pixel_color(self, x, y, debug=False):
+    def get_pixel_color(x, y, debug=False):
         """Get the color of selected pixel in HEX."""
         dc = win32gui.GetWindowDC(Window.id)
         rgba = win32gui.GetPixel(dc, x + 8 + Window.x, y + 8 + Window.y)
@@ -239,9 +239,9 @@ class Inputs:
         g = rgba >> 8 & 0xff
         b = rgba >> 16 & 0xff
         
-        if debug: print(self.rgb_to_hex((r, g, b)))
+        if debug: print(Inputs.rgb_to_hex((r, g, b)))
         
-        return self.rgb_to_hex((r, g, b))
+        return Inputs.rgb_to_hex((r, g, b))
 
     @staticmethod
     def check_pixel_color(x, y, checks):
