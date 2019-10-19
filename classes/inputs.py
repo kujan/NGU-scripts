@@ -252,11 +252,10 @@ class Inputs:
         x_end   += Window.x
         y_start += Window.y
         y_end   += Window.y
-
-        if not bmp:
-            bmp = Inputs.get_bitmap()
         
         if (not bmp) or cropb:
+            if not bmp:
+                bmp = Inputs.get_bitmap()
             # Bitmaps are created with a 8px border
             bmp = bmp.crop((x_start + 8, y_start + 8, x_end + 8, y_end + 8))
         
