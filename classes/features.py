@@ -1661,3 +1661,7 @@ class Misc:
         
         Navigation.input_box()
         Inputs.send_string(value)
+
+    @staticmethod
+    def waste_click():
+        Inputs.click(*coords.WASTE_CLICK)
