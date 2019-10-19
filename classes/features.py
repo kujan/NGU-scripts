@@ -10,11 +10,12 @@ from deprecated import deprecated
 import win32con as wcon
 import win32gui
 
-from classes.inputs import Inputs
+from classes.inputs     import Inputs
 from classes.navigation import Navigation
-from classes.window import Window
-import constants as const
-import coordinates as coords
+from classes.window     import Window
+
+import constants    as const
+import coordinates  as coords
 import usersettings as userset
 
 
@@ -125,7 +126,7 @@ class Adventure:
     
     @staticmethod
     def adventure(zone=-1, highest=False, itopod=None, itopodauto=False):
-        """Go to adventure zone to idle.
+        """Go to an adventure zone to idle.
         
         Keyword arguments
         zone -- Zone to idle in, 0 is safe zone, 1 is tutorial and so on.
@@ -1046,22 +1047,19 @@ class Yggdrasil:
                    fruit.
         equip.  -- Equip loadout with given index. Don't change equip if zero.
         """
+        if equip:
+            Misc.reclaim_all()
+            Inventory.loadout(equip)
+        
         Navigation.menu("yggdrasil")
         if eat_all:
             Inputs.click(*coords.YGG_EAT_ALL)
-            return
-        if equip:
-            Inputs.send_string("t")
-            Inputs.send_string("r")
-            Inventory.loadout(equip)
-            Navigation.menu("yggdrasil")
-            Inputs.click(*coords.HARVEST)
         else:
             Inputs.click(*coords.HARVEST)
 
 class GoldDiggers:
     @staticmethod
-    def gold_diggers(targets, deactivate=False):
+    def gold_diggers(targets=const.DEFAULT_DIGGER_ORDER, deactivate=False):
         """Activate diggers.
         
         Keyword arguments:
@@ -1099,6 +1097,21 @@ class BeardsOfPower:
 
 class Questing:
     inventory_cleaned = False
+    
+    @staticmethod
+    def start_complete():
+        """This starts a new quest if no quest is running.
+        If a quest is running, it tries to turn it in.
+        """
+        Navigation.menu("questing")
+        Inputs.click(*coords.QUESTING_START_QUEST)
+    
+    @staticmethod
+    def skip():
+        """This skips your current quest."""
+        Navigation.menu("questing")
+        Inputs.click(*coords.QUESTING_SKIP_QUEST)
+        Navigation.confirm()
     
     @staticmethod
     def get_quest_text():
@@ -1191,12 +1204,12 @@ class Questing:
         text = Questing.get_quest_text()
         
         if coords.QUESTING_QUEST_COMPLETE in text.lower():
-            Inputs.click(*coords.QUESTING_START_QUEST)
+            Questing.start_complete()
             time.sleep(userset.LONG_SLEEP * 2)
             text = Questing.get_quest_text()  # fetch new quest text
         
         if coords.QUESTING_NO_QUEST_ACTIVE in text.lower():  # if we have no active quest, start one
-            Inputs.click(*coords.QUESTING_START_QUEST)
+            Questing.start_complete()
             if force and not Questing.inventory_cleaned:
                 Questing.questing_consume_items(True)  # we have to clean up the inventory from any old quest items
                 Questing.inventory_cleaned = True
@@ -1211,9 +1224,8 @@ class Questing:
                 Inputs.click(*coords.QUESTING_USE_MAJOR)
             
             while not coords.QUESTING_ZONES[force] in text.lower():
-                Inputs.click(*coords.QUESTING_SKIP_QUEST)
-                Inputs.click(*coords.CONFIRM)
-                Inputs.click(*coords.QUESTING_START_QUEST)
+                Questing.skip()
+                Questing.start_complete()
                 text = Questing.get_quest_text()
         
         if subcontract:
@@ -1250,7 +1262,7 @@ class Questing:
                         except ValueError:
                             print("Couldn't fetch current QP")
                             start_qp = 0
-                        Inputs.click(*coords.QUESTING_START_QUEST)
+                        Questing.start_complete()
                         Inputs.click(605, 510)  # move tooltip
                         try:
                             current_qp = int(Inputs.remove_letters(Inputs.ocr(*coords.OCR_QUESTING_QP)))
@@ -1262,6 +1274,28 @@ class Questing:
                         print(f"Completed quest in zone #{count} at {datetime.datetime.now().strftime('%H:%M:%S')} for {gained_qp} QP")
                         
                         return
+    
+    @staticmethod
+    def get_use_majors():
+        """This returns whether the "Use Major Quests if Available" checkbox is toggled ON."""
+        return Inputs.check_pixel_color(*coords.COLOR_QUESTING_USE_MAJOR)
+    
+    @staticmethod
+    def toggle_use_majors():
+        """This toggles ON/OFF the "Use Major Quests if Available" checkbox."""
+        Navigation.menu("questing")
+        Inputs.click(*coords.QUESTING_USE_MAJOR)
+    
+    @staticmethod
+    def set_use_majors(set=True):
+        """This enables/disables the "Use Major Quests if Available" checkbox.
+        
+        Keyword arguments
+        set -- If True, enable the checkbox. If False, disable it.
+        """
+        Navigation.menu("questing")
+        if Questing.get_use_majors() != set: # Toggle if only one is True
+            Questing.toggle_use_majors()
 
 class Hacks:
     @staticmethod
@@ -1506,19 +1540,112 @@ class Misc:
         return
     
     @staticmethod
+    def __private_cutoff_right(bmp):
+        first_pix = bmp.getpixel((0,0))
+        width, height = bmp.size
+        
+        count = 0
+        for x in range(8, width):
+            dif = False
+            for y in range(0, height):
+                if not Inputs.rgb_equal(first_pix, bmp.getpixel((x,y))):
+                    dif = True
+                    break
+            
+            if dif: count = 0
+            else:
+                count += 1
+                if count > 8:
+                    return bmp.crop((0,0,x,height))
+        
+        return bmp
+    
+    @staticmethod
+    def __private_split_breakdown(bmp):
+        first_pix = bmp.getpixel((0,0))
+        width, height = bmp.size
+        y1 = 1
+        offset_x = coords.OCR_BREAKDOWN_NUM[0] - coords.OCR_BREAKDOWN_COLONS[0]
+        
+        slices = [1,1,1]
+        for x in range(0, 3):
+            for y in range(y1, height):
+                if not Inputs.rgb_equal(first_pix, bmp.getpixel((0,y))):
+                    y0 = y
+                    break
+            
+            for y in range(y0, height, coords.BREAKDOWN_OFFSET_Y):
+                if Inputs.rgb_equal(first_pix, bmp.getpixel((0,y))):
+                    y1 = y
+                    break
+            
+            slice = bmp.crop((offset_x, y0-8, width, y1))
+            slices[x] = Misc.__private_cutoff_right(slice)
+        
+        return slices
+    
+    @staticmethod
+    def __private_get_res_breakdown(resource, ocrDebug=False):
+        Navigation.stat_breakdown()
+        
+        if   resource == 1: Inputs.click(*coords.BREAKDOWN_E)
+        elif resource == 2: Inputs.click(*coords.BREAKDOWN_M)
+        elif resource == 3: Inputs.click(*coords.BREAKDOWN_R)
+        else : raise RuntimeError("Invalid resource")
+        
+        bmp = Inputs.get_cropped_bitmap(*Window.gameCoords(*coords.OCR_BREAKDOWN_COLONS))
+        imgs = Misc.__private_split_breakdown(bmp)
+        
+        ress = []
+        for img in imgs:
+            s = Inputs.ocr(0,0,0,0, bmp=img, debug=ocrDebug, whiten=True, sliced=True)
+            ress.append(s)
+        
+        return ress
+    
+    @staticmethod
+    def get_pow(resource):
+        """Get the power for energy, magic, or resource 3.
+        
+        Keyword arguments
+        resource -- The resource to get power for. 1 for energy, 2 for magic and 3 for r3.
+        """
+        s = Misc.__private_get_res_breakdown(resource)[0].splitlines()[-1]
+        return Inputs.remove_letters(s)
+    
+    @staticmethod
+    def get_bars(resource):
+        """Get the bars for energy, magic, or resource 3.
+        
+        Keyword arguments
+        resource -- The resource to get bars for. 1 for energy, 2 for magic and 3 for r3.
+        """
+        s = Misc.__private_get_res_breakdown(resource)[1].splitlines()[-1]
+        return Inputs.remove_letters(s)
+    
+    @staticmethod
+    def get_cap(resource):
+        """Get the cap for energy, magic, or resource 3.
+        
+        Keyword arguments
+        resource -- The resource to get cap for. 1 for energy, 2 for magic and 3 for r3.
+        """
+        s = Misc.__private_get_res_breakdown(resource)[2].splitlines()[-1]
+        return Inputs.remove_letters(s)
+    
+    @staticmethod
     def get_idle_cap(resource):
         """Get the available idle energy, magic, or resource 3.
         
         Keyword arguments
         resource -- The resource to get idle cap for. 1 for energy, 2 for magic and 3 for r3.
         """
-        try:
-            if resource == 1:
-                res = Inputs.ocr(*coords.OCR_ENERGY)
-            elif resource == 2:
-                res = Inputs.ocr(*coords.OCR_MAGIC)
-            else:
-                res = Inputs.ocr(*coords.OCR_R3)
+        try: # The sliced argument was meant for low values with get_pow/bars/cap
+             # But also serves for low idle caps
+            if   resource == 1: res = Inputs.ocr(*coords.OCR_ENERGY, sliced=True)
+            elif resource == 2: res = Inputs.ocr(*coords.OCR_MAGIC , sliced=True)
+            elif resource == 3: res = Inputs.ocr(*coords.OCR_R3    , sliced=True)
+            else : raise RuntimeError("Invalid resource")
             
             match = re.search(r".*(\d+\.\d+E\+\d+)", res)
             
