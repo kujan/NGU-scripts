@@ -1,4 +1,4 @@
-"""Feature class handles the different features in the game."""
+"""Feature classes handle the different features in the game."""
 
 from collections import deque, namedtuple
 import datetime
