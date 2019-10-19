@@ -15,6 +15,7 @@ class Navigation:
     @staticmethod
     def menu(target):
         """Navigate through main menu."""
+        target = target.lower()
         if Navigation.current_menu == target:
             return
         Inputs.click(*Navigation.menus[target])
