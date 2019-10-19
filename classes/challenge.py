@@ -2,8 +2,6 @@
 
 import time
 
-import win32gui
-
 from challenges.augment import Augment
 from challenges.basic import Basic
 from challenges.equipment import Equipment
@@ -151,16 +149,8 @@ class Challenge(Features):
 
             elif challenge == 6:
                 print("Nah fam. Do it yourself")
-                while True:
-                    for x in range(1000):
-                        win32gui.MoveWindow(Window.id, x, 0, 1000, 800, False)
-                    for y in range(1000):
-                        win32gui.MoveWindow(Window.id, 1000, y, 1000, 800, False)
-                    for x in reversed(range(1000)):
-                        win32gui.MoveWindow(Window.id, x, 1000, 1000, 800, False)
-                    for y in reversed(range(1000)):
-                        win32gui.MoveWindow(Window.id, 0, y, 1000, 800, False)
-
+                while True: Window.shake()
+            
             elif challenge == 7:
                 self.click(x, y)
                 time.sleep(userset.LONG_SLEEP)

@@ -1,5 +1,10 @@
 """Input class contains functions for mouse and keyboard input."""
 from ctypes import windll
+import win32api
+import win32con as wcon
+import win32gui
+import win32ui
+
 import datetime
 import os
 import re
@@ -9,11 +14,8 @@ from PIL import Image as image
 from PIL import ImageFilter, ImageEnhance
 import cv2
 import numpy
+
 import pytesseract
-import win32api
-import win32con as wcon
-import win32gui
-import win32ui
 
 import usersettings as userset
 from classes.window import Window
@@ -92,6 +94,17 @@ class Inputs:
         win32gui.PostMessage(Window.id, wcon.WM_KEYUP, wcon.VK_CONTROL, 0)
         time.sleep(userset.MEDIUM_SLEEP)
 
+    @staticmethod
+    def send_arrow_press(left):
+        """Sends either a left or right arrow key press"""
+        if left: key = wcon.VK_LEFT
+        else   : key = wcon.VK_RIGHT
+        
+        win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN, key, 0)
+        time.sleep(0.05)
+        win32gui.PostMessage(Window.id, wcon.WM_KEYUP, key, 0)
+        time.sleep(0.05)
+    
     @staticmethod
     def send_string(string):
         """Send one or multiple characters to the Window."""

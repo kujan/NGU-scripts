@@ -7,8 +7,6 @@ import re
 import time
 
 from deprecated import deprecated
-import win32con as wcon
-import win32gui
 
 from classes.inputs     import Inputs
 from classes.navigation import Navigation
@@ -215,17 +213,8 @@ class Adventure:
                             break
                     else:
                         # Send left arrow and right arrow to refresh monster.
-                        win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN,
-                                             wcon.VK_LEFT, 0)
-                        time.sleep(0.05)
-                        win32gui.PostMessage(Window.id, wcon.WM_KEYUP,
-                                             wcon.VK_LEFT, 0)
-                        time.sleep(0.05)
-                        win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN,
-                                             wcon.VK_RIGHT, 0)
-                        time.sleep(0.05)
-                        win32gui.PostMessage(Window.id, wcon.WM_KEYUP,
-                                             wcon.VK_RIGHT, 0)
+                        Inputs.send_arrow_press(left=True)
+                        Inputs.send_arrow_press(left=False)
                 else:
                     if manual:
                         Adventure.kill_enemy()
