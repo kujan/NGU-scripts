@@ -142,12 +142,17 @@ class Inputs:
         return bmp
 
     @staticmethod
+    def get_cropped_bitmap(x_start=0, y_start=0, x_end=960, y_end=600):
+        return Inputs.get_bitmap().crop((x_start + 8, y_start + 8, 
+                                         x_end + 8, y_end + 8))
+    
+    @staticmethod
     def pixel_search(color, x_start, y_start, x_end, y_end):
         """Find the first pixel with the supplied color within area.
-
+        
         Function searches per row, left to right. Returns the coordinates of
         first match or None, if nothing is found.
-
+        
         Color must be supplied in hex.
         """
         bmp = Inputs.get_bitmap()
@@ -159,30 +164,29 @@ class Inputs:
                 t = bmp.getpixel((x, y))
                 if Inputs.rgb_to_hex(t) == color:
                     return x - 8, y - 8
-
+        
         return None
 
     @staticmethod
     def image_search(x_start, y_start, x_end, y_end, img, threshold, bmp=None):
         """Search the screen for the supplied picture.
-
+        
         Returns a tuple with x,y-coordinates, or None if result is below
         the threshold.
-
+        
         Keyword arguments:
-        image -- Filename or path to file that you search for.
+        image     -- Filename or path to file that you search for.
         threshold -- The level of fuzziness to use - a perfect match will be
                      close to 1, but probably never 1. In my testing use a
                      value between 0.7-0.95 depending on how strict you wish
                      to be.
-        bmp -- a bitmap from the get_bitmap() function, use this if you're
-               performing multiple different OCR-readings in succession from
-               the same page. This is to avoid to needlessly get the same
-               bitmap multiple times. If a bitmap is not passed, the function
-               will get the bitmap itself. (default None)
+        bmp       -- a bitmap from the get_bitmap() function, use this if you're
+                     performing multiple different OCR-readings in succession
+                     from the same page. This is to avoid to needlessly get the
+                     same bitmap multiple times. If a bitmap is not passed, the
+                     function will get the bitmap itself. (default None)
         """
-        if not bmp:
-            bmp = Inputs.get_bitmap()
+        if not bmp: bmp = Inputs.get_bitmap()
         # Bitmaps are created with a 8px border
         search_area = bmp.crop((x_start + 8, y_start + 8,
                                 x_end + 8, y_end + 8))
@@ -193,40 +197,72 @@ class Inputs:
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         if max_val < threshold:
             return None
-
+        
         return max_loc
 
     @staticmethod
-    def ocr(x_start, y_start, x_end, y_end, debug=False, bmp=None):
+    def rgb_equal(a, b):
+        if a[0] != b[0]: return False
+        if a[1] != b[1]: return False
+        if a[2] != b[2]: return False
+        return True
+    
+    @staticmethod
+    def color_replace(bmp, original, replace):
+        width, height = bmp.size
+        
+        for x in range(0, width):
+            for y in range(0, height):
+                if Inputs.rgb_equal(bmp.getpixel((x,y)), original):
+                    bmp.putpixel((x,y), replace)
+        
+        return bmp
+    
+    @staticmethod
+    def ocr(x_start, y_start, x_end, y_end, debug=False, bmp=None, cropb=False, filter=True, whiten=False, sliced=False):
         """Perform an OCR of the supplied area, returns a string of the result.
-
-        Keyword arguments:
-
-        debug -- saves an image of what is sent to the OCR (default False)
-        bmp -- a bitmap from the get_bitmap() function, use this if you're
-               performing multiple different OCR-readings in succession from
-               the same page. This is to avoid to needlessly get the same
-               bitmap multiple times. If a bitmap is not passed, the function
-               will get the bitmap itself. (default None)
+        
+        Keyword arguments
+        debug  -- Saves an image of what is sent to the OCR (default False)
+        bmp    -- A bitmap from the get_bitmap() function, use this if you're
+                  performing multiple different OCR-readings in succession from
+                  the same page. This is to avoid to needlessly get the same
+                  bitmap multiple times. If a bitmap is not passed, the function
+                  will get the bitmap itself. (default None)
+        cropb  -- Whether the bmp provided should be cropped.
+        filter -- Whether to filter the image for better OCR.
+        whiten -- Whether to whiten the background for better OCR.
+        sliced -- Whether the image has ben sliced so there's very little blank
+                  space. Gets better readings from small values for some reason.
         """
         x_start += Window.x
-        x_end += Window.x
+        x_end   += Window.x
         y_start += Window.y
-        y_end += Window.y
+        y_end   += Window.y
 
         if not bmp:
             bmp = Inputs.get_bitmap()
-        # Bitmaps are created with a 8px border
-        bmp = bmp.crop((x_start + 8, y_start + 8, x_end + 8, y_end + 8))
-        *_, right, lower = bmp.getbbox()
-        bmp = bmp.resize((right*4, lower*4), image.BICUBIC)  # Resize image
-        enhancer = ImageEnhance.Sharpness(bmp)
-        bmp = enhancer.enhance(0)
-        bmp = bmp.filter(ImageFilter.SHARPEN)  # Sharpen image for better OCR
-
-        if debug:
-            bmp.save("debug_ocr.png")
-        s = pytesseract.image_to_string(bmp, config='--psm 4')
+        
+        if (not bmp) or cropb:
+            # Bitmaps are created with a 8px border
+            bmp = bmp.crop((x_start + 8, y_start + 8, x_end + 8, y_end + 8))
+        
+        if whiten:
+            first_pix = bmp.getpixel((0,0))
+            white     = Inputs.hex_to_rgb("FFFFFF")
+            bmp       = Inputs.color_replace(bmp, first_pix, white)
+            if debug: bmp.save("debug_ocr_whiten.png")
+        
+        if filter:
+            *_, right, lower = bmp.getbbox()
+            bmp = bmp.resize((right*4, lower*4), image.BICUBIC)  # Resize image
+            bmp = bmp.filter(ImageFilter.EDGE_ENHANCE)
+            bmp = bmp.filter(ImageFilter.SHARPEN)
+            if debug: bmp.save("debug_ocr_filter.png")
+            
+        if sliced: s = pytesseract.image_to_string(bmp, config='--psm 6')
+        else:      s = pytesseract.image_to_string(bmp, config='--psm 4')
+        
         return s
 
     @staticmethod
@@ -265,6 +301,10 @@ class Inputs:
         return '%02x%02x%02x'.upper() % (tup[0], tup[1], tup[2])
 
     @staticmethod
+    def hex_to_rgb(str):
+        return tuple(int(str[i:i+2], 16) for i in (0, 2, 4))
+
+    @staticmethod
     def get_file_path(directory, file):
         """Get the absolute path for a file."""
         working = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -282,7 +322,7 @@ class Inputs:
         return int(float(Inputs.ocr(x_1, y_1, x_2, y_2)))
 
     @staticmethod
-    def save_screenshot(cls):
+    def save_screenshot():
         """Save a screenshot of the game."""
         bmp = Inputs.get_bitmap()
         bmp = bmp.crop((Window.x + 8, Window.y + 8, Window.x + 968, Window.y + 608))
