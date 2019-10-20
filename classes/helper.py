@@ -2,7 +2,7 @@
 from classes.window     import Window
 from classes.inputs     import Inputs
 from classes.navigation import Navigation
-from classes.features   import MoneyPit, Adventure, Yggdrasil, GoldDiggers, Questing
+from classes.features   import Inventory, MoneyPit, Adventure, Yggdrasil, GoldDiggers, Questing
 
 import coordinates as coords
 import constants   as const
@@ -50,6 +50,8 @@ class Helper:
         while True:  # main loop
             Questing.questing(subcontract=True) # Questing first, as we are already there
             MoneyPit.pit()
+            MoneyPit.spin()
+            Inventory.boost_cube()
             GoldDiggers.gold_diggers()
             Yggdrasil.ygg()
             Adventure.itopod_snipe(300)

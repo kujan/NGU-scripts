@@ -45,17 +45,17 @@ class Wishes():
         Inputs.click(*coords.BREAKDOWN_E)
         time.sleep(userset.MEDIUM_SLEEP)
         print("OCR is scanning a large area, this might take a few seconds")
-        e_list = self.fix_text(Inputs.ocr(*coords.OCR_BREAKDOWN_E))
+        e_list = self.fix_text(Inputs.ocr(*coords.OCR_BREAKDOWN))
         Inputs.click(*coords.BREAKDOWN_M)
         time.sleep(userset.MEDIUM_SLEEP)
-        m_list = self.fix_text(Inputs.ocr(*coords.OCR_BREAKDOWN_E))
+        m_list = self.fix_text(Inputs.ocr(*coords.OCR_BREAKDOWN))
         Inputs.click(*coords.BREAKDOWN_R)
         time.sleep(userset.MEDIUM_SLEEP)
-        r_list = self.fix_text(Inputs.ocr(*coords.OCR_BREAKDOWN_E))
+        r_list = self.fix_text(Inputs.ocr(*coords.OCR_BREAKDOWN))
         Inputs.click(*coords.BREAKDOWN_MISC)
         time.sleep(userset.MEDIUM_SLEEP)
         Inputs.click_drag(*coords.BREAKDOWN_MISC_SCROLL_DRAG_START, *coords.BREAKDOWN_MISC_SCROLL_DRAG_END)
-        misc_list = self.fix_text(Inputs.ocr(*coords.OCR_BREAKDOWN_E))
+        misc_list = self.fix_text(Inputs.ocr(*coords.OCR_BREAKDOWN))
 
         fields = ["total energy power:", "total magic power:", "total r power:", "total wish speed:"]
 
@@ -131,7 +131,7 @@ class Wishes():
                         match = re.match(r"(^[a-zA-Z\s]+:?)", line)
                         if match is not None:
                             fields.append(match.group(1))
-                            values.append(self.remove_letters(line))
+                            values.append(Inputs.remove_letters(line))
             else:
                 for line in text.splitlines():
 
