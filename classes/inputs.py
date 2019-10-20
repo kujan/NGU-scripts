@@ -108,23 +108,18 @@ class Inputs:
     @staticmethod
     def send_string(string):
         """Send one or multiple characters to the Window."""
-        if isinstance(string, str) == float:  # Remove decimal
-            string = str(int(string))
+        # Ensure it's a string by converting it to a string
         for c in str(string):
+            # Make sure no key modifier is pressed
             while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
-                   win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
-                   win32api.GetKeyState(wcon.VK_MENU) < 0):
+                   win32api.GetKeyState(wcon.VK_SHIFT)   < 0 or
+                   win32api.GetKeyState(wcon.VK_MENU)    < 0):
                 time.sleep(0.005)
-            if c.isdigit():  # Digits only require KEY_UP event.
-                win32gui.PostMessage(Window.id, wcon.WM_KEYUP, ord(c.upper()),
-                                     0)
-                # time.sleep(0.03)  # This can probably be removed
-                continue
-            win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN, ord(c.upper()), 0)
-            time.sleep(userset.SHORT_SLEEP)  # This can probably be removed
-            win32gui.PostMessage(Window.id, wcon.WM_KEYUP, ord(c.upper()), 0)
-        time.sleep(userset.SHORT_SLEEP)
-
+            
+            vkc = win32api.VkKeyScan(c) # Get virtual key code for character c
+            # Only one keyup or keydown event needs to be sent
+            win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN, vkc, 0)
+    
     @staticmethod
     def get_bitmap():
         """Get and return a bitmap of the Window."""
@@ -156,8 +151,8 @@ class Inputs:
 
     @staticmethod
     def get_cropped_bitmap(x_start=0, y_start=0, x_end=960, y_end=600):
-        return Inputs.get_bitmap().crop((x_start + 8, y_start + 8, 
-                                         x_end + 8, y_end + 8))
+        return Inputs.get_bitmap().crop(
+            (x_start + 8, y_start + 8, x_end + 8, y_end + 8))
     
     @staticmethod
     def pixel_search(color, x_start, y_start, x_end, y_end):
@@ -252,10 +247,11 @@ class Inputs:
         x_end   += Window.x
         y_start += Window.y
         y_end   += Window.y
+
+        if bmp is None:
+            bmp = Inputs.get_cropped_bitmap(x_start, y_start, x_end, y_end)
         
-        if (not bmp) or cropb:
-            if not bmp:
-                bmp = Inputs.get_bitmap()
+        elif cropb:
             # Bitmaps are created with a 8px border
             bmp = bmp.crop((x_start + 8, y_start + 8, x_end + 8, y_end + 8))
         
@@ -303,10 +299,23 @@ class Inputs:
         return color == checks
 
     @staticmethod
+    def remove_spaces(s):
+        """Remove all spaces from string."""
+        return "".join(s.split(" "))
+    
+    @staticmethod
     def remove_letters(s):
         """Remove all non digit characters from string."""
         return re.sub('[^0-9]', '', s)
 
+    @staticmethod
+    def get_numbers(s):
+        """Finds all numbers in a string"""
+        s = Inputs.remove_spaces(s)
+        match = re.findall(r"(\d+(\.\d+E\+\d+)?)", s)
+        nums = [int(float(x[0])) for x in match]
+        return nums
+    
     @staticmethod
     def rgb_to_hex(tup):
         """Convert RGB value to HEX."""
