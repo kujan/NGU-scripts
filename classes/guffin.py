@@ -86,8 +86,8 @@ class Guffin():
         NGU.cap_ngu(magic=True)
         Wandoos.set_wandoos(0)
         Wandoos.wandoos(True)
-        Augmentation.augments({self._aug[0]: 0.66, self._aug[1]: 0.34}, self.get_idle_cap(1) * 0.5)
-        TimeMachine.time_machine(self.get_idle_cap(1) * 0.1, magic=True)
+        Augmentation.augments({self._aug[0]: 0.66, self._aug[1]: 0.34}, Misc.get_idle_cap(1) * 0.5)
+        TimeMachine.time_machine(Misc.get_idle_cap(1) * 0.1, magic=True)
         self.__update_gamestate()
         BloodMagic.toggle_auto_spells(drop=False, gold=False)
         if self._wishes:
@@ -102,7 +102,7 @@ class Guffin():
             NGU.cap_ngu()
             NGU.cap_ngu(magic=True)
             Hacks.hacks(self._hacks, coords.INPUT_MAX)
-            Augmentation.augments({self._aug[0]: 0.66, self._aug[1]: 0.34}, self.get_idle_cap(1) * 0.5)
+            Augmentation.augments({self._aug[0]: 0.66, self._aug[1]: 0.34}, Misc.get_idle_cap(1) * 0.5)
             TimeMachine.time_machine(coords.INPUT_MAX, magic=True)
             self.__update_gamestate()
 
@@ -112,7 +112,7 @@ class Guffin():
         AdvancedTraining.advanced_training(2e12)
         Wandoos.set_wandoos(1)
         Wandoos.wandoos(True)
-        Augmentation.augments({self._aug[0]: 0.66, self._aug[1]: 0.34}, self.get_idle_cap(1) * 0.5)
+        Augmentation.augments({self._aug[0]: 0.66, self._aug[1]: 0.34}, Misc.get_idle_cap(1) * 0.5)
 
         while self._rb_time < self._max_rb_duration - 140:
             GoldDiggers.gold_diggers(self._diggers)
