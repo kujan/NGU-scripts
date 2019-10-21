@@ -132,5 +132,4 @@ class Guffin():
         FightBoss.nuke()
         Rebirth.do_rebirth()
         self.runs += 1
-        time.strftime('%H:%M:%S', time.gmtime(12345))
         print(f"Completed guffin run #{self.runs} in {time.strftime('%H:%M:%S', time.gmtime(self._rb_time))}")
