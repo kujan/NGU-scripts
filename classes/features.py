@@ -930,10 +930,8 @@ class NGU:
         if len(targets) > 9:
             raise RuntimeError("Passing too many NGU's to assign_ngu," +
                                " allowed: 9, sent: " + str(len(targets)))
-        if magic:
-            Navigation.ngu_magic()
-        else:
-            Navigation.menu("ngu")
+        if magic: Navigation.ngu_magic()
+        else: Navigation.menu("ngu")
         
         Misc.set_input(value // len(targets))
         for i in targets:
@@ -1516,6 +1514,7 @@ class Misc:
             Inputs.click(*coords.SAVE)
         return
     
+    # crops the misc breakdown image, cutting off empty space on the right
     @staticmethod
     def __cutoff_right(bmp):
         first_pix = bmp.getpixel((0,0))
@@ -1537,6 +1536,7 @@ class Misc:
         
         return bmp
     
+    # splits the three parts of the resource breakdown (pow, bars, cap)
     @staticmethod
     def __split_breakdown(bmp):
         first_pix = bmp.getpixel((0,0))
@@ -1561,6 +1561,10 @@ class Misc:
         
         return slices
     
+    # Goes to stats breakdown, makes a screenshot
+    # Gets it split into three containing all the numbers by calling __split_breakdown
+    # Sends all thre images to OCR
+    # Returns a list of lists of the numbers from stats breakdown
     @staticmethod
     def __get_res_breakdown(resource, ocrDebug=False, bmp=None, debug=False):
         Navigation.stat_breakdown()
@@ -1579,13 +1583,17 @@ class Misc:
         for img in imgs:
             if debug: img.show()
             s = Inputs.ocr(0,0,0,0, bmp=img, debug=ocrDebug, whiten=True, sliced=True)
-            ress.append(s)
+            s = s.splitlines()
+            s2 = [x for x in s if x != ""] #remove empty lines
+            ress.append(s2)
         
         return ress
     
+    # Gets the numbers on stats breakdown for the resource and value passed
+    # val = 0 for power, 1 for bars and 2 for cap
     @staticmethod
     def __get_res_val(resource, val):
-        s = Misc.__get_res_breakdown(resource)[val].splitlines()[-1]
+        s = Misc.__get_res_breakdown(resource)[val][-1]
         return Inputs.get_numbers(s)[0]
     
     @staticmethod
