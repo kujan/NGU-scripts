@@ -264,7 +264,6 @@ class Inputs:
         if filter:
             *_, right, lower = bmp.getbbox()
             bmp = bmp.resize((right*4, lower*4), image.BICUBIC)  # Resize image
-            bmp = bmp.filter(ImageFilter.EDGE_ENHANCE)
             bmp = bmp.filter(ImageFilter.SHARPEN)
             if debug: bmp.save("debug_ocr_filter.png")
             
