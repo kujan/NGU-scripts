@@ -1,4 +1,4 @@
-"""Feature class handles the different features in the game."""
+"""Feature classes handle the different features in the game."""
 
 from collections import deque, namedtuple
 import datetime
@@ -7,14 +7,13 @@ import re
 import time
 
 from deprecated import deprecated
-import win32con as wcon
-import win32gui
 
-from classes.inputs import Inputs
+from classes.inputs     import Inputs
 from classes.navigation import Navigation
-from classes.window import Window
-import constants as const
-import coordinates as coords
+from classes.window     import Window
+
+import constants    as const
+import coordinates  as coords
 import usersettings as userset
 
 
@@ -125,7 +124,7 @@ class Adventure:
     
     @staticmethod
     def adventure(zone=-1, highest=False, itopod=None, itopodauto=False):
-        """Go to adventure zone to idle.
+        """Go to an adventure zone to idle.
         
         Keyword arguments
         zone -- Zone to idle in, 0 is safe zone, 1 is tutorial and so on.
@@ -214,17 +213,8 @@ class Adventure:
                             break
                     else:
                         # Send left arrow and right arrow to refresh monster.
-                        win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN,
-                                             wcon.VK_LEFT, 0)
-                        time.sleep(0.05)
-                        win32gui.PostMessage(Window.id, wcon.WM_KEYUP,
-                                             wcon.VK_LEFT, 0)
-                        time.sleep(0.05)
-                        win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN,
-                                             wcon.VK_RIGHT, 0)
-                        time.sleep(0.05)
-                        win32gui.PostMessage(Window.id, wcon.WM_KEYUP,
-                                             wcon.VK_RIGHT, 0)
+                        Inputs.send_arrow_press(left=True)
+                        Inputs.send_arrow_press(left=False)
                 else:
                     if manual:
                         Adventure.kill_enemy()
@@ -677,8 +667,7 @@ class Augmentation:
         Navigation.menu("augmentations")
         for k in augments:
             val = math.floor(augments[k] * energy)
-            Navigation.input_box()
-            Inputs.send_string(str(val))
+            Misc.set_input(val)
             # Scroll down if we have to.
             bottom_augments = ["AE", "ES", "LS", "QSL"]
             i = 0
@@ -726,16 +715,14 @@ class AdvancedTraining:
         Navigation.menu("advtraining")
         if ability == 0:
             value = value // 4
-            Navigation.input_box()
-            Inputs.send_string(value)
+            Misc.set_input(value)
             Inputs.click(*coords.ADV_TRAINING_POWER)
             Inputs.click(*coords.ADV_TRAINING_TOUGHNESS)
             Inputs.click(*coords.ADV_TRAINING_WANDOOS_ENERGY)
             Inputs.click(*coords.ADV_TRAINING_WANDOOS_MAGIC)
         
         else:
-            Navigation.input_box()
-            Inputs.send_string(value)
+            Misc.set_input(value)
             if ability == 1:
                 Inputs.click(*coords.ADV_TRAINING_TOUGHNESS)
             if ability == 2:
@@ -767,13 +754,11 @@ class TimeMachine:
         magic -- Set to true if you wish to add magic as well
         """
         Navigation.menu("timemachine")
-        Navigation.input_box()
-        Inputs.send_string(e)
+        Misc.set_input(e)
         Inputs.click(*coords.TM_SPEED)
         if magic or m:
             if m:
-                Navigation.input_box()
-                Inputs.send_string(m)
+                Misc.set_input(m)
             Inputs.click(*coords.TM_MULT)
 
 class BloodMagic:
@@ -945,13 +930,10 @@ class NGU:
         if len(targets) > 9:
             raise RuntimeError("Passing too many NGU's to assign_ngu," +
                                " allowed: 9, sent: " + str(len(targets)))
-        if magic:
-            Navigation.ngu_magic()
-        else:
-            Navigation.menu("ngu")
+        if magic: Navigation.ngu_magic()
+        else: Navigation.menu("ngu")
         
-        Navigation.input_box()
-        Inputs.send_string(value // len(targets))
+        Misc.set_input(value // len(targets))
         for i in targets:
             NGU = coords.Pixel(coords.NGU_PLUS.x, coords.NGU_PLUS.y + i * 35)
             Inputs.click(*NGU)
@@ -977,8 +959,7 @@ class NGU:
         else:
             Navigation.menu("ngu")
         
-        Navigation.input_box()
-        Inputs.send_string(str(int(value)))
+        Misc.set_input(value)
         
         for target in targets:
             NGU = coords.Pixel(coords.NGU_PLUS.x, coords.NGU_PLUS.y + target * 35)
@@ -1003,8 +984,7 @@ class NGU:
                     print(f"Warning: You might be overcapping energy NGU #{target}")
                 continue
             
-            Navigation.input_box()
-            Inputs.send_string(str(int(energy)))
+            Misc.set_input(int(energy))
             Inputs.click(coords.NGU_PLUS.x, coords.NGU_PLUS.y + target * 35)
     
     @staticmethod
@@ -1046,22 +1026,19 @@ class Yggdrasil:
                    fruit.
         equip.  -- Equip loadout with given index. Don't change equip if zero.
         """
+        if equip:
+            Misc.reclaim_all()
+            Inventory.loadout(equip)
+        
         Navigation.menu("yggdrasil")
         if eat_all:
             Inputs.click(*coords.YGG_EAT_ALL)
-            return
-        if equip:
-            Inputs.send_string("t")
-            Inputs.send_string("r")
-            Inventory.loadout(equip)
-            Navigation.menu("yggdrasil")
-            Inputs.click(*coords.HARVEST)
         else:
             Inputs.click(*coords.HARVEST)
 
 class GoldDiggers:
     @staticmethod
-    def gold_diggers(targets, deactivate=False):
+    def gold_diggers(targets=const.DEFAULT_DIGGER_ORDER, deactivate=False):
         """Activate diggers.
         
         Keyword arguments:
@@ -1101,10 +1078,26 @@ class Questing:
     inventory_cleaned = False
     
     @staticmethod
+    def start_complete():
+        """This starts a new quest if no quest is running.
+        If a quest is running, it tries to turn it in.
+        """
+        Navigation.menu("questing")
+        Inputs.click(*coords.QUESTING_START_QUEST)
+    
+    @staticmethod
+    def skip():
+        """This skips your current quest."""
+        Navigation.menu("questing")
+        time.sleep(userset.MEDIUM_SLEEP)
+        Inputs.click(*coords.QUESTING_SKIP_QUEST)
+        Navigation.confirm()
+    
+    @staticmethod
     def get_quest_text():
         """Check if we have an active quest or not."""
         Navigation.menu("questing")
-        Inputs.click(950, 590)  # move tooltip
+        Misc.waste_click()  # move tooltip
         time.sleep(userset.SHORT_SLEEP)
         return Inputs.ocr(*coords.OCR_QUESTING_LEFT_TEXT)
     
@@ -1187,16 +1180,16 @@ class Questing:
         """
         end = time.time() + duration * 60
         Navigation.menu("questing")
-        Inputs.click(950, 590)  # move tooltip
+        Inputs.click(*coords.WASTE_CLICK)  # move tooltip
         text = Questing.get_quest_text()
         
         if coords.QUESTING_QUEST_COMPLETE in text.lower():
-            Inputs.click(*coords.QUESTING_START_QUEST)
+            Questing.start_complete()
             time.sleep(userset.LONG_SLEEP * 2)
             text = Questing.get_quest_text()  # fetch new quest text
         
         if coords.QUESTING_NO_QUEST_ACTIVE in text.lower():  # if we have no active quest, start one
-            Inputs.click(*coords.QUESTING_START_QUEST)
+            Questing.start_complete()
             if force and not Questing.inventory_cleaned:
                 Questing.questing_consume_items(True)  # we have to clean up the inventory from any old quest items
                 Questing.inventory_cleaned = True
@@ -1211,9 +1204,8 @@ class Questing:
                 Inputs.click(*coords.QUESTING_USE_MAJOR)
             
             while not coords.QUESTING_ZONES[force] in text.lower():
-                Inputs.click(*coords.QUESTING_SKIP_QUEST)
-                Inputs.click(*coords.CONFIRM)
-                Inputs.click(*coords.QUESTING_START_QUEST)
+                Questing.skip()
+                Questing.start_complete()
                 text = Questing.get_quest_text()
         
         if subcontract:
@@ -1250,7 +1242,7 @@ class Questing:
                         except ValueError:
                             print("Couldn't fetch current QP")
                             start_qp = 0
-                        Inputs.click(*coords.QUESTING_START_QUEST)
+                        Questing.start_complete()
                         Inputs.click(605, 510)  # move tooltip
                         try:
                             current_qp = int(Inputs.remove_letters(Inputs.ocr(*coords.OCR_QUESTING_QP)))
@@ -1262,6 +1254,28 @@ class Questing:
                         print(f"Completed quest in zone #{count} at {datetime.datetime.now().strftime('%H:%M:%S')} for {gained_qp} QP")
                         
                         return
+    
+    @staticmethod
+    def get_use_majors():
+        """This returns whether the "Use Major Quests if Available" checkbox is toggled ON."""
+        return Inputs.check_pixel_color(*coords.COLOR_QUESTING_USE_MAJOR)
+    
+    @staticmethod
+    def toggle_use_majors():
+        """This toggles ON/OFF the "Use Major Quests if Available" checkbox."""
+        Navigation.menu("questing")
+        Inputs.click(*coords.QUESTING_USE_MAJOR)
+    
+    @staticmethod
+    def set_use_majors(set=True):
+        """This enables/disables the "Use Major Quests if Available" checkbox.
+        
+        Keyword arguments
+        set -- If True, enable the checkbox. If False, disable it.
+        """
+        Navigation.menu("questing")
+        if Questing.get_use_majors() != set: # Toggle if only one is True
+            Questing.toggle_use_majors()
 
 class Hacks:
     @staticmethod
@@ -1273,8 +1287,7 @@ class Hacks:
         value   -- Resource to spend, default to 1e12.
         """
         targets = targets or []
-        Navigation.input_box()
-        Inputs.send_string(value // len(targets))
+        Misc.set_input(value // len(targets))
         Navigation.menu("hacks")
         for i in targets:
             page = ((i-1)//8)
@@ -1444,8 +1457,7 @@ class Misc:
     def reclaim_bm():
         """Remove all magic from BM."""
         Navigation.menu("bloodmagic")
-        Navigation.input_box()
-        Inputs.send_string(coords.INPUT_MAX)
+        Misc.set_input(coords.INPUT_MAX)
         for coord in coords.BM_RECLAIM:
             Inputs.click(*coord)
     
@@ -1456,8 +1468,7 @@ class Misc:
             Navigation.ngu_magic()
         else:
             Navigation.menu("ngu")
-        Navigation.input_box()
-        Inputs.send_string(coords.INPUT_MAX)
+        Misc.set_input(coords.INPUT_MAX)
         for i in range(1, 10):
             NGU = coords.Pixel(coords.NGU_MINUS.x, coords.NGU_PLUS.y + i * 35)
             Inputs.click(*NGU)
@@ -1471,8 +1482,7 @@ class Misc:
         magic  -- If True, reclaim magic from TM.
         """
         Navigation.menu("timemachine")
-        Navigation.input_box()
-        Inputs.send_string(coords.INPUT_MAX)
+        Misc.set_input(coords.INPUT_MAX)
         if magic:
             Inputs.click(*coords.TM_MULT_MINUS)
             return
@@ -1483,8 +1493,7 @@ class Misc:
     def reclaim_aug():
         """Remove all energy from augs"""
         Navigation.menu("augmentations")
-        Navigation.input_box()
-        Inputs.send_string(coords.INPUT_MAX)
+        Misc.set_input(coords.INPUT_MAX)
         Inputs.click(*coords.AUG_SCROLL_TOP)
         scroll_down = False
         for i, k in enumerate(coords.AUGMENT.keys()):
@@ -1505,6 +1514,115 @@ class Misc:
             Inputs.click(*coords.SAVE)
         return
     
+    # crops the misc breakdown image, cutting off empty space on the right
+    @staticmethod
+    def __cutoff_right(bmp):
+        first_pix = bmp.getpixel((0,0))
+        width, height = bmp.size
+        
+        count = 0
+        for x in range(8, width):
+            dif = False
+            for y in range(0, height):
+                if not Inputs.rgb_equal(first_pix, bmp.getpixel((x,y))):
+                    dif = True
+                    break
+            
+            if dif: count = 0
+            else:
+                count += 1
+                if count > 8:
+                    return bmp.crop((0,0,x,height))
+        
+        return bmp
+    
+    # splits the three parts of the resource breakdown (pow, bars, cap)
+    @staticmethod
+    def __split_breakdown(bmp):
+        first_pix = bmp.getpixel((0,0))
+        width, height = bmp.size
+        y1 = 1
+        offset_x = coords.OCR_BREAKDOWN_NUM[0] - coords.OCR_BREAKDOWN_COLONS[0]
+        
+        slices = [1,1,1]
+        for x in range(0, 3):
+            for y in range(y1, height):
+                if not Inputs.rgb_equal(first_pix, bmp.getpixel((0,y))):
+                    y0 = y
+                    break
+            
+            for y in range(y0, height, coords.BREAKDOWN_OFFSET_Y):
+                if Inputs.rgb_equal(first_pix, bmp.getpixel((0,y))):
+                    y1 = y
+                    break
+            
+            slice = bmp.crop((offset_x, y0-8, width, y1))
+            slices[x] = Misc.__cutoff_right(slice)
+        
+        return slices
+    
+    # Goes to stats breakdown, makes a screenshot
+    # Gets it split into three containing all the numbers by calling __split_breakdown
+    # Sends all thre images to OCR
+    # Returns a list of lists of the numbers from stats breakdown
+    @staticmethod
+    def __get_res_breakdown(resource, ocrDebug=False, bmp=None, debug=False):
+        Navigation.stat_breakdown()
+        
+        if   resource == 1: Inputs.click(*coords.BREAKDOWN_E)
+        elif resource == 2: Inputs.click(*coords.BREAKDOWN_M)
+        elif resource == 3: Inputs.click(*coords.BREAKDOWN_R)
+        else : raise RuntimeError("Invalid resource")
+        
+        if bmp is None:
+            bmp = Inputs.get_cropped_bitmap(*Window.gameCoords(*coords.OCR_BREAKDOWN_COLONS))
+        if debug: bmp.show()
+        imgs = Misc.__split_breakdown(bmp)
+        
+        ress = []
+        for img in imgs:
+            if debug: img.show()
+            s = Inputs.ocr(0,0,0,0, bmp=img, debug=ocrDebug, whiten=True, sliced=True)
+            s = s.splitlines()
+            s2 = [x for x in s if x != ""] #remove empty lines
+            ress.append(s2)
+        
+        return ress
+    
+    # Gets the numbers on stats breakdown for the resource and value passed
+    # val = 0 for power, 1 for bars and 2 for cap
+    @staticmethod
+    def __get_res_val(resource, val):
+        s = Misc.__get_res_breakdown(resource)[val][-1]
+        return Inputs.get_numbers(s)[0]
+    
+    @staticmethod
+    def get_pow(resource):
+        """Get the power for energy, magic, or resource 3.
+        
+        Keyword arguments
+        resource -- The resource to get power for. 1 for energy, 2 for magic and 3 for r3.
+        """
+        return Misc.__get_res_val(resource, 0)
+    
+    @staticmethod
+    def get_bars(resource):
+        """Get the bars for energy, magic, or resource 3.
+        
+        Keyword arguments
+        resource -- The resource to get bars for. 1 for energy, 2 for magic and 3 for r3.
+        """
+        return Misc.__get_res_val(resource, 1)
+    
+    @staticmethod
+    def get_cap(resource):
+        """Get the cap for energy, magic, or resource 3.
+        
+        Keyword arguments
+        resource -- The resource to get cap for. 1 for energy, 2 for magic and 3 for r3.
+        """
+        return Misc.__get_res_val(resource, 2)
+    
     @staticmethod
     def get_idle_cap(resource):
         """Get the available idle energy, magic, or resource 3.
@@ -1512,25 +1630,17 @@ class Misc:
         Keyword arguments
         resource -- The resource to get idle cap for. 1 for energy, 2 for magic and 3 for r3.
         """
-        try:
-            if resource == 1:
-                res = Inputs.ocr(*coords.OCR_ENERGY)
-            elif resource == 2:
-                res = Inputs.ocr(*coords.OCR_MAGIC)
-            else:
-                res = Inputs.ocr(*coords.OCR_R3)
+        try: # The sliced argument was meant for low values with get_pow/bars/cap
+             # But also serves for low idle caps
+            if   resource == 1: res = Inputs.ocr(*coords.OCR_ENERGY, sliced=True)
+            elif resource == 2: res = Inputs.ocr(*coords.OCR_MAGIC , sliced=True)
+            elif resource == 3: res = Inputs.ocr(*coords.OCR_R3    , sliced=True)
+            else : raise RuntimeError("Invalid resource")
             
-            match = re.search(r".*(\d+\.\d+E\+\d+)", res)
+            res = Inputs.get_numbers(res)[0]
+            return res
             
-            if match is not None:
-                return int(float(match.group(1)))
-            elif match is None:
-                match = Inputs.remove_letters(res)
-                if match is not None:
-                    return int(match)
-                if match is None:
-                    return 0
-        except ValueError:
+        except IndexError:
             print("couldn't get idle cap")
             return 0
 
@@ -1542,6 +1652,12 @@ class Misc:
         Keyword arguments
         value -- The value to be set
         """
-        
         Navigation.input_box()
         Inputs.send_string(value)
+        Misc.waste_click()
+    
+    @staticmethod
+    def waste_click():
+        """Make a click that does nothing"""
+        Inputs.click(*coords.WASTE_CLICK)
+        time.sleep(userset.FAST_SLEEP)

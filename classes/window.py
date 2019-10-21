@@ -43,9 +43,30 @@ class Window():
                 Window.id = i[0]
         if Window.id == 0:
             raise RuntimeError(f"Couldn't find game window")
+        
+        return Window.winRect()
 
     @staticmethod
     def setPos(x, y):
         """Set top left coordinates."""
         Window.x = x
         Window.y = y
+    
+    @staticmethod
+    def winRect():
+        return win32gui.GetWindowRect(Window.id)
+    
+    @staticmethod
+    def shake():
+        for x in range(1000):
+            win32gui.MoveWindow(Window.id, x, 0, 1000, 800, False)
+        for y in range(1000):
+            win32gui.MoveWindow(Window.id, 1000, y, 1000, 800, False)
+        for x in reversed(range(1000)):
+            win32gui.MoveWindow(Window.id, x, 1000, 1000, 800, False)
+        for y in reversed(range(1000)):
+            win32gui.MoveWindow(Window.id, 0, y, 1000, 800, False)
+    
+    @staticmethod
+    def gameCoords(x1, y1, x2, y2):
+        return Window.x + x1, Window.y + y1, Window.x + x2, Window.y + y2

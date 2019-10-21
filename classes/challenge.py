@@ -2,21 +2,19 @@
 
 import time
 
-import win32gui
-
-from challenges.augment import Augment
-from challenges.basic import Basic
-from challenges.equipment import Equipment
-from challenges.level import Level
-from challenges.laser import Laser
-from challenges.ngu import Ngu
-from challenges.rebirth import Rebirth
+from challenges.augment     import Augment
+from challenges.basic       import Basic
+from challenges.equipment   import Equipment
+from challenges.level       import Level
+from challenges.laser       import Laser
+from challenges.ngu         import Ngu
+from challenges.rebirth     import Rebirth
 from challenges.timemachine import Timemachine
-from challenges.blind import Blind
+from challenges.blind       import Blind
 
-from classes.features import Features
-from classes.discord import Discord
-from classes.window import Window
+from classes.features import *
+from classes.discord  import Discord
+from classes.window   import Window
 
 import coordinates as coords
 import usersettings as userset
@@ -25,12 +23,13 @@ import usersettings as userset
 class Challenge(Features):
     """Handles different challenges."""
 
-    def start_challenge(self, challenge):
+    @staticmethod
+    def start_challenge(challenge):
         """Start the selected challenge."""
 
-        self.toggle_auto_spells(drop=False)
-        self.rebirth()
-        self.click(*coords.CHALLENGE_BUTTON)
+        BloodMagic.toggle_auto_spells(drop=False)
+        Rebirth.rebirth()
+        Inputs.click(*coords.CHALLENGE_BUTTON)
 
         basic = Basic()
         level = Level()
@@ -42,8 +41,8 @@ class Challenge(Features):
         ngu = Ngu()
         blind = Blind()
 
-        if self.check_pixel_color(*coords.COLOR_CHALLENGE_ACTIVE):
-            text = self.ocr(*coords.OCR_CHALLENGE_NAME)
+        if Inputs.check_pixel_color(*coords.COLOR_CHALLENGE_ACTIVE):
+            text = Inputs.ocr(*coords.OCR_CHALLENGE_NAME)
             print("A challenge is already active: " + text)
             if "basic" in text.lower():
                 print("Starting basic challenge script")
@@ -54,10 +53,10 @@ class Challenge(Features):
                 try:
                     x = coords.CHALLENGE.x
                     y = coords.CHALLENGE.y + challenge * coords.CHALLENGEOFFSET
-                    self.click(x, y, button="right")
+                    Inputs.click(x, y, button="right")
                     time.sleep(userset.LONG_SLEEP)
-                    target = self.ocr(*coords.OCR_CHALLENGE_24HC_TARGET)
-                    target = int(self.remove_letters(target))
+                    target = Inputs.ocr(*coords.OCR_CHALLENGE_24HC_TARGET)
+                    target = int(Inputs.remove_letters(target))
                     print(f"Found target boss: {target}")
                     basic.start()
                 except ValueError:
@@ -105,27 +104,27 @@ class Challenge(Features):
             y = coords.CHALLENGE.y + challenge * coords.CHALLENGEOFFSET
 
             if challenge == 1:
-                self.click(x, y)
+                Inputs.click(x, y)
                 time.sleep(userset.LONG_SLEEP)
-                self.confirm()
+                Navigation.confirm()
                 basic.start()
 
             elif challenge == 2:
-                self.click(x, y)
+                Inputs.click(x, y)
                 time.sleep(userset.LONG_SLEEP)
-                self.confirm()
+                Navigation.confirm()
                 augment.start()
 
             elif challenge == 3:
                 try:
-                    self.click(x, y, button="right")
+                    Inputs.click(x, y, button="right")
                     time.sleep(userset.LONG_SLEEP)
-                    target = self.ocr(*coords.OCR_CHALLENGE_24HC_TARGET)
-                    target = int(self.remove_letters(target))
+                    target = Inputs.ocr(*coords.OCR_CHALLENGE_24HC_TARGET)
+                    target = int(Inputs.remove_letters(target))
                     print(f"Found target boss: {target}")
-                    self.click(x, y)
+                    Inputs.click(x, y)
                     time.sleep(userset.LONG_SLEEP)
-                    self.confirm()
+                    Navigation.confirm()
                     time.sleep(userset.LONG_SLEEP)
                     basic.start()
                 except ValueError:
@@ -138,59 +137,51 @@ class Challenge(Features):
                 print("Set target level for energy buster to 67 and charge shot to 33.")
                 print("Disable 'Advance Energy'' in augments")
                 print("Disable beards if you cap ultra fast.")
-                self.click(x, y)
+                Inputs.click(x, y)
                 time.sleep(userset.LONG_SLEEP)
-                self.confirm()
+                Navigation.confirm()
                 level.start()
 
             elif challenge == 5:
-                self.click(x, y)
+                Inputs.click(x, y)
                 time.sleep(userset.LONG_SLEEP)
-                self.confirm()
+                Navigation.confirm()
                 equipment.start()
 
             elif challenge == 6:
                 print("Nah fam. Do it yourself")
-                while True:
-                    for x in range(1000):
-                        win32gui.MoveWindow(Window.id, x, 0, 1000, 800, False)
-                    for y in range(1000):
-                        win32gui.MoveWindow(Window.id, 1000, y, 1000, 800, False)
-                    for x in reversed(range(1000)):
-                        win32gui.MoveWindow(Window.id, x, 1000, 1000, 800, False)
-                    for y in reversed(range(1000)):
-                        win32gui.MoveWindow(Window.id, 0, y, 1000, 800, False)
-
+                while True: Window.shake()
+            
             elif challenge == 7:
-                self.click(x, y)
+                Inputs.click(x, y)
                 time.sleep(userset.LONG_SLEEP)
-                self.confirm()
+                Navigation.confirm()
                 rebirth.rebirth_challenge()
 
             elif challenge == 8:
                 print("LSC doesn't reset your number, make sure your number is high enough to make laser swords.")
-                self.click(x, y)
+                Inputs.click(x, y)
                 time.sleep(userset.LONG_SLEEP)
-                self.confirm()
+                Navigation.confirm()
                 laser.start()
 
             elif challenge == 9:
                 print("Starting blind challenge")
-                self.click(x, y)
+                Inputs.click(x, y)
                 time.sleep(userset.LONG_SLEEP)
-                self.confirm()
+                Navigation.confirm()
                 blind.start()
 
             elif challenge == 10:
-                self.click(x, y)
+                Inputs.click(x, y)
                 time.sleep(userset.LONG_SLEEP)
-                self.confirm()
+                Navigation.confirm()
                 ngu.start()
 
             elif challenge == 11:
-                self.click(x, y)
+                Inputs.click(x, y)
                 time.sleep(userset.LONG_SLEEP)
-                self.confirm()
+                Navigation.confirm()
                 timemachine.start()
 
             else:

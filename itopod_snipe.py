@@ -1,13 +1,15 @@
 """ITOPOD Sniping script."""
 import time
 # Helper classes
-import classes.helper as helper
-from classes.features import MoneyPit, Adventure, Inventory, GoldDiggers, Questing
-from classes.stats import Tracker
+from classes.features import *
+from classes.helper   import Helper
+from classes.stats    import Tracker
 
 import constants as const
 
-helper.init()
+Helper.init(True)
+Helper.requirements()
+
 tracker = Tracker(5)
 
 while True:  # main loop

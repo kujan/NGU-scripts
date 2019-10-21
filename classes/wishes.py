@@ -5,13 +5,16 @@ import math
 import re
 import time
 
-import coordinates as coords
-import constants as const
+from classes.features   import *
+from classes.inputs     import Inputs
+from classes.navigation import Navigation
+
+import coordinates  as coords
+import constants    as const
 import usersettings as userset
-from classes.features import Features
 
 
-class Wishes(Features):
+class Wishes():
     """Class that handles wishes."""
 
     def __init__(self, wish_slots, wish_min_time):
@@ -38,21 +41,21 @@ class Wishes(Features):
 
     def get_breakdowns(self):
         """Go to stat breakdowns and fetch the necessary stats."""
-        self.stat_breakdown()
-        self.click(*coords.BREAKDOWN_E)
+        Navigation.stat_breakdown()
+        Inputs.click(*coords.BREAKDOWN_E)
         time.sleep(userset.MEDIUM_SLEEP)
         print("OCR is scanning a large area, this might take a few seconds")
-        e_list = self.fix_text(self.ocr(*coords.OCR_BREAKDOWN_E))
-        self.click(*coords.BREAKDOWN_M)
+        e_list = self.fix_text(Inputs.ocr(*coords.OCR_BREAKDOWN))
+        Inputs.click(*coords.BREAKDOWN_M)
         time.sleep(userset.MEDIUM_SLEEP)
-        m_list = self.fix_text(self.ocr(*coords.OCR_BREAKDOWN_E))
-        self.click(*coords.BREAKDOWN_R)
+        m_list = self.fix_text(Inputs.ocr(*coords.OCR_BREAKDOWN))
+        Inputs.click(*coords.BREAKDOWN_R)
         time.sleep(userset.MEDIUM_SLEEP)
-        r_list = self.fix_text(self.ocr(*coords.OCR_BREAKDOWN_E))
-        self.click(*coords.BREAKDOWN_MISC)
+        r_list = self.fix_text(Inputs.ocr(*coords.OCR_BREAKDOWN))
+        Inputs.click(*coords.BREAKDOWN_MISC)
         time.sleep(userset.MEDIUM_SLEEP)
-        self.click_drag(*coords.BREAKDOWN_MISC_SCROLL_DRAG_START, *coords.BREAKDOWN_MISC_SCROLL_DRAG_END)
-        misc_list = self.fix_text(self.ocr(*coords.OCR_BREAKDOWN_E))
+        Inputs.click_drag(*coords.BREAKDOWN_MISC_SCROLL_DRAG_START, *coords.BREAKDOWN_MISC_SCROLL_DRAG_END)
+        misc_list = self.fix_text(Inputs.ocr(*coords.OCR_BREAKDOWN))
 
         fields = ["total energy power:", "total magic power:", "total r power:", "total wish speed:"]
 
@@ -104,9 +107,9 @@ class Wishes(Features):
 
     def get_caps(self):
         """Get all available idle resources."""
-        self.ecap = self.get_idle_cap(1)
-        self.mcap = self.get_idle_cap(2)
-        self.rcap = self.get_idle_cap(3)
+        self.ecap = Misc.get_idle_cap(1)
+        self.mcap = Misc.get_idle_cap(2)
+        self.rcap = Misc.get_idle_cap(3)
 
     def fix_text(self, text):
         """Fix OCR output to something useable."""
@@ -128,7 +131,7 @@ class Wishes(Features):
                         match = re.match(r"(^[a-zA-Z\s]+:?)", line)
                         if match is not None:
                             fields.append(match.group(1))
-                            values.append(self.remove_letters(line))
+                            values.append(Inputs.remove_letters(line))
             else:
                 for line in text.splitlines():
 
@@ -150,21 +153,21 @@ class Wishes(Features):
 
     def get_wish_status(self):
         """Check which wishes are done and which are level 1 or higher."""
-        self.menu("wishes")
+        Navigation.menu("wishes")
         self.wishes_completed = []  # completed wishes
         self.wishes_in_progress = []  # wishes above level 0
         self.wishes_active = []  # wishes that currently are progressing
-        self.click(*coords.WISH_PAGE[1])  # go to page 2 and select the first wish to get rid of the green border
+        Inputs.click(*coords.WISH_PAGE[1])  # go to page 2 and select the first wish to get rid of the green border
         time.sleep(userset.MEDIUM_SLEEP)
-        self.click(*coords.WISH_PORTRAIT)
+        Inputs.click(*coords.WISH_PORTRAIT)
         time.sleep(userset.MEDIUM_SLEEP)
-        self.click(*coords.WISH_PAGE[0])
+        Inputs.click(*coords.WISH_PAGE[0])
 
         for i, page in enumerate(coords.WISH_PAGE):
-            self.click(*page)
+            Inputs.click(*page)
             for y in range(3):
                 for x in range(7):
-                    border_color = self.get_pixel_color(coords.WISH_BORDER.x + x * 92,
+                    border_color = Inputs.get_pixel_color(coords.WISH_BORDER.x + x * 92,
                                                         coords.WISH_BORDER.y + y * 106)
                     if border_color == coords.COLOR_WISH_COMPLETED:
                         self.wishes_completed.append(1 + x + y + y * 6 + i * 21)
@@ -172,18 +175,18 @@ class Wishes(Features):
                     if border_color == coords.COLOR_WISH_STARTED:
                         self.wishes_in_progress.append(1 + x + y + y * 6 + i * 21)
 
-                    active_color = self.get_pixel_color(coords.WISH_SELECTION.x + x * 92,
+                    active_color = Inputs.get_pixel_color(coords.WISH_SELECTION.x + x * 92,
                                                         coords.WISH_SELECTION.y + y * 106)
                     if active_color == coords.COLOR_WISH_ACTIVE:
                         self.wishes_active.append(1 + x + y + y * 6 + i * 21)
                     if active_color == coords.COLOR_WISH_INACTIVE:
-                        self.click(coords.WISH_SELECTION.x + x * 92,
+                        Inputs.click(coords.WISH_SELECTION.x + x * 92,
                                    coords.WISH_SELECTION.y + y * 106)
-                        self.click(*coords.WISH_CLEAR_WISH)
+                        Inputs.click(*coords.WISH_CLEAR_WISH)
                         self.wishes_in_progress.append(1 + x + y + y * 6 + i * 21)
 
             if i == 0:  # after page 1 is scanned, select first wish
-                self.click(*coords.WISH_PORTRAIT)
+                Inputs.click(*coords.WISH_PORTRAIT)
         used_slots = len(self.wishes_active)
         self.available_slots = self.wish_slots - used_slots
         if used_slots > 0:
@@ -278,13 +281,13 @@ class Wishes(Features):
     def add_emr(self, wish, emr):
         """Add EMR to wish."""
         alloc_coords = [coords.WISH_E_ADD, coords.WISH_M_ADD, coords.WISH_R_ADD]
-        self.menu("wishes")
+        Navigation.menu("wishes")
         page = ((wish.id - 1) // 21)
-        self.click(*coords.WISH_PAGE[page])
+        Inputs.click(*coords.WISH_PAGE[page])
         x = coords.WISH_SELECTION.x + ((wish.id - 1) % 21 % 7) * coords.WISH_SELECTION_OFFSET.x
         y = coords.WISH_SELECTION.y + ((wish.id - 1) % 21 // 7) * coords.WISH_SELECTION_OFFSET.y
-        self.click(x + 20, y + 20)  # have to add to add some offset here, otherwise the clicks don't register for some reason.
+        Inputs.click(x + 20, y + 20)  # have to add to add some offset here, otherwise the clicks don't register for some reason.
         for i, e in enumerate(emr):
-            self.input_box()
-            self.send_string(e)
-            self.click(*alloc_coords[i])
+            Navigation.input_box()
+            Inputs.send_string(e)
+            Inputs.click(*alloc_coords[i])

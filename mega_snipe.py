@@ -1,41 +1,40 @@
-"""Challenge start script."""
+"""Snipe with Mega Buff."""
+import argparse
+import time
 
 # Helper classes
-import argparse
-from classes.features import Features
-from classes.window import Window
-from classes.challenge import Challenge
+from classes.features   import *
+from classes.helper     import Helper
+from classes.inputs     import Inputs
+
 import usersettings as userset
-import coordinates as coords
-import time
+import coordinates  as coords
+
+Helper.init(True)
+Helper.requirements()
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-z", "--zone", required=True, type=int, help="select which zone you wish to snipe")
 args = parser.parse_args()
-Window.init()
-feature = Features()
 
-Window.x, Window.y = feature.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 400, 600)
-feature.menu("inventory")
-
-print(f"Top left found at: {w.x}, {w.y}")
-
-feature.menu("adventure")
-feature.click(*coords.LEFT_ARROW, button="right")
-feature.click(625, 500)
+Adventure.adventure(0)
+if Inputs.check_pixel_color(*coords.IS_IDLE):
+    Inputs.click(*coords.ABILITY_IDLE_MODE)
 time.sleep(userset.MEDIUM_SLEEP)
-if feature.check_pixel_color(*coords.IS_IDLE):
-    feature.click(*coords.ABILITY_IDLE_MODE)
-    
 
 while True:  # main loop
-    if feature.check_pixel_color(*coords.IS_IDLE):
-        feature.click(*coords.ABILITY_IDLE_MODE)
-    feature.click(625, 500)
-    color = feature.get_pixel_color(647, 176)
-    if color == coords.ABILITY_ROW3_READY_COLOR:
-        feature.snipe(args.zone, 1, manual=True, bosses=True, once=True)
-        feature.click(*coords.LEFT_ARROW, button="right")
-        feature.current_adventure_zone = 0
-    feature.pit()
-    time.sleep(0.1)
+    GoldDiggers.diggers([4,1])
+    
+    if Inputs.check_pixel_color(*coords.COLOR_MEGA_BUFF_READY):
+        Adventure.snipe(args.zone, 1, manual=True, bosses=True, once=True)
+        Adventure.adventure(0) # go wait at safe zone
+        if Inputs.check_pixel_color(*coords.IS_IDLE):
+            Inputs.click(*coords.ABILITY_IDLE_MODE)
+            Inputs.click(*coords.WASTE_CLICK)
+        
+    else:
+        MoneyPit.pit()
+        MoneyPit.spin()
+        Yggdrasil.ygg()
+        Inventory.merge_equipment()
+        Inventory.boost_equipment()
