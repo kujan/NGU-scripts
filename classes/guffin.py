@@ -18,12 +18,14 @@ class Guffin():
         # EDIT BELOW #
         ##############
         self._max_rb_duration = 1800  # How long in seconds you want to run
-        self._zone = 2  # The zone number in which you want to do minor quests (for farming specific guffs)
-        self._hacks = [6, 7, 8, 9, 10, 11, 12]  # Adv, QP, Exp, PP, Hack
+        self._zone = "sewers"  # The zone in which you want to do minor quests, see QUEST_ZONE_MAP in constants.py for valid options
+        self._gold_zone = "the rad-lands"  # Zone to go to at the start of rebirth, see ZONE_MAP in constants.py for valid options
+        self._hacks = [6, 7, 8, 9, 10, 11, 12]  # Which hacks to use
         self._diggers = const.DEFAULT_DIGGER_ORDER  # Which diggers to use, in which order, see constants.py for default
         self._butter = True  # Butter majors? True/False
-        self._aug = ["LS", "QSL"]  # Which aug/upgrade to use, see naming convention in augments() in features.py
-        self._allocate_wishes = True  # Do you wish to allocate resources to wishes? True/False
+        self._aug = ["SS", "DS"]  # Which aug/upgrade to use, see naming convention in augments() in features.py
+        self._allocate_wishes = False  # Do you wish to allocate resources to wishes? True/False
+        self._wandoos_version = 0  # Wandoos version to use after AT is unlocked (0, 1, 2)
         self._wish_min_time = 180  # The minimum time it takes to complete a wish
         self._wish_slots = 4  # The amount of wish slots you have
         #####################
@@ -67,7 +69,7 @@ class Guffin():
         text = Questing.get_quest_text().lower()
         majors = Questing.get_available_majors()
         if majors == 0 and (coords.QUESTING_MINOR_QUEST in text or coords.QUESTING_NO_QUEST_ACTIVE in text):
-            Questing.questing(duration=2, force=self._zone)
+            Questing.questing(duration=2, force=const.QUEST_ZONE_MAP[self._zone])
         else:
             if not Inputs.check_pixel_color(*coords.COLOR_QUESTING_USE_MAJOR):
                 Inputs.click(*coords.QUESTING_USE_MAJOR)
@@ -78,14 +80,14 @@ class Guffin():
         self.__update_gamestate()
         FightBoss.nuke()
         time.sleep(2)
-        Adventure.adventure(highest=True)
+        Adventure.adventure(const.ZONE_MAP[self._gold_zone])
         BloodMagic.toggle_auto_spells(number=False, drop=False)
         GoldDiggers.gold_diggers(self._diggers)
         BloodMagic.blood_magic(8)
         NGU.cap_ngu()
         NGU.cap_ngu(magic=True)
         Wandoos.set_wandoos(0)
-        Wandoos.wandoos(True)
+        Wandoos.wandoos(True, True)
         Augmentation.augments({self._aug[0]: 0.66, self._aug[1]: 0.34}, Misc.get_idle_cap(1) * 0.5)
         TimeMachine.time_machine(Misc.get_idle_cap(1) * 0.1, magic=True)
         self.__update_gamestate()
@@ -106,12 +108,11 @@ class Guffin():
             TimeMachine.time_machine(coords.INPUT_MAX, magic=True)
             self.__update_gamestate()
 
-        Adventure.adventure(highest=True)
         Misc.reclaim_tm(energy=True, magic=True)
         Misc.reclaim_aug()
-        AdvancedTraining.advanced_training(2e12)
-        Wandoos.set_wandoos(1)
-        Wandoos.wandoos(True)
+        AdvancedTraining.advanced_training(1e12)
+        Wandoos.set_wandoos(self._wandoos_version)
+        Wandoos.wandoos(True, True)
         Augmentation.augments({self._aug[0]: 0.66, self._aug[1]: 0.34}, Misc.get_idle_cap(1) * 0.5)
 
         while self._rb_time < self._max_rb_duration - 140:
