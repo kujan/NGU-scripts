@@ -1,7 +1,6 @@
 """Guffin Run Class"""
 
 import time
-
 # Helper classes
 from classes.features import (AdvancedTraining, Adventure, BloodMagic, FightBoss, GoldDiggers,
                               Hacks, Inputs, Misc, TimeMachine, Augmentation, MoneyPit, 
