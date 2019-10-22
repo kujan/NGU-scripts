@@ -1,11 +1,10 @@
 """Helper functions."""
 from classes.window     import Window
 from classes.inputs     import Inputs
-from classes.navigation import Navigation
 from classes.features   import Inventory, MoneyPit, Adventure, Yggdrasil, GoldDiggers, Questing
 
 import coordinates as coords
-import constants   as const
+
 
 class Helper:
     def init(printCoords=False):
@@ -48,7 +47,7 @@ class Helper:
         Questing.set_use_majors(idle_majors)
         print("Engaging idle loop")
         while True:  # main loop
-            Questing.questing(subcontract=True) # Questing first, as we are already there
+            Questing.questing(subcontract=True)  # Questing first, as we are already there
             MoneyPit.pit()
             MoneyPit.spin()
             Inventory.boost_cube()

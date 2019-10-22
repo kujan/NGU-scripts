@@ -116,7 +116,7 @@ class Inputs:
                    win32api.GetKeyState(wcon.VK_MENU)    < 0):
                 time.sleep(0.005)
             
-            vkc = win32api.VkKeyScan(c) # Get virtual key code for character c
+            vkc = win32api.VkKeyScan(c)  # Get virtual key code for character c
             # Only one keyup or keydown event needs to be sent
             win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN, vkc, 0)
     
@@ -221,8 +221,8 @@ class Inputs:
         
         for x in range(0, width):
             for y in range(0, height):
-                if Inputs.rgb_equal(bmp.getpixel((x,y)), original):
-                    bmp.putpixel((x,y), replace)
+                if Inputs.rgb_equal(bmp.getpixel((x, y)), original):
+                    bmp.putpixel((x, y), replace)
         
         return bmp
     
@@ -256,14 +256,15 @@ class Inputs:
             bmp = bmp.crop((x_start + 8, y_start + 8, x_end + 8, y_end + 8))
         
         if whiten:
-            first_pix = bmp.getpixel((0,0))
+            first_pix = bmp.getpixel((0, 0))
             white     = Inputs.hex_to_rgb("FFFFFF")
             bmp       = Inputs.color_replace(bmp, first_pix, white)
             if debug: bmp.save("debug_ocr_whiten.png")
         
         if filter:
             *_, right, lower = bmp.getbbox()
-            bmp = bmp.resize((right*4, lower*4), image.BICUBIC)  # Resize image
+            bmp = bmp.resize((right * 4, lower * 4), image.BICUBIC)  # Resize image
+            bmp = bmp.filter(ImageFilter.EDGE_ENHANCE)
             bmp = bmp.filter(ImageFilter.SHARPEN)
             if debug: bmp.save("debug_ocr_filter.png")
             
@@ -322,7 +323,7 @@ class Inputs:
 
     @staticmethod
     def hex_to_rgb(str):
-        return tuple(int(str[i:i+2], 16) for i in (0, 2, 4))
+        return tuple(int(str[i:i + 2], 16) for i in (0, 2, 4))
 
     @staticmethod
     def get_file_path(directory, file):

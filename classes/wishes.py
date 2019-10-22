@@ -5,7 +5,7 @@ import math
 import re
 import time
 
-from classes.features   import *
+from classes.features   import Misc
 from classes.inputs     import Inputs
 from classes.navigation import Navigation
 
@@ -37,7 +37,6 @@ class Wishes():
         self.get_breakdowns()
         self.get_wish_status()
         # self.allocate_wishes()
-
 
     def get_breakdowns(self):
         """Go to stat breakdowns and fetch the necessary stats."""
@@ -168,7 +167,7 @@ class Wishes():
             for y in range(3):
                 for x in range(7):
                     border_color = Inputs.get_pixel_color(coords.WISH_BORDER.x + x * 92,
-                                                        coords.WISH_BORDER.y + y * 106)
+                                                          coords.WISH_BORDER.y + y * 106)
                     if border_color == coords.COLOR_WISH_COMPLETED:
                         self.wishes_completed.append(1 + x + y + y * 6 + i * 21)
 
@@ -176,12 +175,12 @@ class Wishes():
                         self.wishes_in_progress.append(1 + x + y + y * 6 + i * 21)
 
                     active_color = Inputs.get_pixel_color(coords.WISH_SELECTION.x + x * 92,
-                                                        coords.WISH_SELECTION.y + y * 106)
+                                                          coords.WISH_SELECTION.y + y * 106)
                     if active_color == coords.COLOR_WISH_ACTIVE:
                         self.wishes_active.append(1 + x + y + y * 6 + i * 21)
                     if active_color == coords.COLOR_WISH_INACTIVE:
                         Inputs.click(coords.WISH_SELECTION.x + x * 92,
-                                   coords.WISH_SELECTION.y + y * 106)
+                                     coords.WISH_SELECTION.y + y * 106)
                         Inputs.click(*coords.WISH_CLEAR_WISH)
                         self.wishes_in_progress.append(1 + x + y + y * 6 + i * 21)
 
@@ -191,7 +190,6 @@ class Wishes():
         self.available_slots = self.wish_slots - used_slots
         if used_slots > 0:
             print(f"{used_slots} wish slots are already in use and will be ignored.")
-
 
     def allocate_wishes(self):
         """Use the order defined in constants.py to determine which wish to run."""
@@ -286,7 +284,8 @@ class Wishes():
         Inputs.click(*coords.WISH_PAGE[page])
         x = coords.WISH_SELECTION.x + ((wish.id - 1) % 21 % 7) * coords.WISH_SELECTION_OFFSET.x
         y = coords.WISH_SELECTION.y + ((wish.id - 1) % 21 // 7) * coords.WISH_SELECTION_OFFSET.y
-        Inputs.click(x + 20, y + 20)  # have to add to add some offset here, otherwise the clicks don't register for some reason.
+        # have to add to add some offset here, otherwise the clicks don't register for some reason.
+        Inputs.click(x + 20, y + 20)
         for i, e in enumerate(emr):
             Navigation.input_box()
             Inputs.send_string(e)

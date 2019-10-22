@@ -2,7 +2,9 @@
 import time
 # Helper classes
 from classes.inputs     import Inputs
-from classes.features   import *
+from classes.features   import (AdvancedTraining, Adventure, Augmentation, FightBoss, Inventory, Misc,
+                                BloodMagic, GoldDiggers, NGU, Wandoos, TimeMachine, MoneyPit, Rebirth,
+                                Questing, Yggdrasil)
 from classes.helper     import Helper
 from classes.navigation import Navigation
 
@@ -38,8 +40,8 @@ def rebirth_init(rt):
     GoldDiggers.gold_diggers()
     Misc.reclaim_bm()
     Wandoos.wandoos(True)
-    NGU.assign_ngu(f.get_idle_cap(2), range(1,11), False)
-    NGU.assign_ngu(f.get_idle_cap(1), range(1, 9), True)
+    NGU.assign_ngu(Misc.get_idle_cap(2), range(1, 11), False)
+    NGU.assign_ngu(Misc.get_idle_cap(1), range(1, 9), True)
 
 rt = Rebirth.get_rebirth_time()
 rebirth_init(rt)

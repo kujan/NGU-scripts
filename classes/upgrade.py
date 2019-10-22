@@ -4,10 +4,11 @@ import math
 
 from classes.stats  import Stats
 from classes.helper import Helper
+from classes.features import Navigation
+from classes.inputs import Inputs
 
 import coordinates  as coords
 import usersettings as userset
-
 
 
 class UpgradeEM():
