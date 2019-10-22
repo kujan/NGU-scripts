@@ -1,90 +1,90 @@
 """24-hour rebirth script."""
 import time
 # Helper classes
-from classes.features import Features
-from classes.window import Window
-import coordinates as coords
+from classes.features   import (AdvancedTraining, Adventure, Augmentation, FightBoss, Inventory, Misc,
+                                BloodMagic, GoldDiggers, NGU, Wandoos, TimeMachine, MoneyPit, Rebirth,
+                                Questing, Yggdrasil)
+from classes.helper     import Helper
+
+# Set these to your own loadouts
+respawn_loadout = 1
+ygg_loadout = 2
+
+Helper.init()
+Helper.requirements()
 
 
-def start_procedure(f, rt):
+def rebirth_init(rt):
     """Procedure that handles start of rebirth."""
-    f.send_string("r")  # make sure we reset e/m if we run this mid-rebirth
-    f.send_string("t")
-    f.nuke(101)  # PPP
-    f.loadout(2)  # respawn
-    f.adventure(highest=True)
-    f.time_machine(5e11, magic=True)
-    f.augments({"CI": 0.7, "ML": 0.3}, 1e12)
-    f.blood_magic(8)
-    f.toggle_auto_spells()
-    f.gold_diggers([x for x in range(1, 13)])
+    Misc.reclaim_all()  # make sure we reset e/m if we run this mid-rebirth
+    FightBoss.nuke(101)  # PPP
+    Inventory.loadout(respawn_loadout)
+    Adventure.adventure(highest=True)
+    TimeMachine.time_machine(5e11, magic=True)
+    Augmentation.augments({"CI": 0.7, "ML": 0.3}, 1e12)
+    BloodMagic.blood_magic(8)
+    BloodMagic.toggle_auto_spells()
+    GoldDiggers.gold_diggers()
 
     if rt.timestamp.tm_hour > 0 or rt.timestamp.tm_min >= 13:
         print("assigning adv training")
     else:
         duration = (12.5 - rt.timestamp.tm_min) * 60
         print(f"doing itopod for {duration} seconds while waiting for adv training to activate")
-        f.itopod_snipe(duration)
+        Adventure.itopod_snipe(duration)
 
-    f.advanced_training(2e12)
-    f.gold_diggers([x for x in range(1, 13)])
-    f.reclaim_bm()
-    f.wandoos(True)
-    f.assign_ngu(f.get_idle_cap(2), [x for x in range(1, 10)])
-    f.assign_ngu(f.get_idle_cap(1), [x for x in range(1, 8)], True)
+    AdvancedTraining.advanced_training(2e12)
+    GoldDiggers.gold_diggers()
+    Misc.reclaim_bm()
+    Wandoos.wandoos(True)
+    NGU.assign_ngu(Misc.get_idle_cap(2), range(1, 11), False)
+    NGU.assign_ngu(Misc.get_idle_cap(1), range(1, 9), True)
 
-
-Window.__init__(object)
-feature = Features()
-
-Window.x, Window.y = i.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 400, 600)
-nav.menu("inventory")
-import requirements
-rt = feature.get_rebirth_time()
-start_procedure(feature, rt)
+rt = Rebirth.get_rebirth_time()
+rebirth_init(rt)
 
 while True:
-    rt = feature.get_rebirth_time()
-    feature.nuke()
-    feature.gold_diggers([x for x in range(1, 13)])
-    feature.merge_inventory(8)  # merge uneqipped guffs
-    spells = feature.check_spells_ready()
+    rt = Rebirth.get_rebirth_time()
+    FightBoss.nuke()
+    GoldDiggers.gold_diggers()
+    Inventory.merge_inventory(8)  # merge uneqipped guffs
+    spells = BloodMagic.check_spells_ready()
     if spells:  # check if any spells are off CD
-        feature.reclaim_ngu(True)  # take all magic from magic NGUs
+        NGU.reclaim_ngu(True)  # take all magic from magic NGUs
         for spell in spells:
-            feature.cast_spell(spell)
-        feature.reclaim_bm()
-        feature.assign_ngu(feature.get_idle_cap(True), [x for x in range(1, 8)], True)
-        feature.toggle_auto_spells()  # retoggle autospells
+            BloodMagic.cast_spell(spell)
+        Misc.reclaim_bm()
+        NGU.assign_ngu(Misc.get_idle_cap(1), range(1, 9), True)
+        BloodMagic.toggle_auto_spells()  # retoggle autospells
 
     if rt.days > 0:  # rebirth is at >24 hours
         print(f"rebirthing at {rt}")  # debug
-        feature.nuke()
-        feature.spin()
-        feature.deactivate_all_diggers()
-        feature.ygg(equip=1)  # harvest with equipment set 1
-        feature.ygg(eat_all=True)
-        feature.level_diggers()  # level all diggers
-        feature.do_rebirth()
+        FightBoss.nuke()
+        MoneyPit.spin()
+        GoldDiggers.deactivate_all_diggers()
+        Yggdrasil.ygg(equip=1)  # harvest with equipment set 1
+        Yggdrasil.ygg(eat_all=True)
+        GoldDiggers.level_diggers()  # level all diggers
+        Rebirth.do_rebirth()
         time.sleep(3)
-        rt = feature.get_rebirth_time()
-        start_procedure(feature, rt)
+        rt = Rebirth.get_rebirth_time()
+        rebirth_init(rt)
     else:
-        feature.ygg()
-        feature.save_check()
-        feature.pit()
+        Yggdrasil.ygg()
+        Misc.save_check()
+        MoneyPit.pit()
         if rt.timestamp.tm_hour <= 12:  # quests for first 12 hours
-            titans = feature.check_titan_status()
+            titans = Adventure.check_titan_status()
             if titans:
                 for titan in titans:
-                    feature.kill_titan(titan)
-            feature.boost_cube()
-            feature.questing()
+                    Adventure.kill_titan(titan)
+            Inventory.boost_cube()
+            Questing.questing()
             time.sleep(3)
         else:  # after hour 12, do itopod in 5-minute intervals
-            titans = feature.check_titan_status()
+            titans = Adventure.check_titan_status()
             if titans:
                 for titan in titans:
-                    feature.kill_titan(titan)
-            feature.itopod_snipe(300)
-            feature.boost_cube()
+                    Adventure.kill_titan(titan)
+            Adventure.itopod_snipe(300)
+            Inventory.boost_cube()

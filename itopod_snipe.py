@@ -1,23 +1,25 @@
 """ITOPOD Sniping script."""
 import time
 # Helper classes
-import classes.helper as helper
-from classes.features import Features
-from classes.stats import Tracker
+from classes.features import Adventure, GoldDiggers, MoneyPit, Inventory
+from classes.helper   import Helper
+from classes.stats    import Tracker
 
 import constants as const
 
-feature = Features()
-helper.init(feature, True)
+Helper.init(True)
+Helper.requirements()
+
 tracker = Tracker(5)
 
 while True:  # main loop
-    titans = feature.check_titan_status()
+    titans = Adventure.check_titan_status()
     if titans:
         for titan in titans:
-            feature.kill_titan(titan)
-    feature.itopod_snipe(300)
-    feature.pit()
+            Adventure.kill_titan(titan)
+    Adventure.itopod_snipe(300)
+    MoneyPit.pit()
     tracker.progress()
-    feature.gold_diggers(const.DEFAULT_DIGGER_ORDER)
+    GoldDiggers.gold_diggers(const.DEFAULT_DIGGER_ORDER)
+    Inventory.boost_equipment(boost_cube=True)
     time.sleep(3)  # Need to wait for tooltip to disappear

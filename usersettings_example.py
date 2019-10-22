@@ -1,7 +1,7 @@
 # user defined settings
 
 # SLEEPS
-FAST_SLEEP = 0.04
+FAST_SLEEP = 0.06
 SHORT_SLEEP = 0.15
 MEDIUM_SLEEP = 0.3
 LONG_SLEEP = 0.4

@@ -1,7 +1,6 @@
 """Contains functions for running a basic challenge."""
 from classes.features import Features
 from classes.inputs import Inputs
-import coordinates as coords
 import time
 
 
