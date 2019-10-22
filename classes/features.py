@@ -134,10 +134,10 @@ class Adventure:
         itopodauto -- If set to true it will click the "optimal" floor button.
         """
         Navigation.menu("adventure")
-        Inputs.click(625, 500)  # click somewhere to move tooltip
+        Misc.waste_click()
         if not Inputs.check_pixel_color(*coords.IS_IDLE):
             Inputs.click(*coords.ABILITY_IDLE_MODE)
-        if itopod:
+        if itopod or itopodauto:
             Adventure.current_adventure_zone = 0
             Inputs.click(*coords.ITOPOD)
             if itopodauto:

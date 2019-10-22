@@ -11,7 +11,7 @@ import re
 import time
 
 from PIL import Image as image
-from PIL import ImageFilter, ImageEnhance
+from PIL import ImageFilter
 import cv2
 import numpy
 
