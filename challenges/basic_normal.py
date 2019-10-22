@@ -1,7 +1,6 @@
 """Contains functions for running a basic challenge."""
 from classes.features import Features
 import coordinates as ncon
-import usersettings as userset
 import time
 
 class Basic(Features):
