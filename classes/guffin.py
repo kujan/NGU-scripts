@@ -3,7 +3,9 @@
 import time
 
 # Helper classes
-from classes.features import *
+from classes.features import (AdvancedTraining, Adventure, BloodMagic, FightBoss, GoldDiggers,
+                              Hacks, Inputs, Misc, TimeMachine, Augmentation, MoneyPit, 
+                              Rebirth, Questing, NGU, Wandoos) 
 from classes.wishes   import Wishes
 
 import coordinates as coords
