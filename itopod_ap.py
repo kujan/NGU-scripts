@@ -3,6 +3,7 @@
 # Helper classes
 from classes.helper   import Helper
 from classes.features import Features
+from classes.features import Adventure, MoneyPit
 
 Helper.init(True)
 Helper.requirements()

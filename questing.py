@@ -1,7 +1,7 @@
 """Manual Questing Script."""
 
 # Helper classes
-from classes.features   import *
+from classes.features   import Adventure, Questing, GoldDiggers, MoneyPit
 from classes.helper     import Helper
 from classes.navigation import Navigation
 

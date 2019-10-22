@@ -1,7 +1,7 @@
 """Challenge start script."""
 
 # Helper classes
-from classes.features  import *
+from classes.features  import Adventure, GoldDiggers, MoneyPit
 from classes.helper    import Helper
 from classes.challenge import Challenge
 

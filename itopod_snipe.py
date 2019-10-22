@@ -1,7 +1,7 @@
 """ITOPOD Sniping script."""
 import time
 # Helper classes
-from classes.features import *
+from classes.features import Adventure, GoldDiggers, MoneyPit, Inventory
 from classes.helper   import Helper
 from classes.stats    import Tracker
 
