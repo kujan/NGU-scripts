@@ -6,6 +6,7 @@ ColorPixel = namedtuple('ColorPixel', Pixel._fields + ('color',))
 OCRBox = namedtuple('OCRBox', 'x1 y1 x2 y2')
 
 # USELESSFUL
+
 WASTE_CLICK = Pixel(900, 590)
 
 # COLORS

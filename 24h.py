@@ -13,6 +13,7 @@ ygg_loadout = 2
 Helper.init()
 Helper.requirements()
 
+
 def rebirth_init(rt):
     """Procedure that handles start of rebirth."""
     Misc.reclaim_all()  # make sure we reset e/m if we run this mid-rebirth

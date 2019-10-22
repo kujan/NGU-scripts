@@ -12,6 +12,7 @@ from challenges.rebirth     import Rebirth
 from challenges.timemachine import Timemachine
 from challenges.blind       import Blind
 
+
 from classes.features import BloodMagic, Navigation
 from classes.inputs import Inputs
 from classes.discord  import Discord
