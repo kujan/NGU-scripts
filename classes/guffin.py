@@ -115,7 +115,7 @@ class Guffin():
         Wandoos.set_wandoos(self._wandoos_version)
         Wandoos.wandoos(True, True)
         Augmentation.augments({self._aug[0]: 0.66, self._aug[1]: 0.34}, Misc.get_idle_cap(1) * 0.5)
-
+        TimeMachine.time_machine(Misc.get_idle_cap(1) * 0.1, magic=True)
         while self._rb_time < self._max_rb_duration - 140:
             GoldDiggers.gold_diggers(self._diggers)
             FightBoss.nuke()
