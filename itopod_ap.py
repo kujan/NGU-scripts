@@ -1,12 +1,12 @@
 """AP farming script."""
 
 # Helper classes
-import classes.helper as helper
-from classes.features import Features
+from classes.helper   import Helper
+from classes.features import Adventure, MoneyPit
 
-feature = Features()
-helper.init(feature, True)
+Helper.init(True)
+Helper.requirements()
 
 while True:  # main loop
-    feature.itopod_ap(600)
-    feature.pit()
+    Adventure.itopod_ap(600)
+    MoneyPit.pit()
