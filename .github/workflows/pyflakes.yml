@@ -1,0 +1,8 @@
+workflow "pyflakes" {
+  on = "push"
+  resolves = ["Lint"]
+}
+
+action "Lint" {
+  uses = "lgeiger/pyflakes-action@master"
+}
