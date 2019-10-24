@@ -55,7 +55,7 @@ class Helper:
             Yggdrasil.ygg()
             Adventure.itopod_snipe(300)
 
-    def human_format(num :int or float) -> str:
+    def human_format(num :float) -> str:
         """Convert large numbers into something readable."""
         suffixes = ['', 'K', 'M', 'B', 'T', 'Q', 'Qi', 'Sx', 'Sp']
         num = float('{:.3g}'.format(num))
