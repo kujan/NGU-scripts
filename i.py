@@ -49,39 +49,11 @@ def showFuncs(cls=None):
             for func in funcs: print(f"\t{func[0]}")
   
 # Show arguments of a function or method  
-def showArgs(func):
-    fas = inspect.getfullargspec(func)
-    
-    if fas.args != []:
-        print("Arguments:")
-        if fas.defaults is None:
-            for arg in fas.args: print(f"\t{arg}")
-        else:
-            la = len(fas.args)
-            ld = len(fas.defaults)
-            args1 = fas.args[:-ld]
-            args2 = fas.args[-ld:]
-            for arg in args1: print(f"\t{arg}")
-            for tup in zip(args2, fas.defaults):
-                print(f"\t{tup[0]} = {tup[1]}")
-    
-    if fas.varargs is not None:
-        print("Variable Arguments:")
-        for arg in fas.varargs: print(f"\t{arg}")
-    
-    if fas.varkw is not None:
-        print("Variable Keyword Arguments:")
-        for arg in fas.varkw: print(f"\t{arg}")
-    
-    if fas.kwonlyargs != []:
-        print("Keyword-only Arguments:")
-        if fas.kwonlydefaults is not None:
-            for arg in fas.kwonlyargs:
-                if arg in fas.kwonlydefaults:
-                    print(f"\t{arg} = {fas.kwonlydefaults[arg]}")
-                else: print(f"\t{arg}")
-        else:
-            for arg in fas.kwonlyargs: print(f"\t{arg}")
+def showFunc(func):
+    print(f"From module {inspect.getmodule(func).__name__}")
+    print(f"\t{func.__qualname__} {inspect.signature(func)}")
+    for line in inspect.getdoc(func).splitlines():
+        print(f"\t{line}")
 
 print("Imported the Interactive Scripting Helper.")
 print("This is meant to be used ONLY on an interactive Python session.")
@@ -94,8 +66,9 @@ print("You have cls() - Windows and clear() - Linux to clear the console.")
 print()
 print("You can use showClasses() to show currently available classes.")
 print("You can use showFuncs() to show non class-related functions.")
-print("You can use showFuncs(class) to show the methods and functions of a class.")
-print("You can use showArgs(func) to show the arguments of a function or method.")
+print("You can use showFuncs(class) to show the functions within a class.")
+print("You can use showFuncs(obj) to show bound methods of a class instance.")
+print("You can use showFunc(func) to show a function signature and documentation.")
 print()
 
 print("Getting game window and initializing.")
