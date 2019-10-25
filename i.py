@@ -49,10 +49,11 @@ def showFuncs(cls=None):
             for func in funcs: print(f"\t{func[0]}")
   
 # Show arguments of a function or method  
-def showArgs(func):
+def showFunc(func):
     print(f"From module {inspect.getmodule(func).__name__}")
-    print(inspect.signature(func))
-    print(inspect.getdoc(func))
+    print(f"\t{func.__qualname__} {inspect.signature(func)}")
+    for line in inspect.getdoc(func).splitlines():
+        print(f"\t{line}")
 
 print("Imported the Interactive Scripting Helper.")
 print("This is meant to be used ONLY on an interactive Python session.")
@@ -65,8 +66,9 @@ print("You have cls() - Windows and clear() - Linux to clear the console.")
 print()
 print("You can use showClasses() to show currently available classes.")
 print("You can use showFuncs() to show non class-related functions.")
-print("You can use showFuncs(class) to show the methods and functions of a class.")
-print("You can use showArgs(func) to show the arguments of a function or method.")
+print("You can use showFuncs(class) to show the functions within a class.")
+print("You can use showFuncs(obj) to show bound methods of a class instance.")
+print("You can use showFunc(func) to show a function signature and documentation.")
 print()
 
 print("Getting game window and initializing.")
