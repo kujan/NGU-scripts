@@ -1,14 +1,13 @@
 """Helper functions."""
 from classes.window     import Window
 from classes.inputs     import Inputs
-from classes.navigation import Navigation
 from classes.features   import Inventory, MoneyPit, Adventure, Yggdrasil, GoldDiggers, Questing
 
 import coordinates as coords
-import constants   as const
+
 
 class Helper:
-    def init(printCoords=False):
+    def init(printCoords :bool =False) -> None:
         """Initialize Window class variables.
         Helper.init() should go at the very top of any script, straight after imports.
         """
@@ -26,7 +25,7 @@ class Helper:
         
         if printCoords: print(f"Top left found at: {Window.x}, {Window.y}")
 
-    def requirements():
+    def requirements() -> None:
         """Set everything to the proper requirements to run the script.
         It's strongly recommended to run this straight after init()."""
         Inputs.click(*coords.GAME_SETTINGS)
@@ -37,7 +36,7 @@ class Helper:
         Inputs.click(*coords.SETTINGS_PAGE_2)
         Inputs.click(*coords.SIMPLE_INVENTORY_SHORTCUT_ON)
 
-    def loop(idle_majors=False):
+    def loop(idle_majors :bool =False) -> None:
         """Run infinite loop to prevent idling after task is complete.
         
         Keyword arguments
@@ -48,7 +47,7 @@ class Helper:
         Questing.set_use_majors(idle_majors)
         print("Engaging idle loop")
         while True:  # main loop
-            Questing.questing(subcontract=True) # Questing first, as we are already there
+            Questing.questing(subcontract=True)  # Questing first, as we are already there
             MoneyPit.pit()
             MoneyPit.spin()
             Inventory.boost_cube()
@@ -56,12 +55,12 @@ class Helper:
             Yggdrasil.ygg()
             Adventure.itopod_snipe(300)
 
-    def human_format(num):
+    def human_format(num :float) -> str:
         """Convert large numbers into something readable."""
         suffixes = ['', 'K', 'M', 'B', 'T', 'Q', 'Qi', 'Sx', 'Sp']
         num = float('{:.3g}'.format(num))
         if num > 1e24:
-            return num
+            return '{:.3g}'.format(num)
         magnitude = 0
         while abs(num) >= 1000:
             magnitude += 1

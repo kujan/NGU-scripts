@@ -12,7 +12,9 @@ from challenges.rebirth     import Rebirth
 from challenges.timemachine import Timemachine
 from challenges.blind       import Blind
 
-from classes.features import *
+
+from classes.features import BloodMagic, Navigation
+from classes.inputs import Inputs
 from classes.discord  import Discord
 from classes.window   import Window
 
@@ -20,12 +22,17 @@ import coordinates as coords
 import usersettings as userset
 
 
-class Challenge(Features):
+class Challenge():
     """Handles different challenges."""
 
     @staticmethod
-    def start_challenge(challenge):
-        """Start the selected challenge."""
+    def start_challenge(challenge : int) -> None:
+        """Start the selected challenge.
+        
+        Keyword arguments
+        challenge -- The index of the challenge, starting at 1 for Basic challenge,
+                     ending at 11 for No TM challenge
+        """
 
         BloodMagic.toggle_auto_spells(drop=False)
         Rebirth.rebirth()

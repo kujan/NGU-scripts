@@ -1,19 +1,18 @@
 """24-hour rebirth script."""
 import time
 # Helper classes
-from classes.inputs     import Inputs
-from classes.features   import *
+from classes.features   import (AdvancedTraining, Adventure, Augmentation, FightBoss, Inventory, Misc,
+                                BloodMagic, GoldDiggers, NGU, Wandoos, TimeMachine, MoneyPit, Rebirth,
+                                Questing, Yggdrasil)
 from classes.helper     import Helper
-from classes.navigation import Navigation
-
-import coordinates as coords
 
 # Set these to your own loadouts
-respawn_loadout=1
-ygg_loadout=2
+respawn_loadout = 1
+ygg_loadout = 2
 
 Helper.init()
 Helper.requirements()
+
 
 def rebirth_init(rt):
     """Procedure that handles start of rebirth."""
@@ -38,8 +37,8 @@ def rebirth_init(rt):
     GoldDiggers.gold_diggers()
     Misc.reclaim_bm()
     Wandoos.wandoos(True)
-    NGU.assign_ngu(f.get_idle_cap(2), list(range(1,11)), False)
-    NGU.assign_ngu(f.get_idle_cap(1), list(range(1, 9)), True)
+    NGU.assign_ngu(Misc.get_idle_cap(2), range(1, 11), False)
+    NGU.assign_ngu(Misc.get_idle_cap(1), range(1, 9), True)
 
 rt = Rebirth.get_rebirth_time()
 rebirth_init(rt)
@@ -55,7 +54,7 @@ while True:
         for spell in spells:
             BloodMagic.cast_spell(spell)
         Misc.reclaim_bm()
-        NGU.assign_ngu(f.get_idle_cap(1), list(range(1, 9)), True)
+        NGU.assign_ngu(Misc.get_idle_cap(1), range(1, 9), True)
         BloodMagic.toggle_auto_spells()  # retoggle autospells
 
     if rt.days > 0:  # rebirth is at >24 hours

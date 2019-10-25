@@ -11,7 +11,7 @@ import re
 import time
 
 from PIL import Image as image
-from PIL import ImageFilter, ImageEnhance
+from PIL import ImageFilter
 import cv2
 import numpy
 
@@ -116,7 +116,7 @@ class Inputs:
                    win32api.GetKeyState(wcon.VK_MENU)    < 0):
                 time.sleep(0.005)
             
-            vkc = win32api.VkKeyScan(c) # Get virtual key code for character c
+            vkc = win32api.VkKeyScan(c)  # Get virtual key code for character c
             # Only one keyup or keydown event needs to be sent
             win32gui.PostMessage(Window.id, wcon.WM_KEYDOWN, vkc, 0)
     
@@ -221,13 +221,17 @@ class Inputs:
         
         for x in range(0, width):
             for y in range(0, height):
-                if Inputs.rgb_equal(bmp.getpixel((x,y)), original):
-                    bmp.putpixel((x,y), replace)
+                if Inputs.rgb_equal(bmp.getpixel((x, y)), original):
+                    bmp.putpixel((x, y), replace)
         
         return bmp
     
     @staticmethod
-    def ocr(x_start, y_start, x_end, y_end, debug=False, bmp=None, cropb=False, filter=True, whiten=False, sliced=False):
+    def ocr(
+        x_start :int, y_start :int, x_end :int, y_end :int,
+        debug :bool =False, bmp :image =None, cropb :bool =False,
+        filter :bool =True, binf :int =0, sliced :bool =False
+    ) -> str:
         """Perform an OCR of the supplied area, returns a string of the result.
         
         Keyword arguments
@@ -239,7 +243,7 @@ class Inputs:
                   will get the bitmap itself. (default None)
         cropb  -- Whether the bmp provided should be cropped.
         filter -- Whether to filter the image for better OCR.
-        whiten -- Whether to whiten the background for better OCR.
+        binf   -- Threshold value for binarizing filter. Zero means no filtering.
         sliced -- Whether the image has ben sliced so there's very little blank
                   space. Gets better readings from small values for some reason.
         """
@@ -255,16 +259,15 @@ class Inputs:
             # Bitmaps are created with a 8px border
             bmp = bmp.crop((x_start + 8, y_start + 8, x_end + 8, y_end + 8))
         
-        if whiten:
-            first_pix = bmp.getpixel((0,0))
-            white     = Inputs.hex_to_rgb("FFFFFF")
-            bmp       = Inputs.color_replace(bmp, first_pix, white)
+        if binf > 0: # Binarizing Filter
+            fn = lambda x : 255 if x > binf else 0
+            bmp = bmp.convert('L') # To Monochrome
+            bmp = bmp.point(fn, mode='1')
             if debug: bmp.save("debug_ocr_whiten.png")
         
-        if filter:
+        if filter: # Resizing and sharpening
             *_, right, lower = bmp.getbbox()
-            bmp = bmp.resize((right*4, lower*4), image.BICUBIC)  # Resize image
-            bmp = bmp.filter(ImageFilter.EDGE_ENHANCE)
+            bmp = bmp.resize((right * 4, lower * 4), image.BICUBIC)  # Resize image
             bmp = bmp.filter(ImageFilter.SHARPEN)
             if debug: bmp.save("debug_ocr_filter.png")
             
@@ -323,7 +326,7 @@ class Inputs:
 
     @staticmethod
     def hex_to_rgb(str):
-        return tuple(int(str[i:i+2], 16) for i in (0, 2, 4))
+        return tuple(int(str[i:i + 2], 16) for i in (0, 2, 4))
 
     @staticmethod
     def get_file_path(directory, file):

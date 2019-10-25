@@ -3,7 +3,7 @@ import argparse
 import time
 
 # Helper classes
-from classes.features import *
+from classes.features import Adventure, MoneyPit
 from classes.helper   import Helper
 
 Helper.init(True)

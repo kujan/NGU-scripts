@@ -123,10 +123,25 @@ WISH_ORDER = [
     Wish(87, "I wish I had more Magic Bars V", 10, 5e+21),
     Wish(93, "I wish I had more Energy Bars VI", 10, 1e+23),
     Wish(96, "I wish I had more Magic Bars VI", 10, 1e+23),
-
     ]
 
 WISH_BLACKLIST = [8, 21, 23, 27, 45, 58, 59, 76]
 WISH_DISCLAIMER = "Disclaimer: this class is experimental, expect issues and crashes. Please do report them on discord or open an issue on github if you encounter one. I recommend using the color 'green' as your R3 color in the settings, it yields the best OCR results in my testing."
 TITAN_ZONE = [7, 9, 12, 15, 17, 20, 24, 27, 31, 35]
 DEFAULT_DIGGER_ORDER = [12, 4, 9, 10, 11, 1, 2, 3, 5, 6, 7, 8]
+QUEST_ZONE_MAP = {"sewers": 2, "forest": 3, "high security base": 6, "the 2d universe": 10,
+                  "a very strange place": 13, "mega lands": 14, "the beardverse": 16,
+                  "chocolate world": 21, "the evilverse": 22, "pretty pink princess land": 23}
+
+ZONE_MAP = {"safe zone: awakening site": 0, "tutorial zone": 1, "sewers": 2, "forest": 3,
+            "cave of many things": 4, "the sky": 5, "high security base": 6,
+            "gordon ramsay bolton": 7, "clock dimension": 8, "grand corrupted tree": 9,
+            "the 2d universe": 10, "ancient battlefield": 11, "jake from accounting": 12,
+            "a very strange place": 13, "mega lands": 14, "uug, the unmentionable": 15,
+            "the beardverse": 16, "walderp": 17, "badly drawn world": 18, "boring-ass earth": 19,
+            "the beast": 20, "chocolate world": 21, "the evilverse": 22,
+            "pretty pink princess land": 23, "greasy nerd": 24, "meta land": 25,
+            "interdimensional party": 26, "the godmother": 27, "typo zonw": 28,
+            "the fad-lands": 29, "jrpgville": 30, "the exile": 31, "the rad-lands": 32,
+            "back to school": 33, "the west world": 34, "it hungers": 35,
+            }

@@ -97,7 +97,7 @@ class EstimateRate():
     def rates(self):
         try:
             xpr, ppr = self.__alg[self.mode]()
-            return round(3600*xpr), round(3600*ppr)
+            return round(3600 * xpr), round(3600 * ppr)
         except ZeroDivisionError:
             return 0, 0
 
@@ -149,12 +149,11 @@ class Tracker():
         Stats.track_xp = track_xp
         Stats.track_pp = track_pp
         self.__estimaterate = EstimateRate(duration, mode)
-        #print(f"{'-' * 15} Run # {self.__iteration} {'-' * 15}")
+        # print(f"{'-' * 15} Run # {self.__iteration} {'-' * 15}")
         print("{0:{fill}{align}40}".format(f" {self.__iteration} ", fill="-", align="^"))
         print("{:^18}{:^3}{:^18}".format("XP", "|", "PP"))
         print("-" * 40)
         self.__show_progress()
-
 
     def __update_progress(self):
         self.__iteration += 1

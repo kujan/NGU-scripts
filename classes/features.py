@@ -28,7 +28,7 @@ class FightBoss:
     @staticmethod
     def nuke(boss=None):
         """Navigate to Fight Boss and Nuke or Fast Fight.
-        
+
         Keyword arguments
         boss -- If provided, will fight until reached
                 If omitted, will hit nuke instead.
@@ -58,7 +58,7 @@ class FightBoss:
                     break
         else:
             Inputs.click(*coords.NUKE)
-    
+
     @staticmethod
     def fight():
         """Navigate to Fight Boss and click fight."""
@@ -69,7 +69,7 @@ class MoneyPit:
     @staticmethod
     def pit(loadout=0):
         """Throws money into the pit.
-        
+
         Keyword arguments:
         loadout -- The loadout you wish to equip before throwing gold
                    into the pit, for gear you wish to shock. Make
@@ -83,7 +83,7 @@ class MoneyPit:
             Navigation.menu("pit")
             Inputs.click(*coords.PIT)
             Inputs.click(*coords.CONFIRM)
-    
+
     @staticmethod
     def spin():
         """Spin the wheel."""
@@ -115,17 +115,17 @@ class Adventure:
         18: 850,
         19: 900,
         20: 950,
-        }
+    }
     itopod_ap_gained = 0
     itopod_kills = 0
-    
+
     mega_buff_unlocked = False
     oh_shit_unlocked = False
-    
+
     @staticmethod
     def adventure(zone=-1, highest=False, itopod=None, itopodauto=False):
         """Go to an adventure zone to idle.
-        
+ 
         Keyword arguments
         zone -- Zone to idle in, 0 is safe zone, 1 is tutorial and so on.
         highest -- If true, will go to your highest available non-titan zone.
@@ -134,10 +134,10 @@ class Adventure:
         itopodauto -- If set to true it will click the "optimal" floor button.
         """
         Navigation.menu("adventure")
-        Inputs.click(625, 500)  # click somewhere to move tooltip
+        Misc.waste_click()
         if not Inputs.check_pixel_color(*coords.IS_IDLE):
             Inputs.click(*coords.ABILITY_IDLE_MODE)
-        if itopod:
+        if itopod or itopodauto:
             Adventure.current_adventure_zone = 0
             Inputs.click(*coords.ITOPOD)
             if itopodauto:
@@ -163,11 +163,11 @@ class Adventure:
             for _ in range(zone):
                 Inputs.click(*coords.RIGHT_ARROW, fast=True)
             return
-    
+
     @staticmethod
     def snipe(zone, duration, once=False, highest=False, bosses=False, manual=False):
         """Go to adventure and snipe bosses in specified zone.
-        
+
         Keyword arguments
         zone -- Zone to snipe, 0 is safe zone, 1 is turorial and so on.
                 If 0, it will use the current zone (to maintain guffin counter)
@@ -254,7 +254,8 @@ class Adventure:
             Inputs.click(*coords.ABILITY_IDLE_MODE)
         
         while time.time() < end:
-            if Inputs.check_pixel_color(*coords.IS_ENEMY_ALIVE) and Inputs.check_pixel_color(*coords.COLOR_REGULAR_ATTACK_READY):
+            if (Inputs.check_pixel_color(*coords.IS_ENEMY_ALIVE) and
+               Inputs.check_pixel_color(*coords.COLOR_REGULAR_ATTACK_READY)):
                 Inputs.click(*coords.ABILITY_REGULAR_ATTACK)
             else:
                 time.sleep(0.01)
@@ -292,12 +293,12 @@ class Adventure:
             Inputs.click(x, y)
             time.sleep(userset.LONG_SLEEP)
             color = Inputs.get_pixel_color(coords.ABILITY_ROW1X,
-                                         coords.ABILITY_ROW1Y)
+                                           coords.ABILITY_ROW1Y)
             
             while color != coords.ABILITY_ROW1_READY_COLOR:
                 time.sleep(0.03)
                 color = Inputs.get_pixel_color(coords.ABILITY_ROW1X,
-                                             coords.ABILITY_ROW1Y)
+                                               coords.ABILITY_ROW1Y)
     
     @staticmethod
     def check_titan_status():
@@ -402,12 +403,12 @@ class Adventure:
             Inputs.click(x, y)
             time.sleep(userset.LONG_SLEEP)
             color = Inputs.get_pixel_color(coords.ABILITY_ROW1X,
-                                         coords.ABILITY_ROW1Y)
+                                           coords.ABILITY_ROW1Y)
             
             while color != coords.ABILITY_ROW1_READY_COLOR:
                 time.sleep(0.05)
                 color = Inputs.get_pixel_color(coords.ABILITY_ROW1X,
-                                             coords.ABILITY_ROW1Y)
+                                               coords.ABILITY_ROW1Y)
     
     @staticmethod
     def get_ability_queue():
@@ -642,10 +643,10 @@ class Inventory:
         
         if consume:
             coord = Inputs.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600,
-                                      Inputs.get_file_path("images", "consumable.png"), threshold)
+                                        Inputs.get_file_path("images", "consumable.png"), threshold)
         else:
             coord = Inputs.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600,
-                                      Inputs.get_file_path("images", "transformable.png"), threshold)
+                                        Inputs.get_file_path("images", "transformable.png"), threshold)
         
         if coord:
             Inputs.ctrl_click(*slot)
@@ -871,7 +872,7 @@ class BloodMagic:
             
             while time.time() < start + duration:
                 print(f"Sniping itopod for {duration} seconds while waiting to cast spell.")
-                BloodMagic.itopod_snipe(duration)
+                Adventure.itopod_snipe(duration)
             Navigation.spells()
             Inputs.click(*targets[target])
 
@@ -930,10 +931,8 @@ class NGU:
         if len(targets) > 9:
             raise RuntimeError("Passing too many NGU's to assign_ngu," +
                                " allowed: 9, sent: " + str(len(targets)))
-        if magic:
-            Navigation.ngu_magic()
-        else:
-            Navigation.menu("ngu")
+        if magic: Navigation.ngu_magic()
+        else: Navigation.menu("ngu")
         
         Misc.set_input(value // len(targets))
         for i in targets:
@@ -971,9 +970,9 @@ class NGU:
             energy = 0
             for x in range(198):
                 color = Inputs.get_pixel_color(coords.NGU_BAR_MIN.x + x,
-                                             coords.NGU_BAR_MIN.y +
-                                             coords.NGU_BAR_OFFSET_Y * target,
-                                             )
+                                               coords.NGU_BAR_MIN.y +
+                                               coords.NGU_BAR_OFFSET_Y * target,
+                                               )
                 if color == coords.NGU_BAR_WHITE:
                     pixel_coefficient = x / 198
                     value_coefficient = overcap / pixel_coefficient
@@ -985,14 +984,14 @@ class NGU:
                 else:
                     print(f"Warning: You might be overcapping energy NGU #{target}")
                 continue
-            
+      
             Misc.set_input(int(energy))
             Inputs.click(coords.NGU_PLUS.x, coords.NGU_PLUS.y + target * 35)
-    
+
     @staticmethod
     def cap_ngu(targets=None, magic=False, cap_all=True):
         """Cap NGUs.
-        
+
         Keyword arguments
         targets -- The NGU's you wish to cap
         magic -- Set to true if these are magic NGU's
@@ -1050,7 +1049,7 @@ class GoldDiggers:
         """
         Navigation.menu("digger")
         for i in targets:
-            page = ((i-1)//4)
+            page = ((i - 1) // 4)
             item = i - (page * 4)
             Inputs.click(*coords.DIG_PAGE[page])
             if deactivate:
@@ -1276,7 +1275,7 @@ class Questing:
         set -- If True, enable the checkbox. If False, disable it.
         """
         Navigation.menu("questing")
-        if Questing.get_use_majors() != set: # Toggle if only one is True
+        if Questing.get_use_majors() != set:  # Toggle if only one is True
             Questing.toggle_use_majors()
 
 class Hacks:
@@ -1292,7 +1291,7 @@ class Hacks:
         Misc.set_input(value // len(targets))
         Navigation.menu("hacks")
         for i in targets:
-            page = ((i-1)//8)
+            page = ((i - 1) // 8)
             item = i - (page * 8)
             Inputs.click(*coords.HACK_PAGE[page])
             Inputs.click(*coords.HACKS[item])
@@ -1516,16 +1515,17 @@ class Misc:
             Inputs.click(*coords.SAVE)
         return
     
+    # crops the misc breakdown image, cutting off empty space on the right
     @staticmethod
     def __cutoff_right(bmp):
-        first_pix = bmp.getpixel((0,0))
+        first_pix = bmp.getpixel((0, 0))
         width, height = bmp.size
         
         count = 0
         for x in range(8, width):
             dif = False
             for y in range(0, height):
-                if not Inputs.rgb_equal(first_pix, bmp.getpixel((x,y))):
+                if not Inputs.rgb_equal(first_pix, bmp.getpixel((x, y))):
                     dif = True
                     break
             
@@ -1533,34 +1533,39 @@ class Misc:
             else:
                 count += 1
                 if count > 8:
-                    return bmp.crop((0,0,x,height))
+                    return bmp.crop((0, 0, x , height))
         
         return bmp
     
+    # splits the three parts of the resource breakdown (pow, bars, cap)
     @staticmethod
     def __split_breakdown(bmp):
-        first_pix = bmp.getpixel((0,0))
+        first_pix = bmp.getpixel((0, 0))
         width, height = bmp.size
         y1 = 1
         offset_x = coords.OCR_BREAKDOWN_NUM[0] - coords.OCR_BREAKDOWN_COLONS[0]
         
-        slices = [1,1,1]
+        slices = [1, 1, 1]
         for x in range(0, 3):
             for y in range(y1, height):
-                if not Inputs.rgb_equal(first_pix, bmp.getpixel((0,y))):
+                if not Inputs.rgb_equal(first_pix, bmp.getpixel((0, y))):
                     y0 = y
                     break
             
             for y in range(y0, height, coords.BREAKDOWN_OFFSET_Y):
-                if Inputs.rgb_equal(first_pix, bmp.getpixel((0,y))):
+                if Inputs.rgb_equal(first_pix, bmp.getpixel((0, y))):
                     y1 = y
                     break
             
-            slice = bmp.crop((offset_x, y0-8, width, y1))
+            slice = bmp.crop((offset_x, y0 - 8, width, y1))
             slices[x] = Misc.__cutoff_right(slice)
         
         return slices
     
+    # Goes to stats breakdown, makes a screenshot
+    # Gets it split into three containing all the numbers by calling __split_breakdown
+    # Sends all thre images to OCR
+    # Returns a list of lists of the numbers from stats breakdown
     @staticmethod
     def __get_res_breakdown(resource, ocrDebug=False, bmp=None, debug=False):
         Navigation.stat_breakdown()
@@ -1578,14 +1583,18 @@ class Misc:
         ress = []
         for img in imgs:
             if debug: img.show()
-            s = Inputs.ocr(0,0,0,0, bmp=img, debug=ocrDebug, whiten=True, sliced=True)
-            ress.append(s)
+            s = Inputs.ocr(0, 0, 0, 0, bmp=img, debug=ocrDebug, whiten=True, sliced=True)
+            s = s.splitlines()
+            s2 = [x for x in s if x != ""]  # remove empty lines
+            ress.append(s2)
         
         return ress
     
+    # Gets the numbers on stats breakdown for the resource and value passed
+    # val = 0 for power, 1 for bars and 2 for cap
     @staticmethod
     def __get_res_val(resource, val):
-        s = Misc.__get_res_breakdown(resource)[val].splitlines()[-1]
+        s = Misc.__get_res_breakdown(resource)[val][-1]
         return Inputs.get_numbers(s)[0]
     
     @staticmethod
@@ -1622,8 +1631,8 @@ class Misc:
         Keyword arguments
         resource -- The resource to get idle cap for. 1 for energy, 2 for magic and 3 for r3.
         """
-        try: # The sliced argument was meant for low values with get_pow/bars/cap
-             # But also serves for low idle caps
+        try:  # The sliced argument was meant for low values with get_pow/bars/cap
+            # But also serves for low idle caps
             if   resource == 1: res = Inputs.ocr(*coords.OCR_ENERGY, sliced=True)
             elif resource == 2: res = Inputs.ocr(*coords.OCR_MAGIC , sliced=True)
             elif resource == 3: res = Inputs.ocr(*coords.OCR_R3    , sliced=True)
