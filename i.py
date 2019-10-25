@@ -50,7 +50,7 @@ def showFuncs(cls=None):
   
 # Show arguments of a function or method  
 def showArgs(func):
-    print(f"From module {inspect.getmodule(func)}")
+    print(f"From module {inspect.getmodule(func).__name__}")
     print(inspect.signature(func))
     print(inspect.getdoc(func))
 
