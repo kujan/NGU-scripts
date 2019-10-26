@@ -1,12 +1,16 @@
 """Contains functions for running a basic challenge."""
-from classes.features import Features
+from classes.features import Rebirth, Wandoos, BloodMagic, MoneyPit
+from classes.features import GoldDiggers, Augmentation, FightBoss, Adventure
+from classes.inputs   import Inputs
+
 import coordinates as coords
 import time
 
-class Equipment(Features):
+class Equipment:
     """Contains functions for running a basic challenge."""
 
-    def speedrun(self, duration):
+    @staticmethod
+    def speedrun(duration):
         """Start a speedrun.
 
         Keyword arguments
@@ -14,49 +18,52 @@ class Equipment(Features):
         f -- feature object
         """
         diggers = [2, 3, 11, 12]
-        self.nuke()
+        FightBoss.nuke()
         time.sleep(2)
-        self.fight()
-        self.adventure(highest=True)
+
+        FightBoss.fight()
+        Adventure.adventure(highest=True)
         time.sleep(2)
-        rb_time = self.get_rebirth_time()
+
+        rb_time = Rebirth.get_rebirth_time()
         while int(rb_time.timestamp.tm_min) < duration:
-            self.gold_diggers(diggers)
-            self.wandoos(True)
-            self.augments({"SM": 1}, coords.INPUT_MAX)
-            if not self.check_pixel_color(*coords.COLOR_TM_LOCKED):
-                self.blood_magic(6)
-            self.nuke()
-            rb_time = self.get_rebirth_time()
-        self.pit()
-        self.spin()
+            GoldDiggers.gold_diggers(diggers)
+            Wandoos.wandoos(True)
+            Augmentation.augments({"SM": 1}, coords.INPUT_MAX)
+            if not Inputs.check_pixel_color(*coords.COLOR_TM_LOCKED):
+                BloodMagic.blood_magic(6)
+            FightBoss.nuke()
+            rb_time = Rebirth.get_rebirth_time()
+        MoneyPit.pit()
+        MoneyPit.spin()
         return
 
-    def start(self):
+    @staticmethod
+    def start():
         """Challenge rebirth sequence.
 
         If you wish to edit the length or sequence of the rebirths; change the for-loop values
-        and durations in the self.speedrun(duration) calls."""
-        self.set_wandoos(0)  # wandoos 98, use 1 for meh
+        and durations in the Equipment.speedrun(duration) calls."""
+        Wandoos.set_wandoos(0)  # wandoos 98, use 1 for meh
 
         for x in range(8):
-            self.speedrun(3)
-            if not self.check_challenge():
+            Equipment.speedrun(3)
+            if not Rebirth.check_challenge():
                 return
-            self.do_rebirth()
+            Rebirth.do_rebirth()
         for x in range(5):
-            self.speedrun(7)
-            if not self.check_challenge():
+            Equipment.speedrun(7)
+            if not Rebirth.check_challenge():
                 return
-            self.do_rebirth()
+            Rebirth.do_rebirth()
         for x in range(5):
-            self.speedrun(12)
-            if not self.check_challenge():
+            Equipment.speedrun(12)
+            if not Rebirth.check_challenge():
                 return
-            self.do_rebirth()
+            Rebirth.do_rebirth()
         for x in range(5):
-            self.speedrun(60)
-            if not self.check_challenge():
+            Equipment.speedrun(60)
+            if not Rebirth.check_challenge():
                 return
-            self.do_rebirth()
+            Rebirth.do_rebirth()
         return
