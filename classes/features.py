@@ -1223,38 +1223,39 @@ class Questing:
             Inputs.click(*coords.QUESTING_SUBCONTRACT)
         if butter:
             Inputs.click(*coords.QUESTING_BUTTER)
-        for count, zone in enumerate(coords.QUESTING_ZONES, start=0):
-            if zone in text.lower():
-                current_time = time.time()
-                while current_time < end:
-                    if current_time + adv_duration * 60 > end:  # adjust adv_duration if it will cause duration to be exceeded
-                        adv_duration = (end - current_time) / 60
-                        if adv_duration < 0.5:
-                            adv_duration = 0
-                            return
-                    Adventure.snipe(count, adv_duration)
-                    Inventory.boost_cube()
-                    Questing.questing_consume_items()
-                    text = Questing.get_quest_text()
-                    current_time = time.time()
-                    if coords.QUESTING_QUEST_COMPLETE in text.lower():
-                        try:
-                            start_qp = int(Inputs.remove_letters(Inputs.ocr(*coords.OCR_QUESTING_QP)))
-                        except ValueError:
-                            print("Couldn't fetch current QP")
-                            start_qp = 0
-                        Questing.start_complete()
-                        Inputs.click(605, 510)  # move tooltip
-                        try:
-                            current_qp = int(Inputs.remove_letters(Inputs.ocr(*coords.OCR_QUESTING_QP)))
-                        except ValueError:
-                            print("Couldn't fetch current QP")
-                            current_qp = 0
-                        
-                        gained_qp = current_qp - start_qp
-                        print(f"Completed quest in zone #{count} at {datetime.datetime.now().strftime('%H:%M:%S')} for {gained_qp} QP")
-                        
-                        return
+        
+        Inputs.click(*coords.QUESTING_TO_ZONE)
+        current_time = time.time()
+        
+        while current_time < end:
+            if current_time + adv_duration * 60 > end:  # adjust adv_duration if it will cause duration to be exceeded
+                adv_duration = (end - current_time) / 60
+                if adv_duration < 0.5:
+                    adv_duration = 0
+                    return
+            Adventure.snipe(0, adv_duration)
+            Inventory.boost_cube()
+            Questing.questing_consume_items()
+            text = Questing.get_quest_text()
+            current_time = time.time()
+            if coords.QUESTING_QUEST_COMPLETE in text.lower():
+                try:
+                    start_qp = int(Inputs.remove_letters(Inputs.ocr(*coords.OCR_QUESTING_QP)))
+                except ValueError:
+                    print("Couldn't fetch current QP")
+                    start_qp = 0
+                Questing.start_complete()
+                Inputs.click(605, 510)  # move tooltip
+                try:
+                    current_qp = int(Inputs.remove_letters(Inputs.ocr(*coords.OCR_QUESTING_QP)))
+                except ValueError:
+                    print("Couldn't fetch current QP")
+                    current_qp = 0
+                    
+                gained_qp = current_qp - start_qp
+                print(f"Completed quest at {datetime.datetime.now().strftime('%H:%M:%S')} for {gained_qp} QP")
+                
+                return
     
     @staticmethod
     def get_use_majors():
