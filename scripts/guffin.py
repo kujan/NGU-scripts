@@ -27,7 +27,7 @@ import constants as const
 from typing import NamedTuple, List, ClassVar
 
 
-class GuffinRun:
+class GuffinRun():
 
     wishes: ClassVar[Wishes] = None
     advanced_training_locked: ClassVar[bool] = False
@@ -35,7 +35,6 @@ class GuffinRun:
     rb_time: ClassVar[int] = 0
     runs: ClassVar[int] = 0
 
-    runs: ClassVar[int]
     max_rb_duration: ClassVar[int]
     zone: ClassVar[str]
     gold_zone: ClassVar[str]
@@ -77,7 +76,7 @@ class GuffinRun:
                     break
 
     @staticmethod
-    def _update_gamestate() -> None:
+    def __update_gamestate() -> None:
         """Update relevant state information."""
         GuffinRun.rb_time = Rebirth.rt_to_seconds()
         try:
@@ -92,7 +91,7 @@ class GuffinRun:
             )
 
     @staticmethod
-    def _do_quest() -> None:
+    def __do_quest() -> None:
         """Get the amount of available major quests."""
         text = Questing.get_quest_text().lower()
         majors = Questing.get_available_majors()
@@ -113,7 +112,7 @@ class GuffinRun:
     @staticmethod
     def run() -> None:
         """Rebirth procedure."""
-        GuffinRun._update_gamestate()
+        GuffinRun.__update_gamestate()
         if GuffinRun.rb_time > GuffinRun.max_rb_duration:
             Rebirth.do_rebirth()
             return
@@ -131,7 +130,7 @@ class GuffinRun:
             {GuffinRun.aug[0]: 0.66, GuffinRun.aug[1]: 0.34}, Misc.get_idle_cap(1) * 0.5
         )
         TimeMachine.time_machine(Misc.get_idle_cap(1) * 0.1, magic=True)
-        GuffinRun._update_gamestate()
+        GuffinRun.__update_gamestate()
         BloodMagic.toggle_auto_spells(drop=False, gold=False)
         if GuffinRun.wishes:
             GuffinRun.wishes.get_caps()
@@ -139,7 +138,7 @@ class GuffinRun:
             GuffinRun.wishes.allocate_wishes()
 
         while GuffinRun.advanced_training_locked:
-            GuffinRun._do_quest()
+            GuffinRun.__do_quest()
             FightBoss.nuke()
             GoldDiggers.gold_diggers(GuffinRun.diggers)
             NGU.cap_ngu()
@@ -150,7 +149,7 @@ class GuffinRun:
                 Misc.get_idle_cap(1) * 0.5,
             )
             TimeMachine.time_machine(coords.INPUT_MAX, magic=True)
-            GuffinRun._update_gamestate()
+            GuffinRun.__update_gamestate()
 
         Misc.reclaim_tm(energy=True, magic=True)
         Misc.reclaim_aug()
@@ -165,8 +164,8 @@ class GuffinRun:
             GoldDiggers.gold_diggers(GuffinRun.diggers)
             FightBoss.nuke()
             Hacks.hacks(GuffinRun.hacks, coords.INPUT_MAX)
-            GuffinRun._do_quest()
-            GuffinRun._update_gamestate()
+            GuffinRun.__do_quest()
+            GuffinRun.__update_gamestate()
 
         FightBoss.fight()
         Adventure.adventure(itopodauto=True)
@@ -174,7 +173,7 @@ class GuffinRun:
         Misc.save_check()
         while GuffinRun.rb_time < GuffinRun.max_rb_duration:
             time.sleep(1)
-            GuffinRun._update_gamestate()
+            GuffinRun.__update_gamestate()
 
         FightBoss.nuke()
         Rebirth.do_rebirth()
