@@ -228,10 +228,17 @@ class Inputs:
     
     @staticmethod
     def ocr(
-        x_start :int, y_start :int, x_end :int, y_end :int,
-        debug :bool =False, bmp :image =None, cropb :bool =False,
-        filter :bool =True, binf :int =0, sliced :bool =False
-    ) -> str:
+         x_start :int,
+         y_start :int,
+         x_end :int,
+         y_end :int,
+         debug :bool =False,
+         bmp :image =None,
+         cropb :bool =False,
+         filter :bool =True,
+         binf :int =0,
+         sliced :bool =False
+     ) -> str:
         """Perform an OCR of the supplied area, returns a string of the result.
         
         Keyword arguments
@@ -321,11 +328,12 @@ class Inputs:
     
     @staticmethod
     def rgb_to_hex(tup):
-        """Convert RGB value to HEX."""
+        """Convert RGB value to hex."""
         return '%02x%02x%02x'.upper() % (tup[0], tup[1], tup[2])
 
     @staticmethod
     def hex_to_rgb(str):
+        """Convert hex value to RGB."""
         return tuple(int(str[i:i + 2], 16) for i in (0, 2, 4))
 
     @staticmethod

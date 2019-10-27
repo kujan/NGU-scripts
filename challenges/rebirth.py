@@ -1,86 +1,84 @@
 """Contains functions for running a no rebirth challenge."""
-from classes.features import Features
-import coordinates as coords
-import usersettings as userset
+from classes.features import FightBoss, GoldDiggers, Adventure, Augmentation
+from classes.features import BloodMagic, Wandoos, TimeMachine, Misc
+from classes.features import Rebirth as RB
+from classes.inputs   import Inputs
+
+import coordinates  as coords
 import time
 
 
-class Rebirth(Features):
+class Rebirth:
     """Contains functions for running a no rebirth challenge."""
 
-    final_aug = False
-
-    def first_rebirth(self):
+    @staticmethod
+    def first_rebirth():
         """Procedure for first rebirth."""
-        end = time.time() + 3 * 60
+        final_aug   = False
         ss_assigned = False
-        diggers = [x for x in range(1, 13)]
-        self.nuke()
+
+        end = time.time() + 3 * 60
+
+        FightBoss.nuke()
         time.sleep(2)
-        self.fight()
-        self.adventure(highest=True)
-        while self.check_pixel_color(*coords.COLOR_TM_LOCKED):
+
+        FightBoss.fight()
+        Adventure.adventure(highest=True)
+        while Inputs.check_pixel_color(*coords.COLOR_TM_LOCKED):
             if not ss_assigned:
                 time.sleep(1)
-                self.augments({"SS": 1}, 3e12)
+                Augmentation.augments({"SS": 1}, 3e12)
                 ss_assigned = True
-            self.wandoos(True)
-            self.nuke()
+            Wandoos.wandoos(True)
+            FightBoss.nuke()
             time.sleep(2)
-            self.fight()
+            FightBoss.fight()
 
-        self.time_machine(1e9, magic=True)
-        self.augments({"DS": 1}, 1e12)
-        self.gold_diggers(diggers)
-        self.adventure(itopod=True, itopodauto=True)
+        TimeMachine.time_machine(1e9, magic=True)
+        Augmentation.augments({"DS": 1}, 1e12)
+        GoldDiggers.gold_diggers()
+        Adventure.adventure(itopod=True, itopodauto=True)
 
-        while self.check_pixel_color(*coords.COLOR_BM_LOCKED) or self.check_pixel_color(*coords.COLOR_BM_LOCKED_ALT):
-            self.wandoos(True)
-            self.nuke()
+        while Inputs.check_pixel_color(*coords.COLOR_BM_LOCKED) or Inputs.check_pixel_color(*coords.COLOR_BM_LOCKED_ALT):
+            Wandoos.wandoos(True)
+            FightBoss.nuke()
             time.sleep(2)
-            self.fight()
-            self.gold_diggers(diggers)
-        self.blood_magic(8)
-        self.toggle_auto_spells(drop=False, number=False)
+            FightBoss.fight()
+            GoldDiggers.gold_diggers()
+        BloodMagic.blood_magic(8)
+        BloodMagic.toggle_auto_spells(drop=False, number=False)
         while time.time() < end - 90:
-            self.wandoos(True)
-            self.nuke()
+            Wandoos.wandoos(True)
+            FightBoss.nuke()
             time.sleep(2)
             try:
-                current_boss = int(self.get_current_boss())
+                current_boss = int(FightBoss.get_current_boss())
                 if current_boss > 36:
-                    self.augments({"SS": 0.67, "DS": 0.33}, self.get_idle_cap(1))
+                    Augmentation.augments({"SS": 0.67, "DS": 0.33}, Misc.get_idle_cap(1))
             except ValueError:
                 print("couldn't get current boss")
-            self.gold_diggers(diggers)
+            GoldDiggers.gold_diggers()
 
         while True:
-            self.wandoos(True)
-            self.nuke()
+            Wandoos.wandoos(True)
+            FightBoss.nuke()
             time.sleep(1)
             try:
-                current_boss = int(self.get_current_boss())
+                current_boss = int(FightBoss.get_current_boss())
                 if current_boss > 45:
-                    if not self.final_aug:
-                        self.reclaim_aug()
-                        self.final_aug = True
-                    self.augments({"SM": 0.67, "AA": 0.33}, self.get_idle_cap(1))
+                    if not final_aug:
+                        Misc.reclaim_aug()
+                        final_aug = True
+                    Augmentation.augments({"SM": 0.67, "AA": 0.33}, Misc.get_idle_cap(1))
             except ValueError:
                 print("couldn't get current boss")
-            self.fight()
-            self.gold_diggers(diggers)
+            FightBoss.fight()
+            GoldDiggers.gold_diggers()
 
-            if time.time() > end and not self.check_challenge():
+            if time.time() > end and not RB.check_challenge():
                 return
 
-    def check_challenge(self):
-        """Check if a challenge is active."""
-        self.rebirth()
-        self.click(*coords.CHALLENGE_BUTTON)
-        time.sleep(userset.LONG_SLEEP)
-        return True if self.check_pixel_color(*coords.COLOR_CHALLENGE_ACTIVE) else False
-
-    def rebirth_challenge(self):
+    @staticmethod
+    def rebirth_challenge():
         """Defeat target boss."""
-        self.first_rebirth()
-        return
+        Rebirth.first_rebirth()
