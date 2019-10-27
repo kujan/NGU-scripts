@@ -5,7 +5,6 @@ from classes.features import Rebirth as RB
 from classes.inputs   import Inputs
 
 import coordinates  as coords
-import usersettings as userset
 import time
 
 

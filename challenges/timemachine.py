@@ -1,5 +1,5 @@
 """Contains functions for running a no time machine challenge."""
-from classes.features import FightBoss, Adventure, MoneyPit, GoldDiggers
+from classes.features import FightBoss, Adventure, MoneyPit
 from classes.features import Wandoos, Augmentation, Rebirth, Misc, BloodMagic
 from classes.inputs   import Inputs
 
