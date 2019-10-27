@@ -1,78 +1,82 @@
 """Contains functions for running a 100 level challenge."""
-from classes.features import Features
+from classes.features import FightBoss, Adventure, Augmentation, GoldDiggers
+from classes.features import Wandoos, TimeMachine, BloodMagic, Rebirth
+from classes.inputs   import Inputs
+
 import coordinates as coords
 import time
 
-class Blind(Features):
-    """Contains functions for running a 100 level challenge.
-
-    IMPORTANT
-
-    Set target level for energy buster to 67 and charge shot to 33.
-    Disable "Advance Energy" in augments
-    Disable beards if you cap ultra fast.
-
+class Blind:
+    """Contains functions for running a blind challenge.
     """
-    def speedrun(self, duration):
-        """Procedure for first rebirth in a 100LC."""
-        self.advanced_training_locked = True
-        self.bm_locked = True
-        self.tm_locked = True
+    advanced_training_locked = True
+    bm_locked = True
+    tm_locked = True
+
+    @staticmethod
+    def run(duration):
+        """Procedure for Blind Challenge RBs."""
+        Blind.advanced_training_locked = True
+        Blind.bm_locked = True
+        Blind.tm_locked = True
+
         tm_assigned = False
         bm_assigned = False
+
         end = time.time() + duration * 60 + 10
-        self.nuke()
+        FightBoss.nuke()
         time.sleep(2)
-        self.fight()
+        FightBoss.fight()
         diggers = [2, 3, 11, 12]
-        self.adventure(highest=True)
-        self.augments({"SS": 1}, 1e12)
-        self.gold_diggers(diggers)
+        Adventure.adventure(highest=True)
+        Augmentation.augments({"SS": 1}, 1e12)
+        GoldDiggers.gold_diggers(diggers)
         while time.time() < end:
-            self.augments({"EB": 0.66, "CS": 0.34}, 1e13)
-            self.wandoos(True)
-            self.nuke()
-            self.fight()
-            self.gold_diggers(diggers)
-            self.update_gamestate()
-            if not self.tm_locked and not tm_assigned:
-                self.time_machine(1e13, m=1e13)
+            Augmentation.augments({"EB": 0.66, "CS": 0.34}, 1e13)
+            Wandoos.wandoos(True)
+            FightBoss.nuke()
+            FightBoss.fight()
+            GoldDiggers.gold_diggers(diggers)
+            Blind.update_gamestate()
+            if not Blind.tm_locked and not tm_assigned:
+                TimeMachine.time_machine(1e13, m=1e13)
                 tm_assigned = True
-            if not self.bm_locked and not bm_assigned:
-                self.blood_magic(8)
+            if not Blind.bm_locked and not bm_assigned:
+                BloodMagic.blood_magic(8)
                 bm_assigned = True
-            if not self.check_challenge() and end - time.time() > 180:
+            if not Rebirth.check_challenge() and end - time.time() > 180:
                 return
-        if not self.check_challenge():
+        if not Rebirth.check_challenge():
             return
-        self.do_rebirth()
+        Rebirth.do_rebirth()
         return
 
-    def update_gamestate(self):
+    @staticmethod
+    def update_gamestate():
         """Update relevant state information."""
+        if Blind.advanced_training_locked:
+            Blind.advanced_training_locked = Inputs.check_pixel_color(*coords.COLOR_ADV_TRAINING_LOCKED)
+        if Blind.bm_locked:
+            Blind.bm_locked = Inputs.check_pixel_color(*coords.COLOR_BM_LOCKED)
+        if Blind.tm_locked:
+            Blind.tm_locked = Inputs.check_pixel_color(*coords.COLOR_TM_LOCKED)
 
-        if self.advanced_training_locked:
-            self.advanced_training_locked = self.check_pixel_color(*coords.COLOR_ADV_TRAINING_LOCKED)
-        if self.bm_locked:
-            self.bm_locked = self.check_pixel_color(*coords.COLOR_BM_LOCKED)
-        if self.tm_locked:
-            self.tm_locked = self.check_pixel_color(*coords.COLOR_TM_LOCKED)
-
-    def start(self):
-        """Handle LC run."""
+    @staticmethod
+    def start():
+        """Handle Blind Challenge run."""
         for x in range(8):
-            self.speedrun(3)
-            if not self.check_challenge():
+            Blind.run(3)
+            if not Rebirth.check_challenge():
                 return
         for x in range(5):
-            self.speedrun(7)
-            if not self.check_challenge():
+            Blind.run(7)
+            if not Rebirth.check_challenge():
                 return
         for x in range(5):
-            self.speedrun(12)
-            if not self.check_challenge():
+            Blind.run(12)
+            if not Rebirth.check_challenge():
                 return
         for x in range(5):
-            self.speedrun(60)
-            if not self.check_challenge():
+            Blind.run(60)
+            if not Rebirth.check_challenge():
                 return

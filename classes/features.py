@@ -872,7 +872,7 @@ class BloodMagic:
             
             while time.time() < start + duration:
                 print(f"Sniping itopod for {duration} seconds while waiting to cast spell.")
-                BloodMagic.itopod_snipe(duration)
+                Adventure.itopod_snipe(duration)
             Navigation.spells()
             Inputs.click(*targets[target])
 
