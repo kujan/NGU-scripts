@@ -112,6 +112,9 @@ class GuffinRun():
     @staticmethod
     def run() -> None:
         """Rebirth procedure."""
+        GuffinRun.advanced_training_locked = True
+        GuffinRun.current_boss = 0
+        GuffinRun.rb_time = 0
         GuffinRun.__update_gamestate()
         if GuffinRun.rb_time > GuffinRun.max_rb_duration:
             Rebirth.do_rebirth()
@@ -177,6 +180,7 @@ class GuffinRun():
 
         FightBoss.nuke()
         Rebirth.do_rebirth()
+        time.sleep(1)  # Must wait for game to fully redraw all elements after rebirthing
         GuffinRun.runs += 1
         print(
             f"Completed guffin run #{GuffinRun.runs} in {time.strftime('%H:%M:%S', time.gmtime(GuffinRun.rb_time))}"
