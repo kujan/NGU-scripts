@@ -7,7 +7,7 @@ import win32gui
 from deprecated import deprecated
 
 
-class Window():
+class Window:
     """This class contains game window coordinates."""
 
     id = 0

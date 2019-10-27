@@ -11,7 +11,7 @@ import usersettings as userset
 import time
 
 
-class Challenge():
+class Challenge:
     """Handles different challenges."""
 
     from .challenges.augment     import augment

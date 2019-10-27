@@ -10,7 +10,7 @@ from classes.wishes   import Wishes
 import coordinates as coords
 import constants   as const
 
-class Guffin():
+class Guffin:
     """Guffin run class."""
 
     def __init__(self):

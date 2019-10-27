@@ -9,7 +9,7 @@ from classes.helper     import Helper
 from classes.navigation import Navigation
 from classes.inputs     import Inputs
 
-class Stats():
+class Stats:
     """Handles various statistics."""
 
     total_xp = 0
@@ -52,7 +52,7 @@ class Stats():
                 Stats.OCR_failures = 0
                 Stats.OCR_failed = True
 
-class EstimateRate():
+class EstimateRate:
 
     def __init__(self, duration, mode='moving_average'):
         self.mode = mode
@@ -135,7 +135,7 @@ class EstimateRate():
         """This method is used to update last xp after upgrade spends"""
         self.last_xp = Stats.xp
 
-class Tracker():
+class Tracker:
     """
     The Tracker object collects time and value measurements for stats
 
