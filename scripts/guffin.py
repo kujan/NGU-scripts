@@ -27,7 +27,7 @@ import constants as const
 from typing import NamedTuple, List, ClassVar
 
 
-class GuffinRun():
+class GuffinRun:
 
     wishes: ClassVar[Wishes] = None
     advanced_training_locked: ClassVar[bool] = False
@@ -99,15 +99,11 @@ class GuffinRun():
             coords.QUESTING_MINOR_QUEST in text
             or coords.QUESTING_NO_QUEST_ACTIVE in text
         ):
-            Questing.questing(
-                duration=2,
-                force=const.QUEST_ZONE_MAP[GuffinRun.zone],
-                butter=GuffinRun.butter,
-            )
+            Questing.questing(duration=2, force=const.QUEST_ZONE_MAP[GuffinRun.zone])
         else:
             if not Inputs.check_pixel_color(*coords.COLOR_QUESTING_USE_MAJOR):
                 Inputs.click(*coords.QUESTING_USE_MAJOR)
-            Questing.questing(duration=2)
+            Questing.questing(duration=2, butter=GuffinRun.butter)
 
     @staticmethod
     def run() -> None:
@@ -180,7 +176,8 @@ class GuffinRun():
 
         FightBoss.nuke()
         Rebirth.do_rebirth()
-        time.sleep(1)  # Must wait for game to fully redraw all elements after rebirthing
+        # Must wait for game to fully redraw all elements after rebirthing
+        time.sleep(1)
         GuffinRun.runs += 1
         print(
             f"Completed guffin run #{GuffinRun.runs} in {time.strftime('%H:%M:%S', time.gmtime(GuffinRun.rb_time))}"
