@@ -239,10 +239,6 @@ class Inputs:
          binf :int =0,
          sliced :bool =False
      ) -> str:
-        x_start :int, y_start :int, x_end :int, y_end :int,
-        debug :bool =False, bmp :image =None, cropb :bool =False,
-        filter :bool =True, binf :int =0, sliced :bool =False
-    ) -> str:
         """Perform an OCR of the supplied area, returns a string of the result.
         
         Keyword arguments
