@@ -181,6 +181,3 @@ class GuffinRun():
         print(
             f"Completed guffin run #{GuffinRun.runs} in {time.strftime('%H:%M:%S', time.gmtime(GuffinRun.rb_time))}"
         )
-
-if __name__ == "__main__":
-    raise RuntimeError("This file is not meant to be run as a program")
