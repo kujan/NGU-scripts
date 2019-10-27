@@ -1,197 +1,187 @@
 """Contains functions for running a no time machine challenge."""
-from classes.features import Features
-from classes.inputs import Inputs
+from classes.features import Wandoos, FightBoss, Adventure, Augmentation, GoldDiggers
+from classes.features import AdvancedTraining, Rebirth, Misc, TimeMachine, BloodMagic
+from classes.inputs   import Inputs
+
 import coordinates as coords
 import time
 
 
-class Basic(Features, Inputs):
+class Basic:
     """Contains functions for running a no NGU challenge."""
-    def first_rebirth(self, duration):
-        """Procedure for first rebirth."""
-        adv_training_assigned = False
-        self.current_boss = 1
-        self.minutes_elapsed = 0
-        self.advanced_training_locked = True
-        self.bm_locked = True
-        self.tm_locked = True
-        while self.current_boss < 18 and self.minutes_elapsed < duration:
-            self.wandoos(True)
-            self.fight()
-            self.update_gamestate()
-            if not self.advanced_training_locked and not adv_training_assigned:
-                print("assigning adv")
-                self.advanced_training(4e11)
-                adv_training_assigned = True
-        self.adventure(highest=True)
-        while self.minutes_elapsed < duration:
-            self.wandoos(True)
-            self.augments({"SS": 1}, self.get_idle_cap(1))
-            self.update_gamestate()
-
-
-    def speedrun(self, duration):
+    current_boss = 1
+    minutes_elapsed = 0
+    advanced_training_locked = True
+    bm_locked = True
+    tm_locked = True
+    
+    @staticmethod
+    def speedrun(duration):
         """Start a speedrun.
 
         Keyword arguments
         duration -- duration in minutes to run
         f -- feature object
         """
+        Basic.current_boss = 1
+        Basic.minutes_elapsed = 0
+        Basic.advanced_training_locked = True
+        Basic.bm_locked = True
+        Basic.tm_locked = True
+
         diggers = [2, 3, 11, 12]
         adv_training_assigned = False
-        self.do_rebirth()
-        self.wandoos(True)
-        self.nuke()
+
+        Rebirth.do_rebirth()
+        Wandoos.wandoos(True)
+        FightBoss.nuke()
         time.sleep(2)
-        self.fight()
-        self.adventure(highest=True)
-        self.current_boss = 1
-        self.minutes_elapsed = 0
-        self.advanced_training_locked = True
-        self.bm_locked = True
-        self.tm_locked = True
-        self.update_gamestate()
+        FightBoss.fight()
+        Adventure.adventure(highest=True)
+        Basic.update_gamestate()
 
-        while self.current_boss < 18 and self.minutes_elapsed < duration:  # augs unlocks after 17
-            self.wandoos(True)
-            self.nuke()
-            self.fight()
-            if not self.advanced_training_locked and not adv_training_assigned:
+        while Basic.current_boss < 18 and Basic.minutes_elapsed < duration:  # augs unlocks after 17
+            Wandoos.wandoos(True)
+            FightBoss.nuke()
+            FightBoss.fight()
+            if not Basic.advanced_training_locked and not adv_training_assigned:
                 print("assigning adv")
-                self.advanced_training(4e11)
+                AdvancedTraining.advanced_training(4e11)
                 adv_training_assigned = True
-            self.update_gamestate()
-        self.adventure(highest=True)
+            Basic.update_gamestate()
+        Adventure.adventure(highest=True)
 
-        while self.current_boss < 29 and self.minutes_elapsed < duration:  # buster unlocks after 28
-            self.augments({"SS": 1}, self.get_idle_cap(1))
-            self.wandoos(True)
-            self.nuke()
-            self.fight()
-            if not self.advanced_training_locked and not adv_training_assigned:
+        while Basic.current_boss < 29 and Basic.minutes_elapsed < duration:  # buster unlocks after 28
+            Augmentation.augments({"SS": 1}, Misc.get_idle_cap(1))
+            Wandoos.wandoos(True)
+            FightBoss.nuke()
+            FightBoss.fight()
+            if not Basic.advanced_training_locked and not adv_training_assigned:
                 print("assigning adv")
-                self.reclaim_aug()
-                self.advanced_training(4e11)
-                self.augments({"SS": 1}, self.get_idle_cap(1))
+                Misc.reclaim_aug()
+                AdvancedTraining.advanced_training(4e11)
+                Augmentation.augments({"SS": 1}, Misc.get_idle_cap(1))
                 adv_training_assigned = True
-            self.update_gamestate()
+            Basic.update_gamestate()
 
-        if self.minutes_elapsed < duration:  # only reclaim if we're not out of time
-            self.reclaim_aug()
+        if Basic.minutes_elapsed < duration:  # only reclaim if we're not out of time
+            Misc.reclaim_aug()
 
-        while self.current_boss < 31 and self.minutes_elapsed < duration:  # TM unlocks after 31
-            self.augments({"EB": 1}, self.get_idle_cap(1))
-            self.wandoos(True)
-            self.nuke()
-            self.fight()
-            if not self.advanced_training_locked and not adv_training_assigned:
+        while Basic.current_boss < 31 and Basic.minutes_elapsed < duration:  # TM unlocks after 31
+            Augmentation.augments({"EB": 1}, Misc.get_idle_cap(1))
+            Wandoos.wandoos(True)
+            FightBoss.nuke()
+            FightBoss.fight()
+            if not Basic.advanced_training_locked and not adv_training_assigned:
                 print("assigning adv")
-                self.reclaim_aug()
-                self.advanced_training(4e11)
-                self.augments({"EB": 1}, self.get_idle_cap(1))
+                Misc.reclaim_aug()
+                AdvancedTraining.advanced_training(4e11)
+                Augmentation.augments({"EB": 1}, Misc.get_idle_cap(1))
                 adv_training_assigned = True
-            self.update_gamestate()
+            Basic.update_gamestate()
 
-        if self.minutes_elapsed < duration:  # only reclaim if we're not out of time
-            self.reclaim_aug()  # get some energy back for TM
-            self.send_string("t")  # get all magic back from wandoos
-            self.time_machine(self.get_idle_cap(1) * 0.05, m=self.get_idle_cap(2) * 0.05)
+        if Basic.minutes_elapsed < duration:  # only reclaim if we're not out of time
+            Misc.reclaim_aug()  # get some energy back for TM
+            Misc.reclaim_res(magic=True)  # get all magic back from wandoos
+            TimeMachine.time_machine(Misc.get_idle_cap(1) * 0.05, m=Misc.get_idle_cap(2) * 0.05)
 
-        while self.current_boss < 38 and self.minutes_elapsed < duration:  # BM unlocks after 37
-            self.gold_diggers(diggers)
-            self.augments({"EB": 1}, self.get_idle_cap(1))
-            self.wandoos(True)
-            self.nuke()
-            self.fight()
-            if not self.advanced_training_locked and not adv_training_assigned:
+        while Basic.current_boss < 38 and Basic.minutes_elapsed < duration:  # BM unlocks after 37
+            GoldDiggers.gold_diggers(diggers)
+            Augmentation.augments({"EB": 1}, Misc.get_idle_cap(1))
+            Wandoos.wandoos(True)
+            FightBoss.nuke()
+            FightBoss.fight()
+            if not Basic.advanced_training_locked and not adv_training_assigned:
                 print("assigning adv")
-                self.reclaim_aug()
-                self.advanced_training(4e11)
-                self.augments({"EB": 1}, self.get_idle_cap(1))
+                Misc.reclaim_aug()
+                AdvancedTraining.advanced_training(4e11)
+                Augmentation.augments({"EB": 1}, Misc.get_idle_cap(1))
                 adv_training_assigned = True
-            self.update_gamestate()
+            Basic.update_gamestate()
 
-        if self.minutes_elapsed < duration:
-            self.blood_magic(8)
-            self.toggle_auto_spells(drop=False)
+        if Basic.minutes_elapsed < duration:
+            BloodMagic.blood_magic(8)
+            BloodMagic.toggle_auto_spells(drop=False)
             time.sleep(10)
             print("waiting 10 seconds for gold ritual")
-            self.toggle_auto_spells(drop=False, gold=False)
+            BloodMagic.toggle_auto_spells(drop=False, gold=False)
 
-        while self.current_boss < 49 and self.minutes_elapsed < duration:
-            self.gold_diggers(diggers)
-            self.wandoos(True)
-            self.augments({"EB": 1}, self.get_idle_cap(1))
-            self.nuke()
-            self.fight()
-            if not self.advanced_training_locked and not adv_training_assigned:
+        while Basic.current_boss < 49 and Basic.minutes_elapsed < duration:
+            GoldDiggers.gold_diggers(diggers)
+            Wandoos.wandoos(True)
+            Augmentation.augments({"EB": 1}, Misc.get_idle_cap(1))
+            FightBoss.nuke()
+            FightBoss.fight()
+            if not Basic.advanced_training_locked and not adv_training_assigned:
                 print("assigning adv")
-                self.reclaim_aug()
-                self.advanced_training(4e11)
-                self.augments({"EB": 1}, self.get_idle_cap(1))
+                Misc.reclaim_aug()
+                AdvancedTraining.advanced_training(4e11)
+                Augmentation.augments({"EB": 1}, Misc.get_idle_cap(1))
                 adv_training_assigned = True
-            self.update_gamestate()
-        if self.minutes_elapsed < duration:  # only reclaim if we're not out of time
-            self.reclaim_aug()
+            Basic.update_gamestate()
+        if Basic.minutes_elapsed < duration:  # only reclaim if we're not out of time
+            Misc.reclaim_aug()
 
-        while self.minutes_elapsed < duration:
-            self.augments({"EB": 0.66, "CS": 0.34}, self.get_idle_cap(1))
-            self.gold_diggers(diggers)
-            self.wandoos(True)
-            self.nuke()
-            self.fight()
-            if not self.advanced_training_locked and not adv_training_assigned:
+        while Basic.minutes_elapsed < duration:
+            Augmentation.augments({"EB": 0.66, "CS": 0.34}, Misc.get_idle_cap(1))
+            GoldDiggers.gold_diggers(diggers)
+            Wandoos.wandoos(True)
+            FightBoss.nuke()
+            FightBoss.fight()
+            if not Basic.advanced_training_locked and not adv_training_assigned:
                 print("assigning adv")
-                self.reclaim_aug()
-                self.advanced_training(4e11)
-                self.augments({"EB": 0.66, "CS": 0.34}, self.get_idle_cap(1))
+                Misc.reclaim_aug()
+                AdvancedTraining.advanced_training(4e11)
+                Augmentation.augments({"EB": 0.66, "CS": 0.34}, Misc.get_idle_cap(1))
                 adv_training_assigned = True
-            self.update_gamestate()
-            if not self.check_challenge() and self.minutes_elapsed >= 3:
+            Basic.update_gamestate()
+            if not Rebirth.check_challenge() and Basic.minutes_elapsed >= 3:
                 return
  
         return
 
-    def update_gamestate(self):
+    @staticmethod
+    def update_gamestate():
         """Update relevant state information."""
-        rb_time = self.get_rebirth_time()
-        self.minutes_elapsed = int(rb_time.timestamp.tm_min)
+        rb_time = Rebirth.get_rebirth_time()
+        Basic.minutes_elapsed = int(rb_time.timestamp.tm_min)
         try:
-            self.current_boss = int(self.get_current_boss())
+            Basic.current_boss = int(FightBoss.get_current_boss())
         except ValueError:
-            self.current_boss = 1
+            Basic.current_boss = 1
             print("couldn't get current boss")
 
-        if self.advanced_training_locked:
-            self.advanced_training_locked = self.check_pixel_color(*coords.COLOR_ADV_TRAINING_LOCKED)
-        if self.bm_locked:
-            self.bm_locked = self.check_pixel_color(*coords.COLOR_BM_LOCKED)
-        if self.tm_locked:
-            self.tm_locked = self.check_pixel_color(*coords.COLOR_TM_LOCKED)
-
-    def start(self):
+        if Basic.advanced_training_locked:
+            Basic.advanced_training_locked = Inputs.check_pixel_color(*coords.COLOR_ADV_TRAINING_LOCKED)
+        if Basic.bm_locked:
+            Basic.bm_locked = Inputs.check_pixel_color(*coords.COLOR_BM_LOCKED)
+        if Basic.tm_locked:
+            Basic.tm_locked = Inputs.check_pixel_color(*coords.COLOR_TM_LOCKED)
+    
+    @staticmethod
+    def start():
         """Defeat target boss."""
-        self.set_wandoos(0)
+        Wandoos.set_wandoos(0)
         for x in range(6):
-            self.speedrun(3)
-            if not self.check_challenge():
+            Basic.speedrun(3)
+            if not Rebirth.check_challenge():
                 return
         for x in range(4):
-            self.speedrun(7)
-            if not self.check_challenge():
+            Basic.speedrun(7)
+            if not Rebirth.check_challenge():
                 return
-        self.set_wandoos(1)
+        Wandoos.set_wandoos(1)
         for x in range(4):
-            self.speedrun(12)
-            if not self.check_challenge():
+            Basic.speedrun(12)
+            if not Rebirth.check_challenge():
                 return
-        self.set_wandoos(2)
+        Wandoos.set_wandoos(2)
         for x in range(4):
-            self.speedrun(30)
-            if not self.check_challenge():
+            Basic.speedrun(30)
+            if not Rebirth.check_challenge():
                 return
         while True:
-            self.speedrun(60)
-            if not self.check_challenge():
+            Basic.speedrun(60)
+            if not Rebirth.check_challenge():
                 return
         return
