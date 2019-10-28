@@ -24,10 +24,12 @@ class Discord():
             title = "INFO"
             color = 242424
             url = userset.INFO_URL
+
         elif level == 1:  # exception
             title = "ERROR"
             color = 16711680
             url = userset.ERROR_URL
+            if not url: url = userset.INFO_URL
 
         if not url:
             return
