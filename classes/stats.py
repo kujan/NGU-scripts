@@ -8,6 +8,8 @@ import usersettings as userset
 from classes.helper     import Helper
 from classes.navigation import Navigation
 from classes.inputs     import Inputs
+from classes.features   import Misc
+
 
 class Stats():
     """Handles various statistics."""
@@ -35,6 +37,7 @@ class Stats():
                 # print("OCR Captured Current XP: {:,}".format(Stats.xp))
             elif value == "PP":
                 Navigation.perks()
+                Misc.waste_click()
                 Stats.pp = Inputs.ocr_number(*coords.OCR_PP)
                 # print("OCR Captured Current PP: {:,}".format(Stats.pp))
             Stats.OCR_failed = False
