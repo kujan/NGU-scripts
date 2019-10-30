@@ -8,8 +8,10 @@ import usersettings as userset
 from classes.helper     import Helper
 from classes.navigation import Navigation
 from classes.inputs     import Inputs
+from classes.features   import Misc
 
-class Stats():
+
+class Stats:
     """Handles various statistics."""
 
     total_xp = 0
@@ -35,6 +37,7 @@ class Stats():
                 # print("OCR Captured Current XP: {:,}".format(Stats.xp))
             elif value == "PP":
                 Navigation.perks()
+                Misc.waste_click()
                 Stats.pp = Inputs.ocr_number(*coords.OCR_PP)
                 # print("OCR Captured Current PP: {:,}".format(Stats.pp))
             Stats.OCR_failed = False
@@ -52,7 +55,7 @@ class Stats():
                 Stats.OCR_failures = 0
                 Stats.OCR_failed = True
 
-class EstimateRate():
+class EstimateRate:
 
     def __init__(self, duration, mode='moving_average'):
         self.mode = mode
@@ -135,7 +138,7 @@ class EstimateRate():
         """This method is used to update last xp after upgrade spends"""
         self.last_xp = Stats.xp
 
-class Tracker():
+class Tracker:
     """
     The Tracker object collects time and value measurements for stats
 

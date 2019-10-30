@@ -38,6 +38,20 @@ class Navigation:
         Navigation.current_menu = 'rebirth'
     
     @staticmethod
+    def challenges():
+        if Navigation.current_menu == 'challenges':
+            return
+        Navigation.rebirth()
+        Inputs.click(*coords.CHALLENGE_BUTTON)
+        time.sleep(userset.SHORT_SLEEP)
+        Navigation.current_menu == 'challenges'
+
+    def challenge_quit():
+        Navigation.challenges()
+        Inputs.click(*coords.CHALLENGE_QUIT)
+        time.sleep(userset.SHORT_SLEEP)
+
+    @staticmethod
     def confirm():
         """Click yes in confirm window."""
         Inputs.click(*coords.CONFIRM)

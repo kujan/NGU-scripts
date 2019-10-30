@@ -3,7 +3,7 @@ from discord_webhook import DiscordWebhook, DiscordEmbed
 import usersettings as userset
 
 
-class Discord():
+class Discord:
     """Handles messages to discord.
 
     This requires you to create your own Discord server in order to recieve

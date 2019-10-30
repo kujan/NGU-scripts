@@ -11,7 +11,7 @@ import coordinates  as coords
 import usersettings as userset
 
 
-class UpgradeEM():
+class UpgradeEM:
     """Buys things for exp."""
 
     def __init__(self, ecap, mcap, ebar, mbar, e2m_ratio, report=False):
