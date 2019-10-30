@@ -45,7 +45,8 @@ class Navigation:
         Inputs.click(*coords.CHALLENGE_BUTTON)
         time.sleep(userset.SHORT_SLEEP)
         Navigation.current_menu == 'challenges'
-
+    
+    @staticmethod
     def challenge_quit():
         Navigation.challenges()
         Inputs.click(*coords.CHALLENGE_QUIT)
