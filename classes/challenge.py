@@ -52,7 +52,7 @@ class Challenge:
                 time.sleep(userset.LONG_SLEEP)
                 target = Inputs.ocr(*coords.OCR_CHALLENGE_24HC_TARGET)
                 target = Inputs.get_numbers(target)[0]
-                post_msg.append(f"\tFound target boss: {target}")
+                post_msg.append(f"Found target boss: {target}")
                 run_script = Challenge.basic
 
             except ValueError:
@@ -134,6 +134,6 @@ class Challenge:
             if quitCurrent:
                 print("Quitting current challenge.")
                 Navigation.challenge_quit()
-            else: run_challenge(chall, cont=True)
+            else: Challenge.run_challenge(chall, cont=True)
 
-        run_challenge(challenge)
+        Challenge.run_challenge(challenge)
