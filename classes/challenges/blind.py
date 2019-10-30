@@ -13,6 +13,8 @@ tm_locked = True
 
 def run(duration):
     """Procedure for Blind Challenge RBs."""
+    global advanced_training_locked, bm_locked, tm_locked
+
     advanced_training_locked = True
     bm_locked = True
     tm_locked = True
@@ -50,6 +52,8 @@ def run(duration):
 
 def update_gamestate():
     """Update relevant state information."""
+    global advanced_training_locked, bm_locked, tm_locked
+
     if advanced_training_locked:
         advanced_training_locked = Inputs.check_pixel_color(*coords.COLOR_ADV_TRAINING_LOCKED)
     if bm_locked:

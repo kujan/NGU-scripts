@@ -12,6 +12,8 @@ final_aug = False
 
 def first_rebirth(duration):
     """Procedure for first rebirth."""
+    global buster_assigned, final_aug
+
     ss_assigned = False
     adventure_pushed = False
 
@@ -74,6 +76,8 @@ def speedrun(duration):
     duration -- duration in minutes to run
     f -- feature object
     """
+    global buster_assigned, final_aug
+   
     Rebirth.do_rebirth()
     FightBoss.nuke()
     time.sleep(2)

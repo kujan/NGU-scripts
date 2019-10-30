@@ -12,7 +12,7 @@ minutes_elapsed = 0
 advanced_training_locked = True
 bm_locked = True
 tm_locked = True
-    
+
 def speedrun(duration):
     """Start a speedrun.
 
@@ -20,6 +20,8 @@ def speedrun(duration):
     duration -- duration in minutes to run
     f -- feature object
     """
+    global current_boss, minutes_elapsed, advanced_training_locked, bm_locked, tm_locked
+
     current_boss = 1
     minutes_elapsed = 0
     advanced_training_locked = True
@@ -139,6 +141,8 @@ def speedrun(duration):
 
 def update_gamestate():
     """Update relevant state information."""
+    global current_boss, minutes_elapsed, advanced_training_locked, bm_locked, tm_locked
+
     rb_time = Rebirth.get_rebirth_time()
     minutes_elapsed = int(rb_time.timestamp.tm_min)
     try:
