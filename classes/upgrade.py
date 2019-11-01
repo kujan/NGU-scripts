@@ -1,13 +1,17 @@
 """Buys things for exp."""
-from classes.stats import Stats, Tracker
-import coordinates as coords
-import usersettings as userset
 import time
-# TODO replace ngucon with coordinates
 import math
 
+from classes.stats  import Stats
+from classes.helper import Helper
+from classes.features import Navigation
+from classes.inputs import Inputs
 
-class UpgradeEM(Stats):
+import coordinates  as coords
+import usersettings as userset
+
+
+class UpgradeEM():
     """Buys things for exp."""
 
     def __init__(self, ecap, mcap, ebar, mbar, e2m_ratio, report=False):
@@ -52,7 +56,7 @@ class UpgradeEM(Stats):
                   " spending exp.")
             return
 
-        self.set_value_with_ocr("XP")
+        Stats.set_value_with_ocr("XP")
         if Stats.OCR_failed:
             print('OCR failed, exiting upgrade routine.')
             return
@@ -60,90 +64,81 @@ class UpgradeEM(Stats):
         current_exp = Stats.xp
 
         e_cost = coords.EPOWER_COST + coords.ECAP_COST * self.ecap + (
-                 coords.EBAR_COST * self.ebar)
+            coords.EBAR_COST * self.ebar)
 
         m_cost = coords.MPOWER_COST + coords.MCAP_COST * self.mcap + (
-                 coords.MBAR_COST * self.mbar)
+            coords.MBAR_COST * self.mbar)
 
         total_price = m_cost + self.e2m_ratio * e_cost
 
-        """Skip upgrading if we don't have enough exp to buy at least one
-        complete set of upgrades, in order to maintain our perfect ratios :)"""
+        # Skip upgrading if we don't have enough exp to buy at least one
+        # complete set of upgrades, in order to maintain our perfect ratios :)
 
         if total_price > current_exp:
             if self.report:
-                print("No XP Upgrade :{:^8} of {:^8}".format(self.human_format(current_exp),self.human_format(total_price)))
+                print("No XP Upgrade :{:^8} of {:^8}".format(Helper.human_format(current_exp), Helper.human_format(total_price)))
             return
 
         amount = int(current_exp // total_price)
 
         e_power = amount * self.e2m_ratio
-        e_cap = amount * self.ecap * self.e2m_ratio
-        e_bars = amount * self.ebar * self.e2m_ratio
+        e_cap   = amount * self.ecap * self.e2m_ratio
+        e_bars  = amount * self.ebar * self.e2m_ratio
         m_power = amount
-        m_cap = amount * self.mcap
-        m_bars = amount * self.mbar
+        m_cap   = amount * self.mcap
+        m_bars  = amount * self.mbar
 
-        self.exp()
+        Navigation.exp()
 
-        self.click(*coords.EM_POW_BOX)
-        self.send_string(str(e_power))
+        Inputs.click(*coords.EM_POW_BOX)
+        Inputs.send_string(str(e_power))
         time.sleep(userset.MEDIUM_SLEEP)
 
-        self.click(*coords.EM_CAP_BOX)
-        self.send_string(str(e_cap))
+        Inputs.click(*coords.EM_CAP_BOX)
+        Inputs.send_string(str(e_cap))
         time.sleep(userset.MEDIUM_SLEEP)
 
-        self.click(*coords.EM_BAR_BOX)
-        self.send_string(str(e_bars))
+        Inputs.click(*coords.EM_BAR_BOX)
+        Inputs.send_string(str(e_bars))
         time.sleep(userset.MEDIUM_SLEEP)
 
-        self.click(*coords.EM_POW_BUY)
-        self.click(*coords.EM_CAP_BUY)
-        self.click(*coords.EM_BAR_BUY)
+        Inputs.click(*coords.EM_POW_BUY)
+        Inputs.click(*coords.EM_CAP_BUY)
+        Inputs.click(*coords.EM_BAR_BUY)
 
-        self.exp_magic()
+        Navigation.exp_magic()
 
-        self.click(*coords.EM_POW_BOX)
-        self.send_string(str(m_power))
+        Inputs.click(*coords.EM_POW_BOX)
+        Inputs.send_string(str(m_power))
         time.sleep(userset.MEDIUM_SLEEP)
 
-        self.click(*coords.EM_CAP_BOX)
-        self.send_string(str(m_cap))
+        Inputs.click(*coords.EM_CAP_BOX)
+        Inputs.send_string(str(m_cap))
         time.sleep(userset.MEDIUM_SLEEP)
 
-        self.click(*coords.EM_BAR_BOX)
-        self.send_string(str(m_bars))
+        Inputs.click(*coords.EM_BAR_BOX)
+        Inputs.send_string(str(m_bars))
         time.sleep(userset.MEDIUM_SLEEP)
 
-        self.click(*coords.EM_POW_BUY)
-        self.click(*coords.EM_CAP_BUY)
-        self.click(*coords.EM_BAR_BUY)
+        Inputs.click(*coords.EM_POW_BUY)
+        Inputs.click(*coords.EM_CAP_BUY)
+        Inputs.click(*coords.EM_BAR_BUY)
 
-        self.set_value_with_ocr("XP")
+        Stats.set_value_with_ocr("XP")
 
-        total_spent = coords.EPOWER_COST * e_power + coords.ECAP_COST * e_cap + coords.EBAR_COST * e_bars
+        total_spent  = coords.EPOWER_COST * e_power + coords.ECAP_COST * e_cap + coords.EBAR_COST * e_bars
         total_spent += coords.MPOWER_COST * m_power + coords.MCAP_COST * m_cap + coords.MBAR_COST * m_bars
 
         if self.report:
-            print("Spent XP:{:^8}".format(self.human_format(total_spent)))
+            print("Spent XP:{:^8}".format(Helper.human_format(total_spent)))
             print("Energy | Pow:{:^8}{:^3}Cap:{:^8}{:^3}Bar:{:^8}{:^3}Magic | Pow:{:^8}{:^3}Cap:{:^8}{:^3}Bar:{:^8}".format(
-                self.human_format(e_power), "|",
-                self.human_format(e_cap), "|",
-                self.human_format(e_bars), "|",
-                self.human_format(m_power), "|",
-                self.human_format(m_cap), "|",
-                self.human_format(m_bars)))
-
-    def human_format(self, num):
-        num = float('{:.3g}'.format(num))
-        if num > 1e14:
-            return
-        magnitude = 0
-        while abs(num) >= 1000:
-            magnitude += 1
-            num /= 1000.0
-        return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
+                Helper.human_format(e_power), "|",
+                Helper.human_format(e_cap),   "|",
+                Helper.human_format(e_bars),  "|",
+                Helper.human_format(m_power), "|",
+                Helper.human_format(m_cap),   "|",
+                Helper.human_format(m_bars)
+            ))
 
 
 class UpgradeAdventure(Stats):
@@ -165,7 +160,7 @@ class UpgradeAdventure(Stats):
 
         This uses all available exp, so use with caution.
         """
-        self.set_value_with_ocr("XP")
+        Stats.set_value_with_ocr("XP")
 
         if Stats.OCR_failed:
             print('OCR failed, exiting upgrade routine.')
@@ -178,47 +173,46 @@ class UpgradeAdventure(Stats):
         total_price += (coords.AHEALTH_COST * self.health * 10)
         total_price += math.floor(coords.AREGEN_COST * self.regen / 10)
 
-        """Skip upgrading if we don't have enough exp to buy at least one
-        complete set of upgrades, in order to maintain our perfect ratios :)"""
+        # Skip upgrading if we don't have enough exp to buy at least one
+        # complete set of upgrades, in order to maintain our perfect ratios :)
 
         if total_price > current_exp:
             if self.report:
-                print("No XP Upgrade :{:^8} of {:^8}".format(self.human_format(current_exp), self.human_format(total_price)))
+                print("No XP Upgrade :{:^8} of {:^8}".format(Helper.human_format(current_exp), Helper.human_format(total_price)))
             return
 
         amount = int(current_exp // total_price)
 
-        a_power = amount * self.ratio
+        a_power     = amount * self.ratio
         a_toughness = amount * self.ratio
-        a_health = amount * 10
-        a_regen = math.floor(amount / 10)
-        if a_regen < 1:
-            a_regen = 1.0
+        a_health    = amount * 10
+        a_regen     = math.floor(amount / 10)
+        if a_regen < 1: a_regen = 1.0
 
-        self.exp_adventure()
+        Navigation.exp_adventure()
 
-        self.click(*coords.EM_ADV_BOX)
-        self.send_string(str(a_power))
+        Inputs.click(*coords.EM_ADV_BOX)
+        Inputs.send_string(str(a_power))
         time.sleep(userset.MEDIUM_SLEEP)
 
-        self.click(*coords.EM_POW_BOX)
-        self.send_string(str(a_toughness))
+        Inputs.click(*coords.EM_POW_BOX)
+        Inputs.send_string(str(a_toughness))
         time.sleep(userset.MEDIUM_SLEEP)
 
-        self.click(*coords.EM_CAP_BOX)
-        self.send_string(str(a_health))
+        Inputs.click(*coords.EM_CAP_BOX)
+        Inputs.send_string(str(a_health))
         time.sleep(userset.MEDIUM_SLEEP)
 
-        self.click(*coords.EM_BAR_BOX)
-        self.send_string(str(a_regen))
+        Inputs.click(*coords.EM_BAR_BOX)
+        Inputs.send_string(str(a_regen))
         time.sleep(userset.MEDIUM_SLEEP)
 
-        self.click(*coords.EM_ADV_BUT)
-        self.click(*coords.EM_POW_BUY)
-        self.click(*coords.EM_CAP_BUY)
-        self.click(*coords.EM_BAR_BUY)
+        Inputs.click(*coords.EM_ADV_BUT)
+        Inputs.click(*coords.EM_POW_BUY)
+        Inputs.click(*coords.EM_CAP_BUY)
+        Inputs.click(*coords.EM_BAR_BUY)
 
-        self.set_value_with_ocr("XP")
+        Stats.set_value_with_ocr("XP")
 
         total_spent = coords.APOWER_COST * a_power
         total_spent += coords.ATOUGHNESS_COST * a_toughness
@@ -226,22 +220,12 @@ class UpgradeAdventure(Stats):
         total_spent += coords.AREGEN_COST * a_regen
 
         if self.report:
-            print("Spent XP:{:^8}".format(self.human_format(total_spent)))
+            print("Spent XP:{:^8}".format(Helper.human_format(total_spent)))
             print("Power:{:^8}{:^3} Defense:{:^8}{:^3} Health:{:^8}{:^3} Regen:{:^8}".format(
-                self.human_format(a_power), "|",
-                self.human_format(a_toughness), "|",
-                self.human_format(a_health), "|",
-                self.human_format(a_regen)))
-
-    def human_format(self, num):
-        num = float('{:.3g}'.format(num))
-        if num > 1e14:
-            return
-        magnitude = 0
-        while abs(num) >= 1000:
-            magnitude += 1
-            num /= 1000.0
-        return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
+                Helper.human_format(a_power), "|",
+                Helper.human_format(a_toughness), "|",
+                Helper.human_format(a_health), "|",
+                Helper.human_format(a_regen)))
 
 
 class UpgradeRich(Stats):
@@ -260,7 +244,7 @@ class UpgradeRich(Stats):
 
         This uses all available exp, so use with caution.
         """
-        self.set_value_with_ocr("XP")
+        Stats.set_value_with_ocr("XP")
 
         if Stats.OCR_failed:
             print('OCR failed, exiting upgrade routine.')
@@ -274,12 +258,12 @@ class UpgradeRich(Stats):
         total_price = (coords.RATTACK_COST * self.attack)
         total_price += (coords.RDEFENSE_COST * self.defense)
 
-        """Skip upgrading if we don't have enough exp to buy at least one
-        complete set of upgrades, in order to maintain our perfect ratios :)"""
+        # Skip upgrading if we don't have enough exp to buy at least one
+        # complete set of upgrades, in order to maintain our perfect ratios :)
 
         if total_price > current_exp:
             if self.report:
-                print("No XP Upgrade :{:^8} of {:^8}".format(self.human_format(current_exp), self.human_format(total_price)))
+                print("No XP Upgrade :{:^8} of {:^8}".format(Helper.human_format(current_exp), Helper.human_format(total_price)))
             return
 
         amount = int(current_exp // total_price)
@@ -287,37 +271,114 @@ class UpgradeRich(Stats):
         a_attack = amount * self.attack
         a_defense = amount * self.defense
 
-        self.exp_rich()
+        Navigation.exp_rich()
 
-        self.click(*coords.EM_ADV_BOX)
-        self.send_string(str(a_attack))
+        Inputs.click(*coords.EM_ADV_BOX)
+        Inputs.send_string(str(a_attack))
         time.sleep(userset.MEDIUM_SLEEP)
 
-        self.click(*coords.EM_ADV_BOX)
-        self.send_string(str(a_defense))
+        Inputs.click(*coords.EM_ADV_BOX)
+        Inputs.send_string(str(a_defense))
         time.sleep(userset.MEDIUM_SLEEP)
 
-        self.click(*coords.EM_ADV_BOX)
-        self.click(*coords.EM_ADV_BOX)
+        Inputs.click(*coords.EM_ADV_BOX)
+        Inputs.click(*coords.EM_ADV_BOX)
 
-        self.set_value_with_ocr("XP")
+        Stats.set_value_with_ocr("XP")
 
         total_spent = coords.RATTACK_COST * a_attack
         total_spent += coords.RDEFENSE_COST * a_defense
 
         if self.report:
             print("Spent XP:{:^8}{:^3}Attack:{:^8}{:^3}Defense:{:^8}".format(
-                self.human_format(total_spent), "|",
-                self.human_format(a_attack), "|",
-                self.human_format(a_defense)))
+                Helper.human_format(total_spent), "|",
+                Helper.human_format(a_attack), "|",
+                Helper.human_format(a_defense)))
 
-    def human_format(self, num):
-        num = float('{:.3g}'.format(num))
-        if num > 1e14:
+
+class UpgradeHackPower(Stats):
+    """Buys things for exp."""
+
+    def __init__(self, hcap, hbar, hpower, report=False):
+        """Example: UpgradeHackPower(10000, 1, 1).
+
+        Keyword arguments:
+
+        hcap -- The amount of hack energy in the ratio. Must be over 1000 and divisible by 250 or 0.
+        hbar -- The amount of bars
+        hpower -- the amount of new power
+
+        """
+        self.hcap = hcap
+        self.hbar = hbar
+        self.hpower = hpower
+        self.report = report
+
+    def buy(self):
+        """Buy upgrades for hack energy
+
+        Requires the confirmation popup button for EXP purchases in settings
+        to be turned OFF.
+
+        This uses all available exp, so use with caution.
+        """
+        if (self.hcap < 10000 or self.hcap % 250 != 0) and self.hcap != 0:
+            print("Ecap value not divisible by 250 or lower than 10000, not" +
+                  " spending exp.")
             return
-        magnitude = 0
-        while abs(num) >= 1000:
-            magnitude += 1
-            num /= 1000.0
-        return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
 
+        Stats.set_value_with_ocr("XP")
+        if Stats.OCR_failed:
+            print('OCR failed, exiting upgrade routine.')
+            return
+
+        current_exp = Stats.xp
+
+        total_price = coords.HPOWER_COST * self.hpower + coords.HCAP_COST * self.hcap + coords.HBAR_COST * self.hbar
+
+        # Skip upgrading if we don't have enough exp to buy at least one
+        # complete set of upgrades, in order to maintain our perfect ratios :)
+
+        if total_price > current_exp:
+            if self.report:
+                print("No XP Upgrade :{:^8} of {:^8}".format(Helper.human_format(current_exp),
+                                                             Helper.human_format(total_price)))
+            return
+
+        amount = int(current_exp // total_price)
+
+        h_power = amount * self.hpower
+        h_cap = amount * self.hcap
+        h_bars = amount * self.hbar
+
+        Navigation.exp_hack()
+
+        Inputs.click(*coords.EM_POW_BOX)
+        Inputs.send_string(str(h_power))
+        time.sleep(userset.MEDIUM_SLEEP)
+
+        Inputs.click(*coords.EM_CAP_BOX)
+        Inputs.send_string(str(h_cap))
+        time.sleep(userset.MEDIUM_SLEEP)
+
+        Inputs.click(*coords.EM_BAR_BOX)
+        Inputs.send_string(str(h_bars))
+        time.sleep(userset.MEDIUM_SLEEP)
+
+        if h_power > 0:
+            Inputs.click(*coords.EM_POW_BUY)
+        if h_cap > 0:
+            Inputs.click(*coords.EM_CAP_BUY)
+        if h_bars > 0:
+            Inputs.click(*coords.EM_BAR_BUY)
+
+        Stats.set_value_with_ocr("XP")
+
+        total_spent = coords.HPOWER_COST * h_power + coords.HCAP_COST * h_cap + coords.HBAR_COST * h_bars
+
+        if self.report:
+            print("Spent XP:{:^8}".format(Helper.human_format(total_spent)))
+            print("New | Pow:{:^8}{:^3}Cap:{:^8}{:^3}Bar:{:^8}".format(
+                Helper.human_format(h_power), "|",
+                Helper.human_format(h_cap), "|",
+                Helper.human_format(h_bars)))

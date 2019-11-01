@@ -17,17 +17,19 @@ class Discord():
     ERROR = 1
 
     @classmethod
-    def send_message(self, text, level):
+    def send_message(cls, text, level):
         """Send message to webhook."""
         url = ""
         if level == 0:  # info
             title = "INFO"
             color = 242424
             url = userset.INFO_URL
+
         elif level == 1:  # exception
             title = "ERROR"
             color = 16711680
             url = userset.ERROR_URL
+            if not url: url = userset.INFO_URL
 
         if not url:
             return
