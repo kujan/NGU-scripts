@@ -1,13 +1,16 @@
 import sys
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PySide2.QtCore import QThread, QMutex, Qt, QPropertyAnimation, QSettings, QTimer, Signal
+from PySide2.QtWidgets import QApplication, QMainWindow, QMessageBox, QButtonGroup, QComboBox, QLineEdit, QCheckBox, QRadioButton, QPushButton
+from PySide2.QtGui import QImage, QPixmap, QIcon
 from classes.stats import Stats, Tracker
 from design.design import Ui_MainWindow
 from design.options import Ui_OptionsWindow
 from design.inventory import Ui_InventorySelecter
-from classes.features import Features
 from classes.inputs import Inputs
+from classes.helper import Helper
 from classes.window import Window
 from distutils.util import strtobool
+from typing import ClassVar
 from PIL import Image
 import io
 import json
@@ -22,29 +25,28 @@ import pytesseract
 import win32gui
 
 
-class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
+class NguScriptApp(QMainWindow, Ui_MainWindow):
     """Main window."""
+
+    mutex: ClassVar[QMutex]
 
     def __init__(self, parent=None):
         """Generate UI."""
         super(NguScriptApp, self).__init__(parent)
         self.setupUi(self)  # generate the UI
-        self.mutex = QtCore.QMutex()  # lock for script thread to enable pausing
-        self.w = Window()
-        self.i = Inputs(self.w, self.mutex)
-        self.f = Features(self.w, self.mutex)
+        self.mutex = QMutex()  # lock for script thread to enable pausing
         self.setup()
 
     def setup(self):
         """Add logic to UI elements."""
-        self.rebirth_progress.setAlignment(QtCore.Qt.AlignCenter)
-        self.task_progress.setAlignment(QtCore.Qt.AlignCenter)
+        self.rebirth_progress.setAlignment(Qt.AlignCenter)
+        self.task_progress.setAlignment(Qt.AlignCenter)
         self.get_ngu_window()
         self.test_tesseract()
         self.load_stats()
         self.task_progress.setValue(0)
         self.rebirth_progress.setValue(0)
-        self.task_progress_animation = QtCore.QPropertyAnimation(self.task_progress, b"value")
+        self.task_progress_animation = QPropertyAnimation(self.task_progress, b"value")
         self.stop_button.setEnabled(False)
         self.stop_button.clicked.connect(self.action_stop)
         self.run_button.clicked.connect(self.action_run)
@@ -54,7 +56,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         # self.tabWidget.setFixedSize(self.sizeHint())  # shrink window
 
     def load_stats(self):
-        self.settings = QtCore.QSettings("Kujan", "NGU-Scripts")
+        self.settings = QSettings("Kujan", "NGU-Scripts")
         self.total_itopod_kills = int(self.settings.value("total_itopod_kills", "0"))
         self.total_minor_quests = int(self.settings.value("total_minor_quests", "0"))
         self.total_major_quests = int(self.settings.value("total_major_quests", "0"))
@@ -72,15 +74,14 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.lifetime_itopod_time_saved_data.setText(f"{days} days, {hours} hours, {minutes} minutes, {seconds} seconds")
 
-
     def closeEvent(self, event):
         """Event fired when exiting the application. This will save the current stats to file."""
         quit_msg = "Are you sure you want to exit?"
-        reply = QtWidgets.QMessageBox.question(self, 'Message',
-                                               quit_msg, QtWidgets.QMessageBox.Yes,
-                                               QtWidgets.QMessageBox.No)
+        reply = QMessageBox.question(self, 'Message',
+                                               quit_msg, QMessageBox.Yes,
+                                               QMessageBox.No)
 
-        if reply == QtWidgets.QMessageBox.Yes:
+        if reply == QMessageBox.Yes:
             if self.options is not None:
                 if self.options.inventory_selecter is not None:
                     self.options.inventory_selecter.close()
@@ -95,18 +96,12 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def get_ngu_window(self):
         """Get window ID for NGU IDLE."""
-        window_name = "play ngu idle"
-        top_windows = []
-        win32gui.EnumWindows(self.window_enumeration_handler, top_windows)
-        for i in top_windows:
-            if window_name in i[1].lower():
-                self.w.id = i[0]
-        self.window_retry.disconnect()
-        if self.w.id:
+        Helper.init()
+        #self.window_retry.disconnect()
+        if Window.id:
             self.window_retry.setText("Show Window")
             self.window_retry.clicked.connect(self.action_show_window)
             self.window_info_text.setText("Window detected!")
-            self.get_top_left()
             if Window.x and Window.y:
                 self.window_info_text.setStyleSheet("color: green")
                 self.window_info_text.setText(f"Game detected at: {Window.x}, {Window.y}")
@@ -130,21 +125,10 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
             self.window_retry.clicked.connect(self.test_tesseract)
             self.run_button.setEnabled(False)
 
-    def get_top_left(self):
-        """Get coordinates for top left of game."""
-        try:
-            Window.x, Window.y = self.i.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 400, 600)
-        except TypeError:
-            self.window_info_text.setText(f"Window detected, but game not found!")
-            self.window_info_text.setStyleSheet("color: red")
-            self.window_retry.setText("Retry")
-            self.window_retry.disconnect()
-            self.window_retry.clicked.connect(self.get_ngu_window)
-
     def action_show_window(self):
         """Activate game window."""
-        win32gui.ShowWindow(self.w.id, 5)
-        win32gui.SetForegroundWindow(self.w.id)
+        win32gui.ShowWindow(Window.id, 5)
+        win32gui.SetForegroundWindow(Window.id)
 
     def action_stop(self, thread):
         """Stop script thread."""
@@ -159,7 +143,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
             self.settings.setValue("total_minor_quests", self.total_minor_quests)
             self.mutex.unlock()
         else:
-            QtWidgets.QMessageBox.information(self, "Error", "Couldn't acquire lock of script thread.")
+            QMessageBox.information(self, "Error", "Couldn't acquire lock of script thread.")
 
     def action_pause(self, thread):
         """Attempt to block script thread by acquiring lock."""
@@ -261,12 +245,12 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
         """Start the selected script."""
         run = self.combo_run.currentIndex()
         self.start_time = time.time()
-        self.timer = QtCore.QTimer()
+        self.timer = QTimer()
         self.timer.setInterval(1010)
         self.timer.timeout.connect(self.timestamp)
         self.timer.start()
         if run == 0:
-            self.run_thread = ScriptThread(0, self.w, self.mutex)
+            self.run_thread = ScriptThread(0)
             self.run_thread.signal.connect(self.update)
             self.run_button.setText("Pause")
             self.run_button.disconnect()
@@ -328,7 +312,7 @@ class NguScriptApp(QtWidgets.QMainWindow, Ui_MainWindow):
             self.stop_button.setEnabled(True)
             self.run_thread.start()
 
-class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
+class OptionsWindow(QMainWindow, Ui_OptionsWindow):
     """Option window."""
 
     def __init__(self, index, inputs, thread, parent=None):
@@ -337,9 +321,9 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
         self.setupUi(self)
         self.index = index
         self.i = inputs
-        self.settings = QtCore.QSettings("Kujan", "NGU-Scripts")
+        self.settings = QSettings("Kujan", "NGU-Scripts")
         self.button_ok.clicked.connect(self.action_ok)
-        self.radio_group_gear = QtWidgets.QButtonGroup(self)
+        self.radio_group_gear = QButtonGroup(self)
         self.radio_group_gear.addButton(self.radio_equipment)
         self.radio_group_gear.addButton(self.radio_cube)
         self.check_gear.stateChanged.connect(self.state_changed_gear)
@@ -409,12 +393,13 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
     def state_changed_subcontract(self, int):
         """Show warning."""
         if self.check_subcontract.isChecked():
-            msg = QtWidgets.QMessageBox(self)
-            msg.setIcon(QtWidgets.QMessageBox.Warning)
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Warning)
             msg.setText("Are you sure you wish to subcontract your quests?")
             msg.setWindowTitle("Subcontract warning")
-            msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+            msg.setStandardButtons(QMessageBox.Ok)
             msg.exec()
+
     def gui_load(self):
         """Load settings from registry."""
         if self.index == 0:
@@ -431,7 +416,7 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
             self.combo_force.hide()
             self.setFixedSize(300, 200)
         for name, obj in inspect.getmembers(self):
-            if isinstance(obj, QtWidgets.QComboBox):
+            if isinstance(obj, QComboBox):
                 index = obj.currentIndex()
                 text = obj.itemText(index)
                 name = obj.objectName()
@@ -449,17 +434,17 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
                 else:
                     obj.setCurrentIndex(index)
 
-            if isinstance(obj, QtWidgets.QLineEdit):
+            if isinstance(obj, QLineEdit):
                 name = obj.objectName()
                 value = (self.settings.value(name))
                 obj.setText(value)
 
-            if isinstance(obj, QtWidgets.QCheckBox):
+            if isinstance(obj, QCheckBox):
                 name = obj.objectName()
                 value = self.settings.value(name)
                 if value is not None:
                     obj.setChecked(strtobool(value))
-            if isinstance(obj, QtWidgets.QRadioButton):
+            if isinstance(obj, QRadioButton):
                 name = obj.objectName()
                 value = self.settings.value(name)
                 if value is not None:
@@ -468,31 +453,31 @@ class OptionsWindow(QtWidgets.QMainWindow, Ui_OptionsWindow):
     def action_ok(self):
         """Save settings and close window."""
         for name, obj in inspect.getmembers(self):
-            if isinstance(obj, QtWidgets.QComboBox):
+            if isinstance(obj, QComboBox):
                 name = obj.objectName()
                 index = obj.currentIndex()
                 text = obj.itemText(index)
                 self.settings.setValue(name, text)
                 self.settings.setValue(name + "_index", index)
 
-            if isinstance(obj, QtWidgets.QLineEdit):
+            if isinstance(obj, QLineEdit):
                 name = obj.objectName()
                 value = obj.text()
                 self.settings.setValue(name, value)
 
-            if isinstance(obj, QtWidgets.QCheckBox):
+            if isinstance(obj, QCheckBox):
                 name = obj.objectName()
                 state = obj.isChecked()
                 self.settings.setValue(name, state)
 
-            if isinstance(obj, QtWidgets.QRadioButton):
+            if isinstance(obj, QRadioButton):
                 name = obj.objectName()
                 value = obj.isChecked()
                 self.settings.setValue(name, value)
         self.close()
 
 
-class InventorySelecter(QtWidgets.QMainWindow, Ui_InventorySelecter):
+class InventorySelecter(QMainWindow, Ui_InventorySelecter):
     """Option window."""
 
     def __init__(self, mode, inputs, parent=None):
@@ -501,7 +486,7 @@ class InventorySelecter(QtWidgets.QMainWindow, Ui_InventorySelecter):
         self.setupUi(self)
         self.mode = mode
         self.i = inputs
-        self.settings = QtCore.QSettings("Kujan", "NGU-Scripts")
+        self.settings = QSettings("Kujan", "NGU-Scripts")
         self.slots = []
         self.button_ok.clicked.connect(self.action_ok)
         self.generate_inventory()
@@ -510,7 +495,7 @@ class InventorySelecter(QtWidgets.QMainWindow, Ui_InventorySelecter):
     def action_ok(self):
         """Save settings and close window."""
         for name, obj in inspect.getmembers(self):
-            if isinstance(obj, QtWidgets.QPushButton):
+            if isinstance(obj, QPushButton):
                 if obj.toggled:
                     name = obj.objectName()
                     if name == "button_ok":
@@ -527,8 +512,8 @@ class InventorySelecter(QtWidgets.QMainWindow, Ui_InventorySelecter):
             im.save(output, format="png")
             output.seek(0)
             data = output.read()
-            qim = QtGui.QImage.fromData(data)
-            pixmap = QtGui.QPixmap.fromImage(qim)
+            qim = QImage.fromData(data)
+            pixmap = QPixmap.fromImage(qim)
         return pixmap
 
     def action_button_clicked(self):
@@ -544,11 +529,11 @@ class InventorySelecter(QtWidgets.QMainWindow, Ui_InventorySelecter):
     def generate_inventory(self, depth=0):
         """Get image from inventory and create clickable grid."""
         if depth > 4:  # infinite recursion guard
-            msg = QtWidgets.QMessageBox(self)
-            msg.setIcon(QtWidgets.QMessageBox.Critical)
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Critical)
             msg.setText("Couldn't find inventory, is the game running?")
             msg.setWindowTitle("Inventory error")
-            msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+            msg.setStandardButtons(QMessageBox.Ok)
             msg.exec()
             return
 
@@ -571,7 +556,7 @@ class InventorySelecter(QtWidgets.QMainWindow, Ui_InventorySelecter):
                 slot = bmp.crop((x1, y1, x2, y2))
                 button = getattr(self, f"pushButton_{button_count}")
                 pixmap = self.pil2pixmap(slot)
-                icon = QtGui.QIcon(pixmap)
+                icon = QIcon(pixmap)
                 button.setIcon(icon)
                 button.setIconSize(pixmap.rect().size())
                 button.toggled = False
@@ -586,29 +571,33 @@ class InventorySelecter(QtWidgets.QMainWindow, Ui_InventorySelecter):
                 button.setStyleSheet("border:3px solid rgb(0, 0, 0)")
 
 
-class ScriptThread(QtCore.QThread):
+class ScriptThread(QThread):
     """Thread class for script."""
 
-    signal = QtCore.pyqtSignal("PyQt_PyObject")
+    signal = Signal("PyObject")
+    settings = QSettings("Kujan", "NGU-Scripts")
+    mutex = NguScriptApp.mutex
+    selected_script = 1
 
-    def __init__(self, run, w, mutex):
+    def __init__(self, script):
         """Init thread variables."""
-        QtCore.QThread.__init__(self)
-        self.run = run
-        self.w = w
-        self.mutex = mutex
-        self.settings = QtCore.QSettings("Kujan", "NGU-Scripts")
-        self.duration = int(self.settings.value("line_adv_duration", "2"))
-        self.tracker = Tracker(self.w, self.mutex, self.duration)
-        self.start_exp = Stats.xp
-        self.start_pp = Stats.pp
-        self.start_qp = Stats.qp
-        self.iteration = 1
+        QThread.__init__(self)
+        setup()
+
+    def __setup():
+        ScriptThread.run = run
+        ScriptThread.selected_script = script
+        ScriptThread.duration = int(self.settings.value("line_adv_duration", "2"))
+        ScriptThread.tracker = Tracker(self.w, self.mutex, self.duration)
+        ScriptThread.start_exp = Stats.xp
+        ScriptThread.start_pp = Stats.pp
+        ScriptThread.start_qp = Stats.qp
+        ScriptThread.iteration = 1
 
     def run(self):
         """Check which script to run."""
         while True:
-            print(self.tracker.get_rates())
+            print(Tracker.get)
             self.signal.emit(self.tracker.get_rates())
             self.signal.emit({"exp": Stats.xp - self.start_exp, "pp": Stats.pp - self.start_pp, "qp": Stats.qp - self.start_qp})
             if self.run == 0:
@@ -626,7 +615,7 @@ class ScriptThread(QtCore.QThread):
 
 def run():
     """Start GUI thread."""
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     GUI = NguScriptApp()
     GUI.show()
     sys.exit(app.exec_())

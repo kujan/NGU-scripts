@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'design.ui'
+# Form implementation generated from reading ui file 'design.ui',
+# licensing of 'design.ui' applies.
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created: Fri Nov  1 17:27:36 2019
+#      by: pyside2-uic  running on PySide2 5.13.2
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -28,8 +30,8 @@ class Ui_MainWindow(object):
         self.w_combo_run = QtWidgets.QWidget(self.tab_1)
         self.w_combo_run.setObjectName("w_combo_run")
         self.h_dropdown = QtWidgets.QHBoxLayout(self.w_combo_run)
-        self.h_dropdown.setContentsMargins(0, 0, 0, 0)
         self.h_dropdown.setSpacing(6)
+        self.h_dropdown.setContentsMargins(0, 0, 0, 0)
         self.h_dropdown.setObjectName("h_dropdown")
         self.combo_run = QtWidgets.QComboBox(self.w_combo_run)
         self.combo_run.setMinimumSize(QtCore.QSize(150, 0))
@@ -42,7 +44,7 @@ class Ui_MainWindow(object):
         self.h_dropdown.addWidget(self.combo_run)
         self.run_options = QtWidgets.QPushButton(self.w_combo_run)
         self.run_options.setObjectName("run_options")
-        self.h_dropdown.addWidget(self.run_options, 0, QtCore.Qt.AlignRight)
+        self.h_dropdown.addWidget(self.run_options)
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.h_dropdown.addItem(spacerItem)
         self.v_container.addWidget(self.w_combo_run)
@@ -73,7 +75,7 @@ class Ui_MainWindow(object):
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Text, brush)
         self.window_info_text.setPalette(palette)
         self.window_info_text.setObjectName("window_info_text")
-        self.h_window.addWidget(self.window_info_text, 0, QtCore.Qt.AlignLeft)
+        self.h_window.addWidget(self.window_info_text)
         self.window_retry = QtWidgets.QPushButton(self.w_window)
         self.window_retry.setObjectName("window_retry")
         self.h_window.addWidget(self.window_retry)
@@ -88,9 +90,9 @@ class Ui_MainWindow(object):
         self.w_elapsed.setSizePolicy(sizePolicy)
         self.w_elapsed.setObjectName("w_elapsed")
         self.h_elapsed = QtWidgets.QHBoxLayout(self.w_elapsed)
+        self.h_elapsed.setSpacing(6)
         self.h_elapsed.setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
         self.h_elapsed.setContentsMargins(9, 0, 9, 0)
-        self.h_elapsed.setSpacing(6)
         self.h_elapsed.setObjectName("h_elapsed")
         self.elapsed_text = QtWidgets.QLabel(self.w_elapsed)
         self.elapsed_text.setObjectName("elapsed_text")
@@ -194,7 +196,7 @@ class Ui_MainWindow(object):
         self.v_container.addWidget(self.w_qph)
         self.current_task_text = QtWidgets.QLabel(self.tab_1)
         self.current_task_text.setObjectName("current_task_text")
-        self.v_container.addWidget(self.current_task_text, 0, QtCore.Qt.AlignHCenter)
+        self.v_container.addWidget(self.current_task_text)
         self.task_progress = QtWidgets.QProgressBar(self.tab_1)
         self.task_progress.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.task_progress.setAutoFillBackground(False)
@@ -205,7 +207,7 @@ class Ui_MainWindow(object):
         self.v_container.addWidget(self.task_progress)
         self.current_rb_text = QtWidgets.QLabel(self.tab_1)
         self.current_rb_text.setObjectName("current_rb_text")
-        self.v_container.addWidget(self.current_rb_text, 0, QtCore.Qt.AlignHCenter)
+        self.v_container.addWidget(self.current_rb_text)
         self.rebirth_progress = QtWidgets.QProgressBar(self.tab_1)
         self.rebirth_progress.setProperty("value", 24)
         self.rebirth_progress.setObjectName("rebirth_progress")
@@ -286,35 +288,34 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "NGU Script by Satyric"))
-        self.combo_run.setItemText(0, _translate("MainWindow", "Static Questing"))
-        self.combo_run.setItemText(1, _translate("MainWindow", "Static ITOPOD"))
-        self.combo_run.setItemText(2, _translate("MainWindow", "30 minute guffin run"))
-        self.combo_run.setItemText(3, _translate("MainWindow", "24 hour rebirth"))
-        self.combo_run.setItemText(4, _translate("MainWindow", "Speedrun"))
-        self.run_options.setText(_translate("MainWindow", "Options"))
-        self.window_info_text.setText(_translate("MainWindow", "Window not found!"))
-        self.window_retry.setText(_translate("MainWindow", "Retry"))
-        self.elapsed_text.setText(_translate("MainWindow", "Elapsed:"))
-        self.exp_text.setText(_translate("MainWindow", "EXP Gained:"))
-        self.pp_text.setText(_translate("MainWindow", "PP Gained:"))
-        self.qp_text.setText(_translate("MainWindow", "QP Gained:"))
-        self.exph_text.setText(_translate("MainWindow", "EXP/h:"))
-        self.pph_text.setText(_translate("MainWindow", "PP/h:"))
-        self.qph_text.setText(_translate("MainWindow", "QP/h:"))
-        self.current_task_text.setText(_translate("MainWindow", "Current Task"))
-        self.current_rb_text.setText(_translate("MainWindow", "Current Rebirth"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_1), _translate("MainWindow", "General"))
-        self.label.setText(_translate("MainWindow", "Total I.T.O.P.O.D snipes:"))
-        self.lifetime_itopod_kills_data.setText(_translate("MainWindow", "0"))
-        self.label_2.setText(_translate("MainWindow", "Time saved:"))
-        self.lifetime_itopod_time_saved_data.setText(_translate("MainWindow", "0"))
-        self.label_3.setText(_translate("MainWindow", "Total major quests:"))
-        self.label_total_major_quests.setText(_translate("MainWindow", "0"))
-        self.label_4.setText(_translate("MainWindow", "Total minor quests:"))
-        self.label_total_minor_quests.setText(_translate("MainWindow", "0"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Statistics"))
-        self.run_button.setText(_translate("MainWindow", "Run"))
-        self.stop_button.setText(_translate("MainWindow", "Stop"))
+        MainWindow.setWindowTitle(QtWidgets.QApplication.translate("MainWindow", "NGU Script by Satyric", None, -1))
+        self.combo_run.setItemText(0, QtWidgets.QApplication.translate("MainWindow", "Static Questing", None, -1))
+        self.combo_run.setItemText(1, QtWidgets.QApplication.translate("MainWindow", "Static ITOPOD", None, -1))
+        self.combo_run.setItemText(2, QtWidgets.QApplication.translate("MainWindow", "30 minute guffin run", None, -1))
+        self.combo_run.setItemText(3, QtWidgets.QApplication.translate("MainWindow", "24 hour rebirth", None, -1))
+        self.combo_run.setItemText(4, QtWidgets.QApplication.translate("MainWindow", "Speedrun", None, -1))
+        self.run_options.setText(QtWidgets.QApplication.translate("MainWindow", "Options", None, -1))
+        self.window_info_text.setText(QtWidgets.QApplication.translate("MainWindow", "Window not found!", None, -1))
+        self.window_retry.setText(QtWidgets.QApplication.translate("MainWindow", "Retry", None, -1))
+        self.elapsed_text.setText(QtWidgets.QApplication.translate("MainWindow", "Elapsed:", None, -1))
+        self.exp_text.setText(QtWidgets.QApplication.translate("MainWindow", "EXP Gained:", None, -1))
+        self.pp_text.setText(QtWidgets.QApplication.translate("MainWindow", "PP Gained:", None, -1))
+        self.qp_text.setText(QtWidgets.QApplication.translate("MainWindow", "QP Gained:", None, -1))
+        self.exph_text.setText(QtWidgets.QApplication.translate("MainWindow", "EXP/h:", None, -1))
+        self.pph_text.setText(QtWidgets.QApplication.translate("MainWindow", "PP/h:", None, -1))
+        self.qph_text.setText(QtWidgets.QApplication.translate("MainWindow", "QP/h:", None, -1))
+        self.current_task_text.setText(QtWidgets.QApplication.translate("MainWindow", "Current Task", None, -1))
+        self.current_rb_text.setText(QtWidgets.QApplication.translate("MainWindow", "Current Rebirth", None, -1))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_1), QtWidgets.QApplication.translate("MainWindow", "General", None, -1))
+        self.label.setText(QtWidgets.QApplication.translate("MainWindow", "Total I.T.O.P.O.D snipes:", None, -1))
+        self.lifetime_itopod_kills_data.setText(QtWidgets.QApplication.translate("MainWindow", "0", None, -1))
+        self.label_2.setText(QtWidgets.QApplication.translate("MainWindow", "Time saved:", None, -1))
+        self.lifetime_itopod_time_saved_data.setText(QtWidgets.QApplication.translate("MainWindow", "0", None, -1))
+        self.label_3.setText(QtWidgets.QApplication.translate("MainWindow", "Total major quests:", None, -1))
+        self.label_total_major_quests.setText(QtWidgets.QApplication.translate("MainWindow", "0", None, -1))
+        self.label_4.setText(QtWidgets.QApplication.translate("MainWindow", "Total minor quests:", None, -1))
+        self.label_total_minor_quests.setText(QtWidgets.QApplication.translate("MainWindow", "0", None, -1))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), QtWidgets.QApplication.translate("MainWindow", "Statistics", None, -1))
+        self.run_button.setText(QtWidgets.QApplication.translate("MainWindow", "Run", None, -1))
+        self.stop_button.setText(QtWidgets.QApplication.translate("MainWindow", "Stop", None, -1))
 

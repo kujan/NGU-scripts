@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'inventory.ui'
+# Form implementation generated from reading ui file 'inventory.ui',
+# licensing of 'inventory.ui' applies.
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created: Fri Nov  1 17:28:48 2019
+#      by: pyside2-uic  running on PySide2 5.13.2
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 
 class Ui_InventorySelecter(object):
     def setupUi(self, InventorySelecter):
@@ -336,7 +338,6 @@ class Ui_InventorySelecter(object):
         QtCore.QMetaObject.connectSlotsByName(InventorySelecter)
 
     def retranslateUi(self, InventorySelecter):
-        _translate = QtCore.QCoreApplication.translate
-        InventorySelecter.setWindowTitle(_translate("InventorySelecter", "Inventory selection"))
-        self.button_ok.setText(_translate("InventorySelecter", "Ok"))
+        InventorySelecter.setWindowTitle(QtWidgets.QApplication.translate("InventorySelecter", "Inventory selection", None, -1))
+        self.button_ok.setText(QtWidgets.QApplication.translate("InventorySelecter", "Ok", None, -1))
 

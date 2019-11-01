@@ -7,7 +7,7 @@ import coordinates as coords
 
 
 class Helper:
-    def init(printCoords :bool =False) -> None:
+    def init(printCoords: bool = False) -> None:
         """Initialize Window class variables.
         Helper.init() should go at the very top of any script, straight after imports.
         """

@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'options.ui'
+# Form implementation generated from reading ui file 'options.ui',
+# licensing of 'options.ui' applies.
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created: Fri Nov  1 17:28:35 2019
+#      by: pyside2-uic  running on PySide2 5.13.2
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 
 class Ui_OptionsWindow(object):
     def setupUi(self, OptionsWindow):
@@ -19,6 +21,7 @@ class Ui_OptionsWindow(object):
         self.verticalLayout.setContentsMargins(6, 6, 6, 6)
         self.verticalLayout.setObjectName("verticalLayout")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.w_adv_duration = QtWidgets.QHBoxLayout()
         self.w_adv_duration.setObjectName("w_adv_duration")
@@ -119,7 +122,7 @@ class Ui_OptionsWindow(object):
         self.verticalLayout_2.addLayout(self.w_subcontract)
         self.button_ok = QtWidgets.QPushButton(self.centralwidget)
         self.button_ok.setObjectName("button_ok")
-        self.verticalLayout_2.addWidget(self.button_ok, 0, QtCore.Qt.AlignHCenter)
+        self.verticalLayout_2.addWidget(self.button_ok)
         self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_6.setObjectName("horizontalLayout_6")
         self.verticalLayout_2.addLayout(self.horizontalLayout_6)
@@ -131,39 +134,38 @@ class Ui_OptionsWindow(object):
         QtCore.QMetaObject.connectSlotsByName(OptionsWindow)
 
     def retranslateUi(self, OptionsWindow):
-        _translate = QtCore.QCoreApplication.translate
-        OptionsWindow.setWindowTitle(_translate("OptionsWindow", "NGU Script by Satyric - Options"))
-        self.label_adv_duration.setText(_translate("OptionsWindow", "Duration to spend in adventure:"))
-        self.line_adv_duration.setToolTip(_translate("OptionsWindow", "Duration in minutes that the questing method will run until returning to boost/merge/etc"))
-        self.line_adv_duration.setText(_translate("OptionsWindow", "2"))
-        self.check_gear.setText(_translate("OptionsWindow", "Boost gear"))
-        self.radio_cube.setToolTip(_translate("OptionsWindow", "This will only right click the cube"))
-        self.radio_cube.setText(_translate("OptionsWindow", "Boost cube"))
-        self.radio_equipment.setToolTip(_translate("OptionsWindow", "This will boost all equipment before clicking the cube"))
-        self.radio_equipment.setText(_translate("OptionsWindow", "Boost equipment"))
-        self.check_boost_inventory.setToolTip(_translate("OptionsWindow", "Put the gear you wish to boost starting in the first slot on inventory page 1. A value of 4 will boost the first 4 slots in the inventory. This overrides the Boost cube setting!"))
-        self.check_boost_inventory.setText(_translate("OptionsWindow", "Boost inventory"))
-        self.button_boost_inventory.setText(_translate("OptionsWindow", "Setup"))
-        self.check_merge_inventory.setToolTip(_translate("OptionsWindow", "Put the gear you wish to merge starting in the first slot on inventory page 1. A value of 4 will merge the first 4 slots in the inventory. "))
-        self.check_merge_inventory.setText(_translate("OptionsWindow", "Merge inventory"))
-        self.button_merge_inventory.setText(_translate("OptionsWindow", "Setup"))
-        self.check_fruits.setToolTip(_translate("OptionsWindow", "This will click \"harvest all max tier fruits\""))
-        self.check_fruits.setText(_translate("OptionsWindow", "Eat fruits"))
-        self.check_force.setToolTip(_translate("OptionsWindow", "Abandon quests until you get the selected zone. If you have major quests available, those will get done first."))
-        self.check_force.setText(_translate("OptionsWindow", "Force Zone"))
-        self.combo_force.setItemText(0, _translate("OptionsWindow", "Sewers (e-pow)"))
-        self.combo_force.setItemText(1, _translate("OptionsWindow", "Forest (m-pow)"))
-        self.combo_force.setItemText(2, _translate("OptionsWindow", "High Security Base (e-NGU)"))
-        self.combo_force.setItemText(3, _translate("OptionsWindow", "The 2D Universe (e-bar)"))
-        self.combo_force.setItemText(4, _translate("OptionsWindow", "A Very Strange Place (e-beard)"))
-        self.combo_force.setItemText(5, _translate("OptionsWindow", "Mega Lands (m-beard)"))
-        self.combo_force.setItemText(6, _translate("OptionsWindow", "The Beardverse (drop chance)"))
-        self.combo_force.setItemText(7, _translate("OptionsWindow", "Chocolate World (stats)"))
-        self.combo_force.setItemText(8, _translate("OptionsWindow", "The Evilverse (e-wandoos)"))
-        self.combo_force.setItemText(9, _translate("OptionsWindow", "Pretty Pink Princess Land (m-wandoos)"))
-        self.check_major.setToolTip(_translate("OptionsWindow", "Does major quests as they become available, this will override the force zone option if you have any majors banked. If you don\'t have any majors available, it will go into itopod."))
-        self.check_major.setText(_translate("OptionsWindow", "Only do major quests"))
-        self.check_subcontract.setToolTip(_translate("OptionsWindow", "This will subcontract all quests, make sure \"use major quest\" is unticked in game if you only wish to subcontract minor. Does ITOPOD in between."))
-        self.check_subcontract.setText(_translate("OptionsWindow", "Subcontract"))
-        self.button_ok.setText(_translate("OptionsWindow", "Ok"))
+        OptionsWindow.setWindowTitle(QtWidgets.QApplication.translate("OptionsWindow", "NGU Script by Satyric - Options", None, -1))
+        self.label_adv_duration.setText(QtWidgets.QApplication.translate("OptionsWindow", "Duration to spend in adventure:", None, -1))
+        self.line_adv_duration.setToolTip(QtWidgets.QApplication.translate("OptionsWindow", "Duration in minutes that the questing method will run until returning to boost/merge/etc", None, -1))
+        self.line_adv_duration.setText(QtWidgets.QApplication.translate("OptionsWindow", "2", None, -1))
+        self.check_gear.setText(QtWidgets.QApplication.translate("OptionsWindow", "Boost gear", None, -1))
+        self.radio_cube.setToolTip(QtWidgets.QApplication.translate("OptionsWindow", "This will only right click the cube", None, -1))
+        self.radio_cube.setText(QtWidgets.QApplication.translate("OptionsWindow", "Boost cube", None, -1))
+        self.radio_equipment.setToolTip(QtWidgets.QApplication.translate("OptionsWindow", "This will boost all equipment before clicking the cube", None, -1))
+        self.radio_equipment.setText(QtWidgets.QApplication.translate("OptionsWindow", "Boost equipment", None, -1))
+        self.check_boost_inventory.setToolTip(QtWidgets.QApplication.translate("OptionsWindow", "Put the gear you wish to boost starting in the first slot on inventory page 1. A value of 4 will boost the first 4 slots in the inventory. This overrides the Boost cube setting!", None, -1))
+        self.check_boost_inventory.setText(QtWidgets.QApplication.translate("OptionsWindow", "Boost inventory", None, -1))
+        self.button_boost_inventory.setText(QtWidgets.QApplication.translate("OptionsWindow", "Setup", None, -1))
+        self.check_merge_inventory.setToolTip(QtWidgets.QApplication.translate("OptionsWindow", "Put the gear you wish to merge starting in the first slot on inventory page 1. A value of 4 will merge the first 4 slots in the inventory. ", None, -1))
+        self.check_merge_inventory.setText(QtWidgets.QApplication.translate("OptionsWindow", "Merge inventory", None, -1))
+        self.button_merge_inventory.setText(QtWidgets.QApplication.translate("OptionsWindow", "Setup", None, -1))
+        self.check_fruits.setToolTip(QtWidgets.QApplication.translate("OptionsWindow", "This will click \"harvest all max tier fruits\"", None, -1))
+        self.check_fruits.setText(QtWidgets.QApplication.translate("OptionsWindow", "Eat fruits", None, -1))
+        self.check_force.setToolTip(QtWidgets.QApplication.translate("OptionsWindow", "Abandon quests until you get the selected zone. If you have major quests available, those will get done first.", None, -1))
+        self.check_force.setText(QtWidgets.QApplication.translate("OptionsWindow", "Force Zone", None, -1))
+        self.combo_force.setItemText(0, QtWidgets.QApplication.translate("OptionsWindow", "Sewers (e-pow)", None, -1))
+        self.combo_force.setItemText(1, QtWidgets.QApplication.translate("OptionsWindow", "Forest (m-pow)", None, -1))
+        self.combo_force.setItemText(2, QtWidgets.QApplication.translate("OptionsWindow", "High Security Base (e-NGU)", None, -1))
+        self.combo_force.setItemText(3, QtWidgets.QApplication.translate("OptionsWindow", "The 2D Universe (e-bar)", None, -1))
+        self.combo_force.setItemText(4, QtWidgets.QApplication.translate("OptionsWindow", "A Very Strange Place (e-beard)", None, -1))
+        self.combo_force.setItemText(5, QtWidgets.QApplication.translate("OptionsWindow", "Mega Lands (m-beard)", None, -1))
+        self.combo_force.setItemText(6, QtWidgets.QApplication.translate("OptionsWindow", "The Beardverse (drop chance)", None, -1))
+        self.combo_force.setItemText(7, QtWidgets.QApplication.translate("OptionsWindow", "Chocolate World (stats)", None, -1))
+        self.combo_force.setItemText(8, QtWidgets.QApplication.translate("OptionsWindow", "The Evilverse (e-wandoos)", None, -1))
+        self.combo_force.setItemText(9, QtWidgets.QApplication.translate("OptionsWindow", "Pretty Pink Princess Land (m-wandoos)", None, -1))
+        self.check_major.setToolTip(QtWidgets.QApplication.translate("OptionsWindow", "Does major quests as they become available, this will override the force zone option if you have any majors banked. If you don\'t have any majors available, it will go into itopod.", None, -1))
+        self.check_major.setText(QtWidgets.QApplication.translate("OptionsWindow", "Only do major quests", None, -1))
+        self.check_subcontract.setToolTip(QtWidgets.QApplication.translate("OptionsWindow", "This will subcontract all quests, make sure \"use major quest\" is unticked in game if you only wish to subcontract minor. Does ITOPOD in between.", None, -1))
+        self.check_subcontract.setText(QtWidgets.QApplication.translate("OptionsWindow", "Subcontract", None, -1))
+        self.button_ok.setText(QtWidgets.QApplication.translate("OptionsWindow", "Ok", None, -1))
 

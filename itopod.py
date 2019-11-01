@@ -1,16 +1,12 @@
 """Static itopod script."""
 
 # Helper classes
-from classes.features import Features
+from classes.features import Adventure, Inventory, Yggdrasil
 from classes.window import Window
 from distutils.util import strtobool
 from PyQt5.QtCore import QSettings
 
 def run(window, mutex, signal, duration=0):
-    w = Window()
-    w.x = window.x
-    w.y = window.y
-    w.id = window.id
     settings = QSettings("Kujan", "NGU-Scripts")
     if not duration:
         duration = int(settings.value("line_adv_duration")) * 60
@@ -23,16 +19,15 @@ def run(window, mutex, signal, duration=0):
     merge_inventory = strtobool(settings.value("check_merge_inventory"))
     merge_slots = settings.value("arr_merge_inventory")
 
-    feature = Features(w, mutex)
-    feature.itopod_snipe(duration, signal)
+    Adventure.itopod_snipe(duration, signal)
     if use_boosts:
         if boost_equipment:
-            feature.boost_equipment(signal)
+            Inventory.boost_equipment(signal)
         else:
-            feature.boost_cube(signal)
+            Inventory.boost_cube(signal)
     if boost_inventory:
-        feature.boost_inventory(boost_slots, signal)
+        Inventory.boost_inventory(boost_slots, signal)
     if merge_inventory:
-        feature.merge_inventory(merge_slots, signal)
+        Inventory.merge_inventory(merge_slots, signal)
     if check_fruits:
-        feature.ygg(signal)
+        Yggdrasil.ygg(signal)
