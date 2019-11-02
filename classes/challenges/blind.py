@@ -32,7 +32,7 @@ def run(duration):
     GoldDiggers.gold_diggers(diggers)
     while time.time() < end:
         Augmentation.augments({"EB": 0.66, "CS": 0.34}, 1e13)
-        Wandoos.wandoos(True, True
+        Wandoos.wandoos(True, True)
         FightBoss.nuke()
         FightBoss.fight()
         GoldDiggers.gold_diggers(diggers)

@@ -18,7 +18,7 @@ def speedrun():
     Adventure.adventure(highest=True)
     TimeMachine.time_machine(Misc.get_idle_cap(1) * 0.01, magic=True)
     GoldDiggers.gold_diggers(diggers)
-    Wandoos.wandoos(True, True
+    Wandoos.wandoos(True, True)
     BloodMagic.blood_magic(8)
     while Rebirth.check_challenge():
         FightBoss.nuke()

@@ -32,7 +32,7 @@ def speedrun(duration):
     adv_training_assigned = False
 
     Rebirth.do_rebirth()
-    Wandoos.wandoos(True, True
+    Wandoos.wandoos(True, True)
     FightBoss.nuke()
     time.sleep(2)
     FightBoss.fight()
@@ -40,7 +40,7 @@ def speedrun(duration):
     update_gamestate()
 
     while current_boss < 18 and minutes_elapsed < duration:  # augs unlocks after 17
-        Wandoos.wandoos(True, True
+        Wandoos.wandoos(True, True)
         FightBoss.nuke()
         FightBoss.fight()
         if not advanced_training_locked and not adv_training_assigned:
@@ -52,7 +52,7 @@ def speedrun(duration):
 
     while current_boss < 29 and minutes_elapsed < duration:  # buster unlocks after 28
         Augmentation.augments({"SS": 1}, Misc.get_idle_cap(1))
-        Wandoos.wandoos(True, True
+        Wandoos.wandoos(True, True)
         FightBoss.nuke()
         FightBoss.fight()
         if not advanced_training_locked and not adv_training_assigned:
@@ -68,7 +68,7 @@ def speedrun(duration):
 
     while current_boss < 31 and minutes_elapsed < duration:  # TM unlocks after 31
         Augmentation.augments({"EB": 1}, Misc.get_idle_cap(1))
-        Wandoos.wandoos(True, True
+        Wandoos.wandoos(True, True)
         FightBoss.nuke()
         FightBoss.fight()
         if not advanced_training_locked and not adv_training_assigned:
@@ -87,7 +87,7 @@ def speedrun(duration):
     while current_boss < 38 and minutes_elapsed < duration:  # BM unlocks after 37
         GoldDiggers.gold_diggers(diggers)
         Augmentation.augments({"EB": 1}, Misc.get_idle_cap(1))
-        Wandoos.wandoos(True, True
+        Wandoos.wandoos(True, True)
         FightBoss.nuke()
         FightBoss.fight()
         if not advanced_training_locked and not adv_training_assigned:
@@ -107,7 +107,7 @@ def speedrun(duration):
 
     while current_boss < 49 and minutes_elapsed < duration:
         GoldDiggers.gold_diggers(diggers)
-        Wandoos.wandoos(True, True
+        Wandoos.wandoos(True, True)
         Augmentation.augments({"EB": 1}, Misc.get_idle_cap(1))
         FightBoss.nuke()
         FightBoss.fight()
@@ -124,7 +124,7 @@ def speedrun(duration):
     while minutes_elapsed < duration:
         Augmentation.augments({"EB": 0.66, "CS": 0.34}, Misc.get_idle_cap(1))
         GoldDiggers.gold_diggers(diggers)
-        Wandoos.wandoos(True, True
+        Wandoos.wandoos(True, True)
         FightBoss.nuke()
         FightBoss.fight()
         if not advanced_training_locked and not adv_training_assigned:

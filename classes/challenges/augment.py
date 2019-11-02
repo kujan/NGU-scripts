@@ -18,7 +18,7 @@ def normal_rebirth(duration):
     BloodMagic.toggle_auto_spells(drop=False)
     GoldDiggers.gold_diggers(diggers)
     while Inputs.check_pixel_color(*coords.COLOR_TM_LOCKED):
-        Wandoos.wandoos(True, True
+        Wandoos.wandoos(True, True)
         FightBoss.nuke()
         time.sleep(2)
         FightBoss.fight()
@@ -27,7 +27,7 @@ def normal_rebirth(duration):
     Adventure.adventure(itopod=True, itopodauto=True)
 
     while Inputs.check_pixel_color(*coords.COLOR_BM_LOCKED):
-        Wandoos.wandoos(True, True
+        Wandoos.wandoos(True, True)
         FightBoss.nuke()
         time.sleep(2)
         FightBoss.fight()
@@ -35,7 +35,7 @@ def normal_rebirth(duration):
     BloodMagic.blood_magic(8)
     rb_time = Rebirth.get_rebirth_time()
     while int(rb_time.timestamp.tm_min) < duration:
-        Wandoos.wandoos(True, True
+        Wandoos.wandoos(True, True)
         FightBoss.nuke()
         FightBoss.fight()
         time.sleep(2)
