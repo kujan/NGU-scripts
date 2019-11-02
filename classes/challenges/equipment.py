@@ -25,7 +25,7 @@ def speedrun(duration):
     rb_time = Rebirth.get_rebirth_time()
     while int(rb_time.timestamp.tm_min) < duration:
         GoldDiggers.gold_diggers(diggers)
-        Wandoos.wandoos(True)
+        Wandoos.wandoos(True, True
         Augmentation.augments({"SM": 1}, coords.INPUT_MAX)
         if not Inputs.check_pixel_color(*coords.COLOR_TM_LOCKED):
             BloodMagic.blood_magic(6)

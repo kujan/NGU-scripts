@@ -24,7 +24,7 @@ def first_rebirth(duration):
             time.sleep(1)
             Augmentation.augments({"SS": 1}, Misc.get_idle_cap(1))
             ss_assigned = True
-        Wandoos.wandoos(True)
+        Wandoos.wandoos(True, True
         if Wandoos.check_wandoos_bb_status():
             Augmentation.augments({"SS": 1}, Misc.get_idle_cap(1))
         FightBoss.nuke()
@@ -35,7 +35,7 @@ def first_rebirth(duration):
     Augmentation.augments({"EB": 1}, Misc.get_idle_cap(1))
 
     while Inputs.check_pixel_color(*coords.COLOR_BM_LOCKED):
-        Wandoos.wandoos(True)
+        Wandoos.wandoos(True, True
         if Wandoos.check_wandoos_bb_status():
             Augmentation.augments({"EB": 1}, Misc.get_idle_cap(1))
         FightBoss.nuke()
@@ -44,7 +44,7 @@ def first_rebirth(duration):
     BloodMagic.blood_magic(8)
     rb_time = Rebirth.get_rebirth_time()
     while int(rb_time.timestamp.tm_min) < duration:
-        Wandoos.wandoos(True)
+        Wandoos.wandoos(True, True
         FightBoss.nuke()
         FightBoss.fight()
         time.sleep(2)
@@ -95,22 +95,22 @@ def speedrun(duration):
     while Inputs.check_pixel_color(*coords.COLOR_TM_LOCKED):
         FightBoss.nuke()
         FightBoss.fight()
-        Wandoos.wandoos(True)
+        Wandoos.wandoos(True, True
 
     while Inputs.check_pixel_color(*coords.COLOR_BM_LOCKED):
-        Wandoos.wandoos(True)
+        Wandoos.wandoos(True, True
         FightBoss.nuke()
         time.sleep(2)
         FightBoss.fight()
 
     BloodMagic.blood_magic(8)
-    Wandoos.wandoos(True)
+    Wandoos.wandoos(True, True
     rb_time = Rebirth.get_rebirth_time()
     while int(rb_time.timestamp.tm_min) < duration:
         FightBoss.nuke()
         FightBoss.fight()
         Adventure.adventure(highest=True)
-        Wandoos.wandoos(True)
+        Wandoos.wandoos(True, True
         if Wandoos.check_wandoos_bb_status():
             Augmentation.augments({"EB": 0.66, "CS": 0.34}, Misc.get_idle_cap(1))
         """If current rebirth is scheduled for more than 3 minutes and

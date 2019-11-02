@@ -25,7 +25,7 @@ def first_rebirth():
             time.sleep(1)
             Augmentation.augments({"SS": 1}, 3e12)
             ss_assigned = True
-        Wandoos.wandoos(True)
+        Wandoos.wandoos(True, True
         FightBoss.nuke()
         time.sleep(2)
         FightBoss.fight()
@@ -36,7 +36,7 @@ def first_rebirth():
     Adventure.adventure(itopod=True, itopodauto=True)
 
     while Inputs.check_pixel_color(*coords.COLOR_BM_LOCKED) or Inputs.check_pixel_color(*coords.COLOR_BM_LOCKED_ALT):
-        Wandoos.wandoos(True)
+        Wandoos.wandoos(True, True
         FightBoss.nuke()
         time.sleep(2)
         FightBoss.fight()
@@ -44,7 +44,7 @@ def first_rebirth():
     BloodMagic.blood_magic(8)
     BloodMagic.toggle_auto_spells(drop=False, number=False)
     while time.time() < end - 90:
-        Wandoos.wandoos(True)
+        Wandoos.wandoos(True, True
         FightBoss.nuke()
         time.sleep(2)
         try:
@@ -56,7 +56,7 @@ def first_rebirth():
         GoldDiggers.gold_diggers()
 
     while True:
-        Wandoos.wandoos(True)
+        Wandoos.wandoos(True, True
         FightBoss.nuke()
         time.sleep(1)
         try:
