@@ -15,6 +15,7 @@ class Stats():
     """Handles various statistics."""
 
     total_xp = 0
+    qp = 0
     xp = 0
     pp = 0
     start_time = time.time()
@@ -30,16 +31,16 @@ class Stats():
             if value == "TOTAL XP":
                 Navigation.misc()
                 Stats.total_xp = Inputs.ocr_notation(*coords.OCR_TOTAL_EXP)
-                # print("OCR Captured TOTAL XP: {:,}".format(Stats.total_xp))
             elif value == "XP":
                 Navigation.exp()
                 Stats.xp = Inputs.ocr_number(*coords.OCR_EXP)
-                # print("OCR Captured Current XP: {:,}".format(Stats.xp))
             elif value == "PP":
                 Navigation.perks()
                 Misc.waste_click()
                 Stats.pp = Inputs.ocr_number(*coords.OCR_PP)
-                # print("OCR Captured Current PP: {:,}".format(Stats.pp))
+            elif value == "QP":
+                self.menu("questing")
+                Stats.qp = self.ocr_number(*coords.OCR_QUESTING_QP)
             Stats.OCR_failed = False
             Stats.OCR_failures = 0
         except ValueError:
@@ -65,11 +66,15 @@ class EstimateRate():
         self.last_xp = Stats.xp
         if Stats.track_pp:
             Stats.set_value_with_ocr("PP")
+        if Stats.track_qp:
+            Stats.set_value_with_ocr("QP")
+        self.last_qp = Stats.qp
         self.last_pp = Stats.pp
         # Differential time log and value
         self.dtime_log = []
         self.dxp_log = []
         self.dpp_log = []
+        self.dqp_log = []
         # Num runs to keep for moving average
         self.__keep_runs = userset.E_RATE_KEEP_RUNS // duration
         self.__iteration = 0
@@ -83,7 +88,8 @@ class EstimateRate():
         """Returns the average rates"""
         avg_xp = sum(self.dxp_log) / sum(self.dtime_log)
         avg_pp = sum(self.dpp_log) / sum(self.dtime_log)
-        return avg_xp, avg_pp
+        avg_qp = sum(self.dqp_log) / sum(self.dtime_log)
+        return avg_xp, avg_pp, avg_qp
 
     def __moving_average(self):
         """Returns the moving average rates"""
@@ -93,16 +99,19 @@ class EstimateRate():
                 self.dxp_log.pop(0)
             if Stats.track_pp:
                 self.dpp_log.pop(0)
+            if Stats.track_qp:
+                self.dqp_log.pop(0)
         avg_xp = sum(self.dxp_log) / sum(self.dtime_log)
         avg_pp = sum(self.dpp_log) / sum(self.dtime_log)
-        return avg_xp, avg_pp
+        avg_qp = sum(self.dqp_log) / sum(self.dtime_log)
+        return avg_xp, avg_pp, avg_qp
 
     def rates(self):
         try:
-            xpr, ppr = self.__alg[self.mode]()
-            return round(3600 * xpr), round(3600 * ppr)
+            xpr, ppr, qpr = self.__alg[self.mode]()
+            return round(3600 * xpr), round(3600 * ppr),  round(3600*qpr)
         except ZeroDivisionError:
-            return 0, 0
+            return 0, 0, 0
 
     def stop_watch(self):
         """This method needs to be called for rate estimations"""
@@ -129,6 +138,18 @@ class EstimateRate():
                 print("Problems with OCR, skipping stats for this run")
                 self.last_timestamp = time.time()
                 return
+        if Stats.track_qp:
+            self.set_value_with_ocr("QP")
+            if not Stats.OCR_failed:
+                cqp = Stats.qp
+                dqp = cqp - self.last_qp
+                self.dqp_log.append(dqp)
+                self.last_qp = cqp
+            else:
+                print("Problems with OCR, skipping stats for this run")
+                self.last_timestamp = time.time()
+                return
+
         dtime = time.time() - self.last_timestamp
         self.dtime_log.append(dtime)
         self.last_timestamp = time.time()
@@ -146,11 +167,12 @@ class Tracker():
            then at the end of each run invoke tracker.progress() to update stats.
     """
 
-    def __init__(self, duration, track_xp=True, track_pp=True, mode='moving_average'):
+    def __init__(self, duration, track_xp=True, track_pp=True, track_qp=True, mode='moving_average'):
         self.__start_time = time.time()
         self.__iteration = 1
         Stats.track_xp = track_xp
         Stats.track_pp = track_pp
+        Stats.track_qp = track_qp
         self.__estimaterate = EstimateRate(duration, mode)
         # print(f"{'-' * 15} Run # {self.__iteration} {'-' * 15}")
         print("{0:{fill}{align}40}".format(f" {self.__iteration} ", fill="-", align="^"))
@@ -166,11 +188,15 @@ class Tracker():
             print('Starting: {:^8}{:^3}Starting: {:^8}'.format(Helper.human_format(Stats.xp), "|", Helper.human_format(Stats.pp)))
         else:
             elapsed = self.elapsed_time()
-            xph, pph = self.__estimaterate.rates()
+            xph, pph, qph = self.__estimaterate.rates()
             report_time = "\n{0:^40}\n".format(elapsed)
             print('Current:  {:^8}{:^3}Current:  {:^8}'.format(Helper.human_format(Stats.xp), "|", Helper.human_format(Stats.pp)))
             print('Per hour: {:^8}{:^3}Per hour: {:^8}'.format(Helper.human_format(xph), "|", Helper.human_format(pph)))
             print(report_time)
+
+    def get_rates():
+        xph, pph, qph = self.__estimaterate.rates()
+        return {"xph": xph, "pph": pph, "qph": qph}
 
     def elapsed_time(self):
         """Print the total elapsed time."""
