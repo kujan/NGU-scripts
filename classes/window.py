@@ -5,6 +5,7 @@ import platform
 import win32gui
 
 from deprecated import deprecated
+from typing import Tuple
 
 
 class Window:
@@ -20,8 +21,8 @@ class Window:
         Window.init(debug)
 
     @staticmethod
-    def init(debug=False):
-        """Set class variables."""
+    def init(debug :bool =False) -> Tuple[int, int, int, int]:
+        """Finds the game window and returns its coords."""
         if platform.release() == "10":
             ctypes.windll.shcore.SetProcessDpiAwareness(2)
         else:
@@ -47,17 +48,19 @@ class Window:
         return Window.winRect()
 
     @staticmethod
-    def setPos(x, y):
+    def setPos(x :int, y :int) -> None:
         """Set top left coordinates."""
         Window.x = x
         Window.y = y
     
     @staticmethod
-    def winRect():
+    def winRect() -> Tuple[int, int, int, int]:
+        """Returns the coordinates of the window"""
         return win32gui.GetWindowRect(Window.id)
     
     @staticmethod
-    def shake():
+    def shake() -> None:
+        """Shake that Window"""
         for x in range(1000):
             win32gui.MoveWindow(Window.id, x, 0, 1000, 800, False)
         for y in range(1000):
@@ -68,5 +71,6 @@ class Window:
             win32gui.MoveWindow(Window.id, 0, y, 1000, 800, False)
     
     @staticmethod
-    def gameCoords(x1, y1, x2, y2):
+    def gameCoords(x1 :int, y1 :int, x2 :int, y2 :int) -> Tuple[int, int, int, int]:
+        """Converts coords relative to the game to coords relative to the window."""
         return Window.x + x1, Window.y + y1, Window.x + x2, Window.y + y2
