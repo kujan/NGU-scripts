@@ -10,7 +10,7 @@ import os
 import re
 import time
 
-from typing import Optional, Tuple
+from typing import Iterable, Optional, Tuple
 
 from PIL import Image as image
 from PIL import ImageFilter
