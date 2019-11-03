@@ -1,5 +1,5 @@
 import sys
-from PySide2.QtCore import QThread, QMutex, Qt, QPropertyAnimation, QSettings, QTimer, Signal
+from PySide2.QtCore import QThread, QMutex, Qt, QPropertyAnimation, QSettings, QTimer, Signal, QObject
 from PySide2.QtWidgets import QApplication, QMainWindow, QMessageBox, QButtonGroup, QComboBox, QLineEdit, QCheckBox, QRadioButton, QPushButton
 from PySide2.QtGui import QImage, QPixmap, QIcon
 from classes.stats import Stats, Tracker
@@ -561,10 +561,10 @@ class InventorySelecter(QMainWindow, Ui_InventorySelecter):
                 button.setStyleSheet("border:3px solid rgb(0, 0, 0)")
 
 
-class ScriptThread(QThread):
+class ScriptThread(QThread, QObject):
     """Thread class for script."""
 
-    signal = Signal(object)
+    signal = Signal(str)
     settings = QSettings("Kujan", "NGU-Scripts")
     mutex = NguScriptApp.mutex
     selected_script = 1
@@ -590,13 +590,16 @@ class ScriptThread(QThread):
         ScriptThread.start_qp = Stats.qp
         ScriptThread.iteration = 1
 
+    def emit(self, msg):
+        print(msg)
+        self.signal.emit(msg)
+
     def run(self):
         """Check which script to run."""
-        print("pepega")
         while True:
-            print(ScriptThread.tracker.get_rates())
-            self.signal.emit(ScriptThread.tracker.get_rates())
-            self.signal.emit({"exp": Stats.xp - ScriptThread.start_exp, "pp": Stats.pp - ScriptThread.start_pp, "qp": Stats.qp - ScriptThread.start_qp})
+            self.emit("pepega")
+            #self.emit(ScriptThread.tracker.get_rates())
+            self.emit({"exp": Stats.xp - ScriptThread.start_exp, "pp": Stats.pp - ScriptThread.start_pp, "qp": Stats.qp - ScriptThread.start_qp})
             if ScriptThread.selected_script == 0:
                 Stats.track_pp = False
                 questing.run()

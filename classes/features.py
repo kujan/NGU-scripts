@@ -226,7 +226,7 @@ class Adventure:
         Inputs.click(*coords.ABILITY_IDLE_MODE)
     
     @staticmethod
-    def itopod_snipe(duration, auto=False):
+    def itopod_snipe(duration, auto=False, signal=None):
         """Manually snipes ITOPOD for increased speed PP/h.
         
         Keyword arguments:
@@ -240,6 +240,8 @@ class Adventure:
         Navigation.menu("adventure")
         Inputs.click(625, 500)  # click somewhere to move tooltip
         
+        if signal: ScriptThread.emit({"task": "Sniping I.T.O.P.O.D"})
+        emit_timer = time.time()
         # check if we're already in ITOPOD, otherwise enter
         # if auto is true, re-enter ITOPOD to make sure floor is optimal
         if auto or not Inputs.check_pixel_color(*coords.IS_ITOPOD_ACTIVE):
@@ -254,9 +256,14 @@ class Adventure:
             Inputs.click(*coords.ABILITY_IDLE_MODE)
         
         while time.time() < end:
+            if emit_timer + 1 < time.time():
+                progress = ((1 + (time.time() - end) / duration)) * 100
+                ScriptThread.emit({"task_progress": progress})
+                emit_timer = time.time()
             if (Inputs.check_pixel_color(*coords.IS_ENEMY_ALIVE) and
                Inputs.check_pixel_color(*coords.COLOR_REGULAR_ATTACK_READY)):
                 Inputs.click(*coords.ABILITY_REGULAR_ATTACK)
+                ScriptThread.emit({"itopod_kill": 1})
             else:
                 time.sleep(0.01)
         

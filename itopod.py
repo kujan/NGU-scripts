@@ -20,15 +20,15 @@ def run():
     merge_inventory = strtobool(settings.value("check_merge_inventory"))
     merge_slots = settings.value("arr_merge_inventory")
 
-    Adventure.itopod_snipe(ScriptThread.duration, ScriptThread.signal)
+    Adventure.itopod_snipe(ScriptThread.duration, signal=ScriptThread.signal)
     if use_boosts:
         if boost_equipment:
-            Inventory.boost_equipment(ScriptThread.signal)
+            Inventory.boost_equipment()
         else:
-            Inventory.boost_cube(ScriptThread.signal)
+            Inventory.boost_cube()
     if boost_inventory:
-        Inventory.boost_inventory(boost_slots, ScriptThread.signal)
+        Inventory.boost_inventory(boost_slots)
     if merge_inventory:
-        Inventory.merge_inventory(merge_slots, ScriptThread.signal)
+        Inventory.merge_inventory(merge_slots)
     if check_fruits:
-        Yggdrasil.ygg(ScriptThread.signal)
+        Yggdrasil.ygg()
