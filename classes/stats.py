@@ -39,8 +39,8 @@ class Stats():
                 Misc.waste_click()
                 Stats.pp = Inputs.ocr_number(*coords.OCR_PP)
             elif value == "QP":
-                self.menu("questing")
-                Stats.qp = self.ocr_number(*coords.OCR_QUESTING_QP)
+                Navigation.menu("questing")
+                Stats.qp = Inputs.ocr_number(*coords.OCR_QUESTING_QP)
             Stats.OCR_failed = False
             Stats.OCR_failures = 0
         except ValueError:
@@ -109,7 +109,7 @@ class EstimateRate():
     def rates(self):
         try:
             xpr, ppr, qpr = self.__alg[self.mode]()
-            return round(3600 * xpr), round(3600 * ppr),  round(3600*qpr)
+            return round(3600 * xpr), round(3600 * ppr), round(3600*qpr)
         except ZeroDivisionError:
             return 0, 0, 0
 
@@ -194,7 +194,7 @@ class Tracker():
             print('Per hour: {:^8}{:^3}Per hour: {:^8}'.format(Helper.human_format(xph), "|", Helper.human_format(pph)))
             print(report_time)
 
-    def get_rates():
+    def get_rates(self):
         xph, pph, qph = self.__estimaterate.rates()
         return {"xph": xph, "pph": pph, "qph": qph}
 

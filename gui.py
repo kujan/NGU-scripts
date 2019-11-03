@@ -97,7 +97,6 @@ class NguScriptApp(QMainWindow, Ui_MainWindow):
     def get_ngu_window(self):
         """Get window ID for NGU IDLE."""
         Helper.init()
-        #self.window_retry.disconnect()
         if Window.id:
             self.window_retry.setText("Show Window")
             self.window_retry.clicked.connect(self.action_show_window)
@@ -121,7 +120,6 @@ class NguScriptApp(QMainWindow, Ui_MainWindow):
             self.window_info_text.setStyleSheet("color: red")
             self.window_info_text.setText("Tesseract not found")
             self.window_retry.setText("Try again")
-            self.window_retry.disconnect()
             self.window_retry.clicked.connect(self.test_tesseract)
             self.run_button.setEnabled(False)
 
@@ -135,7 +133,6 @@ class NguScriptApp(QMainWindow, Ui_MainWindow):
         if self.mutex.tryLock(1000):  # only way to check if we have the lock without crashing?
             self.run_thread.terminate()
             self.run_button.setText("Run")
-            self.run_button.disconnect()
             self.run_button.clicked.connect(self.action_run)
             self.stop_button.setEnabled(False)
             self.settings.setValue("total_itopod_kills", self.total_itopod_kills)
@@ -152,7 +149,6 @@ class NguScriptApp(QMainWindow, Ui_MainWindow):
         self.run_options.setEnabled(False)  # trying to open inventory viewer causes deadlock
         self.run_button.setText("Pausing...")
         self.mutex.lock()
-        self.run_button.disconnect()
         self.run_button.clicked.connect(self.action_resume)
         self.run_button.setText("Resume")
         self.run_button.setEnabled(True)
@@ -162,7 +158,6 @@ class NguScriptApp(QMainWindow, Ui_MainWindow):
         self.run_button.setEnabled(False)
         self.stop_button.setEnabled(True)
         self.run_button.setText("Pause")
-        self.run_button.disconnect()
         self.mutex.unlock()
         self.run_button.setEnabled(True)
         self.run_button.clicked.connect(self.action_pause)
@@ -170,7 +165,7 @@ class NguScriptApp(QMainWindow, Ui_MainWindow):
     def action_options(self):
         """Display option window."""
         index = self.combo_run.currentIndex()
-        self.options = OptionsWindow(index, self.i, self.run_thread, self)
+        self.options = OptionsWindow(index, self.run_thread, self)
         self.options.show()
 
     def human_format(self, num):
@@ -253,7 +248,6 @@ class NguScriptApp(QMainWindow, Ui_MainWindow):
             self.run_thread = ScriptThread(0)
             self.run_thread.signal.connect(self.update)
             self.run_button.setText("Pause")
-            self.run_button.disconnect()
             self.run_button.clicked.connect(self.action_pause)
             self.w_exp.show()
             self.w_pp.hide()
@@ -274,7 +268,6 @@ class NguScriptApp(QMainWindow, Ui_MainWindow):
             self.run_thread = ScriptThread(1)
             self.run_thread.signal.connect(self.update)
             self.run_button.setText("Pause")
-            self.run_button.disconnect()
             self.run_button.clicked.connect(self.action_pause)
             self.w_exp.show()
             self.w_pp.show()
@@ -295,7 +288,6 @@ class NguScriptApp(QMainWindow, Ui_MainWindow):
             self.run_thread = ScriptThread(2, self.w, self.mutex)
             self.run_thread.signal.connect(self.update)
             self.run_button.setText("Pause")
-            self.run_button.disconnect()
             self.run_button.clicked.connect(self.action_pause)
             self.w_exp.show()
             self.w_pp.show()
@@ -315,12 +307,11 @@ class NguScriptApp(QMainWindow, Ui_MainWindow):
 class OptionsWindow(QMainWindow, Ui_OptionsWindow):
     """Option window."""
 
-    def __init__(self, index, inputs, thread, parent=None):
+    def __init__(self, index, thread, parent=None):
         """Setup UI."""
         super(OptionsWindow, self).__init__(parent)
         self.setupUi(self)
         self.index = index
-        self.i = inputs
         self.settings = QSettings("Kujan", "NGU-Scripts")
         self.button_ok.clicked.connect(self.action_ok)
         self.radio_group_gear = QButtonGroup(self)
@@ -374,13 +365,13 @@ class OptionsWindow(QMainWindow, Ui_OptionsWindow):
     def action_boost_inventory(self, int):
         """Update UI."""
         if self.check_boost_inventory.isChecked():
-            self.inventory_selecter = InventorySelecter("arr_boost_inventory", self.i, self)
+            self.inventory_selecter = InventorySelecter("arr_boost_inventory", self)
             self.inventory_selecter.show()
 
     def action_merge_inventory(self, int):
         """Update UI."""
         if self.check_merge_inventory.isChecked():
-            self.inventory_selecter = InventorySelecter("arr_merge_inventory", self.i, self)
+            self.inventory_selecter = InventorySelecter("arr_merge_inventory", self)
             self.inventory_selecter.show()
 
     def state_changed_force_zone(self, int):
@@ -480,12 +471,11 @@ class OptionsWindow(QMainWindow, Ui_OptionsWindow):
 class InventorySelecter(QMainWindow, Ui_InventorySelecter):
     """Option window."""
 
-    def __init__(self, mode, inputs, parent=None):
+    def __init__(self, mode, parent=None):
         """Setup UI."""
         super(InventorySelecter, self).__init__(parent)
         self.setupUi(self)
         self.mode = mode
-        self.i = inputs
         self.settings = QSettings("Kujan", "NGU-Scripts")
         self.slots = []
         self.button_ok.clicked.connect(self.action_ok)
@@ -574,10 +564,16 @@ class InventorySelecter(QMainWindow, Ui_InventorySelecter):
 class ScriptThread(QThread):
     """Thread class for script."""
 
-    signal = Signal("PyObject")
+    signal = Signal(object)
     settings = QSettings("Kujan", "NGU-Scripts")
     mutex = NguScriptApp.mutex
     selected_script = 1
+    duration = 0
+    tracker = None
+    start_exp = 0
+    start_pp = 0
+    start_qp = 0
+    iteration = 0
 
     def __init__(self, script):
         """Init thread variables."""
@@ -585,8 +581,8 @@ class ScriptThread(QThread):
         selected_script = script
         ScriptThread.__setup()
 
+    @staticmethod
     def __setup():
-        ScriptThread.run = run
         ScriptThread.duration = int(ScriptThread.settings.value("line_adv_duration", "2"))
         ScriptThread.tracker = Tracker(ScriptThread.duration)
         ScriptThread.start_exp = Stats.xp
@@ -596,21 +592,22 @@ class ScriptThread(QThread):
 
     def run(self):
         """Check which script to run."""
+        print("pepega")
         while True:
-            print(Tracker.get)
-            self.signal.emit(self.tracker.get_rates())
-            self.signal.emit({"exp": Stats.xp - self.start_exp, "pp": Stats.pp - self.start_pp, "qp": Stats.qp - self.start_qp})
-            if self.run == 0:
+            print(ScriptThread.tracker.get_rates())
+            self.signal.emit(ScriptThread.tracker.get_rates())
+            self.signal.emit({"exp": Stats.xp - ScriptThread.start_exp, "pp": Stats.pp - ScriptThread.start_pp, "qp": Stats.qp - ScriptThread.start_qp})
+            if ScriptThread.selected_script == 0:
                 Stats.track_pp = False
-                questing.run(self.w, self.mutex, self.signal)
-            if self.run == 1:
+                questing.run()
+            if ScriptThread.selected_script == 1:
                 Stats.track_qp = False
-                itopod.run(self.w, self.mutex, self.signal)
-            if self.run == 2:
+                itopod.run()
+            if ScriptThread.selected_script == 2:
                 Stats.track_qp = False
-            self.signal.emit({"iteration": self.iteration})
-            self.iteration += 1
-            self.tracker.progress()
+            self.signal.emit({"iteration": ScriptThread.iteration})
+            ScriptThread.iteration += 1
+            ScriptThread.tracker.progress()
 
 
 def run():
