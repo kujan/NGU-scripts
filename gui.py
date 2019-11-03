@@ -28,7 +28,7 @@ import win32gui
 class NguScriptApp(QMainWindow, Ui_MainWindow):
     """Main window."""
 
-    mutex: ClassVar[QMutex]
+    mutex: ClassVar[QMutex] = None
 
     def __init__(self, parent=None):
         """Generate UI."""
@@ -271,7 +271,7 @@ class NguScriptApp(QMainWindow, Ui_MainWindow):
             self.run_thread.start()
 
         elif run == 1:
-            self.run_thread = ScriptThread(1, self.w, self.mutex)
+            self.run_thread = ScriptThread(1)
             self.run_thread.signal.connect(self.update)
             self.run_button.setText("Pause")
             self.run_button.disconnect()
@@ -582,13 +582,13 @@ class ScriptThread(QThread):
     def __init__(self, script):
         """Init thread variables."""
         QThread.__init__(self)
-        setup()
+        selected_script = script
+        ScriptThread.__setup()
 
     def __setup():
         ScriptThread.run = run
-        ScriptThread.selected_script = script
-        ScriptThread.duration = int(self.settings.value("line_adv_duration", "2"))
-        ScriptThread.tracker = Tracker(self.w, self.mutex, self.duration)
+        ScriptThread.duration = int(ScriptThread.settings.value("line_adv_duration", "2"))
+        ScriptThread.tracker = Tracker(ScriptThread.duration)
         ScriptThread.start_exp = Stats.xp
         ScriptThread.start_pp = Stats.pp
         ScriptThread.start_qp = Stats.qp
