@@ -19,9 +19,17 @@ import pytesseract
 
 import usersettings as userset
 from classes.window import Window
+from PySide2.QtCore import QMutex
+from typing import ClassVar
 
 class Inputs:
     """This class handles inputs."""
+
+    mutex: ClassVar[QMutex] = None
+
+    @staticmethod
+    def set_mutex(mutex):
+        Inputs.mutex = mutex
 
     @staticmethod
     def click(x, y, button="left", fast=False):
@@ -29,6 +37,9 @@ class Inputs:
         x += Window.x
         y += Window.y
         lParam = win32api.MAKELONG(x, y)
+        
+        if Inputs.mutex:
+            Inputs.mutex.lock()
         # MOUSEMOVE event is required for game to register clicks correctly
         win32gui.PostMessage(Window.id, wcon.WM_MOUSEMOVE, 0, lParam)
         while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
@@ -50,6 +61,8 @@ class Inputs:
             time.sleep(userset.FAST_SLEEP)
         else:
             time.sleep(userset.MEDIUM_SLEEP)
+        if Inputs.mutex:
+            Inputs.mutex.unlock()
 
     @staticmethod
     def click_drag(x, y, x2, y2):

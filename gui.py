@@ -1,5 +1,5 @@
 import sys
-from PySide2.QtCore import QThread, QMutex, Qt, QPropertyAnimation, QSettings, QTimer, Signal, QObject
+from PySide2.QtCore import QThread, QMutex, Qt, QPropertyAnimation, QSettings, QTimer, Signal, QObject, Slot
 from PySide2.QtWidgets import QApplication, QMainWindow, QMessageBox, QButtonGroup, QComboBox, QLineEdit, QCheckBox, QRadioButton, QPushButton
 from PySide2.QtGui import QImage, QPixmap, QIcon
 from classes.stats import Stats, Tracker
@@ -39,6 +39,7 @@ class NguScriptApp(QMainWindow, Ui_MainWindow):
 
     def setup(self):
         """Add logic to UI elements."""
+        Inputs.set_mutex(self.mutex)
         self.rebirth_progress.setAlignment(Qt.AlignCenter)
         self.task_progress.setAlignment(Qt.AlignCenter)
         self.get_ngu_window()
@@ -53,6 +54,7 @@ class NguScriptApp(QMainWindow, Ui_MainWindow):
         self.run_options.clicked.connect(self.action_options)
         self.run_thread = None
         self.options = None
+        
         # self.tabWidget.setFixedSize(self.sizeHint())  # shrink window
 
     def load_stats(self):
@@ -130,15 +132,17 @@ class NguScriptApp(QMainWindow, Ui_MainWindow):
 
     def action_stop(self, thread):
         """Stop script thread."""
-        if self.mutex.tryLock(1000):  # only way to check if we have the lock without crashing?
+        if self.mutex.tryLock(3000):  # only way to check if we have the lock without crashing?
             self.run_thread.terminate()
             self.run_button.setText("Run")
+            self.run_button.clicked.disconnect()
             self.run_button.clicked.connect(self.action_run)
             self.stop_button.setEnabled(False)
             self.settings.setValue("total_itopod_kills", self.total_itopod_kills)
             self.settings.setValue("total_major_quests", self.total_major_quests)
             self.settings.setValue("total_minor_quests", self.total_minor_quests)
             self.mutex.unlock()
+            
         else:
             QMessageBox.information(self, "Error", "Couldn't acquire lock of script thread.")
 
@@ -149,6 +153,7 @@ class NguScriptApp(QMainWindow, Ui_MainWindow):
         self.run_options.setEnabled(False)  # trying to open inventory viewer causes deadlock
         self.run_button.setText("Pausing...")
         self.mutex.lock()
+        self.run_button.clicked.disconnect()
         self.run_button.clicked.connect(self.action_resume)
         self.run_button.setText("Resume")
         self.run_button.setEnabled(True)
@@ -158,6 +163,7 @@ class NguScriptApp(QMainWindow, Ui_MainWindow):
         self.run_button.setEnabled(False)
         self.stop_button.setEnabled(True)
         self.run_button.setText("Pause")
+        self.run_button.clicked.disconnect()
         self.mutex.unlock()
         self.run_button.setEnabled(True)
         self.run_button.clicked.connect(self.action_pause)
@@ -191,8 +197,10 @@ class NguScriptApp(QMainWindow, Ui_MainWindow):
             result = f"{time.strftime('%H:%M:%S', time.gmtime(n))}"
         self.elapsed_data.setText(result)
 
+    @Slot(dict)
     def update(self, result):
         """Update data in UI upon event."""
+        print(result)
         for k, v in result.items():
             if k == "exp":
                 self.exp_data.setText(self.human_format(v))
@@ -248,6 +256,7 @@ class NguScriptApp(QMainWindow, Ui_MainWindow):
             self.run_thread = ScriptThread(0)
             self.run_thread.signal.connect(self.update)
             self.run_button.setText("Pause")
+            self.run_button.clicked.disconnect()
             self.run_button.clicked.connect(self.action_pause)
             self.w_exp.show()
             self.w_pp.hide()
@@ -265,9 +274,10 @@ class NguScriptApp(QMainWindow, Ui_MainWindow):
             self.run_thread.start()
 
         elif run == 1:
-            self.run_thread = ScriptThread(1)
-            self.run_thread.signal.connect(self.update)
+            self.run_thread = ScriptThread(1, self)
+            #self.run_thread.signal.connect(self.update)
             self.run_button.setText("Pause")
+            self.run_button.clicked.disconnect()
             self.run_button.clicked.connect(self.action_pause)
             self.w_exp.show()
             self.w_pp.show()
@@ -288,6 +298,7 @@ class NguScriptApp(QMainWindow, Ui_MainWindow):
             self.run_thread = ScriptThread(2, self.w, self.mutex)
             self.run_thread.signal.connect(self.update)
             self.run_button.setText("Pause")
+            self.run_button.clicked.disconnect()
             self.run_button.clicked.connect(self.action_pause)
             self.w_exp.show()
             self.w_pp.show()
@@ -563,10 +574,9 @@ class InventorySelecter(QMainWindow, Ui_InventorySelecter):
 
 class ScriptThread(QThread, QObject):
     """Thread class for script."""
-
-    signal = Signal(str)
+    
+    signal_dict = Signal(dict)
     settings = QSettings("Kujan", "NGU-Scripts")
-    mutex = NguScriptApp.mutex
     selected_script = 1
     duration = 0
     tracker = None
@@ -575,10 +585,12 @@ class ScriptThread(QThread, QObject):
     start_qp = 0
     iteration = 0
 
-    def __init__(self, script):
+    def __init__(self, script, parent=None):
         """Init thread variables."""
         QThread.__init__(self)
-        selected_script = script
+        self.signal_dict.connect(parent.update)
+        self.mutex = parent.mutex
+        self.selected_script = script
         ScriptThread.__setup()
 
     @staticmethod
@@ -590,25 +602,23 @@ class ScriptThread(QThread, QObject):
         ScriptThread.start_qp = Stats.qp
         ScriptThread.iteration = 1
 
-    def emit(self, msg):
-        print(msg)
-        self.signal.emit(msg)
+    def send_dict(self, msg):
+        self.signal_dict.emit(msg)
 
     def run(self):
         """Check which script to run."""
         while True:
-            self.emit("pepega")
-            #self.emit(ScriptThread.tracker.get_rates())
-            self.emit({"exp": Stats.xp - ScriptThread.start_exp, "pp": Stats.pp - ScriptThread.start_pp, "qp": Stats.qp - ScriptThread.start_qp})
-            if ScriptThread.selected_script == 0:
+            self.send_dict(ScriptThread.tracker.get_rates())
+            self.send_dict({"exp": Stats.xp - ScriptThread.start_exp, "pp": Stats.pp - ScriptThread.start_pp, "qp": Stats.qp - ScriptThread.start_qp})
+            if self.selected_script == 0:
                 Stats.track_pp = False
                 questing.run()
-            if ScriptThread.selected_script == 1:
+            if self.selected_script == 1:
                 Stats.track_qp = False
-                itopod.run()
-            if ScriptThread.selected_script == 2:
+                itopod.run(self)
+            if self.selected_script == 2:
                 Stats.track_qp = False
-            self.signal.emit({"iteration": ScriptThread.iteration})
+            self.send_dict({"iteration": ScriptThread.iteration})
             ScriptThread.iteration += 1
             ScriptThread.tracker.progress()
 

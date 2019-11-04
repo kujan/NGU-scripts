@@ -7,7 +7,7 @@ from gui import ScriptThread
 from distutils.util import strtobool
 from PyQt5.QtCore import QSettings
 
-def run():
+def run(thread):
     settings = QSettings("Kujan", "NGU-Scripts")
     if not ScriptThread.duration:
         ScriptThread.duration = int(settings.value("line_adv_duration")) * 60
@@ -20,7 +20,7 @@ def run():
     merge_inventory = strtobool(settings.value("check_merge_inventory"))
     merge_slots = settings.value("arr_merge_inventory")
 
-    Adventure.itopod_snipe(ScriptThread.duration, signal=ScriptThread.signal)
+    Adventure.itopod_snipe(ScriptThread.duration, thread=thread)
     if use_boosts:
         if boost_equipment:
             Inventory.boost_equipment()
