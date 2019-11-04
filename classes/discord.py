@@ -17,7 +17,7 @@ class Discord:
     ERROR = 1
 
     @staticmethod
-    def send_message(text :str, level :int =Discord.INFO) -> None:
+    def send_message(text :str, level :int =INFO) -> None:
         """Send message to webhook.
         
         Keyword arguments
