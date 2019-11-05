@@ -18,6 +18,6 @@ while True:  # main loop
     if titans:
         for titan in titans:
             Adventure.kill_titan(titan)
-    Adventure.snipe(args.zone, duration=300, manual=True, bosses=True)
+    Adventure.snipe(args.zone, duration=5, manual=True, bosses=True)
     MoneyPit.pit()
     time.sleep(3)
