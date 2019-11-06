@@ -3,7 +3,7 @@ from discord_webhook import DiscordWebhook, DiscordEmbed
 import usersettings as userset
 
 
-class Discord():
+class Discord:
     """Handles messages to discord.
 
     This requires you to create your own Discord server in order to recieve
@@ -16,16 +16,21 @@ class Discord():
     INFO = 0
     ERROR = 1
 
-    @classmethod
-    def send_message(cls, text, level):
-        """Send message to webhook."""
+    @staticmethod
+    def send_message(text :str, level :int =INFO) -> None:
+        """Send message to webhook.
+        
+        Keyword arguments
+        text  -- Text of the message to send to the Discord webhook.
+        level -- Whether to send an info message or error message.
+        """
         url = ""
-        if level == 0:  # info
+        if level == Discord.INFO:
             title = "INFO"
             color = 242424
             url = userset.INFO_URL
 
-        elif level == 1:  # exception
+        elif level == Discord.ERROR:
             title = "ERROR"
             color = 16711680
             url = userset.ERROR_URL
