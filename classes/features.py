@@ -1372,9 +1372,9 @@ class Rebirth:
             return 1
         elif "augs" in text.lower():
             return 2
-        elif "100 level" in text.lower():
-            return 3
         elif "24 hour" in text.lower():
+            return 3
+        elif "100 level" in text.lower():
             return 4
         elif "equipment" in text.lower():
             return 5

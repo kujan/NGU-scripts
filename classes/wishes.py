@@ -14,7 +14,7 @@ import constants    as const
 import usersettings as userset
 
 
-class Wishes():
+class Wishes:
     """Class that handles wishes."""
 
     def __init__(self, wish_slots, wish_min_time):

@@ -1,18 +1,5 @@
 """Handles different challenges"""
 
-import time
-
-from challenges.augment     import Augment
-from challenges.basic       import Basic
-from challenges.equipment   import Equipment
-from challenges.level       import Level
-from challenges.laser       import Laser
-from challenges.ngu         import NGU
-from challenges.rebirth     import Rebirth as RebirthCh
-from challenges.timemachine import Timemachine
-from challenges.blind       import Blind
-
-
 from classes.features   import BloodMagic, Rebirth
 from classes.navigation import Navigation
 from classes.inputs     import Inputs
@@ -21,167 +8,120 @@ from classes.window     import Window
 
 import coordinates  as coords
 import usersettings as userset
+import time
 
 
-class Challenge():
+class cInfo:
+    def __init__(self, name = "", script = None, extra = []):
+        self.name = name
+        self.script = script
+        self.extra = extra
+
+def init(ChList):
+    from .challenges.augment     import augment
+    from .challenges.basic       import basic
+    from .challenges.blind       import blind
+    from .challenges.equipment   import equipment
+    from .challenges.laser       import laser
+    from .challenges.level       import level
+    from .challenges.ngu         import ngu
+    from .challenges.rebirth     import rebirth
+    from .challenges.timemachine import timemachine
+
+    def get24boss():
+        try:
+            x = coords.CHALLENGE.x
+            y = coords.CHALLENGE.y + 3 * coords.CHALLENGEOFFSET
+            
+            Navigation.challenges()
+            Inputs.click(x, y, button="right")
+            time.sleep(userset.LONG_SLEEP)
+            target = Inputs.ocr(*coords.OCR_CHALLENGE_24HC_TARGET)
+            target = Inputs.get_numbers(target)[0]
+            return f"Target boss: {target}"
+        except ValueError:
+            Discord.send_message("Couldn't detect the target level of 24HC", Discord.ERROR)
+            return "Couldn't detect the target level of 24HC"
+
+    ChList.append(cInfo("Basic", basic))
+    ChList.append(cInfo("No Augments", augment))
+    ChList.append(cInfo("24h", basic, [get24boss]))
+    ChList.append(cInfo("100 Level", level, [
+        "IMPORTANT",
+        "Set target level for energy buster to 67 and charge shot to 33.",
+        "Disable 'Advance Energy' in Augmentation",
+        "Disable beards if you cap ultra fast."
+    ]))
+    ChList.append(cInfo("No Equipment", equipment))
+    ChList.append(cInfo("Troll", Window.shake, ["Do it yourself, fam."]))
+    ChList.append(cInfo("No Rebirth", rebirth))
+    ChList.append(cInfo("Laser Sword", laser, [
+        "LSC doesn't reset your number, make sure your number is high enough to make laser swords."
+    ]))
+    ChList.append(cInfo("Blind", blind))
+    ChList.append(cInfo("No NGU", ngu))
+    ChList.append(cInfo("No Time Machine", timemachine))
+    
+ChList = []
+init(ChList)
+   
+class Challenge:
     """Handles different challenges."""
-
+    
     @staticmethod
-    def start_challenge(challenge : int) -> None:
-        """Start the selected challenge.
+    def run_challenge(challenge :int, cont :bool =False) -> None:        
+        """Run the selected challenge.
         
         Keyword arguments
         challenge -- The index of the challenge, starting at 1 for Basic challenge,
                      ending at 11 for No TM challenge
+        cont      -- Whether the challenge is already running.
         """
-
-        BloodMagic.toggle_auto_spells(drop=False)
-        Navigation.rebirth()
-        Inputs.click(*coords.CHALLENGE_BUTTON)
-
-        chall = Rebirth.check_challenge(getNum=True)
-        if chall:
-            text = Inputs.ocr(*coords.OCR_CHALLENGE_NAME)
-            print("A challenge is already active: " + text)
-            if "basic" in text.lower():
-                print("Starting basic challenge script")
-                Basic.start()
-
-            elif "24 hour" in text.lower():
-                print("Starting 24 hour challenge script")
-                try:
-                    x = coords.CHALLENGE.x
-                    y = coords.CHALLENGE.y + challenge * coords.CHALLENGEOFFSET
-                    Inputs.click(x, y, button="right")
-                    time.sleep(userset.LONG_SLEEP)
-                    target = Inputs.ocr(*coords.OCR_CHALLENGE_24HC_TARGET)
-                    target = int(Inputs.remove_letters(target))
-                    print(f"Found target boss: {target}")
-                    Basic.start()
-                except ValueError:
-                    print("Couldn't detect the target level of 24HC")
-                    Discord.send_message("Couldn't detect the" +
-                                         " target level of 24HC", Discord.ERROR)
-
-            elif "100 level" in text.lower():
-                print("Starting 100 level challenge script")
-                print("IMPORTANT")
-                print("Set target level for energy buster to 67 and charge shot to 33.")
-                print("Disable 'Advance Energy' in Augmentation")
-                print("Disable beards if you cap ultra fast.")
-                Level.start()
-
-            elif "blind" in text.lower():
-                print("Starting blind challenge script")
-                Blind.start()
-
-            elif "laser" in text.lower():
-                print("Starting laser sword challenge script")
-                Laser.start()
-
-            elif "rebirth" in text.lower():
-                print("Starting no rebirth challenge script")
-                RebirthCh.rebirth_challenge()
-            elif "augs" in text.lower():
-                print("Starting no augs challenge script")
-                Augment.start()
-            elif "equipment" in text.lower():
-                print("Starting no equipment challenge script")
-                Equipment.start()
-            elif "time machine" in text.lower():
-                print("Starting no time machine challenge script")
-                Timemachine.start()
-            elif "ngu" in text.lower():
-                print("Starting no NGU challenge script")
-                NGU.start()
-            else:
-                print("Couldn't determine which script to start from the OCR",
-                      "input")
-
+        global ChList
+        Navigation.challenges()
+        
+        if cont: pass
         else:
             x = coords.CHALLENGE.x
             y = coords.CHALLENGE.y + challenge * coords.CHALLENGEOFFSET
+            Inputs.click(x, y)
+            time.sleep(userset.LONG_SLEEP)
+            Navigation.confirm()
+        
+        chall = ChList[challenge-1]
+        print(f"Starting {chall.name} Challenge script.")
+        for x in chall.extra:
+            if callable(x): print(x())
+            else: print(x)
+        chall.script()
+    
+    @staticmethod
+    def start_challenge(challenge :int, quitCurrent :bool =False) -> None:
+        """Start the selected challenge. Checks for currently running challenges.
+        
+        Keyword arguments
+        challenge   -- The index of the challenge, starting at 1 for Basic challenge,
+                       ending at 11 for No TM challenge
+        quitCurrent -- Quit the current challenge if it is different to the desired.
+        """
+        BloodMagic.toggle_auto_spells(drop=False)
+        
+        chall = Rebirth.check_challenge(getNum=True)
+        if chall and chall != challenge:
+            print(f"A challenge is currently running ({chall}).")
+            if quitCurrent:
+                print("Quitting current challenge.")
+                Navigation.challenge_quit()
+            else: Challenge.run_challenge(chall, cont=True)
 
-            if challenge == 1:
-                Inputs.click(x, y)
-                time.sleep(userset.LONG_SLEEP)
-                Navigation.confirm()
-                Basic.start()
-
-            elif challenge == 2:
-                Inputs.click(x, y)
-                time.sleep(userset.LONG_SLEEP)
-                Navigation.confirm()
-                Augment.start()
-
-            elif challenge == 3:
-                try:
-                    Inputs.click(x, y, button="right")
-                    time.sleep(userset.LONG_SLEEP)
-                    target = Inputs.ocr(*coords.OCR_CHALLENGE_24HC_TARGET)
-                    target = int(Inputs.remove_letters(target))
-                    print(f"Found target boss: {target}")
-                    Inputs.click(x, y)
-                    time.sleep(userset.LONG_SLEEP)
-                    Navigation.confirm()
-                    time.sleep(userset.LONG_SLEEP)
-                    Basic.start()
-                except ValueError:
-                    print("couldn't detect the target level of 24HC")
-                    Discord.send_message("Couldn't detect the" +
-                                         "target level of 24HC", Discord.ERROR)
-
-            elif challenge == 4:
-                print("IMPORTANT")
-                print("Set target Level for energy buster to 67 and charge shot to 33.")
-                print("Disable 'Advance Energy' in Augmentation")
-                print("Disable beards if you cap ultra fast.")
-                Inputs.click(x, y)
-                time.sleep(userset.LONG_SLEEP)
-                Navigation.confirm()
-                Level.start()
-
-            elif challenge == 5:
-                Inputs.click(x, y)
-                time.sleep(userset.LONG_SLEEP)
-                Navigation.confirm()
-                Equipment.start()
-
-            elif challenge == 6:
-                print("Nah fam. Do it yourself")
-                while True: Window.shake()
-            
-            elif challenge == 7:
-                Inputs.click(x, y)
-                time.sleep(userset.LONG_SLEEP)
-                Navigation.confirm()
-                RebirthCh.rebirth_challenge()
-
-            elif challenge == 8:
-                print("LSC doesn't reset your number, make sure your number is high enough to make laser swords.")
-                Inputs.click(x, y)
-                time.sleep(userset.LONG_SLEEP)
-                Navigation.confirm()
-                Laser.start()
-
-            elif challenge == 9:
-                print("Starting blind challenge")
-                Inputs.click(x, y)
-                time.sleep(userset.LONG_SLEEP)
-                Navigation.confirm()
-                Blind.start()
-
-            elif challenge == 10:
-                Inputs.click(x, y)
-                time.sleep(userset.LONG_SLEEP)
-                Navigation.confirm()
-                NGU.start()
-
-            elif challenge == 11:
-                Inputs.click(x, y)
-                time.sleep(userset.LONG_SLEEP)
-                Navigation.confirm()
-                Timemachine.start()
-
-            else:
-                print(f"invalid challenge: {challenge}")
+        Challenge.run_challenge(challenge)
+    
+    @staticmethod
+    def list() -> None:
+        """Print the list of challenges with their corresponding number.
+        """
+        global ChList
+        for i in range(len(ChList)):
+            if i < 9: print(i+1, "  " + ChList[i].name)
+            else:     print(i+1,  " " + ChList[i].name)
+    
