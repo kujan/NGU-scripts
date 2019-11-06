@@ -38,12 +38,13 @@ def start_procedure(f, rt):
     f.assign_ngu(f.get_idle_cap(1), [x for x in range(1, 8)], True)
 
 
-Window.__init__(object)
+w = Window()
+i = Inputs()
+nav = Navigation()
 feature = Features()
 
 Window.x, Window.y = i.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, 400, 600)
 nav.menu("inventory")
-import requirements
 rt = feature.get_rebirth_time()
 start_procedure(feature, rt)
 
@@ -78,17 +79,8 @@ while True:
         feature.save_check()
         feature.pit()
         if rt.timestamp.tm_hour <= 12:  # quests for first 12 hours
-            titans = feature.check_titan_status()
-            if titans:
-                for titan in titans:
-                    feature.kill_titan(titan)
             feature.boost_cube()
             feature.questing()
-            time.sleep(3)
         else:  # after hour 12, do itopod in 5-minute intervals
-            titans = feature.check_titan_status()
-            if titans:
-                for titan in titans:
-                    feature.kill_titan(titan)
             feature.itopod_snipe(300)
             feature.boost_cube()

@@ -14,7 +14,6 @@ class Wishes(Features):
     def __init__(self, wish_slots, wish_min_time):
         """Fetch initial breakdown values."""
         print(const.WISH_DISCLAIMER)
-
         self.wish_slots = wish_slots
         self.available_slots = 0
         self.wish_min_time = wish_min_time
@@ -31,7 +30,6 @@ class Wishes(Features):
         self.get_breakdowns()
         self.get_wish_status()
         # self.allocate_wishes()
-
 
     def get_breakdowns(self):
         """Go to stat breakdowns and fetch the necessary stats."""
@@ -142,8 +140,19 @@ class Wishes(Features):
             return res
 
         except AssertionError:
-            print("OCR couldn't determine breakdown values")
             return []
+            print("OCR couldn't determine breakdown values")
+
+    def assign_wishes(self):
+        """Will assign any idle resources to wishes in the order as defined in constants.py."""
+        self.menu("wishes")
+        for y in range(3):
+            for x in range(7):
+                complete = self.check_pixel_color(coords.WISH_BORDER.x + x * 92,
+                                                  coords.WISH_BORDER.y + y * 106,
+                                                  coords.COLOR_WISH_COMPLETED)
+                if complete:
+                    self.completed_wishes.append(1 + x + y + y * 6)
 
     def get_wish_status(self):
         """Check which wishes are done and which are level 1 or higher."""
@@ -153,7 +162,7 @@ class Wishes(Features):
         self.wishes_active = []  # wishes that currently are progressing
         self.click(*coords.WISH_PAGE[1])  # go to page 2 and select the first wish to get rid of the green border
         time.sleep(userset.MEDIUM_SLEEP)
-        self.click(*coords.WISH_PORTRAIT)
+        self.click(*coords.WISH_SELECTION)
         time.sleep(userset.MEDIUM_SLEEP)
         self.click(*coords.WISH_PAGE[0])
 
@@ -180,7 +189,7 @@ class Wishes(Features):
                         self.wishes_in_progress.append(1 + x + y + y * 6 + i * 21)
 
             if i == 0:  # after page 1 is scanned, select first wish
-                self.click(*coords.WISH_PORTRAIT)
+                self.click(*coords.WISH_SELECTION)
         used_slots = len(self.wishes_active)
         self.available_slots = self.wish_slots - used_slots
         if used_slots > 0:
@@ -195,7 +204,7 @@ class Wishes(Features):
 
         # Find and remove wishes that are completed or are currently active.
         for wish in available_wishes:
-            if wish.id in self.wishes_completed or wish.id in self.wishes_active:
+            if wish.id in self.wishes_completed or wish.id in self.wishes_active or wish.id in const.WISH_BLACKLIST:
                 tmp.append(wish)
         for t in tmp:
             available_wishes.remove(t)
@@ -220,7 +229,7 @@ class Wishes(Features):
         # Iterate through all available wishes to find the combination with highest priority and lowest cost to cap.
         while len(available_wishes) > self.available_slots:
             candidates = {}
-            for _ in range(self.available_slots):
+            for slot in range(self.available_slots):
                 for wish in available_wishes:
                     if wish.id not in candidates:
                         candidates[wish.id] = costs[wish.id]
@@ -239,31 +248,8 @@ class Wishes(Features):
                 for wish in available_wishes:
                     if wish.id == max(candidates.items(), key=lambda x: x[1][2])[0]:
                         available_wishes.remove(wish)
-        
-        rcap = self.rcap
-        r = 0
-        for wish in best:
-            r += best[wish][2]
-        if r > rcap:
-            r_min = min(best.items(), key=lambda x: x[1][2])[1][2]
-            r_max = max(best.items(), key=lambda x: x[1][2])[1][2]
-            if r_max / r_min <= 100000:
-                cap_div = r / rcap
-                rcap_cost = 0
-                tmp = {}
-                for wish in best:
-                    tmp[wish] = [math.ceil(best[wish][0] / cap_div), math.ceil(best[wish][1] / cap_div),
-                                math.ceil(best[wish][2] / cap_div)]
-                best = tmp
-            else:
-                print("wish dividers too far apart, splitting resources evenly")
-                tmp = {}
-                for wish in best:
-                    tmp[wish] = [math.ceil(self.ecap / self.wish_slots), math.ceil(self.mcap / self.wish_slots),
-                                 math.ceil(self.rcap / self.wish_slots)]
-                best = tmp
 
-        for k in best:
+        for i, k in enumerate(best):
             for w in const.WISH_ORDER:
                 if w.id == k:
                     e = '%.2E' % Decimal(best[k][0])

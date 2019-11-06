@@ -26,7 +26,7 @@ for x in range(args.times):
     c.start_challenge(args.challenge)
 
 
-while True:  # main loop
-    feature.itopod_snipe(300)
-    feature.pit()
-    feature.gold_diggers([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+#while True:  # main loop
+#    feature.itopod_snipe(300)
+#    feature.pit()
+#    feature.gold_diggers([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])

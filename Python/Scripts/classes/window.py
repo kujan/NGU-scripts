@@ -30,12 +30,16 @@ class Window():
         if debug:
             window_name = "debugg"
         else:
-            window_name = "play ngu idle"
+            window_name = "NGU Idle" # for Kart, browser, and steam these titles may differ.
 
         top_windows = []
         win32gui.EnumWindows(window_enumeration_handler, top_windows)
         for i in top_windows:
-            if window_name in i[1].lower():
+            #if i[1] != "":
+            #    print("Window_name : {0}, id: {1}".format(i[1], i[0]))
+			# use this to debug the detected windows
+            if window_name == i[1]:
                 Window.id = i[0]
         if Window.id == 0:
             raise RuntimeError(f"Couldn't find game window")
+            

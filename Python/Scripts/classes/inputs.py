@@ -7,6 +7,7 @@ import cv2
 import datetime
 import usersettings as userset
 import numpy
+import pyautogui
 import pytesseract
 import re
 import time
@@ -22,89 +23,49 @@ class Inputs():
 
     def click(self, x, y, button="left", fast=False):
         """Click at pixel xy."""
-        x += window.x
-        y += window.y
-        lParam = win32api.MAKELONG(x, y)
         # MOUSEMOVE event is required for game to register clicks correctly
-        win32gui.PostMessage(window.id, wcon.WM_MOUSEMOVE, 0, lParam)
-        while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
-               win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
-               win32api.GetKeyState(wcon.VK_MENU) < 0):
-            time.sleep(0.005)
+        #win32gui.PostMessage(window.id, wcon.WM_MOUSEHOVER, 0, lParam)
+
+        #win32gui.PostMessage(window.id, wcon.WM_MOUSEMOVE, 0, lParam)
+        #time.sleep(0.1)
+        win32gui.ShowWindow(window.id, 5)
+        win32gui.SetForegroundWindow(window.id)
         if (button == "left"):
-            win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
-                                 wcon.MK_LBUTTON, lParam)
-            win32gui.PostMessage(window.id, wcon.WM_LBUTTONUP,
-                                 wcon.MK_LBUTTON, lParam)
+            pyautogui.click(*win32gui.ClientToScreen(window.id, (x, y)))
+        
         else:
-            win32gui.PostMessage(window.id, wcon.WM_RBUTTONDOWN,
-                                 wcon.MK_RBUTTON, lParam)
-            win32gui.PostMessage(window.id, wcon.WM_RBUTTONUP,
-                                 wcon.MK_RBUTTON, lParam)
+            pyautogui.click(*win32gui.ClientToScreen(window.id, (x, y)), button="right")
         # Sleep lower than 0.1 might cause issues when clicking in succession
         if fast:
             time.sleep(userset.FAST_SLEEP)
         else:
             time.sleep(userset.MEDIUM_SLEEP)
-
+        
     def click_drag(self, x, y, x2, y2):
         """Click at pixel xy."""
-        x += window.x
-        y += window.y
-        x2 += window.x
-        y2 += window.y
-        lParam = win32api.MAKELONG(x, y)
-        lParam2 = win32api.MAKELONG(x2, y2)
-        # MOUSEMOVE event is required for game to register clicks correctly
-        win32gui.PostMessage(window.id, wcon.WM_MOUSEMOVE, 0, lParam)
-        while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
-               win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
-               win32api.GetKeyState(wcon.VK_MENU) < 0):
-            time.sleep(0.005)
-        win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
-                             wcon.MK_LBUTTON, lParam)
+        pyautogui.mouseDown(*win32gui.ClientToScreen(window.id, (x, y)))
         time.sleep(userset.LONG_SLEEP * 2)
-        win32gui.PostMessage(window.id, wcon.WM_MOUSEMOVE, 0, lParam2)
-        time.sleep(userset.SHORT_SLEEP)
-        win32gui.PostMessage(window.id, wcon.WM_LBUTTONUP,
-                             wcon.MK_LBUTTON, lParam2)
+        pyautogui.dragTo(*win32gui.ClientToScreen(window.id, (x2, y2)), duration=userset.SHORT_SLEEP)
+        pyautogui.mouseUp(*win32gui.ClientToScreen(window.id, (x2, y2)))
         time.sleep(userset.MEDIUM_SLEEP)
 
     def ctrl_click(self, x, y):
         """Clicks at pixel x, y while simulating the CTRL button to be down."""
-        x += window.x
-        y += window.y
-        lParam = win32api.MAKELONG(x, y)
-        while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
-               win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
-               win32api.GetKeyState(wcon.VK_MENU) < 0):
-            time.sleep(0.005)
-
-        win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, wcon.VK_CONTROL, 0)
-        win32gui.PostMessage(window.id, wcon.WM_LBUTTONDOWN,
-                             wcon.MK_LBUTTON, lParam)
-        win32gui.PostMessage(window.id, wcon.WM_LBUTTONUP,
-                             wcon.MK_LBUTTON, lParam)
-        win32gui.PostMessage(window.id, wcon.WM_KEYUP, wcon.VK_CONTROL, 0)
+        win32gui.ShowWindow(window.id, 5)
+        win32gui.SetForegroundWindow(window.id)
+        pyautogui.keyDown('ctrl')
+        pyautogui.click(*win32gui.ClientToScreen(window.id, (x, y)))
+        pyautogui.keyUp('ctrl')
         time.sleep(userset.MEDIUM_SLEEP)
 
     def send_string(self, string):
         """Send one or multiple characters to the window."""
+        win32gui.ShowWindow(window.id, 5)
+        win32gui.SetForegroundWindow(window.id)
         if type(string) == float:  # Remove decimal
             string = str(int(string))
         for c in str(string):
-            while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
-                   win32api.GetKeyState(wcon.VK_SHIFT) < 0 or
-                   win32api.GetKeyState(wcon.VK_MENU) < 0):
-                time.sleep(0.005)
-            if c.isdigit():  # Digits only require KEY_UP event.
-                win32gui.PostMessage(window.id, wcon.WM_KEYUP, ord(c.upper()),
-                                     0)
-                # time.sleep(0.03)  # This can probably be removed
-                continue
-            win32gui.PostMessage(window.id, wcon.WM_KEYDOWN, ord(c.upper()), 0)
-            time.sleep(userset.SHORT_SLEEP)  # This can probably be removed
-            win32gui.PostMessage(window.id, wcon.WM_KEYUP, ord(c.upper()), 0)
+            pyautogui.press(c)
         time.sleep(userset.SHORT_SLEEP)
 
     def get_bitmap(self):
@@ -182,7 +143,7 @@ class Inputs():
         search_area = cv2.cvtColor(search_area, cv2.COLOR_RGB2GRAY)
         template = cv2.imread(image, 0)
         res = cv2.matchTemplate(search_area, template, cv2.TM_CCOEFF_NORMED)
-        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
         if max_val < threshold:
             return None
 
