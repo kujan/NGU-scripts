@@ -4,7 +4,7 @@ import coordinates as coords
 import time
 
 class Blind(Features):
-    """Contains functions for running a 100 level challenge.
+    """Contains functions for running a Blind level challenge.
 
     IMPORTANT
 
