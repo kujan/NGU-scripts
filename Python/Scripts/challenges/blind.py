@@ -1,4 +1,4 @@
-"""Contains functions for running a 100 level challenge."""
+"""Contains functions for running a blind challenge."""
 from classes.features import Features
 import coordinates as coords
 import time
@@ -14,7 +14,7 @@ class Blind(Features):
 
     """
     def speedrun(self, duration):
-        """Procedure for first rebirth in a 100LC."""
+        """Procedure for first rebirth in a Blind Challenge."""
         self.advanced_training_locked = True
         self.bm_locked = True
         self.tm_locked = True

@@ -1261,30 +1261,3 @@ class Features(Navigation, Inputs):
             self.itopod_ap_gained += 1
             print(f"Kills: {self.itopod_kills}\nAP gained: {self.itopod_ap_gained}")
         return
-
-"""epow = 13544420000000
-ecap = 1.9e16
-mpow = 7269913000000
-mcap = 4.4e15
-rpow = 494335
-rcap = 533784265
-wish_speed = 2.34
-
-powproduct = (epow * mpow * rpow) ** 0.17
-wish_cap_ticks = 218 * 60 * 50
-capreq = 5e15 * 9 / wish_cap_ticks / wish_speed / powproduct
-
-ratio = [ecap / rcap, mcap / rcap, 1]
-capproduct = reduce((lambda x, y: x * y), ratio)
-factor = (capreq / capproduct ** 0.17) ** (1 / .17 / 3)
-vals = []
-for x in ratio:
-    vals.append(ceil((x * factor)))
-
-coord = [(590, 220), (720, 220), (860, 220)]
-
-for index, x in enumerate(vals):
-    print('%.2E' % Decimal(x))
-    feature.input_box()
-    feature.send_string(x)
-    feature.click(*coord[index])"""

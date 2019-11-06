@@ -1,4 +1,4 @@
-"""Contains functions for running a basic challenge."""
+"""Contains functions for running a laser sword challenge."""
 from classes.features import Features
 from classes.inputs import Inputs
 import coordinates as coords
@@ -6,7 +6,7 @@ import time
 
 
 class Laser(Features, Inputs):
-    """Contains functions for running a basic challenge.
+    """Contains functions for running a laser sword challenge.
 
     This script requires you to have a number high enough to do a normal
     3 minute rebirth.

@@ -1,4 +1,4 @@
-"""Contains functions for running a no time machine challenge."""
+"""Contains functions for running a basic challenge."""
 from classes.features import Features
 from classes.inputs import Inputs
 import coordinates as coords
@@ -6,7 +6,7 @@ import time
 
 
 class Basic(Features, Inputs):
-    """Contains functions for running a no NGU challenge."""
+    """Contains functions for running a basic challenge."""
     def first_rebirth(self, duration):
         """Procedure for first rebirth."""
         adv_training_assigned = False

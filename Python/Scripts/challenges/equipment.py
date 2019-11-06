@@ -1,10 +1,10 @@
-"""Contains functions for running a basic challenge."""
+"""Contains functions for running a no equip challenge."""
 from classes.features import Features
 import coordinates as coords
 import time
 
 class Equipment(Features):
-    """Contains functions for running a basic challenge."""
+    """Contains functions for running a no equip challenge."""
 
     def speedrun(self, duration):
         """Start a speedrun.

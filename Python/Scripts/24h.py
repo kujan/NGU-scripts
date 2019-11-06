@@ -34,8 +34,8 @@ def start_procedure(f, rt):
     f.gold_diggers([x for x in range(1, 13)])
     f.reclaim_bm()
     f.wandoos(True)
-    f.assign_ngu(f.get_idle_cap(2), [x for x in range(1, 10)])
-    f.assign_ngu(f.get_idle_cap(1), [x for x in range(1, 8)], True)
+    f.assign_ngu(f.get_idle_cap(1), [x for x in range(1, 10)])
+    f.assign_ngu(f.get_idle_cap(2), [x for x in range(1, 8)], True)
 
 
 w = Window()

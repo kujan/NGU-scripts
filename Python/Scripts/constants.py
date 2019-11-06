@@ -86,5 +86,5 @@ WISH_ORDER = [
               Wish(76, "I wish I was a giant jar of Mayo.", 1, 5e21)
              ]
 
-WISH_BLACKLIST = [8, 21, 23, 27, 45, 58, 59, 76, 18, 57, 73, 12, 51, 67, 15, 54, 70]
+WISH_BLACKLIST = [21, 27, 45, 59, 76]
 WISH_DISCLAIMER = "Disclaimer: this class is experimental, expect issues and crashes. Please do report them on discord or open an issue on github if you encounter one. I recommend using the color 'green' as your R3 color in the settings, it yields the best OCR results in my testing."

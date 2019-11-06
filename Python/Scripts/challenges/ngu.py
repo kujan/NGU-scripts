@@ -1,4 +1,4 @@
-"""Contains functions for running a no time machine challenge."""
+"""Contains functions for running a no ngu challenge."""
 from classes.features import Features
 from classes.inputs import Inputs
 import coordinates as coords
