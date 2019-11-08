@@ -12,7 +12,7 @@ The AHK script is unsupported and deleted. They will work well in any Unity base
 
 ## Requirements
 * Windows 7 or later (NT >=6.1)
-* Python 3 (only tested on 3.7)
+* Python 3.7
 * Tesseract OCR
 * Firefox Browser with hardware acceleration turned OFF (you have to restart the browser for it to take effect)
 * Use scientific notation in game
