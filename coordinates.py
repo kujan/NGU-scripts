@@ -179,7 +179,7 @@ INVENTORY_PAGE_Y = 574
 INVENTORY_PAGE = [Pixel(364, INVENTORY_PAGE_Y), Pixel(428, INVENTORY_PAGE_Y), Pixel(492, INVENTORY_PAGE_Y), Pixel(560, INVENTORY_PAGE_Y), Pixel(620, INVENTORY_PAGE_Y), Pixel(685, INVENTORY_PAGE_Y)]
 COLOR_INVENTORY_BG = 'B68855'
 
-GLOP_FILENAMES = ["steak.png", "ice_cream.png", "surstromming.png", "marmite.png", "pineapple.png"]
+GLOP_FILENAMES = ["steak.png", "ice_cream.png", "surstromming.png", "marmite.png", "pineapple.png", "glop.png"]
 
 #TIME MACHINE OFFSETS
 TM_SPEED = Pixel(532, 233)
