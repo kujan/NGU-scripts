@@ -23,10 +23,18 @@ class Glop:
     
     inv_pages_unlocked = 0
     reagents = {}
-    target = 50
+    target = 10
+
+    GLOP_ZONE_MAP = {"ice_cream.png": 8,
+                     "steak.png": 16,
+                     "surstromming.png": 21,
+                     "marmite.png": 23,
+                     "pineapple.png": 30
+                     }
 
     @staticmethod
-    def init():
+    def init(target):
+        Glop.target = target
         Navigation.menu("inventory")
         for btn in coords.INVENTORY_PAGE:
             res = Inputs.check_pixel_color(*btn, coords.COLOR_INVENTORY_BG)
@@ -57,16 +65,19 @@ class Glop:
 
     @staticmethod
     def loop():
-        Navigation.menu("inventory")
-        target = min(Glop.reagents, key=lambda x: len(Glop.reagents[x]))
-        print("Converting glop")
-        for reagent in Glop.reagents[target]:
-            Inputs.click(*coords.INVENTORY_PAGE[reagent.page])
-            Inputs.click(reagent.x, reagent.y, button="right")
-            Inputs.ctrl_click(reagent.x, reagent.y)
-        print(f"converted {len(Glop.reagents[target])} glops")
-
-Glop.init()
+        while len(Glop.reagents["glop.png"]) < Glop.target:
+            Navigation.menu("inventory")
+            # Find the glop reagent we have the fewest of
+            target = min(Glop.reagents, key=lambda x: len(Glop.reagents[x]))
+            print("Converting glop")
+            for reagent in Glop.reagents[target]:
+                Inputs.click(*coords.INVENTORY_PAGE[reagent.page])
+                Inputs.click(reagent.x, reagent.y, button="right")
+                Inputs.ctrl_click(reagent.x, reagent.y)
+            print(f"converted {len(Glop.reagents[target])} glops")
+            Adventure.snipe(Glop.GLOP_ZONE_MAP[target], 2)
+            Glop.update_inventory()
+Glop.init(50)
 Glop.loop()
 
 #Inputs.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600, path, threshold=0.9, find_all=True)
