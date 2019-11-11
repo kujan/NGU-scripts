@@ -2,7 +2,7 @@
 import time
 
 # Helper classes
-from classes.features import Adventure, MoneyPit
+from classes.features import Adventure
 from classes.helper   import Helper
 from classes.inputs import Inputs
 import coordinates as coords
