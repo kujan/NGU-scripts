@@ -212,6 +212,47 @@ class Inputs:
         return max_loc
 
     @staticmethod
+    def find_all(
+        x_start :int,
+        y_start :int,
+        x_end :int,
+        y_end :int,
+        img :str,
+        threshold: float,
+        bmp :image=None) -> tuple:
+        """Search the screen for the supplied picture.
+        
+        Returns a list with x, y-coordinates with all matches, or None if result is below
+        the threshold.
+        
+        Keyword arguments:
+        image     -- Filename or path to file that you search for.
+        threshold -- The level of fuzziness to use - a perfect match will be
+                     close to 1, but probably never 1. In my testing use a
+                     value between 0.7-0.95 depending on how strict you wish
+                     to be.
+        bmp       -- a bitmap from the get_bitmap() function, use this if you're
+                     performing multiple different OCR-readings in succession
+                     from the same page. This is to avoid to needlessly get the
+                     same bitmap multiple times. If a bitmap is not passed, the
+                     function will get the bitmap itself. (default None)
+        """
+        if not bmp: bmp = Inputs.get_bitmap()
+        # Bitmaps are created with a 8px border
+        search_area = bmp.crop((x_start + 8, y_start + 8,
+                                x_end + 8, y_end + 8))
+        search_area = numpy.asarray(search_area)
+        search_area = cv2.cvtColor(search_area, cv2.COLOR_RGB2GRAY)
+        template = cv2.imread(img, 0)
+        w, h = template.shape[::-1]
+        res = cv2.matchTemplate(search_area, template, cv2.TM_CCOEFF_NORMED)
+        locs = numpy.where(res >= threshold)
+        lst = []
+        for loc in zip(*locs[::-1]):
+            lst.append((loc[0] + w // 2, loc[1] + h // 2))
+        return lst
+
+    @staticmethod
     def rgb_equal(a :Tuple[int, int, int], b :Tuple[int, int, int]) -> bool:
         if a[0] != b[0]: return False
         if a[1] != b[1]: return False
