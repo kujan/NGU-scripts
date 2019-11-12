@@ -78,6 +78,8 @@ class Glop:
             Glop.update_inventory()
 
 if __name__ == "__main__":
+    Helper.init(True)
+    Helper.requirements()
     print("How many glops do you wish to farm?")
     target = int(input())
     Glop.init(target)
