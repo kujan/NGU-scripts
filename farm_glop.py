@@ -59,7 +59,8 @@ class Glop:
                 res = Inputs.find_all(*rect, path, threshold=0.9, bmp=bmp)
                 reagents = list(map(lambda x: Reagent(x[0], x[1], item, page), res))
                 if reagents: Glop.reagents[item].extend(reagents)
-            
+        
+        print("\nScan found these glop reagents\n")
         for item in coords.GLOP_FILENAMES:
             print(f"{item}: {len(Glop.reagents[item])}")
 
@@ -69,7 +70,6 @@ class Glop:
             Navigation.menu("inventory")
             # Find the glop reagent we have the fewest of
             target = min(Glop.reagents, key=lambda x: len(Glop.reagents[x]))
-            print("Converting glop")
             for reagent in Glop.reagents[target]:
                 Inputs.click(*coords.INVENTORY_PAGE[reagent.page])
                 Inputs.click(reagent.x, reagent.y, button="right")
@@ -77,7 +77,9 @@ class Glop:
             print(f"converted {len(Glop.reagents[target])} glops")
             Adventure.snipe(Glop.GLOP_ZONE_MAP[target], 2)
             Glop.update_inventory()
-Glop.init(50)
-Glop.loop()
 
-#Inputs.image_search(Window.x, Window.y, Window.x + 960, Window.y + 600, path, threshold=0.9, find_all=True)
+if __name__ == "__main__":
+    print("How many glops do you wish to farm?")
+    target = int(input())
+    Glop.init(target)
+    Glop.loop()
