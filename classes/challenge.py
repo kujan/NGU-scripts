@@ -9,6 +9,7 @@ from classes.window     import Window
 import coordinates  as coords
 import usersettings as userset
 import time
+from typing import List
 
 
 class cInfo:
@@ -117,11 +118,14 @@ class Challenge:
         Challenge.run_challenge(challenge)
     
     @staticmethod
-    def list() -> None:
-        """Print the list of challenges with their corresponding number.
+    def list() -> List[str]:
+        """Return the list of challenge names with their corresponding number.
         """
         global ChList
+        
+        l = []
         for i in range(len(ChList)):
-            if i < 9: print(i+1, "  " + ChList[i].name)
-            else:     print(i+1,  " " + ChList[i].name)
+            if i < 9: l.append(f"{i+1}  {ChList[i].name}")
+            else:     l.append(f"{i+1} {ChList[i].name}")
+        return l
     

@@ -12,9 +12,9 @@ The AHK script is unsupported and deleted. They will work well in any Unity base
 
 ## Requirements
 * Windows 7 or later (NT >=6.1)
-* Python 3 (only tested on 3.7)
+* Python 3.7
 * Tesseract OCR
-* Firefox Browser with hardware acceleration turned OFF (you have to restart the browser for it to take effect)
+* Firefox Browser with hardware acceleration turned OFF (you have to restart the browser for it to take effect). If you wish to script on steam/kartridge check out  [jasperfirecai2's fork](https://github.com/jasperfirecai2/NGU-scripts) or the kartridge branch on this repo (out of date). These alternatives DO NOT work in the background, they will use your mouse and keyboard.
 * Use scientific notation in game
 * The "simple inventory shortcuts" setting must be enabled
 * The normal theme must be enabled

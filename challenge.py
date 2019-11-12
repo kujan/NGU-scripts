@@ -7,7 +7,7 @@ from classes.challenge import Challenge
 
 import argparse
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(epilog='\n'.join(Challenge.list()), formatter_class=argparse.RawDescriptionHelpFormatter)
 parser.add_argument("-c", "--challenge", required=True, type=int, help="select which challenge you wish to run (1-11)")
 parser.add_argument("-t", "--times", default=1, type=int, help="number of times to run challenge")
 args = parser.parse_args()
