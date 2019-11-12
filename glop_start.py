@@ -1,9 +1,6 @@
-"""Guffin startup script."""
+"""Glop startup script."""
 import scripts.glop
 from classes.helper import Helper
-from typing import NamedTuple, List
-import constants as const
-
 
 Helper.init(True)
 Helper.requirements()
