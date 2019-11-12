@@ -50,7 +50,7 @@ class Glop:
 
         for page in range(Glop.inv_pages_unlocked):
             Inputs.click(*coords.INVENTORY_PAGE[page])
-            time.sleep(userset.MEDIUM_SLEEP)
+            time.sleep(userset.LONG_SLEEP)
             bmp = Inputs.get_bitmap()
             
             for item in coords.GLOP_FILENAMES:
