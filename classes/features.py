@@ -165,7 +165,7 @@ class Adventure:
             return
 
     @staticmethod
-    def snipe(zone, duration, once=False, highest=False, bosses=False, manual=False):
+    def snipe(zone, duration, once=False, highest=False, bosses=False, manual=False, fast=False):
         """Go to adventure and snipe bosses in specified zone.
 
         Keyword arguments
@@ -179,6 +179,10 @@ class Adventure:
         bosses -- If set to true, it will only kill bosses
         manual -- If set to true it will use all available abilities to kill the enemy.
                   In addition it will return after killing one enemy.
+        fast   -- If your respawn is lower than your attack speed, use
+                  this to remove the overhead from check_pixel_color().
+                  It should give you higher xp/h. Remember that move CD
+                  is capped at 0.8s, so there's no reason to go lower.
         """
         Navigation.menu("adventure")
         if highest:
@@ -196,6 +200,10 @@ class Adventure:
         
         end = time.time() + duration * 60
         while time.time() < end:
+            if fast:
+                Inputs.click(*coords.ABILITY_REGULAR_ATTACK, fast=True)
+                continue
+
             Inputs.click(625, 500)  # click somewhere to move tooltip
             if not Inputs.check_pixel_color(*coords.IS_DEAD):
                 if bosses:
@@ -226,7 +234,7 @@ class Adventure:
         Inputs.click(*coords.ABILITY_IDLE_MODE)
     
     @staticmethod
-    def itopod_snipe(duration, auto=False):
+    def itopod_snipe(duration, auto=False, fast=False):
         """Manually snipes ITOPOD for increased speed PP/h.
         
         Keyword arguments:
@@ -234,6 +242,10 @@ class Adventure:
                     back on and returning.
         auto     -- Make sure you're on the optimal floor even if you're
                     already in the ITOPOD
+        fast     -- If your respawn is lower than your attack speed, use
+                    this to remove the overhead from check_pixel_color().
+                    It should give you higher xp/h. Remember that move CD
+                    is capped at 0.8s, so there's no reason to go lower.
         """
         end = time.time() + duration
         Adventure.current_adventure_zone = 0
@@ -254,6 +266,9 @@ class Adventure:
             Inputs.click(*coords.ABILITY_IDLE_MODE)
         
         while time.time() < end:
+            if fast:
+                Inputs.click(*coords.ABILITY_REGULAR_ATTACK, fast=True)
+                continue
             if (Inputs.check_pixel_color(*coords.IS_ENEMY_ALIVE) and
                Inputs.check_pixel_color(*coords.COLOR_REGULAR_ATTACK_READY)):
                 Inputs.click(*coords.ABILITY_REGULAR_ATTACK)
