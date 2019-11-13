@@ -5,7 +5,7 @@ import platform
 import win32gui
 
 from deprecated import deprecated
-from typing import Tuple
+from typing import Dict, Tuple
 
 
 class Window:
@@ -21,7 +21,7 @@ class Window:
         Window.init(debug)
 
     @staticmethod
-    def init(debug :bool =False) -> Tuple[int, int, int, int]:
+    def init(debug :bool =False) -> Dict[int, Tuple[int, int, int, int]]:
         """Finds the game window and returns its coords."""
         if platform.release() == "10":
             ctypes.windll.shcore.SetProcessDpiAwareness(2)
@@ -38,15 +38,13 @@ class Window:
             window_name = "play ngu idle"
 
         top_windows = []
+        windows = []
+        candidates = {}
         win32gui.EnumWindows(window_enumeration_handler, top_windows)
-        for i in top_windows:
-            if window_name in i[1].lower():
-                Window.id = i[0]
-        if Window.id == 0:
-            raise RuntimeError(f"Couldn't find game window")
-        
-        return Window.winRect()
-
+        windows = [window[0] for window in top_windows if window_name in window[1].lower()]
+        for window in windows:
+            candidates[window] = Window.winRect(window)
+        return candidates
     @staticmethod
     def setPos(x :int, y :int) -> None:
         """Set top left coordinates."""
@@ -54,9 +52,9 @@ class Window:
         Window.y = y
     
     @staticmethod
-    def winRect() -> Tuple[int, int, int, int]:
+    def winRect(window_id :int) -> Tuple[int, int, int, int]:
         """Returns the coordinates of the window"""
-        return win32gui.GetWindowRect(Window.id)
+        return win32gui.GetWindowRect(window_id)
     
     @staticmethod
     def shake() -> None:
