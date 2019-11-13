@@ -5,7 +5,7 @@ import platform
 import win32gui
 
 from deprecated import deprecated
-from typing import Tuple
+from typing import Dict, Tuple
 
 
 class Window:
@@ -21,7 +21,7 @@ class Window:
         Window.init(debug)
 
     @staticmethod
-    def init(debug :bool =False) -> dict:
+    def init(debug :bool =False) -> Dict[int, Tuple[int, int, int, int]]:
         """Finds the game window and returns its coords."""
         if platform.release() == "10":
             ctypes.windll.shcore.SetProcessDpiAwareness(2)
