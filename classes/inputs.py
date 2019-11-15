@@ -359,7 +359,8 @@ class Inputs:
     @staticmethod
     def get_numbers(s :str) -> Iterable[int]:
         """Finds all numbers in a string"""
-        s = Inputs.remove_number_separators(Inputs.remove_spaces(s))
+        s = Inputs.remove_spaces(s)
+        s = Inputs.remove_number_separators(s)
         match = re.findall(r"(\d+(\.\d+E\+\d+)?)", s)
         nums = [int(float(x[0])) for x in match]
         return nums
