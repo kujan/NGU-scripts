@@ -345,6 +345,11 @@ class Inputs:
     def remove_spaces(s :str) -> str:
         """Remove all spaces from string."""
         return "".join(s.split(" "))
+
+    @staticmethod
+    def remove_number_separators(s :str) -> str:
+        """Remove all separators from number."""
+        return "".join(s.split(","))
     
     @staticmethod
     def remove_letters(s :str) -> str:
@@ -355,6 +360,7 @@ class Inputs:
     def get_numbers(s :str) -> Iterable[int]:
         """Finds all numbers in a string"""
         s = Inputs.remove_spaces(s)
+        s = Inputs.remove_number_separators(s)
         match = re.findall(r"(\d+(\.\d+E\+\d+)?)", s)
         nums = [int(float(x[0])) for x in match]
         return nums
