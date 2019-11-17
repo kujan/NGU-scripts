@@ -22,6 +22,9 @@ The AHK script is unsupported and deleted. They will work well in any Unity base
 * If you plan on using wishes/R3 I strongly recommend you to name your R3 to 'R' and use the green background, otherwise you will get spotty results from Tesseract. It's also strongly recommended to have 50 speed in all 3 resources.
 
 ## Installation
+There's an installation video [here](https://streamable.com/qbql0).
+It's significantly outdated but it can be useful to check.
+
 Install Python dependencies using [pip](https://pip.pypa.io/en/stable/quickstart/):
 ```
 pip install -r requirements.txt
