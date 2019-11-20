@@ -50,7 +50,7 @@ while True:
     Inventory.merge_inventory(8)  # merge uneqipped guffs
     spells = BloodMagic.check_spells_ready()
     if spells:  # check if any spells are off CD
-        NGU.reclaim_ngu(True)  # take all magic from magic NGUs
+        Misc.reclaim_ngu(True)  # take all magic from magic NGUs
         for spell in spells:
             BloodMagic.cast_spell(spell)
         Misc.reclaim_bm()

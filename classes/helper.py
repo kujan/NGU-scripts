@@ -11,15 +11,18 @@ class Helper:
         """Initialize Window class variables.
         Helper.init() should go at the very top of any script, straight after imports.
         """
-        rect = Window.init()
-        w = rect[2] - rect[0]
-        h = rect[3] - rect[1]
-        
-        cds = Inputs.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, w, h)
+        rects = Window.init()
+        for window_id, rect in rects.items():
+            if printCoords: print(f"Scanning window id: {window_id}")
+            w = rect[2] - rect[0]
+            h = rect[3] - rect[1]
+            Window.id = window_id
+            cds = Inputs.pixel_search(coords.TOP_LEFT_COLOR, 0, 0, w, h)
+            if cds:
+                Window.setPos(*cds)
+                break
         if cds is None:
-            raise RuntimeError("Game window not found. Maybe it's minimized?")
-        Window.setPos(*cds)
-        
+            raise RuntimeError("Game window not found. Maybe it's minimized or the game is not fully visible?")
         # Sometimes the very first click is ignored, this makes sure the first click is unimportant.
         Inputs.click(*coords.WASTE_CLICK)
         

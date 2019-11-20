@@ -12,9 +12,9 @@ The AHK script is unsupported and deleted. They will work well in any Unity base
 
 ## Requirements
 * Windows 7 or later (NT >=6.1)
-* Python 3 (only tested on 3.7)
+* Python 3.7
 * Tesseract OCR
-* Firefox Browser with hardware acceleration turned OFF (you have to restart the browser for it to take effect)
+* Firefox Browser with hardware acceleration turned OFF (you have to restart the browser for it to take effect). If you wish to script on steam/kartridge check out  [jasperfirecai2's fork](https://github.com/jasperfirecai2/NGU-scripts) or the kartridge branch on this repo (out of date). These alternatives DO NOT work in the background, they will use your mouse and keyboard.
 * Use scientific notation in game
 * The "simple inventory shortcuts" setting must be enabled
 * The normal theme must be enabled
@@ -22,6 +22,9 @@ The AHK script is unsupported and deleted. They will work well in any Unity base
 * If you plan on using wishes/R3 I strongly recommend you to name your R3 to 'R' and use the green background, otherwise you will get spotty results from Tesseract. It's also strongly recommended to have 50 speed in all 3 resources.
 
 ## Installation
+There's an installation video [here](https://streamable.com/qbql0).
+It's significantly outdated but it can be useful to check.
+
 Install Python dependencies using [pip](https://pip.pypa.io/en/stable/quickstart/):
 ```
 pip install -r requirements.txt
