@@ -1,4 +1,7 @@
 """Handles various statistics."""
+from __future__ import annotations # With the help of the broken time machine
+from typing import Tuple
+
 import datetime
 import time
 
@@ -24,7 +27,7 @@ class Stats:
     track_pp = True
     
     @staticmethod
-    def set_value_with_ocr(value):
+    def set_value_with_ocr(value :str) -> None:
         """Store start EXP via OCR."""
         try:
             if value == "TOTAL XP":
@@ -57,7 +60,7 @@ class Stats:
 
 class EstimateRate:
 
-    def __init__(self, duration, mode='moving_average'):
+    def __init__(self :EstimateRate, duration :int, mode :str ='moving_average') -> None:
         self.mode = mode
         self.last_timestamp = time.time()
         if Stats.track_xp:
@@ -79,13 +82,13 @@ class EstimateRate:
             'average': self.__average
         }
 
-    def __average(self):
+    def __average(self :EstimateRate) -> Tuple[float, float]:
         """Returns the average rates"""
         avg_xp = sum(self.dxp_log) / sum(self.dtime_log)
         avg_pp = sum(self.dpp_log) / sum(self.dtime_log)
         return avg_xp, avg_pp
 
-    def __moving_average(self):
+    def __moving_average(self :EstimateRate) -> Tuple[float, float]:
         """Returns the moving average rates"""
         if len(self.dtime_log) > self.__keep_runs:
             self.dtime_log.pop(0)
@@ -97,14 +100,14 @@ class EstimateRate:
         avg_pp = sum(self.dpp_log) / sum(self.dtime_log)
         return avg_xp, avg_pp
 
-    def rates(self):
+    def rates(self :EstimateRate) -> Tuple[float, float]:
         try:
             xpr, ppr = self.__alg[self.mode]()
             return round(3600 * xpr), round(3600 * ppr)
         except ZeroDivisionError:
             return 0, 0
 
-    def stop_watch(self):
+    def stop_watch(self :EstimateRate) -> None:
         """This method needs to be called for rate estimations"""
         self.__iteration += 1
         if Stats.track_xp:
@@ -134,7 +137,7 @@ class EstimateRate:
         self.last_timestamp = time.time()
         print("This run: {:^8}{:^3}This run: {:^8}".format(Helper.human_format(dxp), "|", Helper.human_format(dpp)))
 
-    def update_xp(self):
+    def update_xp(self :EstimateRate) -> None:
         """This method is used to update last xp after upgrade spends"""
         self.last_xp = Stats.xp
 
@@ -146,7 +149,13 @@ class Tracker:
            then at the end of each run invoke tracker.progress() to update stats.
     """
 
-    def __init__(self, duration, track_xp=True, track_pp=True, mode='moving_average'):
+    def __init__(
+        self :Tracker,
+        duration :int,
+        track_xp :bool =True,
+        track_pp :bool =True,
+        mode :str ='moving_average') -> None:
+        
         self.__start_time = time.time()
         self.__iteration = 1
         Stats.track_xp = track_xp
@@ -158,10 +167,10 @@ class Tracker:
         print("-" * 40)
         self.__show_progress()
 
-    def __update_progress(self):
+    def __update_progress(self :Tracker) -> None:
         self.__iteration += 1
 
-    def __show_progress(self):
+    def __show_progress(self :Tracker)  -> None:
         if self.__iteration == 1:
             print('Starting: {:^8}{:^3}Starting: {:^8}'.format(Helper.human_format(Stats.xp), "|", Helper.human_format(Stats.pp)))
         else:
@@ -172,13 +181,13 @@ class Tracker:
             print('Per hour: {:^8}{:^3}Per hour: {:^8}'.format(Helper.human_format(xph), "|", Helper.human_format(pph)))
             print(report_time)
 
-    def elapsed_time(self):
+    def elapsed_time(self :Tracker) -> str:
         """Print the total elapsed time."""
         elapsed = round(time.time() - self.__start_time)
         elapsed_time = str(datetime.timedelta(seconds=elapsed))
         return elapsed_time
 
-    def progress(self):
+    def progress(self :Tracker) -> None:
         self.__estimaterate.stop_watch()
         self.__update_progress()
         if not Stats.OCR_failed:
@@ -187,5 +196,5 @@ class Tracker:
         print("{:^18}{:^3}{:^18}".format("XP", "|", "PP"))
         print("-" * 40)
 
-    def adjustxp(self):
+    def adjustxp(self :Tracker) -> None:
         self.__estimaterate.update_xp()
