@@ -45,7 +45,7 @@ ITOPOD_START = Pixel(630, 200)
 ITOPOD_END = Pixel(630, 240)
 ITOPOD_ENTER = Pixel(625, 330)
 ITOPOD_AUTO = Pixel(710, 215)
-HEALTH = Pixel(706, 411)
+HEALTH = Pixel(735, 416)
 ADVENTURE_TOOLTIP = Pixel(445, 45)
 OCR_AP_KILL_COUNT = OCRBox(470, 115, 740, 145)
 OCR_TITAN_RESPAWN = OCRBox(260, 150, 525, 310)
@@ -436,9 +436,9 @@ BREAKDOWN_MISC_SCROLL_DRAG_START = Pixel(956, 132)
 BREAKDOWN_MISC_SCROLL_DRAG_END = Pixel(956, 150)
 
 # PIXEL CHECKS
-IS_BOSS_CROWN = ColorPixel(715, 277, 'F7EF29')
+IS_BOSS_CROWN = ColorPixel(735, 282, 'F7EF29')
 IS_ENEMY_ALIVE = ColorPixel(*HEALTH, ['D93030', 'EB3434', 'DB3131', 'DA3030']) # If you reduce the enemy healthbar to 1px, the color changes for some reason
-IS_DEAD = ColorPixel(*HEALTH, ['EBEBEB', 'ECECEC'])
+IS_DEAD = ColorPixel(*HEALTH, ['EBEBEB', 'ECECEC','FAFAFA'])
 IS_ITOPOD_ACTIVE = ColorPixel(594, 277, '000000') # Checks color of pixel in "Floor x" text
 IS_IDLE = ColorPixel(416, 86, 'FFEB04') # top right yellow pixel
 IS_SAVE_READY = ColorPixel(*SAVE, '99FF99')
