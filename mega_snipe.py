@@ -23,10 +23,10 @@ if Inputs.check_pixel_color(*coords.IS_IDLE):
 time.sleep(userset.MEDIUM_SLEEP)
 
 while True:  # main loop
-    GoldDiggers.diggers([4, 1])
+    GoldDiggers.gold_diggers([4, 1])
     
     if Inputs.check_pixel_color(*coords.COLOR_MEGA_BUFF_READY):
-        Adventure.snipe(args.zone, 1, manual=True, bosses=True, once=True)
+        Adventure.snipe(args.zone, 1, manual=True, bosses=False, once=True)
         Adventure.adventure(0)  # go wait at safe zone
         if Inputs.check_pixel_color(*coords.IS_IDLE):
             Inputs.click(*coords.ABILITY_IDLE_MODE)
