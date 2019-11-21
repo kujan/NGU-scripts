@@ -1,32 +1,35 @@
 """Feature classes handle the different features in the game."""
 
-from collections import deque, namedtuple
 import datetime
 import math
 import re
 import time
 
-from deprecated import deprecated
+from collections import deque, namedtuple
+from typing      import Dict, List, Tuple
+from PIL         import Image
 
-from classes.inputs     import Inputs
-from classes.navigation import Navigation
-from classes.window     import Window
+from deprecated import deprecated
 
 import constants    as const
 import coordinates  as coords
 import usersettings as userset
 
+from classes.inputs     import Inputs
+from classes.navigation import Navigation
+from classes.window     import Window
+
 
 class FightBoss:
     @staticmethod
-    def get_current_boss():
+    def get_current_boss() -> int:
         """Go to fight and read current boss number."""
         Navigation.menu("fight")
         boss = Inputs.ocr(*coords.OCR_BOSS, debug=False)
         return Inputs.remove_letters(boss)
 
     @staticmethod
-    def nuke(boss=None):
+    def nuke(boss :int =None) -> None:
         """Navigate to Fight Boss and Nuke or Fast Fight.
 
         Keyword arguments
@@ -60,14 +63,14 @@ class FightBoss:
             Inputs.click(*coords.NUKE)
 
     @staticmethod
-    def fight():
+    def fight() ->None:
         """Navigate to Fight Boss and click fight."""
         Navigation.menu("fight")
         Inputs.click(*coords.FIGHT)
 
 class MoneyPit:
     @staticmethod
-    def pit(loadout=0):
+    def pit(loadout :int =0) -> None:
         """Throws money into the pit.
 
         Keyword arguments:
@@ -85,7 +88,7 @@ class MoneyPit:
             Inputs.click(*coords.CONFIRM)
 
     @staticmethod
-    def spin():
+    def spin() -> None:
         """Spin the wheel."""
         Navigation.menu("pit")
         Inputs.click(*coords.SPIN_MENU)
@@ -123,7 +126,7 @@ class Adventure:
     oh_shit_unlocked = False
 
     @staticmethod
-    def adventure(zone=-1, highest=False, itopod=None, itopodauto=False):
+    def adventure(zone=-1, highest :bool =False, itopod :int =None, itopodauto :bool =False) -> None:
         """Go to an adventure zone to idle.
  
         Keyword arguments
@@ -165,7 +168,14 @@ class Adventure:
             return
 
     @staticmethod
-    def snipe(zone, duration, once=False, highest=False, bosses=False, manual=False, fast=False):
+    def snipe(
+        zone :int,
+        duration :int,
+        once :bool =False,
+        highest :bool =False,
+        bosses :bool =False,
+        manual :bool =False,
+        fast :bool =False) -> None:
         """Go to adventure and snipe bosses in specified zone.
 
         Keyword arguments
@@ -234,7 +244,7 @@ class Adventure:
         Inputs.click(*coords.ABILITY_IDLE_MODE)
     
     @staticmethod
-    def itopod_snipe(duration, auto=False, fast=False):
+    def itopod_snipe(duration :int, auto :bool =False, fast :bool =False) -> None:
         """Manually snipes ITOPOD for increased speed PP/h.
         
         Keyword arguments:
@@ -278,7 +288,7 @@ class Adventure:
         Inputs.click(*coords.ABILITY_IDLE_MODE)
     
     @staticmethod
-    def kill_enemy():
+    def kill_enemy() -> None:
         """Attempt to kill enemy in adventure using abilities."""
         start = time.time()
         if Inputs.check_pixel_color(*coords.IS_IDLE):
@@ -316,7 +326,7 @@ class Adventure:
                                                coords.ABILITY_ROW1Y)
     
     @staticmethod
-    def check_titan_status():
+    def check_titan_status() -> List[int]:
         """Check to see if any titans are ready."""
         Inputs.click(*coords.MENU_ITEMS["adventure"], button="right")
         text = Inputs.ocr(*coords.OCR_TITAN_RESPAWN).lower()
@@ -331,7 +341,7 @@ class Adventure:
         return ready
     
     @staticmethod
-    def kill_titan(target, mega=True):
+    def kill_titan(target :int, mega :bool =True) -> None:
         """Attempt to kill the target titan.
         
         Keyword arguments:
@@ -426,7 +436,7 @@ class Adventure:
                                                coords.ABILITY_ROW1Y)
     
     @staticmethod
-    def get_ability_queue():
+    def get_ability_queue() -> List[int]:
         """Return a queue of usable abilities."""
         ready = []
         queue = []
@@ -486,7 +496,7 @@ class Adventure:
         return queue
     
     @staticmethod
-    def itopod_ap(duration):
+    def itopod_ap(duration :int) -> None:
         """Abuse an oversight in the kill counter for AP rewards for mucher higher AP/h in ITOPOD.
         If you use this method, make sure you do not retoggle idle mode in adventure in other parts
         of your script. If you have to, make sure to empty itopod_tier_counts with:
@@ -550,7 +560,7 @@ class Adventure:
 
 class Inventory:
     @staticmethod
-    def merge_equipment():
+    def merge_equipment() -> None:
         """Navigate to inventory and merge equipment."""
         Navigation.menu("inventory")
         for slot in coords.EQUIPMENT_SLOTS:
@@ -560,7 +570,7 @@ class Inventory:
             Inputs.send_string("d")
     
     @staticmethod
-    def boost_equipment(boost_cube=True):
+    def boost_equipment(boost_cube :bool =True) -> None:
         """Boost all equipment.
         
         Keyword arguments
@@ -576,13 +586,13 @@ class Inventory:
             Inputs.send_string("a")
     
     @staticmethod
-    def boost_cube():
+    def boost_cube() -> None:
         """Boost cube."""
         Navigation.menu("inventory")
         Inputs.click(*coords.EQUIPMENT_SLOTS["cube"], "right")
     
     @staticmethod
-    def loadout(target):
+    def loadout(target :int) -> None:
         """Equip a loadout.
         
         Keyword arguments
@@ -592,7 +602,7 @@ class Inventory:
         Inputs.click(*coords.LOADOUT[target])
     
     @staticmethod
-    def get_inventory_slots(slots):
+    def get_inventory_slots(slots :int) -> None:
         """Get coords for inventory slots from 1 to slots."""
         point = namedtuple("p", ("x", "y"))
         i = 1
@@ -610,7 +620,7 @@ class Inventory:
         return res
     
     @staticmethod
-    def merge_inventory(slots):
+    def merge_inventory(slots :int) -> None:
         """Merge all inventory slots starting from 1 to slots.
         
         Keyword arguments:
@@ -623,7 +633,7 @@ class Inventory:
             Inputs.send_string("d")
     
     @staticmethod
-    def boost_inventory(slots):
+    def boost_inventory(slots :int) -> None:
         """Merge all inventory slots starting from 1 to slots.
         
         Keyword arguments:
@@ -636,7 +646,7 @@ class Inventory:
             Inputs.send_string("a")
     
     @staticmethod
-    def transform_slot(slot, threshold=0.8, consume=False):
+    def transform_slot(slot :int, threshold :float =0.8, consume :bool =False) -> None:
         """Check if slot is transformable and transform if it is.
         Be careful using this, make sure the item you want to transform is
         not protected, and that all other items are protected, this might
@@ -668,7 +678,7 @@ class Inventory:
 
 class Augmentation:
     @staticmethod
-    def augments(augments, energy):
+    def augments(augments :Dict[str, float], energy :int) -> None:
         """Dump energy into augmentations.
         
         Keyword arguments
@@ -718,11 +728,11 @@ class Augmentation:
 
 class AdvancedTraining:
     @staticmethod
-    def advanced_training(value, ability=0):
+    def advanced_training(energy :int, ability :int =0) -> None:
         """Assign energy to adanced training.
         
         Keyword arguments
-        value   -- Set the total energy to assign to AT.
+        energy  -- Set the total energy to assign to AT.
         ability -- The AT ability to be trained.
                    If this is zero, it'll split the energy evenly between
                    Adv Toughness, Adv Power, Wandoos Energy and Wandoos Magic.
@@ -730,15 +740,15 @@ class AdvancedTraining:
         """
         Navigation.menu("advtraining")
         if ability == 0:
-            value = value // 4
-            Misc.set_input(value)
+            energy = energy // 4
+            Misc.set_input(energy)
             Inputs.click(*coords.ADV_TRAINING_POWER)
             Inputs.click(*coords.ADV_TRAINING_TOUGHNESS)
             Inputs.click(*coords.ADV_TRAINING_WANDOOS_ENERGY)
             Inputs.click(*coords.ADV_TRAINING_WANDOOS_MAGIC)
         
         else:
-            Misc.set_input(value)
+            Misc.set_input(energy)
             if ability == 1:
                 Inputs.click(*coords.ADV_TRAINING_TOUGHNESS)
             if ability == 2:
@@ -752,7 +762,7 @@ class AdvancedTraining:
 
 class TimeMachine:
     @staticmethod
-    def time_machine(e, m=0, magic=False):
+    def time_machine(e :int, m :int =0, magic :bool =False) -> None:
         """Add energy and/or magic to TM.
         
         Example: TimeMachine.time_machine(1000, 2000)
@@ -779,7 +789,7 @@ class TimeMachine:
 
 class BloodMagic:
     @staticmethod
-    def blood_magic(target):
+    def blood_magic(target :int) -> None:
         """Assign magic to BM.
         
         Keyword arguments
@@ -803,7 +813,7 @@ class BloodMagic:
         return
     
     @staticmethod
-    def toggle_auto_spells(number=True, drop=True, gold=True):
+    def toggle_auto_spells(number :bool =True, drop :bool =True, gold :bool =True) -> None:
         """Enable/Disable autospells
         
         Keyword arguments
@@ -829,7 +839,7 @@ class BloodMagic:
                 Inputs.click(*coords.BM_AUTO_GOLD)
     
     @staticmethod
-    def check_spells_ready():
+    def check_spells_ready() -> List[int]:
         """Check which spells are ready to cast.
         
         Returns a list with integers corresponding to which spell is ready. The values on the
@@ -861,7 +871,7 @@ class BloodMagic:
             return []
     
     @staticmethod
-    def cast_spell(target):
+    def cast_spell(target :int) -> None:
         """Cast target spell.
         
         This method will allocate any idle magic into BM and wait for the
@@ -893,7 +903,7 @@ class BloodMagic:
 
 class Wandoos:
     @staticmethod
-    def wandoos(energy=True, magic=False):
+    def wandoos(energy :bool =True, magic :bool =False) -> None:
         """Assign energy and/or magic to wandoos.
         
         Keyword arguments
@@ -907,7 +917,7 @@ class Wandoos:
             Inputs.click(*coords.WANDOOS_MAGIC)
     
     @staticmethod
-    def set_wandoos(version):
+    def set_wandoos(version :int) -> None:
         """Set wandoos version.
         
         Keyword arguments:
@@ -921,7 +931,7 @@ class Wandoos:
         Navigation.confirm()
     
     @staticmethod
-    def check_wandoos_bb_status(magic=False):
+    def check_wandoos_bb_status(magic :bool =False) -> None:
         """Check if wandoos is currently fully BB'd.
         
         Keyword arguments
@@ -935,7 +945,7 @@ class Wandoos:
 
 class NGU:
     @staticmethod
-    def assign_ngu(value, targets, magic=False):
+    def assign_ngu(value :int, targets :List[int], magic :bool =False) -> None:
         """Assign energy/magic to NGU's.
         
         Keyword arguments:
@@ -1004,7 +1014,7 @@ class NGU:
             Inputs.click(coords.NGU_PLUS.x, coords.NGU_PLUS.y + target * 35)
 
     @staticmethod
-    def cap_ngu(targets=None, magic=False, cap_all=True):
+    def cap_ngu(targets :List[int] =None, magic :bool =False, cap_all :bool =True) -> None:
         """Cap NGUs.
 
         Keyword arguments
@@ -1026,7 +1036,7 @@ class NGU:
             Inputs.click(*coords.NGU_CAP_ALL)
     
     @staticmethod
-    def set_ngu_overcap(value):
+    def set_ngu_overcap(value :int) -> None:
         """Set the amount you wish to overcap your NGU's."""
         Navigation.menu("ngu")
         Inputs.click(*coords.NGU_OVERCAP)
@@ -1034,13 +1044,13 @@ class NGU:
 
 class Yggdrasil:
     @staticmethod
-    def ygg(eat_all=False, equip=0):
+    def ygg(eat_all :bool =False, equip :int =0) -> None:
         """Navigate to inventory and handle fruits.
         
         Keyword arguments:
-        eat_all -- Set to true if you're rebirthing, it will force eat all
+        eat_all  -- Set to true if you're rebirthing, it will force eat all
                    fruit.
-        equip.  -- Equip loadout with given index. Don't change equip if zero.
+        equip    -- Equip loadout with given index. Don't change if zero.
         """
         if equip:
             Misc.reclaim_all()
@@ -1054,7 +1064,7 @@ class Yggdrasil:
 
 class GoldDiggers:
     @staticmethod
-    def gold_diggers(targets=const.DEFAULT_DIGGER_ORDER, deactivate=False):
+    def gold_diggers(targets :List[int] =const.DEFAULT_DIGGER_ORDER, deactivate :bool =False) -> None:
         """Activate diggers.
         
         Keyword arguments:
@@ -1073,13 +1083,13 @@ class GoldDiggers:
                 Inputs.click(*coords.DIG_CAP[item])
     
     @staticmethod
-    def deactivate_all_diggers():
+    def deactivate_all_diggers() -> None:
         """Click deactivate all in digger menu."""
         Navigation.menu("digger")
         Inputs.click(*coords.DIG_DEACTIVATE_ALL)
     
     @staticmethod
-    def level_diggers():
+    def level_diggers() -> None:
         """Level all diggers."""
         Navigation.menu("digger")
         for page in coords.DIG_PAGE:
@@ -1094,7 +1104,7 @@ class Questing:
     inventory_cleaned = False
     
     @staticmethod
-    def start_complete():
+    def start_complete() -> None:
         """This starts a new quest if no quest is running.
         If a quest is running, it tries to turn it in.
         """
@@ -1102,7 +1112,7 @@ class Questing:
         Inputs.click(*coords.QUESTING_START_QUEST)
     
     @staticmethod
-    def skip():
+    def skip() -> None:
         """This skips your current quest."""
         Navigation.menu("questing")
         time.sleep(userset.MEDIUM_SLEEP)
@@ -1110,7 +1120,7 @@ class Questing:
         Navigation.confirm()
     
     @staticmethod
-    def get_quest_text():
+    def get_quest_text() -> str:
         """Check if we have an active quest or not."""
         Navigation.menu("questing")
         Misc.waste_click()  # move tooltip
@@ -1118,7 +1128,7 @@ class Questing:
         return Inputs.ocr(*coords.OCR_QUESTING_LEFT_TEXT)
     
     @staticmethod
-    def get_available_majors():
+    def get_available_majors() -> int:
         """Return the amount of available major quests."""
         Navigation.menu("questing")
         text = Inputs.ocr(*coords.OCR_QUESTING_MAJORS)
@@ -1131,7 +1141,7 @@ class Questing:
             return -1
     
     @staticmethod
-    def questing_consume_items(cleanup=False):
+    def questing_consume_items(cleanup :bool =False) -> None:
         """Check for items in inventory that can be turned in."""
         Navigation.menu("inventory")
         Inputs.click(*coords.INVENTORY_PAGE[0])
@@ -1147,7 +1157,7 @@ class Questing:
                 time.sleep(3)  # Need to wait for tooltip to disappear after consuming
     
     @staticmethod
-    def questing(duration=30, major=False, subcontract=False, force=0, adv_duration=2, butter=False):
+    def questing(duration :int =30, major :bool =False, subcontract :bool =False, force :int =0, adv_duration :int =2, butter :bool =False) -> None:
         """Procedure for questing.
         
         ===== IMPORTANT =====
@@ -1272,18 +1282,18 @@ class Questing:
                         return
     
     @staticmethod
-    def get_use_majors():
+    def get_use_majors() -> bool:
         """This returns whether the "Use Major Quests if Available" checkbox is toggled ON."""
         return Inputs.check_pixel_color(*coords.COLOR_QUESTING_USE_MAJOR)
     
     @staticmethod
-    def toggle_use_majors():
+    def toggle_use_majors() -> None:
         """This toggles ON/OFF the "Use Major Quests if Available" checkbox."""
         Navigation.menu("questing")
         Inputs.click(*coords.QUESTING_USE_MAJOR)
     
     @staticmethod
-    def set_use_majors(set=True):
+    def set_use_majors(set :bool =True) -> None:
         """This enables/disables the "Use Major Quests if Available" checkbox.
         
         Keyword arguments
@@ -1295,7 +1305,7 @@ class Questing:
 
 class Hacks:
     @staticmethod
-    def hacks(targets=None, value=1e12):
+    def hacks(targets :List[int] =None, value :int =1e12) -> None:
         """Activate hacks.
         
         Keyword arguments
@@ -1316,7 +1326,7 @@ class Wishes:
 
 class SelloutShop:
     @staticmethod
-    def eat_muffin(buy=False):
+    def eat_muffin(buy :bool =False) -> None:
         """Eat a MacGuffin Muffin if it's not active.
         
         Keyword arguments:
@@ -1345,7 +1355,7 @@ class SelloutShop:
 
 class Rebirth:
     @staticmethod
-    def do_rebirth():
+    def do_rebirth() -> None:
         """Start a rebirth or challenge."""
         Navigation.menu("fight")
         Inputs.click(*coords.FIGHT_STOP)
@@ -1357,7 +1367,7 @@ class Rebirth:
         return
     
     @staticmethod
-    def check_challenge(getNum=False):
+    def check_challenge(getNum :bool =False) -> int:
         """Check if a challenge is active.
         
         Keyword arguments
@@ -1403,11 +1413,11 @@ class Rebirth:
             return -1
     
     @staticmethod
-    def get_rebirth_time():
+    def get_rebirth_time() -> Tuple[int, time.struct_time]:
         """Get the current rebirth time.
         returns a namedtuple(days, timestamp) where days is the number
         of days displayed in the rebirth time text and timestamp is a
-        time.time_struct object.
+        time.struct_time object.
         """
         Rebirth_time = namedtuple('Rebirth_time', 'days timestamp')
         t = Inputs.ocr(*coords.OCR_REBIRTH_TIME)
@@ -1439,7 +1449,7 @@ class Rebirth:
         return Rebirth_time(days, timestamp)
     
     @staticmethod
-    def rt_to_seconds():
+    def rt_to_seconds() -> int:
         """Get the Rebirth time in seconds"""
         rt = Rebirth.get_rebirth_time()
         seconds = ((rt.days * 24 + rt.timestamp.tm_hour) * 60 + rt.timestamp.tm_min) * 60 + rt.timestamp.tm_sec
@@ -1447,14 +1457,14 @@ class Rebirth:
 
 class Misc:
     @staticmethod
-    def reclaim_all():
+    def reclaim_all() -> None:
         """Reclaim all resources from all features."""
         Inputs.send_string("r")
         Inputs.send_string("t")
         Inputs.send_string("f")
     
     @staticmethod
-    def reclaim_res(energy=False, magic=False, r3=False):
+    def reclaim_res(energy :bool =False, magic :bool =False, r3 :bool =False) -> None:
         """Reclaim resources of choosing from all features.
         
         Keyword arguments
@@ -1470,7 +1480,7 @@ class Misc:
             Inputs.send_string("f")
     
     @staticmethod
-    def reclaim_bm():
+    def reclaim_bm() -> None:
         """Remove all magic from BM."""
         Navigation.menu("bloodmagic")
         Misc.set_input(coords.INPUT_MAX)
@@ -1478,7 +1488,7 @@ class Misc:
             Inputs.click(*coord)
     
     @staticmethod
-    def reclaim_ngu(magic=False):
+    def reclaim_ngu(magic :bool =False) -> None:
         """Remove all e/m from NGUs."""
         if magic:
             Navigation.ngu_magic()
@@ -1490,7 +1500,7 @@ class Misc:
             Inputs.click(*NGU)
     
     @staticmethod
-    def reclaim_tm(energy=True, magic=False):
+    def reclaim_tm(energy :bool =True, magic :bool =False) -> None:
         """Remove all e/m from TM.
         
         Keyword arguments
@@ -1505,7 +1515,7 @@ class Misc:
             Inputs.click(*coords.TM_SPEED_MINUS)
     
     @staticmethod
-    def reclaim_aug():
+    def reclaim_aug() -> None:
         """Remove all energy from augs"""
         Navigation.menu("augmentations")
         Misc.set_input(coords.INPUT_MAX)
@@ -1520,7 +1530,7 @@ class Misc:
             Inputs.click(coords.AUG_MINUS_X, coords.AUGMENT[k].y)
     
     @staticmethod
-    def save_check():
+    def save_check() -> None:
         """Check if we can do the daily save for AP.
         Make sure no window in your browser pops up when you click the "Save"
         button, otherwise sit will mess with the rest of the script.
@@ -1531,7 +1541,7 @@ class Misc:
     
     # crops the misc breakdown image, cutting off empty space on the right
     @staticmethod
-    def __cutoff_right(bmp):
+    def __cutoff_right(bmp) -> Image:
         first_pix = bmp.getpixel((0, 0))
         width, height = bmp.size
         
@@ -1553,7 +1563,7 @@ class Misc:
     
     # splits the three parts of the resource breakdown (pow, bars, cap)
     @staticmethod
-    def __split_breakdown(bmp):
+    def __split_breakdown(bmp) -> List[Image]:
         first_pix = bmp.getpixel((0, 0))
         width, height = bmp.size
         y1 = 1
@@ -1581,7 +1591,7 @@ class Misc:
     # Sends all thre images to OCR
     # Returns a list of lists of the numbers from stats breakdown
     @staticmethod
-    def __get_res_breakdown(resource, ocrDebug=False, bmp=None, debug=False):
+    def __get_res_breakdown(resource, ocrDebug=False, bmp=None, debug=False) -> List[List[str]]:
         Navigation.stat_breakdown()
         
         if   resource == 1: Inputs.click(*coords.BREAKDOWN_E)
@@ -1592,12 +1602,13 @@ class Misc:
         if bmp is None:
             bmp = Inputs.get_cropped_bitmap(*Window.gameCoords(*coords.OCR_BREAKDOWN_COLONS))
         if debug: bmp.show()
+
         imgs = Misc.__split_breakdown(bmp)
         
         ress = []
         for img in imgs:
             if debug: img.show()
-            s = Inputs.ocr(0, 0, 0, 0, bmp=img, debug=ocrDebug, whiten=True, sliced=True)
+            s = Inputs.ocr(0, 0, 0, 0, bmp=img, debug=ocrDebug, binf=220, sliced=True)
             s = s.splitlines()
             s2 = [x for x in s if x != ""]  # remove empty lines
             ress.append(s2)
@@ -1607,12 +1618,12 @@ class Misc:
     # Gets the numbers on stats breakdown for the resource and value passed
     # val = 0 for power, 1 for bars and 2 for cap
     @staticmethod
-    def __get_res_val(resource, val):
+    def __get_res_val(resource, val) -> int:
         s = Misc.__get_res_breakdown(resource)[val][-1]
         return Inputs.get_numbers(s)[0]
     
     @staticmethod
-    def get_pow(resource):
+    def get_pow(resource :int) -> int:
         """Get the power for energy, magic, or resource 3.
         
         Keyword arguments
@@ -1621,7 +1632,7 @@ class Misc:
         return Misc.__get_res_val(resource, 0)
     
     @staticmethod
-    def get_bars(resource):
+    def get_bars(resource :int) -> int:
         """Get the bars for energy, magic, or resource 3.
         
         Keyword arguments
@@ -1630,7 +1641,7 @@ class Misc:
         return Misc.__get_res_val(resource, 1)
     
     @staticmethod
-    def get_cap(resource):
+    def get_cap(resource :int) -> int:
         """Get the cap for energy, magic, or resource 3.
         
         Keyword arguments
@@ -1639,7 +1650,7 @@ class Misc:
         return Misc.__get_res_val(resource, 2)
     
     @staticmethod
-    def get_idle_cap(resource):
+    def get_idle_cap(resource :int) -> int:
         """Get the available idle energy, magic, or resource 3.
         
         Keyword arguments
@@ -1660,7 +1671,7 @@ class Misc:
             return 0
 
     @staticmethod
-    def set_input(value):
+    def set_input(value :int) -> None:
         """Sets a value in the input box.
         Requires the current menu to have an imput box.
         
@@ -1672,7 +1683,7 @@ class Misc:
         Misc.waste_click()
     
     @staticmethod
-    def waste_click():
+    def waste_click() -> None:
         """Make a click that does nothing"""
         Inputs.click(*coords.WASTE_CLICK)
         time.sleep(userset.FAST_SLEEP)
