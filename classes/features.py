@@ -579,8 +579,9 @@ class Inventory:
         """
         Navigation.menu("inventory")
         for slot in coords.EQUIPMENT_SLOTS:
-            if boost_cube and slot == "cube":
-                Inventory.boost_cube()
+            if slot == "cube":
+                if boost_cube:
+                    Inventory.boost_cube()
                 return
             Inputs.click(*coords.EQUIPMENT_SLOTS[slot])
             Inputs.send_string("a")
