@@ -331,9 +331,9 @@ class Inputs:
         return Inputs.rgb_to_hex((r, g, b))
 
     @staticmethod
-    def check_pixel_color(x :int, y :int, checks :Iterable[str]) -> bool:
+    def check_pixel_color(x :int, y :int, checks :Iterable[str], debug :bool =False) -> bool:
         """Check if coordinate matches with one or more colors."""
-        color = Inputs.get_pixel_color(x, y)
+        color = Inputs.get_pixel_color(x, y, debug=debug)
         if isinstance(checks, list):
             for check in checks:
                 if check == color:

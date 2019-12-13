@@ -337,7 +337,8 @@ class Adventure:
                 continue
             if "ready" in line:
                 ready.append(i)
-            i += 1
+            if "spawn" in line:
+                i += 1
         return ready
     
     @staticmethod
@@ -349,6 +350,8 @@ class Adventure:
         mega   -- Use Mega Buff
         """
         Navigation.menu("adventure")
+        Inputs.click(*coords.WASTE_CLICK) # close any tooltips
+        
         if Inputs.check_pixel_color(*coords.IS_IDLE):
             Inputs.click(*coords.ABILITY_IDLE_MODE)
         
