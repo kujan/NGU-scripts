@@ -1093,6 +1093,12 @@ class GoldDiggers:
         Inputs.click(*coords.DIG_DEACTIVATE_ALL)
     
     @staticmethod
+    def activate_all_diggers() -> None:
+        """Click activate all in digger menu."""
+        Navigation.menu("digger")
+        Inputs.click(*coords.DIG_CAP_ALL)
+    
+    @staticmethod
     def level_diggers() -> None:
         """Level all diggers."""
         Navigation.menu("digger")

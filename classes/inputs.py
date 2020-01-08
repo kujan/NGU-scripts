@@ -111,6 +111,8 @@ class Inputs:
     def send_string(string :str) -> None:
         """Send one or multiple characters to the Window."""
         # Ensure it's a string by converting it to a string
+        if isinstance(string, float):
+            string = int(string)
         for c in str(string):
             # Make sure no key modifier is pressed
             while (win32api.GetKeyState(wcon.VK_CONTROL) < 0 or
