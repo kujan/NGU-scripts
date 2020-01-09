@@ -1497,6 +1497,12 @@ class Misc:
         for coord in coords.BM_RECLAIM:
             Inputs.click(*coord)
     
+        @staticmethod
+    def activate_all_bm() -> None:
+        """Click activate all in blood menu."""
+        Navigation.menu("bloodmagic")
+        Inputs.click(*coords.BM_CAP_ALL)
+    
     @staticmethod
     def reclaim_ngu(magic :bool =False) -> None:
         """Remove all e/m from NGUs."""
