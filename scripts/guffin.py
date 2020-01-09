@@ -169,6 +169,7 @@ class GuffinRun:
         FightBoss.fight()
         Adventure.adventure(itopodauto=True)
         MoneyPit.pit()
+        MoneyPit.spin()
         Misc.save_check()
         while GuffinRun.rb_time < GuffinRun.max_rb_duration:
             time.sleep(1)

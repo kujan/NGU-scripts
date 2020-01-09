@@ -90,9 +90,10 @@ class MoneyPit:
     @staticmethod
     def spin() -> None:
         """Spin the wheel."""
-        Navigation.menu("pit")
-        Inputs.click(*coords.SPIN_MENU)
-        Inputs.click(*coords.SPIN)
+        if Inputs.check_pixel_color(*coords.IS_SPIN_READY):
+           Navigation.menu("pit")
+           Inputs.click(*coords.SPIN_MENU)
+           Inputs.click(*coords.SPIN)
 
 class Adventure:
     current_adventure_zone = 0
