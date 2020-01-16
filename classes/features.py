@@ -90,9 +90,10 @@ class MoneyPit:
     @staticmethod
     def spin() -> None:
         """Spin the wheel."""
-        Navigation.menu("pit")
-        Inputs.click(*coords.SPIN_MENU)
-        Inputs.click(*coords.SPIN)
+        if Inputs.check_pixel_color(*coords.IS_SPIN_READY):
+           Navigation.menu("pit")
+           Inputs.click(*coords.SPIN_MENU)
+           Inputs.click(*coords.SPIN)
 
 class Adventure:
     current_adventure_zone = 0
@@ -805,6 +806,12 @@ class BloodMagic:
             Inputs.click(*coords.BM[i])
     
     @staticmethod
+    def activate_all_bm() -> None:
+        """Click activate all in BM menu."""
+        Navigation.menu("bloodmagic")
+        Inputs.click(*coords.BM_CAP_ALL)
+
+    @staticmethod
     @deprecated(version='0.1', reason="speedrun_bloodpill is deprecated, use iron_pill() instead")
     def speedrun_bloodpill():
         """Deprecated"""
@@ -1496,7 +1503,7 @@ class Misc:
         Misc.set_input(coords.INPUT_MAX)
         for coord in coords.BM_RECLAIM:
             Inputs.click(*coord)
-    
+   
     @staticmethod
     def reclaim_ngu(magic :bool =False) -> None:
         """Remove all e/m from NGUs."""
