@@ -237,7 +237,6 @@ class Adventure:
                 else:
                     if manual:
                         Adventure.kill_enemy()
-                        return
                     else:
                         Inputs.click(*coords.ABILITY_REGULAR_ATTACK)
             time.sleep(0.01)
