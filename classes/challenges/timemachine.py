@@ -1,11 +1,11 @@
 """Contains functions for running a no time machine challenge."""
-from classes.features import FightBoss, Adventure, MoneyPit
+from classes.features import FightBoss, Adventure, MoneyPit, BasicTraining
 from classes.features import Wandoos, Augmentation, Rebirth, Misc, BloodMagic
 from classes.inputs   import Inputs
 
 import coordinates as coords
 import time
-
+import usersettings as userset
 
 buster_assigned = False
 final_aug = False
@@ -19,6 +19,9 @@ def first_rebirth(duration):
 
     FightBoss.nuke()
     Adventure.adventure(highest=True)
+    
+    BasicTraining.basic_training(userset.BSC_TRAINING_ENERGY)
+    
     while Inputs.check_pixel_color(*coords.COLOR_TM_LOCKED):
         if not ss_assigned:
             time.sleep(1)
@@ -82,6 +85,8 @@ def speedrun(duration):
     FightBoss.nuke()
     time.sleep(2)
     Adventure.adventure(highest=True)
+    
+    BasicTraining.basic_training(userset.BSC_TRAINING_ENERGY)
 
     try:
         current_boss = int(FightBoss.get_current_boss())

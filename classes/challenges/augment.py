@@ -1,11 +1,11 @@
 """Contains functions for running a no augments challenge."""
-from classes.features import FightBoss, Adventure, Wandoos, BloodMagic
+from classes.features import FightBoss, Adventure, Wandoos, BloodMagic, BasicTraining
 from classes.features import GoldDiggers, TimeMachine, Misc, Rebirth
 from classes.inputs   import Inputs
 
 import coordinates as coords
 import time
-
+import usersettings as userset
 
 def normal_rebirth(duration):
     """Procedure for first rebirth."""
@@ -14,6 +14,7 @@ def normal_rebirth(duration):
     time.sleep(2)
     FightBoss.fight()
     Adventure.adventure(highest=True)
+    BasicTraining.basic_training(userset.BSC_TRAINING_ENERGY)
     Wandoos.set_wandoos(1)  # wandoos Meh, use 0 for 98
     BloodMagic.toggle_auto_spells(drop=False)
     GoldDiggers.gold_diggers(diggers)

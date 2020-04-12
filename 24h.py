@@ -3,7 +3,7 @@ import time
 # Helper classes
 from classes.features   import (AdvancedTraining, Adventure, Augmentation, FightBoss, Inventory, Misc,
                                 BloodMagic, GoldDiggers, NGU, Wandoos, TimeMachine, MoneyPit, Rebirth,
-                                Questing, Yggdrasil)
+                                Questing, Yggdrasil, BasicTraining)
 from classes.helper     import Helper
 
 # Set these to your own loadouts
@@ -20,11 +20,13 @@ def rebirth_init(rt):
     FightBoss.nuke(101)  # PPP
     Inventory.loadout(respawn_loadout)
     Adventure.adventure(highest=True)
+    BasicTraining.basic_training(BSC_TRAINING_ENERGY)
     TimeMachine.time_machine(5e11, magic=True)
     Augmentation.augments({"CI": 0.7, "ML": 0.3}, 1e12)
     BloodMagic.blood_magic(8)
     BloodMagic.toggle_auto_spells()
     GoldDiggers.gold_diggers()
+    
 
     if rt.timestamp.tm_hour > 0 or rt.timestamp.tm_min >= 13:
         print("assigning adv training")
