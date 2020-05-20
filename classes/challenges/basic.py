@@ -1,11 +1,11 @@
 """Contains functions for running a basic challenge."""
-from classes.features import Wandoos, FightBoss, Adventure, Augmentation, GoldDiggers
+from classes.features import Wandoos, FightBoss, Adventure, Augmentation, GoldDiggers, BasicTraining
 from classes.features import AdvancedTraining, Rebirth, Misc, TimeMachine, BloodMagic
 from classes.inputs   import Inputs
 
 import coordinates as coords
 import time
-
+import usersettings as userset
 
 current_boss = 1
 minutes_elapsed = 0
@@ -37,6 +37,7 @@ def speedrun(duration):
     time.sleep(2)
     FightBoss.fight()
     Adventure.adventure(highest=True)
+    BasicTraining.basic_training(userset.BSC_TRAINING_ENERGY)
     update_gamestate()
 
     while current_boss < 18 and minutes_elapsed < duration:  # augs unlocks after 17

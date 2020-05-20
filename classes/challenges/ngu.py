@@ -1,11 +1,11 @@
 """Contains functions for running a no NGU challenge."""
 from classes.features import FightBoss, Wandoos, Misc, Adventure, GoldDiggers, TimeMachine
-from classes.features import Augmentation, Rebirth, AdvancedTraining, BloodMagic
+from classes.features import Augmentation, Rebirth, AdvancedTraining, BloodMagic, BasicTraining
 from classes.inputs   import Inputs
 
 import coordinates as coords
 import time
-
+import usersettings as userset
 
 current_boss = 1
 minutes_elapsed = 0
@@ -23,6 +23,8 @@ def first_rebirth(duration):
     advanced_training_locked = True
     bm_locked = True
     tm_locked = True
+    
+    BasicTraining.basic_training(userset.BSC_TRAINING_ENERGY)
 
     while current_boss < 18 and minutes_elapsed < duration:
         Wandoos.wandoos(True, True)
@@ -55,6 +57,7 @@ def speedrun(duration):
     time.sleep(2)
     FightBoss.fight()
     Adventure.adventure(highest=True)
+    BasicTraining.basic_training(userset.BSC_TRAINING_ENERGY)
     current_boss = 1
     minutes_elapsed = 0
     advanced_training_locked = True

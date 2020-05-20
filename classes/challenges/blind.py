@@ -1,11 +1,11 @@
 """Contains functions for running a blind challenge."""
-from classes.features import FightBoss, Adventure, Augmentation, GoldDiggers
+from classes.features import FightBoss, Adventure, Augmentation, GoldDiggers, BasicTraining
 from classes.features import Wandoos, TimeMachine, BloodMagic, Rebirth
 from classes.inputs   import Inputs
 
 import coordinates as coords
 import time
-
+import usersettings as userset
 
 advanced_training_locked = True
 bm_locked = True
@@ -28,6 +28,7 @@ def run(duration):
     FightBoss.fight()
     diggers = [2, 3, 11, 12]
     Adventure.adventure(highest=True)
+    BasicTraining.basic_training(userset.BSC_TRAINING_ENERGY)
     Augmentation.augments({"SS": 1}, 1e12)
     GoldDiggers.gold_diggers(diggers)
     while time.time() < end:

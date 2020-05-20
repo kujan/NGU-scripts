@@ -1,9 +1,9 @@
 """Contains functions for running a laser sword challenge."""
 from classes.features import FightBoss, Wandoos, Adventure, TimeMachine, Misc
-from classes.features import GoldDiggers, BloodMagic, Augmentation, Rebirth
+from classes.features import GoldDiggers, BloodMagic, Augmentation, Rebirth, BasicTraining
 
 import time
-
+import usersettings as userset
 
 def speedrun():
     """Start a speedrun.
@@ -16,6 +16,7 @@ def speedrun():
     FightBoss.nuke()
     Wandoos.set_wandoos(0)
     Adventure.adventure(highest=True)
+    BasicTraining.basic_training(userset.BSC_TRAINING_ENERGY)
     TimeMachine.time_machine(Misc.get_idle_cap(1) * 0.01, magic=True)
     GoldDiggers.gold_diggers(diggers)
     Wandoos.wandoos(True, True)

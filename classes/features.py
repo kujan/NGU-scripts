@@ -764,6 +764,23 @@ class AdvancedTraining:
             if ability == 5:
                 Inputs.click(*coords.ADV_TRAINING_WANDOOS_MAGIC)
 
+class BasicTraining:
+    @staticmethod
+    def basic_training(energy :int) -> None:
+        """Assign energy to basic training.
+        
+        REQUIREMENT: AutoAdvance for basic training
+        
+        INPUT energy will be devised equally between attack and defense (Idle, Block)
+        """
+        Navigation.menu("bsctraining")
+        
+        energy = energy // 2
+        Misc.set_input(energy)
+        Inputs.click(*coords.BSC_TRAINING_IDLE)
+        Inputs.click(*coords.BSC_TRAINING_BLOCK)
+
+
 class TimeMachine:
     @staticmethod
     def time_machine(e :int, m :int =0, magic :bool =False) -> None:

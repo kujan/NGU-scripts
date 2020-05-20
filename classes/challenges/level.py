@@ -1,9 +1,9 @@
 """Contains functions for running a 100 level challenge."""
-from classes.features import FightBoss, Adventure, Augmentation, GoldDiggers, Rebirth, Misc
+from classes.features import FightBoss, Adventure, Augmentation, GoldDiggers, Rebirth, Misc, BasicTraining
 
 import coordinates as coords
 import time
-
+import usersettings as userset
 
 def speedrun(duration):
     """Procedure for first rebirth in a 100LC."""
@@ -12,6 +12,7 @@ def speedrun(duration):
     FightBoss.fight()
     diggers = [2, 3, 11, 12]
     Adventure.adventure(highest=True)
+    BasicTraining.basic_training(userset.BSC_TRAINING_ENERGY)
     current_boss = int(FightBoss.get_current_boss())
     if current_boss > 48:
         Augmentation.augments({"EB": 0.66, "CS": 0.34}, Misc.get_idle_cap(1))

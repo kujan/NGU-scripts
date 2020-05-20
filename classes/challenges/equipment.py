@@ -1,5 +1,5 @@
 """Contains functions for running a no equipment challenge."""
-from classes.features import Rebirth, Wandoos, BloodMagic, MoneyPit
+from classes.features import Rebirth, Wandoos, BloodMagic, MoneyPit, BasicTraining
 from classes.features import GoldDiggers, Augmentation, FightBoss, Adventure
 from classes.inputs   import Inputs
 
@@ -21,6 +21,8 @@ def speedrun(duration):
     FightBoss.fight()
     Adventure.adventure(highest=True)
     time.sleep(2)
+
+    BasicTraining.basic_training(BSC_TRAINING_ENERGY)
 
     rb_time = Rebirth.get_rebirth_time()
     while int(rb_time.timestamp.tm_min) < duration:

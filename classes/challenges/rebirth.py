@@ -1,12 +1,12 @@
 """Contains functions for running a no rebirth challenge."""
 from classes.features import FightBoss, GoldDiggers, Adventure, Augmentation
-from classes.features import BloodMagic, Wandoos, TimeMachine, Misc
+from classes.features import BloodMagic, Wandoos, TimeMachine, Misc, BasicTraining
 from classes.features import Rebirth as RB
 from classes.inputs   import Inputs
 
 import coordinates  as coords
 import time
-
+import usersettings as userset
 
 def first_rebirth():
     """Procedure for first rebirth."""
@@ -20,6 +20,9 @@ def first_rebirth():
 
     FightBoss.fight()
     Adventure.adventure(highest=True)
+    
+    BasicTraining.basic_training(userset.BSC_TRAINING_ENERGY)
+    
     while Inputs.check_pixel_color(*coords.COLOR_TM_LOCKED):
         if not ss_assigned:
             time.sleep(1)
